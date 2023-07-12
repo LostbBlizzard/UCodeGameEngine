@@ -1,0 +1,25 @@
+_Windows:
+  -
+    - ProjectFiles
+    - "_LookingAtDir: \"\""
+    - ProjectFiles##1
+  -
+    - InspectWindow
+    - "{}"
+    - InspectWindow##2
+  -
+    - GameEditorWindow
+    - "_ScenePath: \"null\""
+    - GameEditorWindow##3
+  -
+    - ConsoleWindow
+    - "{}"
+    - ConsoleWindow##4
+  -
+    - TextEditor
+    - "_LookingAtFile: \"null\""
+    - TextEditor##6
+  -
+    - ProjectWindow
+    - "{}"
+    - ProjectWindow##7

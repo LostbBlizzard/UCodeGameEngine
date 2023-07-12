@@ -1,0 +1,4 @@
+
+-physics
+
+Physics Components dont have an implementation thay just use PhysicsRunTime2d object just like in Rendering

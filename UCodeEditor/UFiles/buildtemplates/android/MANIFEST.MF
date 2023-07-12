@@ -1,0 +1,7 @@
+<manifest>
+    <application
+      android:name= [##GameName##]
+      android:appCategory="game"
+      android:logo= [##logo##]
+    </application>
+</manifest>
