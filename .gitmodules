@@ -1,0 +1,27 @@
+[submodule "Dependencies/plog"]
+	path = Dependencies/plog
+	url = https://github.com/LostbBlizzard/plog
+[submodule "Dependencies/GLFW"]
+	path = Dependencies/GLFW
+	url = https://github.com/LostbBlizzard/glfw
+[submodule "Dependencies/Imgui"]
+	path = Dependencies/Imgui
+	url = https://github.com/LostbBlizzard/imgui-docking
+[submodule "Dependencies/glm"]
+	path = Dependencies/glm
+	url = https://github.com/LostbBlizzard/glm
+[submodule "Dependencies/yaml-cpp"]
+	path = Dependencies/yaml-cpp
+	url = https://github.com/LostbBlizzard/yaml-cpp
+[submodule "Dependencies/UCodeLang"]
+	path = Dependencies/UCodeLang
+	url = https://github.com/LostbBlizzard/UCodeLang
+[submodule "Dependencies/SPIRV-Cross"]
+	path = Dependencies/SPIRV-Cross
+	url = https://github.com/LostbBlizzard/SPIRV-Cross-MoltenVK-1.1
+[submodule "Dependencies/glslang"]
+	path = Dependencies/glslang
+	url = https://github.com/LostbBlizzard/glslang
+[submodule "Dependencies/box2d"]
+	path = Dependencies/box2d
+	url = https://github.com/LostbBlizzard/box2d
