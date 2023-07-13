@@ -65,7 +65,7 @@ private:
 	WebBuildSetings WebSettings;
 	AndroidBuildSetings AndroidSettings;
 
-	UCode::AsynTask_t<void> _Task;
+	UCode::AsynTask _Task;
 };
 
 EditorEnd

@@ -148,4 +148,12 @@ FileBuffer::~FileBuffer()
 {
 	Close();
 }
+FileBuffer::FileBuffer(FileBuffer&& source)
+{
+	throw std::exception("not added");
+}
+FileBuffer& FileBuffer::operator=(FileBuffer&& source)
+{
+	throw std::exception("not added");
+}
 CoreEnd

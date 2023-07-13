@@ -172,6 +172,10 @@ Unique_Bytes GameFiles::ReadFileAsBytes(const Path& Path)
 		return {};
 	}
 }
+Unique_Bytes GameFiles::ReadFileAsBytes(const Path& Path, size_t Offset, size_t Size)
+{
+	return Unique_Bytes();
+}
 bool GameFiles::MakeDir(const String& text)
 {
 	return fs::create_directory(text);
@@ -303,7 +307,81 @@ void GameFiles::Writetext(StringView text, const Path& Path)
 
 void GameFiles::SetFileBuffer(FileBuffer&& Buffer)
 {
-	UCODE_ENGINE_THROWEXCEPTION("Not Added");
+	_FileBuffer = std::move(Buffer);
+}
+AsynTask_t<Unique_Bytes> GameFiles::AsynReadGameFileFullBytes(const Path& Path)
+{
+	throw std::exception("?");
+	return {};
+}
+AsynTask_t<Unique_Bytes> GameFiles::AsynReadGameFileBytes(const Path& Path, size_t Offset, size_t Bytes)
+{
+	throw std::exception("?");
+	return {};
+}
+AsynTask_t<Unique_Bytes> GameFiles::AsynReadFileFullBytes(const Path& path)
+{
+	auto threads = UCode::BookOfThreads::Get(Getlibrary());
+
+	Path p = path;
+	auto Func = [p]()
+	{
+		return GameFiles::ReadFileAsBytes(p);
+	};
+	UCode::Delegate<Unique_Bytes> V = Func;
+	return threads->AddTask_t(TaskType::File_Input, std::move(V));
+}
+AsynTask_t<Unique_Bytes> GameFiles::AsynReadFileBytes(const Path& path, size_t Offset, size_t Bytes)
+{
+	auto threads = UCode::BookOfThreads::Get(Getlibrary());
+
+	Path p = path;
+	auto Func = [p, Offset, Bytes]()
+	{
+		return GameFiles::ReadFileAsBytes(p,Offset,Bytes);
+	};
+	UCode::Delegate<Unique_Bytes> V = Func;
+	return threads->AddTask_t(TaskType::File_Input, std::move(V));
+}
+AsynTask_t<String> GameFiles::AsynReadGameFileString(const Path& path)
+{
+	bool IsFile = _FileBuffer.IsOpen();
+	if (IsFile)
+	{
+		throw std::exception("?");
+	}
+	else
+	{
+		return AsynReadFileString(path);
+	}
+}
+AsynTask_t<String> GameFiles::AsynReadFileString(const Path& path)
+{
+	auto threads = UCode::BookOfThreads::Get(Getlibrary());
+
+	Path p = path;
+	auto Func = [p]()
+	{
+		return GameFiles::ReadFileAsString(p);
+	};
+	UCode::Delegate<String> V = Func;
+	return threads->AddTask_t(TaskType::File_Input,std::move(V));
+}
+
+Path GameFiles::GetFilePathByMove(const Path& path)
+{
+	if (_Data._Type == GameFilesData::Type::ThisFile)
+	{
+		throw std::exception("not added");
+	}
+	else 
+	{
+		return Path(_Data._RedirectDir.native() + path.native());
+	}
+}
+AsynTask_t<Path> GameFiles::AsynGetFilePathByMove(const Path& path)
+{
+	throw std::exception("not added");
 }
 //
 CoreEnd

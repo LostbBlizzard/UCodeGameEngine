@@ -4,7 +4,7 @@
 #include <UCodeRunTime/RunTimeBasicTypes/Vector.hpp>
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 #include <UCodeRunTime/RunTimeBasicTypes/Delegate.hpp>
-
+#include <UCodeRunTime/RunTimeBasicTypes/unordered_map.hpp>
 #include <mutex>
 #include <thread>
 #include <functional>
@@ -12,43 +12,186 @@
 #include <future>
 CoreStart
 
-struct AsynTask
-{
+typedef unsigned char ThreadToRunID;
+using TaskID = int;
 
+static constexpr ThreadToRunID AnyThread = 0;
+static constexpr ThreadToRunID MainThread = 1;
+ 
+thread_local ThreadToRunID CurrentThread;
+
+
+
+
+enum class TaskType
+{
+	Generic,
+	FileIO,
+	NetWorkIO,
+
+	File_Input = FileIO,
+	File_Output = FileIO,
 };
 
+
+class BookOfThreads;
 template<typename T>
-using AsynTask_t = std::future<T>;
+struct AsynTask_t
+{
+	friend BookOfThreads;
+	using ThisType = AsynTask_t<T>;
+	using OnDoneFuncPtr = Delegate<void,T>;
+	using Future = std::future<T>;
+
+	
+	
+	AsynTask_t(Future&& Item)
+		: Base(std::move(Item))
+	{
+
+	}
+	
+	AsynTask_t()
+	{
+		RemoveCallID(_TastID);
+	}
+	
+	ThisType& operator=(Future&& Item)
+	{
+		Base = Item;
+		return *this;
+	}
+
+	//Calls this Funcion on the same Thread it was made on.
+	ThisType& OnCompletedCurrentThread(OnDoneFuncPtr&& Value)
+	{
+		OnDone = Value;
+		return *this;
+	}
+	//Calls this Funcion on the same Thread it was made on.
+	ThisType& OnCompletedOnAnyThread(OnDoneFuncPtr&& Value)
+	{
+		return OnCompletedOnThread(Value, AnyThread);
+	}
+
+	ThisType& OnCompletedOnThread(OnDoneFuncPtr&& Value,TaskType task)
+	{
+		return  OnCompletedOnThread(Value, AnyThread);
+	}
+
+	ThisType& OnCompletedOnThread(OnDoneFuncPtr&& Value,ThreadToRunID Thread)
+	{
+		OnDoneInfo V;
+		V.OnDone = std::move(Value);
+		V.ThreadToRun = Thread;
+		AddCallDone(_TastID, V);
+		return *this;
+	}
+
+
+	T GetValue()
+	{
+		return Base.get();
+	}
+	T* TryGet()
+	{
+		if (Base._Is_ready())
+		{
+			return Base.get();
+		}
+		return nullptr;
+	}
+	bool valid()
+	{
+		return Base.valid();
+	}
+	void wait_for()
+	{
+		return Base.wait_for();
+	}
+	void wait()
+	{
+		return Base.wait();
+	}
+	bool IsDone()
+	{
+		return Base._Is_ready();
+	}
+private:
+	Future Base;
+	TaskID _TastID = 0;
+
+	struct OnDoneInfo
+	{
+		OnDoneFuncPtr OnDone;
+		ThreadToRunID ThreadToRun = AnyThread;
+	};
+	
+	inline static std::mutex _DoneLock;
+	inline static BinaryVectorMap< TaskID, OnDoneInfo> _Map;
+	
+	static void AddCallDone(TaskID ID,const OnDoneInfo& Info)
+	{
+		_DoneLock.lock();
+		_Map.AddValue(ID, Info);
+		_DoneLock.unlock();
+	}
+	static bool HasOnDone(TaskID ID)
+	{
+		return _Map.HasValue(ID);
+	}
+	static void TryCallOnDone(TaskID ID,T&& Move)
+	{
+		_DoneLock.lock();
+		if (_Map.HasValue(ID)) 
+		{
+			auto& V = _Map.at(ID);
+
+			if (V.OnDone)
+			{
+				//if (V.ThreadToRun == CurrentThread)
+				{
+					V.OnDone(std::move(Move));
+				}
+				//else
+				{
+					
+				}
+			}
+		}
+		_DoneLock.unlock();
+	}
+	static void RemoveCallID(TaskID ID)
+	{
+		_DoneLock.lock();
+		_Map.erase(ID);
+		_DoneLock.unlock();
+	}
+
+	
+};
+using AsynTask = AsynTask_t<bool>;
 
 class BookOfThreads :private libraryBook
 {
 public:
 	
 	using FuncPtr = Delegate<void>;
+	
 	struct TastInfo
 	{
 		FuncPtr _Func;
 	};
-	enum class TaskType
-	{
-		Generic,
-		FileIO,
-		NetWorkIO,
 
-		File_Input = FileIO,
-		File_Output = FileIO,
-	};
-	typedef unsigned char ThreadLockKey;
-	static constexpr ThreadLockKey AnyThread = 0;
 
 	static BookOfThreads* Get(Gamelibrary* lib);
 	static BookOfThreads* Find(const Gamelibrary* lib);
 	
-	ThreadLockKey GetNewThreadLockKey();
-	void FreeThreadLock(ThreadLockKey key);
+	ThreadToRunID GetNewThreadLockKey();
+	void FreeThreadLock(ThreadToRunID key);
 
 
-	AsynTask AddTask(ThreadLockKey thread,FuncPtr Func);
+	AsynTask AddTask(ThreadToRunID thread,FuncPtr Func);
 	AsynTask AddTask(TaskType TaskType, FuncPtr Func);
 
 	template<typename... Pars>
@@ -66,60 +209,47 @@ public:
 		return AddTask(TaskType, Ptr);
 	}
 
-	template<typename T,typename... Pars>
-	AsynTask AddTask(TaskType TaskType,T* This, void(T::*Func)(Pars...), Pars...Par)
-	{
-		std::function<void()> Tep = [This, Func, Par...]
-		{
-			(*This.*Func)(Par...);
-		};
-		FuncPtr Ptr(Tep);
-		return AddTask(TaskType, Ptr);
-	}
-
-
-
-	template <typename... Pars, typename R>
-	AsynTask_t<R> AddTask_t(R(*Func)(Pars...), Pars...Par)
-	{
-		return AddTask(TaskType::Generic, Func, Par...);
-	}
-
-	template <typename... Pars, typename R>
-	AsynTask_t<R> AddTask_t(TaskType TaskType, R(*Func)(Pars...), Pars...Par)
-	{
-		std::function<R(Pars...)> task_function = [Func, Par...]
-		{
-			return Func(Par...);
-		};
-		return AddTask_t(TaskType, task_function);
-	}
-	template <typename T, typename... Pars, typename R>
-	AsynTask_t<R> AddTask_t(TaskType TaskType, T* This, R(T::* Func)(Pars...), Pars...Par)
-	{
-		std::function<R(Pars...)> task_function = [This, Func, Par...]
-		{
-			return (*This.*Func)(Par...);
-		};
-		return AddTask_t(TaskType, task_function);
-	}
-
 	
-	//From BS_thread_pool.hpp
-	template <typename... Pars, typename R>
+
+
+	//Based From BS_thread_pool.hpp
+	template <typename R,typename... Pars>
 	AsynTask_t<R> AddTask_t(TaskType TaskType, std::function<R(Pars...)> task_function)
 	{
 		auto task_promise =std::make_shared<std::packaged_task<R()>>(task_function);
 		FuncPtr NewPtr;
 		auto r = task_promise->get_future();
-		
-		NewPtr = [task = std::move(task_promise)]
+		AsynTask_t<R> Ret =std::move(r);
+
+		_TaskLock.lock();
+		Ret._TastID = _TastID++;
+		TaskID NewTasklID = Ret._TastID;
+		_TaskLock.unlock();
+
+		NewPtr = [NewTasklID,task = std::move(task_promise)]
 		{
 			(*task)();
+			if (AsynTask_t<R>::HasOnDone(NewTasklID)) {
+				AsynTask_t<R>::TryCallOnDone(NewTasklID,std::move(task->get_future().get()));
+			}
+
 		};
 		
-		AddTask(TaskType, NewPtr);
-		return r;
+		AddTask(TaskType, std::move(NewPtr));
+		return Ret;
+	}
+
+	template <typename... Pars>
+	AsynTask_t<bool> AddTask_t(TaskType TaskType, std::function<void(Pars...)> task_function)
+	{
+		Delegate<bool, Pars...> Func = [task_function = std::move(task_function)]()
+		{
+			task_function();
+
+			return true;
+		};
+
+		return AddTask_t<bool,Pars...>(TaskType, Func);
 	}
 
 	inline static BookOfThreads* Get_Threads()
@@ -141,7 +271,7 @@ private:
 	Vector<std::thread> _Threads;
 	Vector<TastInfo> _TaskToDo;
 	bool _EndThreads;
-	ThreadLockKey _NextLockKey;
+	ThreadToRunID _NextLockKey;
 
 
 	Vector<std::function<void()>> _TaskToDoOnMainThread;
@@ -150,5 +280,7 @@ private:
 	void CallTaskToDoOnMainThread();
 	
 	void Update() override;
+
+	TaskID _TastID;
 };
 CoreEnd

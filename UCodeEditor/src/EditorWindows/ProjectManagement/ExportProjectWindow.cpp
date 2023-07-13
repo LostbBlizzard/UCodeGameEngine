@@ -31,12 +31,11 @@ void ExportProjectWindow::UpdateWindow()
 	if (_Building)
 	{
 		
-		if (_Task.valid()) 
+		if (_Task.valid() && _Task.IsDone())
 		{
-			auto V = _Task.wait_for(std::chrono::seconds(0));
-
+		
 			ImGui::Text("Building Project...");
-			if (V == std::future_status::ready)
+			//if (V == std::future_status::ready)
 			{
 				auto ProjectInfo = Get_ProjectData();
 				auto OutputPath = ProjectInfo->GetOutDir();
@@ -177,12 +176,15 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 		RuningTask V;
 		V.TaskType = RuningTask::Type::BuildingProject;
 		RuningTasksInfo::AddTask(V);
-		
+
+		Delegate<void> Func = [buildSytem = &buildSytem]()
+		{
+			buildSytem->BuildProject();
+		};
+
 		_Task = Threads->AddTask_t(
-			UCode::BookOfThreads::TaskType::FileIO,
-			&buildSytem,
-			&BuildSytemManger::BuildProject);
-		
+			UCode::TaskType::FileIO,
+			Func);
 	}
 
 	
@@ -218,10 +220,14 @@ void ExportProjectWindow::ShowWebExportSeting()
 		V.TaskType = RuningTask::Type::BuildingProject;
 		RuningTasksInfo::AddTask(V);
 
+		Delegate<void> Func = [buildSytem = &buildSytem]()
+		{
+			buildSytem->BuildProject();
+		};
+	
 		_Task = Threads->AddTask_t(
-			UCode::BookOfThreads::TaskType::FileIO,
-			&buildSytem,
-			&BuildSytemManger::BuildProject);
+			UCode::TaskType::FileIO,
+			Func);
 
 	}
 
@@ -247,7 +253,7 @@ void ExportProjectWindow::ShowAndroidExportSeting()
 	AndroidBuildSetings& Info = AndroidSettings;
 
 	
-	if (ImGui::Button("Export", { ImGui::GetContentRegionAvail().x,20}))
+	if (ImGui::Button("Export", { ImGui::GetContentRegionAvail().x,20 }))
 	{
 		auto ProjectInfo = Get_ProjectData();
 		auto AssetsPath = ProjectInfo->GetAssetsDir();
@@ -267,10 +273,14 @@ void ExportProjectWindow::ShowAndroidExportSeting()
 		V.TaskType = RuningTask::Type::BuildingProject;
 		RuningTasksInfo::AddTask(V);
 
+		Delegate<void> Func = [buildSytem = &buildSytem]()
+		{
+			buildSytem->BuildProject();
+		};
+
 		_Task = Threads->AddTask_t(
-			UCode::BookOfThreads::TaskType::FileIO,
-			&buildSytem,
-			&BuildSytemManger::BuildProject);
+			UCode::TaskType::FileIO,
+			Func);
 	}
 	
 

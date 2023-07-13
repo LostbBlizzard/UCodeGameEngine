@@ -441,7 +441,28 @@ group "Dependencies"
 
     includedirs{
       "Dependencies/%{prj.name}",
+      "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/include",
     }
+   removefiles{
+     "Dependencies/%{prj.name}/UCodeLang/Dependencies/Zydis/**.c",
+     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/**.c",
+
+     "Dependencies/%{prj.name}/UCodeLang/Dependencies/Zydis/**.cpp",
+     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/**.cpp",
+
+     "Dependencies/%{prj.name}/UCodeLang/Dependencies/Zydis/**.h",
+     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/**.h",
+   }
+   files { 
+    "Dependencies/%{prj.name}/UCodeLang/Dependencies/Zydis/src/**.c",
+    "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/src/**.c",
+
+    "Dependencies/%{prj.name}/UCodeLang/Dependencies/Zydis/src/**.inc",
+    "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/src/**.inc",
+
+    "Dependencies/%{prj.name}/UCodeLang/Dependencies/Zydis/include/**.h",
+    "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/include/**.h",
+   }
   project "glslang"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"

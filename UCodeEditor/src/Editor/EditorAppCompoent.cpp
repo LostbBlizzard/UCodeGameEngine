@@ -26,13 +26,12 @@ EditorAppCompoent::EditorAppCompoent(UCode::Entity* entity) :
     UCode::Renderer2d(entity, nullptr),
     NextWindowId(0)
 {
-    AppFiles::Set_GameLib(GetGameRunTime()->Get_Library_Edit());
-
+    AppFiles::Init(GetGameRunTime()->Get_Library_Edit());
     
-    auto path = AppFiles::GetFilesDir().native() + ToPathChar("Art/OpenSans-VariableFont_wdth,wght.ttf");
+    auto path = AppFiles::ReadFileAsBytes(ToPathChar("Art/OpenSans-VariableFont_wdth,wght.ttf"));
 
     auto& io = ImGui::GetIO();
-    io.Fonts->AddFontFromFileTTF(Path(path).generic_string().c_str(), 16.0f);
+    io.Fonts->AddFontFromMemoryTTF(path.Pointer.get(), path.Size, 16.0f);
     io.FontDefault = io.Fonts->Fonts.back();
     
 

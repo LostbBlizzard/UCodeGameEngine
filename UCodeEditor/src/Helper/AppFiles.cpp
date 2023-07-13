@@ -80,14 +80,46 @@ const SpriteInfo SpriteInfos[]
 constexpr size_t TexturePaths_Size = sizeof(TexturePaths) / sizeof(TexturePaths[0]);
 constexpr size_t SpriteInfos_Size = sizeof(SpriteInfos) / sizeof(SpriteInfos[0]);
 
-
 #ifdef PUBLISHED
-const char* AppFilesPath = "UFiles//";
+const char* AppFilesPath = "UFiles.data";
+const char* AppFilesPathDir = "UFiles//";
 #else
-const char* AppFilesPath = UCodeEditor_VS_PROJECTPATH "UFiles//";
-#endif // 
+const char* AppFilesPath = UCodeEditor_VS_PROJECTPATH  "UFiles.data";
+const char* AppFilesPathDir = UCodeEditor_VS_PROJECTPATH "UFiles//";
+#endif
 
 
+void AppFiles::Init(UCode::Gamelibrary* lib)
+{
+    Path path;
+    if (std::filesystem::exists(AppFilesPath))
+    {
+        path = AppFilesPath;
+    }
+    else
+    {
+        path = AppFilesPathDir;
+    }
+
+    UCode::GameFilesData f;
+    if (std::filesystem::is_directory(path))
+    {
+        f._Type = UCode::GameFilesData::Type::Redirect;
+        f._RedirectDir = AppFilesPath;
+        GetGameFiles()->Init(lib, f);
+    }
+    else
+    {
+        UCode::FileBuffer Buffer;
+        if (UCode::GameFilesData::ReadFileKeepOpen(path, Buffer, f))
+        {
+            UCode::GameFiles* gamefiles = UCode::GameFiles::Init(lib, f);
+            gamefiles->SetFileBuffer(std::move(Buffer));
+
+        }
+    }
+    _GameLib = lib;
+}
 
 UCode::Texture* AppFiles::GetTexture(texture tex)
 {
@@ -156,9 +188,46 @@ UCode::Sprite* AppFiles::GetSprite(sprite tex)
     }
 }
 
-Path AppFiles::GetFilesDir()
+String AppFiles::ReadFileAsString(const Path& path)
 {
-    return AppFilesPath;
+    return GetGameFiles()->ReadFileAsString(path);
+}
+
+Unique_Bytes AppFiles::ReadFileAsBytes(const Path& path)
+{
+    return  GetGameFiles()->ReadFileAsBytes(path);
+}
+
+Unique_Bytes AppFiles::ReadFileAsBytes(const Path& path, size_t Offset, size_t Size)
+{
+    return  GetGameFiles()->ReadFileAsBytes(path,Offset,Size);
+}
+
+
+
+AsynTask_t<Path> AppFiles::AsynGetFilePathByMove(const Path& path)
+{
+    return GetGameFiles()->AsynGetFilePathByMove(path);
+}
+
+Path AppFiles::GetFilePathByMove(const Path& path)
+{
+    return  GetGameFiles()->GetFilePathByMove(path);
+}
+
+AsynTask_t<String> AppFiles::AsynReadFileString(const Path& path)
+{
+    return GetGameFiles()->AsynReadFileString(path);
+}
+
+AsynTask_t<Unique_Bytes> AppFiles::AsynReadFileAsBytes(const Path& path)
+{
+    return GetGameFiles()->AsynReadGameFileFullBytes(path);
+}
+
+AsynTask_t<Unique_Bytes> AppFiles::AsynReadFileAsBytes(const Path& path, size_t Offset, size_t Size)
+{
+    return GetGameFiles()->AsynReadGameFileBytes(path,Offset,Size);
 }
 
 AppFiles::sprite AppFiles::GetSprite(FileHelper::FileType type)

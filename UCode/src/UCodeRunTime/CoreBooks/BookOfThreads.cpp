@@ -6,6 +6,8 @@ CoreStart
 constexpr StaticBooksIndex_t KeyIdex = (StaticBooksIndex_t)StaticBooksIndex::BookOfThreads;
 
 static std::thread::id MainThreadID = {};
+static ThreadToRunID ThreadCount = MainThread+1;
+//thread_local ThreadToRunID CurrentThread = 0;
 
 //To Do set threads on static
 BookOfThreads::BookOfThreads(Gamelibrary* lib) :libraryBook(lib), _EndThreads(false), _NextLockKey(1)
@@ -15,10 +17,13 @@ BookOfThreads::BookOfThreads(Gamelibrary* lib) :libraryBook(lib), _EndThreads(fa
 	Threads = this;
 	const UInt32 num_threads = std::thread::hardware_concurrency();
 	_Threads.resize(num_threads);
+	
+	ThreadCount = MainThread + 1;
 	for (UInt32 i = 0; i < num_threads; i++)
 	{
 		_Threads.at(i) = std::thread(ThreadLoop,this);
 	}
+	
 }
 
 BookOfThreads::~BookOfThreads()
@@ -34,6 +39,10 @@ BookOfThreads::~BookOfThreads()
 }
 void BookOfThreads::ThreadLoop(BookOfThreads* _This)
 {
+	_This->_TaskLock.lock();
+	CurrentThread = ThreadCount++;
+	_This->_TaskLock.unlock();
+
 	while (true)
 	{
 		TastInfo Task;
@@ -74,7 +83,7 @@ void BookOfThreads::Update()
 	CallTaskToDoOnMainThread();
 }
 
-AsynTask BookOfThreads::AddTask(ThreadLockKey thread, FuncPtr Func)
+AsynTask BookOfThreads::AddTask(ThreadToRunID thread, FuncPtr Func)
 {
 
 	if (_Threads.size() == 0 || _Threads.size() == 1)
@@ -84,7 +93,7 @@ AsynTask BookOfThreads::AddTask(ThreadLockKey thread, FuncPtr Func)
 	}
 	else
 	{
-		if (thread != BookOfThreads::AnyThread) 
+		if (thread != AnyThread) 
 		{
 			UCODE_ENGINE_IMPlEMENTED_LATER;
 		}
@@ -107,7 +116,7 @@ AsynTask BookOfThreads::AddTask(ThreadLockKey thread, FuncPtr Func)
 }
 AsynTask BookOfThreads::AddTask(TaskType TaskType,FuncPtr Func)
 {
-	ThreadLockKey thread;
+	ThreadToRunID thread;
 	if (TaskType == TaskType::Generic)
 	{
 		thread = AnyThread;
@@ -137,7 +146,7 @@ BookOfThreads* BookOfThreads::Find(const Gamelibrary* lib)
 	return (BookOfThreads*)V;
 }
 
-BookOfThreads::ThreadLockKey BookOfThreads::GetNewThreadLockKey()
+ThreadToRunID BookOfThreads::GetNewThreadLockKey()
 {
 	_TaskLock.lock();
 
@@ -150,7 +159,7 @@ BookOfThreads::ThreadLockKey BookOfThreads::GetNewThreadLockKey()
 	return R;
 }
 
-void BookOfThreads::FreeThreadLock(ThreadLockKey key)
+void BookOfThreads::FreeThreadLock(ThreadToRunID key)
 {
 }
 

@@ -120,7 +120,8 @@ public:
 			{
 				if (Item->Get_Type() == UCodeLang::ClassType::Class) 
 				{
-					if (Item->Get_ClassData().HasAttribute(UScript_Attribute))
+					//if (Item->Get_ClassData().HasAttribute(UScript_Attribute))
+					if (true)
 					{
 						if (ImGui::MenuItem(Item->FullName.size() ? Item->FullName.c_str() : "noname"))
 						{
@@ -337,7 +338,7 @@ void CodeModule::FilesUpdated(const Vector<FileUpdateData>& paths)
 			task.TaskType = RuningTask::Type::BuildingUCodeFiles;
 			RuningTasksInfo::AddTask(task);
 
-			Threads->AddTask_t(UCode::BookOfThreads::TaskType::FileIO, OnOtherThread);
+			Threads->AddTask_t(UCode::TaskType::FileIO, OnOtherThread);
 		}
 	}
 }
