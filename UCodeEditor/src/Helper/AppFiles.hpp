@@ -73,13 +73,26 @@ public:
 		//
 		Max_Value,
 	};
-	
+	static void Init(UCode::Gamelibrary* lib);
 	static UCode::Texture* GetTexture(texture tex);
 	static UCode::Sprite* GetSprite(sprite tex);
 
-	static Path GetFilesDir();
+	static String ReadFileAsString(const Path& Path);
+	static Unique_Bytes ReadFileAsBytes(const Path& Path);
+	static Unique_Bytes ReadFileAsBytes(const Path& Path, size_t Offset, size_t Size);
+
+
+	static AsynTask_t<String> AsynReadFileString(const Path& Path);
+	static AsynTask_t<Unique_Bytes> AsynReadFileAsBytes(const Path& Path);
+	static AsynTask_t<Unique_Bytes> AsynReadFileAsBytes(const Path& Path, size_t Offset, size_t Size);
+	static AsynTask_t<Path> AsynGetFilePathByMove(const Path& Path);
+
+
+	static Path GetFilePathByMove(const Path& Path);
+
+
+
 	static AppFiles::sprite GetSprite(FileHelper::FileType type);
-	static UCODE_EDITOR_FORCEINLINE void Set_GameLib(UCode::Gamelibrary* lib) { _GameLib = lib; }
 private:
 	inline static Unordered_map<texture_t, UCode::Texture*> _textures;
 	inline static Unordered_map<Sprite_t, UCode::Sprite*> _sprites;
@@ -88,5 +101,9 @@ private:
 	
 	inline static Vector<Unique_ptr<UCode::Texture>> _LoadedTextures;
 	inline static Vector<Unique_ptr<UCode::Sprite>> _LoadedSprite;
+	inline static UCode::GameFiles* GetGameFiles()
+	{
+		return UCode::GameFiles::Get(_GameLib);
+	}
 };
 EditorEnd

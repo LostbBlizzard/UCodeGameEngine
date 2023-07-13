@@ -5,6 +5,7 @@
 #include <UCodeRunTime/RunTimeBasicTypes/Delegate.hpp>
 #include <UCodeRunTime/RunTimeBasicTypes/ManagedPtr.hpp>
 #include <UCodeLang/LangCore/DataType/BinaryVectorMap.hpp>
+#include <UCodeRunTime/CoreBooks/BookOfThreads.hpp>
 EditorStart
 
 using String = UCode::String;
@@ -82,10 +83,16 @@ template<typename... T>
 using Variant = UCode::Variant<T...>;
 
 template<typename Key, typename U>
-using BinaryVectorMap = UCodeLang::BinaryVectorMap<Key,U>;
+using BinaryVectorMap = UCode::BinaryVectorMap<Key,U>;
 
 template<typename Key, typename U>
-using VectorMap = UCodeLang::VectorMap<Key, U>;
+using VectorMap = UCode::VectorMap<Key, U>;
+
+
+template<typename T>
+using AsynTask_t = UCode::AsynTask_t<T>;
+
+using AsynTask = UCode::AsynTask;
 
 #define UCODE_EDITOR_FORCEINLINE UCODE_ENGINE_FORCE_INLINE
 #define UCODE_EDITOR_NODISCARD UCODE_ENGINE_NODISCARD

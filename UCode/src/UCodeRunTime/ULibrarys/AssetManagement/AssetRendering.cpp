@@ -66,11 +66,12 @@ Unique_ptr<Texture> AssetRendering::LoadTextureAsync(Gamelibrary* lib, const Pat
 
 
 	auto teptex = Texture::MakeNewNullTexture();
-
-	threads->AddTask<Texture, Path>(BookOfThreads::TaskType::File_Input,
-		teptex.get(),
-		&Texture::MultThread_UpdateTextureFromPath
-		, path);
+	Delegate<void> Func = [ptr = teptex.get(),path = path]()
+	{
+		ptr->MultThread_UpdateTextureFromPath(path);
+	};
+	threads->AddTask(TaskType::File_Input,
+		Func);
 
 	return teptex;
 }

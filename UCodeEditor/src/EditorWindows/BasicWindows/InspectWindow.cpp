@@ -42,10 +42,6 @@ bool InspectWindow::Buttion(const char* FieldName)
 {
 	return ImGui::Button(FieldName);
 }
-bool InspectWindow::AsssetField(const char* FieldName, void*& Value, AsssetType Type)
-{
-	return ImGuIHelper_Asset::AsssetField(FieldName,Value,(ImGuIHelper_Asset::AsssetType)Type);
-}
 bool InspectWindow::ToggleField(const char* FieldName, bool& Value)
 {
 	return ImGuIHelper::ToggleField(FieldName, Value);

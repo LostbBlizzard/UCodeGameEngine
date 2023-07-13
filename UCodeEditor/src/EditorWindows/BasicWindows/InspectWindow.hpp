@@ -9,6 +9,7 @@
 
 #include <UCodeRunTime/ULibrarys/AssetManagement/AssetManager.hpp>
 #include <UCodeRunTime/ULibrarys/AssetManagement/AssetRendering.hpp>
+#include <Helper/ImGuIHelper_Asset.hpp>
 EditorStart
 
 
@@ -25,9 +26,9 @@ public:
 
 	UCODE_EDITOR_FORCEINLINE void DrawText(const String&  text) { win->DrawText(text.c_str()); }
 
-	UCODE_EDITOR_FORCEINLINE bool AsssetField(const char* FieldName,UCode::TexturePtr&Value) { return win->AsssetField(FieldName, (void*&)Value, AsssetType::Texture); }
-	UCODE_EDITOR_FORCEINLINE bool AsssetField(const char* FieldName,UCode::SpritePtr& Value) { return win->AsssetField(FieldName, (void*&)Value, AsssetType::Sprite); }
-	UCODE_EDITOR_FORCEINLINE bool AsssetField(const char* FieldName,UCode::ShaderPtr& Value) { return win->AsssetField(FieldName, (void*&)Value, AsssetType::Shader); }
+	UCODE_EDITOR_FORCEINLINE bool AsssetField(const char* FieldName,UCode::TexturePtr&Value) { return ImGuIHelper_Asset::AsssetField(FieldName, Value);}
+	UCODE_EDITOR_FORCEINLINE bool AsssetField(const char* FieldName,UCode::SpritePtr& Value) { return ImGuIHelper_Asset::AsssetField(FieldName,Value); }
+	UCODE_EDITOR_FORCEINLINE bool AsssetField(const char* FieldName,UCode::ShaderPtr& Value) { return ImGuIHelper_Asset::AsssetField(FieldName,Value); }
 
 	UCODE_EDITOR_FORCEINLINE bool ToggleField(const char* FieldName, bool& Value) { return win->ToggleField(FieldName, Value); }
 
@@ -114,8 +115,7 @@ private:
 	
 	bool Buttion(const char* FieldName);
 
-	bool AsssetField(const char* FieldName,void*& Value,AsssetType Type);
-
+	
 	bool ToggleField(const char* FieldName, bool& Value);
 
 	bool StringField(const char* FieldName, String&  Value);

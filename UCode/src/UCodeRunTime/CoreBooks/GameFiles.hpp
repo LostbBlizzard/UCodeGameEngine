@@ -12,7 +12,7 @@
 #include "UCodeRunTime/ULibrarys/Serialization/USerializer.hpp"
 #include "UCodeRunTime/ULibrarys/Serialization/FileBuffer.hpp"
 #include <fstream>
-
+#include "BookOfThreads.hpp"
 CoreStart
 
 struct GameFileIndex
@@ -105,7 +105,9 @@ public:
 	
 	static String ReadFileAsString(const Path& Path);
 	static Unique_Bytes ReadFileAsBytes(const Path& Path);
+	static Unique_Bytes ReadFileAsBytes(const Path& Path,size_t Offset,size_t Size);
 
+	Path GetFilePathByMove(const Path& path);
 	Path GetFileFullName(const Path& FilePath) const;
 
 	static Path Get_PersistentDataPath(const AppData& data);
@@ -123,6 +125,17 @@ public:
 	{
 		return _Data;
 	}
+	
+	AsynTask_t<Unique_Bytes> AsynReadGameFileFullBytes(const Path& Path);
+	AsynTask_t<Unique_Bytes> AsynReadGameFileBytes(const Path& Path, size_t Offset, size_t Bytes);
+	AsynTask_t<String> AsynReadGameFileString(const Path& Path);
+
+	AsynTask_t<Unique_Bytes> AsynReadFileFullBytes(const Path& Path);
+	AsynTask_t<Unique_Bytes> AsynReadFileBytes(const Path& Path, size_t Offset, size_t Bytes);
+
+	AsynTask_t<String> AsynReadFileString(const Path& Path);
+
+	AsynTask_t<Path> AsynGetFilePathByMove(const Path& path);
 private:
 	GameFiles(Gamelibrary* lib, const GameFilesData& Data);
 	~GameFiles() override;

@@ -9,7 +9,8 @@ struct FileBuffer
 {
 	FileBuffer();
 	~FileBuffer();
-	FileBuffer& operator=(FileBuffer&& source) = default;
+	FileBuffer(FileBuffer&& source);
+	FileBuffer& operator=(FileBuffer&& source);
 	bool Open(const Path& path);
 	void Close();
 	bool IsOpen()
