@@ -18,8 +18,10 @@ using TaskID = int;
 static constexpr ThreadToRunID AnyThread = 0;
 static constexpr ThreadToRunID MainThread = 1;
  
-thread_local ThreadToRunID CurrentThread;
-
+struct CurrentThreadInfo
+{
+	static thread_local ThreadToRunID CurrentThread;
+};
 
 
 
@@ -65,10 +67,13 @@ struct AsynTask_t
 	//Calls this Funcion on the same Thread it was made on.
 	ThisType& OnCompletedCurrentThread(OnDoneFuncPtr&& Value)
 	{
-		OnDone = Value;
-		return *this;
+		return OnCompletedOnThread(Value, CurrentThread);
 	}
-	//Calls this Funcion on the same Thread it was made on.
+	ThisType& OnCompletedOnMainThread(OnDoneFuncPtr&& Value)
+	{
+		return OnCompletedOnThread(Value, MainThread);
+	}
+
 	ThisType& OnCompletedOnAnyThread(OnDoneFuncPtr&& Value)
 	{
 		return OnCompletedOnThread(Value, AnyThread);

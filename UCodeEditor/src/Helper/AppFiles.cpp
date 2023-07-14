@@ -101,11 +101,12 @@ void AppFiles::Init(UCode::Gamelibrary* lib)
         path = AppFilesPathDir;
     }
 
+    _GameLib = lib;
     UCode::GameFilesData f;
     if (std::filesystem::is_directory(path))
     {
         f._Type = UCode::GameFilesData::Type::Redirect;
-        f._RedirectDir = AppFilesPath;
+        f._RedirectDir = path;
         GetGameFiles()->Init(lib, f);
     }
     else
@@ -118,7 +119,6 @@ void AppFiles::Init(UCode::Gamelibrary* lib)
 
         }
     }
-    _GameLib = lib;
 }
 
 UCode::Texture* AppFiles::GetTexture(texture tex)
@@ -195,7 +195,7 @@ String AppFiles::ReadFileAsString(const Path& path)
 
 Unique_Bytes AppFiles::ReadFileAsBytes(const Path& path)
 {
-    return  GetGameFiles()->ReadFileAsBytes(path);
+    return  GetGameFiles()->ReadGameFileAsBytes(path);
 }
 
 Unique_Bytes AppFiles::ReadFileAsBytes(const Path& path, size_t Offset, size_t Size)
@@ -207,12 +207,12 @@ Unique_Bytes AppFiles::ReadFileAsBytes(const Path& path, size_t Offset, size_t S
 
 AsynTask_t<Path> AppFiles::AsynGetFilePathByMove(const Path& path)
 {
-    return GetGameFiles()->AsynGetFilePathByMove(path);
+    return GetGameFiles()->AsynGetGameFilePathByMove(path);
 }
 
 Path AppFiles::GetFilePathByMove(const Path& path)
 {
-    return  GetGameFiles()->GetFilePathByMove(path);
+    return  GetGameFiles()->GetGameFilePathByMove(path);
 }
 
 AsynTask_t<String> AppFiles::AsynReadFileString(const Path& path)

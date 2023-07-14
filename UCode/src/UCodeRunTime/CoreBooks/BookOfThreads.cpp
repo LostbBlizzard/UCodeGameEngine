@@ -7,7 +7,7 @@ constexpr StaticBooksIndex_t KeyIdex = (StaticBooksIndex_t)StaticBooksIndex::Boo
 
 static std::thread::id MainThreadID = {};
 static ThreadToRunID ThreadCount = MainThread+1;
-//thread_local ThreadToRunID CurrentThread = 0;
+thread_local ThreadToRunID CurrentThreadInfo::CurrentThread = -1;
 
 //To Do set threads on static
 BookOfThreads::BookOfThreads(Gamelibrary* lib) :libraryBook(lib), _EndThreads(false), _NextLockKey(1)
@@ -40,7 +40,7 @@ BookOfThreads::~BookOfThreads()
 void BookOfThreads::ThreadLoop(BookOfThreads* _This)
 {
 	_This->_TaskLock.lock();
-	CurrentThread = ThreadCount++;
+	CurrentThreadInfo::CurrentThread = ThreadCount++;
 	_This->_TaskLock.unlock();
 
 	while (true)

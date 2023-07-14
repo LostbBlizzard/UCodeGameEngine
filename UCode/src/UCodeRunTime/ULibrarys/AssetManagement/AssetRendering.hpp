@@ -2,6 +2,8 @@
 #include <UCodeRunTime/ULibrarys/Rendering/RenderRunTime2d.hpp>
 #include "AssetManager.hpp"
 #include "AssetPtr.hpp"
+#include "UCodeRunTime/RunTimeBasicTypes/Span.hpp"
+#include "UCodeRunTime/CoreBooks/BookOfThreads.hpp"
 CoreStart
 
 
@@ -82,6 +84,7 @@ public:
 	static void UpdatePtr(AssetManager* Manager,SpritePtr& Ptr);
 	static void UpdatePtr(AssetManager* Manager,ShaderPtr& Ptr);
 	static void DrawQuad2d(RenderRunTime2d* runtime,const DrawQuad2dData& Data);
-	static Unique_ptr<Texture> LoadTextureAsync(Gamelibrary* lib, const Path& path);
+	static AsynTask_t<Unique_ptr<Texture>> LoadTextureAsync(Gamelibrary* lib, const Path& path);
+	static AsynTask_t<Unique_ptr<Texture>> LoadTextureAsync(Gamelibrary* lib, const BytesView bits);
 };
 CoreEnd

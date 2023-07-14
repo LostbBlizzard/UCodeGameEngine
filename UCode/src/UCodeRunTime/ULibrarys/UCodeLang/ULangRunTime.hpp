@@ -3,7 +3,6 @@
 #include <UCodeRunTime/includeULibrayCompoent.hpp>
 #include <UCodeLang/UCodeLang/UCodeLang.hpp>
 #include "UCodeRunTime/RunTimeBasicTypes/String.hpp"
-#include "UCodeLang/UCodeLang/LangCore/ULangRunTimeStructures.hpp"
 LangStart
 
 #define UScript_Attribute "UScript"
@@ -55,7 +54,7 @@ public:
 
 	template<typename... Args>void LangThisCall(const UCodeLang::ClassMethod& Func, void* This, Args&&... parameters)
 	{
-		_Interpreter.ThisCall(This, Func, parameters...);
+		_Interpreter.ThisCall(Func, This, parameters...);
 	}
 
 	template<typename T, typename... Args> T R_LangCall(const UCodeLang::ClassMethod& Func, Args&&... parameters)

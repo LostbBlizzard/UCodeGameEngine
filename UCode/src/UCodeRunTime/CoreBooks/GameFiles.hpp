@@ -60,6 +60,29 @@ public:
 	Vector<GameFileIndex> Offsets;
 	Vector<Byte> _Data;
 
+	//may be nullptr
+	const GameFileIndex* GetFile(const Path& path) const
+	{
+		for (auto& Item : Offsets)
+		{
+			if (Item.FileFullName == path)
+			{
+				return &Item;
+			}
+		}
+		return nullptr;
+	}
+	Vector<const GameFileIndex*> GetFilesInDir(const Path& path)
+	{
+		Vector<const GameFileIndex*> R;
+		GetFilesInDir(R, path);
+
+		return R;
+	}
+	void GetFilesInDir(Vector<const GameFileIndex*>& Out, const Path& path) const;
+	void GetFilesWithExt(Vector<const GameFileIndex*>& Out, const Vector<GameFileIndex>& Files) const;
+	void GetFilesWithExt(Vector<const GameFileIndex*>& Out, const Vector<const GameFileIndex*>& Files) const;
+
 	static bool MakeFile(const GameFilesData& data,const Path& Path,USerializerType Type);
 	static bool ReadFile(const Path& Path, GameFilesData& data);
 	static bool ReadFileKeepOpen(const Path& Path, FileBuffer& OutFile, GameFilesData& data);
@@ -107,7 +130,11 @@ public:
 	static Unique_Bytes ReadFileAsBytes(const Path& Path);
 	static Unique_Bytes ReadFileAsBytes(const Path& Path,size_t Offset,size_t Size);
 
-	Path GetFilePathByMove(const Path& path);
+	String ReadGameFileAsString(const Path& Path);
+	Unique_Bytes ReadGameFileAsBytes(const Path& Path);
+	Unique_Bytes ReadGameFileAsBytes(const Path& Path, size_t Offset, size_t Size);
+
+	Path GetGameFilePathByMove(const Path& path);
 	Path GetFileFullName(const Path& FilePath) const;
 
 	static Path Get_PersistentDataPath(const AppData& data);
@@ -135,7 +162,10 @@ public:
 
 	AsynTask_t<String> AsynReadFileString(const Path& Path);
 
-	AsynTask_t<Path> AsynGetFilePathByMove(const Path& path);
+	AsynTask_t<Path> AsynGetGameFilePathByMove(const Path& path);
+
+	Path GetMovedFilesPath();
+	Path GetMovedFilesPathAndMake();
 private:
 	GameFiles(Gamelibrary* lib, const GameFilesData& Data);
 	~GameFiles() override;

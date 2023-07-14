@@ -3,6 +3,7 @@
 #include <UCodeRunTime/RunTimeBasicTypes/String.hpp>
 #include <UCodeRunTime/RunTimeBasicTypes/Color.hpp>
 #include <UCodeRunTime/RunTimeBasicTypes/Ref.hpp>
+#include <UCodeRunTime/RunTimeBasicTypes/Span.hpp>
 RenderingStart
 
 
@@ -11,6 +12,7 @@ class Texture
 public:
 	Texture(const Path& filePath);
 	Texture(SInt32 width, SInt32 height,const Color32* color);
+	Texture(const BytesView PngData);
 	~Texture();
 
 	static Unique_ptr<Texture> MakeNewNullTexture();
