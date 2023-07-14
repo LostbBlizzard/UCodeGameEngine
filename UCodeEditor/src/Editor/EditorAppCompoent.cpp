@@ -28,10 +28,10 @@ EditorAppCompoent::EditorAppCompoent(UCode::Entity* entity) :
 {
     AppFiles::Init(GetGameRunTime()->Get_Library_Edit());
     
-    auto path = AppFiles::ReadFileAsBytes(ToPathChar("Art/OpenSans-VariableFont_wdth,wght.ttf"));
+    auto FontBytes = AppFiles::ReadFileAsBytes(ToPathChar("Art/OpenSans-VariableFont_wdth,wght.ttf"));
 
     auto& io = ImGui::GetIO();
-    io.Fonts->AddFontFromMemoryTTF(path.Pointer.get(), path.Size, 16.0f);
+    io.Fonts->AddFontFromMemoryTTF(FontBytes.Pointer.get(), FontBytes.Size, 16.0f);
     io.FontDefault = io.Fonts->Fonts.back();
     
 

@@ -1,5 +1,7 @@
 #include "AssetRendering.hpp"
 #include <UCodeRunTime/CoreBooks/BookOfThreads.hpp>
+
+#include <stb_image/stb_image.h>
 CoreStart
 void AssetRendering::UpdatePtr(AssetManager* Manager,TexturePtr& Ptr)
 {
@@ -60,19 +62,36 @@ void AssetRendering::DrawQuad2d(RenderRunTime2d* runtime, const DrawQuad2dData& 
 	runtime->DrawQuad2d(_Data);
 	
 }
-Unique_ptr<Texture> AssetRendering::LoadTextureAsync(Gamelibrary* lib, const Path& path)
+AsynTask_t<Unique_ptr<Texture>> AssetRendering::LoadTextureAsync(Gamelibrary* lib, const Path& path)
 {
 	BookOfThreads* threads = BookOfThreads::Get(lib);
 
-
-	auto teptex = Texture::MakeNewNullTexture();
-	Delegate<void> Func = [ptr = teptex.get(),path = path]()
+	Delegate<Unique_ptr<Texture>> Func = [path = path]()
 	{
-		ptr->MultThread_UpdateTextureFromPath(path);
+		auto teptex =new Texture(path);
+		
+		return Unique_ptr<Texture>(teptex);
 	};
-	threads->AddTask(TaskType::File_Input,
-		Func);
+	
 
-	return teptex;
+	return threads->AddTask_t(TaskType::File_Input,
+		Func);
+}
+AsynTask_t<Unique_ptr<Texture>> AssetRendering::LoadTextureAsync(Gamelibrary* lib, const BytesView bits)
+{
+	BookOfThreads* threads = BookOfThreads::Get(lib);
+
+	Unique_Bytes NewBits;
+	NewBits.Copyfrom(bits);
+	Delegate<Unique_ptr<Texture>> Func = [NewBits = std::move(NewBits)]()
+	{
+		auto teptex = new Texture(NewBits.AsView());
+
+		return Unique_ptr<Texture>(teptex);
+	};
+
+
+	return threads->AddTask_t(TaskType::File_Input,
+		Func);
 }
 CoreEnd

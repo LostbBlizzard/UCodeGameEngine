@@ -442,8 +442,10 @@ group "Dependencies"
     includedirs{
       "Dependencies/%{prj.name}",
       "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/include",
-    }
-   removefiles{
+      "Dependencies/%{prj.name}/UCodeLang/Dependencies/Zydis/include",
+      "Dependencies/%{prj.name}/UCodeLang/Dependencies/Zydis/src"
+      }
+    removefiles{
      "Dependencies/%{prj.name}/UCodeLang/Dependencies/Zydis/**.c",
      "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/**.c",
 
@@ -452,8 +454,8 @@ group "Dependencies"
 
      "Dependencies/%{prj.name}/UCodeLang/Dependencies/Zydis/**.h",
      "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/**.h",
-   }
-   files { 
+     }
+    files { 
     "Dependencies/%{prj.name}/UCodeLang/Dependencies/Zydis/src/**.c",
     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/src/**.c",
 

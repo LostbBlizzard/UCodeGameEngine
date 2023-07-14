@@ -60,6 +60,15 @@ Texture::Texture(SInt32 width, SInt32 height, const Color32* color)
 	InitTexture();
 }
 
+Texture::Texture(const BytesView PngData)
+	: _RendererID(0), _Width(0), _Height(0), _BPP(0), _Buffer(nullptr), _BufferIsInGPU(false), _FilePath(MadewithColor)
+{
+	stbi_set_flip_vertically_on_load(0);
+	_Buffer = Unique_array<Byte>(stbi_load_from_memory(PngData.Data(),PngData.Size(), &_Width, &_Height, &_BPP, 4));
+
+	InitTexture();
+}
+
 Texture::~Texture()
 {	
 	

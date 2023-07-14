@@ -104,6 +104,27 @@ struct Unique_Span
 	{
 		return Span_t(Pointer.get(), Size);
 	}
+	void Resize(size_t Count)
+	{
+		Pointer.reset(new T[Count]);
+		NewBits.Size = Count;
+	}
+	void Copyfrom(const Span_t& Values)
+	{
+		Resize(Values.Size());
+		for (size_t i = 0; i < Values.Size(); i++)
+		{
+			Pointer[i] = Values[i];
+		}
+	}
+	void Copyfrom(Span_t&& Values)
+	{
+		Resize(Values.Size());
+		for (size_t i = 0; i < Values.Size(); i++)
+		{
+			Pointer[i] = std::move(Values[i]);
+		}
+	}
 };
 
 using BytesView = Span<Byte>;
