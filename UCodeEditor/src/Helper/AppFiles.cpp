@@ -150,15 +150,21 @@ UCode::Texture* AppFiles::GetTexture(texture tex)
         else
         {
             newtext = std::move(UCode::Texture::MakeNewNullTexture());
-            auto loadingTex 
-                = std::move(UCode::AssetRendering::LoadTextureAsync(_GameLib, AppFilesPath + Path)
-                    .OnCompletedOnMainThread(
-                        [id](Unique_ptr<UCode::Texture>&& Val)
-                        {
-                            _textures[id] = Val.release();
-                            _loadtextures[id] = true;
-                        }
-                        ));
+            UCode::GameFiles* gamefiles = UCode::GameFiles::Get(_GameLib);
+            gamefiles->AsynReadGameFileFullBytes(Path)
+                .OnCompletedOnAnyThread(
+                    [id](Unique_Bytes Bytes)
+                    {
+                        UCode::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView())
+                            .OnCompletedOnMainThread(
+                                [id](Unique_ptr<UCode::Texture>&& Val)
+                                {
+                                    _textures[id] = Val.release();
+                                    _loadtextures[id] = true;
+                                }
+                        );
+                    }
+            );
         }
         
         auto Tex = newtext.get();
@@ -200,14 +206,22 @@ AsynTask_t<UCode::Texture*> AppFiles::AsynGetTexture(texture tex)
         }
         else
         {
-            auto Task =std::move(UCode::AssetRendering::LoadTextureAsync(_GameLib, AppFilesPath + Path)
-                .OnCompletedOnMainThread(
-                    [id](Unique_ptr<UCode::Texture>&& Val)
+            UCode::GameFiles* gamefiles = UCode::GameFiles::Get(_GameLib);
+
+
+            auto Task = std::move(gamefiles->AsynReadGameFileFullBytes(Path)
+                .OnCompletedOnAnyThread(
+                    [id](Unique_Bytes Bytes)
                     {
-                        auto RVal = Val.get();
-                        _textures[id] = Val.release();
-                        _loadtextures[id] = true;
-                        return RVal;
+                       UCode::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView())
+                            .OnCompletedOnMainThread(
+                                [id](Unique_ptr<UCode::Texture>&& Val)
+                                {
+                                    auto RVal = Val.get();
+                                    _textures[id] = Val.release();
+                                    _loadtextures[id] = true;
+                                    return RVal;
+                                });
                     }));
 
             AsynTask_t<UCode::Texture*> R;
