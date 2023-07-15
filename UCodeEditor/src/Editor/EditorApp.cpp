@@ -44,10 +44,12 @@ void EditorApp::Run(const String& ProjPath)
     auto Lib = RunTime->Get_Library();
     auto Render = _App.Get_Render();
     auto Window = Render->Get_RenderAPI();
-    auto& Tex = *AppFiles::GetTexture(AppFiles::texture::AppIcon);//TODO add call backs
-    while (Tex.Get_ColorData() == nullptr){}//wait for texture
-    Window->SetWindowIcon(Tex);
-    
+    AppFiles::AsynGetTexture(AppFiles::texture::AppIcon)
+        .OnCompletedOnMainThread(
+            [Window](UCode::Texture* Tex)
+            {
+                Window->SetWindowIcon(*Tex);
+            });
    
 
 

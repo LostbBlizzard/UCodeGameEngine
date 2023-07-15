@@ -13,7 +13,7 @@ thread_local ThreadToRunID CurrentThreadInfo::CurrentThread = -1;
 BookOfThreads::BookOfThreads(Gamelibrary* lib) :libraryBook(lib), _EndThreads(false), _NextLockKey(1)
 {
 	MainThreadID = std::this_thread::get_id();
-
+	_TastID = 0;
 	Threads = this;
 	const UInt32 num_threads = std::thread::hardware_concurrency();
 	_Threads.resize(num_threads);
@@ -29,6 +29,7 @@ BookOfThreads::BookOfThreads(Gamelibrary* lib) :libraryBook(lib), _EndThreads(fa
 BookOfThreads::~BookOfThreads()
 {
 	_EndThreads = true;
+	Threads = nullptr;
 	_NewTask.notify_all();
 	for (size_t i = 0; i < _Threads.size(); i++)
 	{
@@ -93,6 +94,11 @@ AsynTask BookOfThreads::AddTask(ThreadToRunID thread, FuncPtr Func)
 	}
 	else
 	{
+		if (thread == MainThread)
+		{
+			RunOnOnMainThread(std::move(Func));
+			return  AsynTask();
+		}
 		if (thread != AnyThread) 
 		{
 			UCODE_ENGINE_IMPlEMENTED_LATER;

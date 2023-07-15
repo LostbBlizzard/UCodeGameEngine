@@ -28,12 +28,14 @@ EditorAppCompoent::EditorAppCompoent(UCode::Entity* entity) :
 {
     AppFiles::Init(GetGameRunTime()->Get_Library_Edit());
     
-    auto FontBytes = AppFiles::ReadFileAsBytes(ToPathChar("Art/OpenSans-VariableFont_wdth,wght.ttf"));
+    AppFiles::AsynReadFileAsBytes(ToPathChar("Art/OpenSans-VariableFont_wdth,wght.ttf"))
+        .OnCompletedOnMainThread([this](Unique_Bytes FontBytes)
+    {
 
     auto& io = ImGui::GetIO();
-    io.Fonts->AddFontFromMemoryTTF(FontBytes.Pointer.get(), FontBytes.Size, 16.0f);
-    io.FontDefault = io.Fonts->Fonts.back();
-    
+    //io.Fonts->AddFontFromMemoryTTF(FontBytes.Pointer.get(), FontBytes.Size, 16.0f);
+    //io.FontDefault = io.Fonts->Fonts.back();
+    });
 
 
     _This = this;
@@ -528,7 +530,7 @@ void  EditorAppCompoent::EndDockSpace()
 
 void EditorAppCompoent::OnDraw()
 {
-    //
+  
 
     if (_RunTimeProjectData.Is_ProjLoaded()) 
     {

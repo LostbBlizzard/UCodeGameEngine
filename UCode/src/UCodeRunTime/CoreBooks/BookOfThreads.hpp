@@ -48,40 +48,53 @@ struct AsynTask_t
 	
 	
 	AsynTask_t(Future&& Item)
-		: Base(std::move(Item))
 	{
-
+		Set_Future(std::move(Item));
 	}
-	
 	AsynTask_t()
 	{
-		RemoveCallID(_TastID);
-	}
 	
+	}
+	AsynTask_t(ThisType&& Other):
+		  _TastID(Other._TastID)
+	{
+		Other._TastID = 0;
+	}
+
+	~AsynTask_t()
+	{
+		
+	}
 	ThisType& operator=(Future&& Item)
 	{
-		Base = Item;
+		Set_Future(Item);
+		return *this;
+	}
+	ThisType& operator=(ThisType&& Other)
+	{
+		_TastID = Other._TastID;
+		Other._TastID = 0;
 		return *this;
 	}
 
 	//Calls this Funcion on the same Thread it was made on.
 	ThisType& OnCompletedCurrentThread(OnDoneFuncPtr&& Value)
 	{
-		return OnCompletedOnThread(Value, CurrentThread);
+		return OnCompletedOnThread(std::move(Value), CurrentThread);
 	}
 	ThisType& OnCompletedOnMainThread(OnDoneFuncPtr&& Value)
 	{
-		return OnCompletedOnThread(Value, MainThread);
+		return OnCompletedOnThread(std::move(Value), MainThread);
 	}
 
 	ThisType& OnCompletedOnAnyThread(OnDoneFuncPtr&& Value)
 	{
-		return OnCompletedOnThread(Value, AnyThread);
+		return OnCompletedOnThread(std::move(Value), AnyThread);
 	}
 
 	ThisType& OnCompletedOnThread(OnDoneFuncPtr&& Value,TaskType task)
 	{
-		return  OnCompletedOnThread(Value, AnyThread);
+		return  OnCompletedOnThread(std::move(Value), AnyThread);
 	}
 
 	ThisType& OnCompletedOnThread(OnDoneFuncPtr&& Value,ThreadToRunID Thread)
@@ -96,34 +109,74 @@ struct AsynTask_t
 
 	T GetValue()
 	{
-		return Base.get();
+		return Get_Future().get();
 	}
 	T* TryGet()
 	{
-		if (Base._Is_ready())
+		if ( Get_Future()._Is_ready())
 		{
-			return Base.get();
+			return   Get_Future().get();
 		}
 		return nullptr;
 	}
 	bool valid()
 	{
-		return Base.valid();
+		return Get_Future().valid();
 	}
 	void wait_for()
 	{
-		return Base.wait_for();
+		return Get_Future().wait_for();
 	}
 	void wait()
 	{
-		return Base.wait();
+		return   Get_Future().wait();
 	}
 	bool IsDone()
 	{
-		return Base._Is_ready();
+		return   Get_Future()._Is_ready();
+	}
+	static void RemoveCallID(TaskID ID)
+	{
+		_DoneLock.lock();
+		if (ID != 0)
+		{
+			if (_Map.HasValue(ID)) {
+				_Map.erase(ID);
+			}
+			if (_Futures.HasValue(ID)) {
+				_Futures.erase(ID);
+			}
+		}
+		_DoneLock.unlock();
+	}
+
+	void SetValue(T&& Value)
+	{
+		Delegate<void> Func = [_TastID = _TastID, Value = std::move(Value)]() mutable
+		{
+			TryCallOnDone(_TastID,std::move(Value));
+		};
+		BookOfThreads::Threads->RunOnOnMainThread(Func);
+	}
+	Future& Get_Future()
+	{
+		return  Get_Future(_TastID);
+	}
+	void Set_Future(Future&& Value)
+	{
+		_DoneLock.lock();
+		_Futures[_TastID] =std::make_shared<Future>(std::move(Value));
+		_DoneLock.unlock();
+	}
+
+	static Future& Get_Future(TaskID _TastID)
+	{
+		_DoneLock.lock();
+		auto& R = *_Futures[_TastID];
+		_DoneLock.unlock();
+		return R;
 	}
 private:
-	Future Base;
 	TaskID _TastID = 0;
 
 	struct OnDoneInfo
@@ -134,6 +187,7 @@ private:
 	
 	inline static std::mutex _DoneLock;
 	inline static BinaryVectorMap< TaskID, OnDoneInfo> _Map;
+	inline static BinaryVectorMap < TaskID,std::shared_ptr<Future>> _Futures;
 	
 	static void AddCallDone(TaskID ID,const OnDoneInfo& Info)
 	{
@@ -154,25 +208,30 @@ private:
 
 			if (V.OnDone)
 			{
-				//if (V.ThreadToRun == CurrentThread)
+				if (V.ThreadToRun == CurrentThreadInfo::CurrentThread)
 				{
 					V.OnDone(std::move(Move));
 				}
-				//else
+				else
 				{
+					Delegate<void>  Func = [OnDone = std::make_shared<OnDoneFuncPtr>(std::move(V.OnDone)), 
+						Val = std::make_shared<T>(std::move(Move))]() mutable
+					{
+						_DoneLock.lock();
+						(*OnDone)(std::move(*Val));
+						_DoneLock.unlock();
+					};
 					
+					BookOfThreads::Threads->AddTask_t(
+						V.ThreadToRun,
+						std::move(Func)
+					);
 				}
 			}
 		}
 		_DoneLock.unlock();
 	}
-	static void RemoveCallID(TaskID ID)
-	{
-		_DoneLock.lock();
-		_Map.erase(ID);
-		_DoneLock.unlock();
-	}
-
+	
 	
 };
 using AsynTask = AsynTask_t<bool>;
@@ -224,20 +283,27 @@ public:
 		auto task_promise =std::make_shared<std::packaged_task<R()>>(task_function);
 		FuncPtr NewPtr;
 		auto r = task_promise->get_future();
-		AsynTask_t<R> Ret =std::move(r);
+		AsynTask_t<R> Ret;
 
 		_TaskLock.lock();
 		Ret._TastID = _TastID++;
 		TaskID NewTasklID = Ret._TastID;
+		Ret.Set_Future(std::move(r));
 		_TaskLock.unlock();
 
 		NewPtr = [NewTasklID,task = std::move(task_promise)]
 		{
 			(*task)();
-			if (AsynTask_t<R>::HasOnDone(NewTasklID)) {
-				AsynTask_t<R>::TryCallOnDone(NewTasklID,std::move(task->get_future().get()));
+			if (AsynTask_t<R>::HasOnDone(NewTasklID)) 
+			{	
+				auto Val = AsynTask_t<R>::Get_Future(NewTasklID).get();
+				AsynTask_t<R>::TryCallOnDone(NewTasklID,std::move(Val));
+				AsynTask_t<R>::RemoveCallID(NewTasklID);
 			}
-
+			else
+			{
+				AsynTask_t<R>::RemoveCallID(NewTasklID);
+			}
 		};
 		
 		AddTask(TaskType, std::move(NewPtr));
@@ -257,6 +323,52 @@ public:
 		return AddTask_t<bool,Pars...>(TaskType, Func);
 	}
 
+	template <typename R, typename... Pars>
+	AsynTask_t<R> AddTask_t(ThreadToRunID TaskType, std::function<R(Pars...)> task_function)
+	{
+		auto task_promise = std::make_shared<std::packaged_task<R()>>(task_function);
+		FuncPtr NewPtr;
+		auto r = task_promise->get_future();
+		AsynTask_t<R> Ret;
+
+		_TaskLock.lock();
+		Ret._TastID = _TastID++;
+		TaskID NewTasklID = Ret._TastID;
+		Ret.Set_Future(std::move(r));
+		_TaskLock.unlock();
+
+		NewPtr = [NewTasklID, task = std::move(task_promise)]
+		{
+			(*task)();
+			if (AsynTask_t<R>::HasOnDone(NewTasklID))
+			{
+				auto Val = AsynTask_t<R>::Get_Future(NewTasklID).get();
+				AsynTask_t<R>::TryCallOnDone(NewTasklID, std::move(Val));
+				AsynTask_t<R>::RemoveCallID(NewTasklID);
+			}
+			else
+			{
+				AsynTask_t<R>::RemoveCallID(NewTasklID);
+			}
+		};
+
+		AddTask(TaskType, std::move(NewPtr));
+		return Ret;
+	}
+
+	template <typename... Pars>
+	AsynTask_t<bool> AddTask_t(ThreadToRunID TaskType, std::function<void(Pars...)> task_function)
+	{
+		Delegate<bool, Pars...> Func = [task_function = std::move(task_function)]()
+		{
+			task_function();
+
+			return true;
+		};
+
+		return AddTask_t<bool, Pars...>(TaskType, Func);
+	}
+
 	inline static BookOfThreads* Get_Threads()
 	{
 		return Threads;
@@ -267,6 +379,7 @@ public:
 	
 	static bool IsOnMainThread();
 	static bool ThrowErrIfNotOnMainThread();
+	inline static BookOfThreads* Threads = nullptr;
 private:
 	BookOfThreads(Gamelibrary* lib);
 	~BookOfThreads();
@@ -281,7 +394,6 @@ private:
 
 	Vector<std::function<void()>> _TaskToDoOnMainThread;
 	std::mutex _OnMainThreadLock;
-	inline static BookOfThreads* Threads =nullptr;
 	void CallTaskToDoOnMainThread();
 	
 	void Update() override;

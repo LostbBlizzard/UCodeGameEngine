@@ -74,7 +74,9 @@ public:
 		Max_Value,
 	};
 	static void Init(UCode::Gamelibrary* lib);
+	static bool IsLoaded(texture tex);
 	static UCode::Texture* GetTexture(texture tex);
+	static AsynTask_t<UCode::Texture*> AsynGetTexture(texture tex);
 	static UCode::Sprite* GetSprite(sprite tex);
 
 	static String ReadFileAsString(const Path& Path);
@@ -96,6 +98,7 @@ public:
 private:
 	inline static Unordered_map<texture_t, UCode::Texture*> _textures;
 	inline static Unordered_map<Sprite_t, UCode::Sprite*> _sprites;
+	inline static Unordered_map<texture_t, bool> _loadtextures;
 	inline static UCode::Gamelibrary* _GameLib;
 	inline static String ULang_uc;
 	
