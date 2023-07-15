@@ -2,6 +2,7 @@
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 #include "UCodeRunTime/UDefs.hpp"
 #include "Ref.hpp"
+#include "Vector.hpp"
 CoreStart
 
 
@@ -35,8 +36,11 @@ struct Span
 		return _Data[Index];
 	}	
 	
-	
-	constexpr UCODE_ENGINE_FORCE_INLINE T* Data()const
+	constexpr UCODE_ENGINE_FORCE_INLINE const T* Data()const
+	{
+		return _Data;
+	}
+	constexpr UCODE_ENGINE_FORCE_INLINE T* Data()
 	{
 		return _Data;
 	}
@@ -45,11 +49,11 @@ struct Span
 		return _Size;
 	}
 
-	constexpr UCODE_ENGINE_FORCE_INLINE static Span Make(T* data, size_t Size)
+	constexpr UCODE_ENGINE_FORCE_INLINE static Span<T> Make(T* data, size_t Size)
 	{
 		return Span(data, Size);
 	}
-	constexpr UCODE_ENGINE_FORCE_INLINE static const Span Make(const T* data, size_t Size)
+	constexpr UCODE_ENGINE_FORCE_INLINE static const Span<T> Make(const T* data, size_t Size)
 	{
 		return Span((T*)data, Size);
 	}
@@ -62,6 +66,7 @@ private:
 template<typename T>
 struct Unique_Span
 {
+	using This = Unique_Span<T>;
 	using Span_t = Span<T>;
 
 	Unique_Span() :Pointer(nullptr), Size(0)
@@ -71,11 +76,23 @@ struct Unique_Span
 	Unique_array<T> Pointer;
 	size_t Size;
 
+	Unique_Span(This&& Other) :Pointer(std::move(Other.Pointer)), Size(Other.Size)
+	{
+		Other.Size = 0;
+	}
+	This& operator=(This&& Other)
+	{
+		Pointer = std::move(Other.Pointer);
+		Size = Other.Size;
+
+		Other.Size = 0;
+		return *this;
+	}
 
 	constexpr UCODE_ENGINE_FORCE_INLINE T& operator[](size_t Index)
 	{
 		#ifdef DEBUG
-		if (Index > _Size)
+		if (Index > Size)
 		{
 			throw std::exception("Index out of range");
 		}
@@ -87,7 +104,7 @@ struct Unique_Span
 	constexpr UCODE_ENGINE_FORCE_INLINE const T& operator[](size_t Index) const
 	{
 		#ifdef DEBUG
-		if (Index > _Size)
+		if (Index > Size)
 		{
 			throw std::exception("Index out of range");
 		}
@@ -107,7 +124,7 @@ struct Unique_Span
 	void Resize(size_t Count)
 	{
 		Pointer.reset(new T[Count]);
-		NewBits.Size = Count;
+		Size = Count;
 	}
 	void Copyfrom(const Span_t& Values)
 	{
@@ -124,6 +141,55 @@ struct Unique_Span
 		{
 			Pointer[i] = std::move(Values[i]);
 		}
+
+		Values._Size = 0;
+	}
+
+	void Copyfrom(const Vector<T>& Values)
+	{
+		Resize(Values.Size());
+		for (size_t i = 0; i < Values.Size(); i++)
+		{
+			Pointer[i] = Values[i];
+		}
+	}
+	void Copyfrom(Vector<T>&& Values)
+	{
+		Resize(Values.Size());
+		for (size_t i = 0; i < Values.Size(); i++)
+		{
+			Pointer[i] = std::move(Values[i]);
+		}
+
+		Values.resize(0);
+	}
+
+
+	Vector<T> ToVector() const
+	{
+		Vector<T> R;
+		R.reserve(Size);
+
+		for (size_t i = 0; i < Size; i++)
+		{
+			R[i] = this->operator[](i);
+		}
+
+		return R;
+	}
+	Vector<T> MoveToVector() 
+	{
+		Vector<T> R;
+		R.reserve(Size);
+
+		for (size_t i = 0; i < Size; i++)
+		{
+			R[i] = std::move(this->operator[](i));
+		}
+
+		Size = 0;
+
+		return R;
 	}
 };
 

@@ -167,7 +167,7 @@ void UDeserializer::SetData(const BytesView Bytes)
 		};
 		Type = Bytes[0];
 	
-		BytesView Bytes2 = BytesView(Bytes.Data() + 1,Bytes.Size() -1);
+		const BytesView Bytes2 = BytesView::Make(Bytes.Data() + 1,Bytes.Size() -1);
 
 		switch (SerializerType)
 		{

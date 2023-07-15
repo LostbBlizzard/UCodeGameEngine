@@ -121,6 +121,10 @@ void AppFiles::Init(UCode::Gamelibrary* lib)
     }
 }
 
+bool AppFiles::IsLoaded(texture tex)
+{
+    return _loadtextures[(texture_t)tex];
+}
 UCode::Texture* AppFiles::GetTexture(texture tex)
 {
     texture_t id = (texture_t)tex;
@@ -132,22 +136,85 @@ UCode::Texture* AppFiles::GetTexture(texture tex)
     else
     {
 
- 
-        const String& Path = TexturePaths[id]; 
+
+        const String& Path = TexturePaths[id];
+
+
+
+        Unique_ptr<UCode::Texture> newtext;
+
+        if (Path == nullTexPath)
+        {
+            newtext = std::move(UCode::Texture::MakeNewNullTexture());
+        }
+        else
+        {
+            newtext = std::move(UCode::Texture::MakeNewNullTexture());
+            auto loadingTex 
+                = std::move(UCode::AssetRendering::LoadTextureAsync(_GameLib, AppFilesPath + Path)
+                    .OnCompletedOnMainThread(
+                        [id](Unique_ptr<UCode::Texture>&& Val)
+                        {
+                            _textures[id] = Val.release();
+                            _loadtextures[id] = true;
+                        }
+                        ));
+        }
         
-        
-        
-        Unique_ptr<UCode::Texture> newtext
-            = Path == nullTexPath ? 
-            std::move(UCode::Texture::MakeNewNullTexture()) :
-            std::move(UCode::AssetRendering::LoadTextureAsync(_GameLib, AppFilesPath + Path));
-       
         auto Tex = newtext.get();
 
         _textures[id] = Tex;
 
         _LoadedTextures.push_back(std::move(newtext));
         return  Tex;
+    }
+}
+
+AsynTask_t<UCode::Texture*> AppFiles::AsynGetTexture(texture tex)
+{
+    texture_t id = (texture_t)tex;
+    if (id > TexturePaths_Size) { id = (texture_t)texture::Null; }
+    if (_textures.count(id))
+    {
+        AsynTask_t<UCode::Texture*> R;
+        R.SetValue(std::move(_textures[id]));
+        return R;
+    }
+    else
+    {
+
+
+        const String& Path = TexturePaths[id];
+
+
+
+        Unique_ptr<UCode::Texture> newtext;
+
+        if (Path == nullTexPath)
+        {
+            auto Tex =UCode::Texture::MakeNewNullTexture();
+            AsynTask_t<UCode::Texture*> R;
+            R.SetValue(Tex.get());
+            _LoadedTextures.push_back(std::move(Tex));
+            return R;
+        }
+        else
+        {
+            auto Task =std::move(UCode::AssetRendering::LoadTextureAsync(_GameLib, AppFilesPath + Path)
+                .OnCompletedOnMainThread(
+                    [id](Unique_ptr<UCode::Texture>&& Val)
+                    {
+                        auto RVal = Val.get();
+                        _textures[id] = Val.release();
+                        _loadtextures[id] = true;
+                        return RVal;
+                    }));
+
+            AsynTask_t<UCode::Texture*> R;
+            memcpy(&R, &Task, sizeof(AsynTask_t<UCode::Texture*>));
+            
+            return R;
+        }
     }
 }
 UCode::Sprite* AppFiles::GetSprite(sprite tex)

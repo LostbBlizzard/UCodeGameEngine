@@ -375,9 +375,9 @@ AsynTask_t<Unique_Bytes> GameFiles::AsynReadGameFileFullBytes(const Path& path)
 	auto threads = UCode::BookOfThreads::Get(Getlibrary());
 
 	Path p = path;
-	auto Func = [p]()
+	auto Func = [this,p]()
 	{
-		return GameFiles::ReadFileAsBytes(p);
+		return GameFiles::ReadGameFileAsBytes(p);
 	};
 	UCode::Delegate<Unique_Bytes> V = Func;
 	return threads->AddTask_t(TaskType::File_Input, std::move(V));
@@ -387,9 +387,9 @@ AsynTask_t<Unique_Bytes> GameFiles::AsynReadGameFileBytes(const Path& path, size
 	auto threads = UCode::BookOfThreads::Get(Getlibrary());
 
 	Path p = path;
-	auto Func = [p, Offset, Bytes]()
+	auto Func = [this,p, Offset, Bytes]()
 	{
-		return GameFiles::ReadFileAsBytes(p, Offset, Bytes);
+		return GameFiles::ReadGameFileAsBytes(p, Offset, Bytes);
 	};
 	UCode::Delegate<Unique_Bytes> V = Func;
 	return threads->AddTask_t(TaskType::File_Input, std::move(V));
