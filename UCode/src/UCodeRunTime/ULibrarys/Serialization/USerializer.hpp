@@ -173,8 +173,7 @@ public:
 
 	void SetBytesPtr(Unique_Bytes&& Bits)
 	{
-		_Bytes.Pointer.reset(Bits.Pointer.release());
-		_Bytes.Size = Bits.Size;
+		_Bytes = std::move(Bits);
 	}
 	USerializerType Get_Mode() const
 	{

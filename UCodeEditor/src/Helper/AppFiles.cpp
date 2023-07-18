@@ -151,17 +151,32 @@ UCode::Texture* AppFiles::GetTexture(texture tex)
         {
             newtext = std::move(UCode::Texture::MakeNewNullTexture());
             UCode::GameFiles* gamefiles = UCode::GameFiles::Get(_GameLib);
+
+            auto Func2 = [id](Unique_Bytes Bytes)
+            {
+                return UCode::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView())
+                    .ContinueOnMainThread(
+                        [id](Unique_ptr<UCode::Texture>&& Val)
+                        {
+                            _textures[id] = Val.release();
+                            _loadtextures[id] = true;
+                        }
+                        return s
+                            );
+            };
+
             gamefiles->AsynReadGameFileFullBytes(Path)
-                .OnCompletedOnAnyThread(
+                .ContinueOnAnyThread(
                     [id](Unique_Bytes Bytes)
                     {
-                        UCode::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView())
-                            .OnCompletedOnMainThread(
+                        return UCode::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView())
+                            .ContinueOnMainThread(
                                 [id](Unique_ptr<UCode::Texture>&& Val)
                                 {
                                     _textures[id] = Val.release();
                                     _loadtextures[id] = true;
                                 }
+                                return s
                         );
                     }
             );
@@ -238,7 +253,42 @@ UCode::Sprite* AppFiles::GetSprite(sprite tex)
     
     if (_sprites.count(id))
     {
-        return _sprites[id];
+        const SpriteInfo& info = SpriteInfos[id];
+        if (_loadtextures[(texture_t)info.tex]) 
+        {
+            auto tex = GetTexture(info.tex);
+
+            SInt32 _X, _Y, _SizeX, _SizeY;
+
+            if (info.X == SetTodefault) { _X = 0; }
+            else { _X = info.X; }
+
+            if (info.Y == SetTodefault) { _Y = 0; }
+            else { _Y = info.Y; }
+
+            if (info.SizeX == SetTodefault) { _SizeX = tex->Get_Width(); }
+            else { _SizeX = info.SizeX; }
+
+            if (info.SizeY == SetTodefault)
+            {
+                _SizeY = tex->Get_Height();
+            }
+            else { _SizeY = info.SizeY; }
+
+            auto& R = _sprites[id];
+            R->Set_Xoffset(_X);
+            R->Set_Yoffset(_Y);
+
+            R->Set_Width(_SizeX);
+            R->Set_Height(_SizeY);
+            R->Set_texture(tex);
+
+            return R;
+        }
+        else
+        {
+            return  _sprites[id];
+        }
     }
     else
     {

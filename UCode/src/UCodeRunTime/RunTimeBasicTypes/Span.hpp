@@ -69,30 +69,29 @@ struct Unique_Span
 	using This = Unique_Span<T>;
 	using Span_t = Span<T>;
 
-	Unique_Span() :Pointer(nullptr), Size(0)
+	Unique_Span() :Pointer(nullptr), _Size(0)
 	{
 
 	}
-	Unique_array<T> Pointer;
-	size_t Size;
 
-	Unique_Span(This&& Other) :Pointer(std::move(Other.Pointer)), Size(Other.Size)
+
+	Unique_Span(This&& Other) :Pointer(std::move(Other.Pointer)), _Size(Other._Size)
 	{
-		Other.Size = 0;
+		Other._Size = 0;
 	}
 	This& operator=(This&& Other)
 	{
 		Pointer = std::move(Other.Pointer);
-		Size = Other.Size;
+		_Size = Other._Size;
 
-		Other.Size = 0;
+		Other._Size = 0;
 		return *this;
 	}
 
 	constexpr UCODE_ENGINE_FORCE_INLINE T& operator[](size_t Index)
 	{
 		#ifdef DEBUG
-		if (Index > Size)
+		if (Index >= _Size)
 		{
 			throw std::exception("Index out of range");
 		}
@@ -104,7 +103,7 @@ struct Unique_Span
 	constexpr UCODE_ENGINE_FORCE_INLINE const T& operator[](size_t Index) const
 	{
 		#ifdef DEBUG
-		if (Index > Size)
+		if (Index >= _Size)
 		{
 			throw std::exception("Index out of range");
 		}
@@ -115,16 +114,16 @@ struct Unique_Span
 
 	const Span_t AsView() const
 	{
-		return Span_t(Pointer.get(), Size);
+		return Span_t::Make(Pointer.get(), _Size);
 	}
 	Span_t AsView()
 	{
-		return Span_t(Pointer.get(), Size);
+		return Span_t::Make(Pointer.get(), _Size);
 	}
 	void Resize(size_t Count)
 	{
 		Pointer.reset(new T[Count]);
-		Size = Count;
+		_Size = Count;
 	}
 	void Copyfrom(const Span_t& Values)
 	{
@@ -155,8 +154,8 @@ struct Unique_Span
 	}
 	void Copyfrom(Vector<T>&& Values)
 	{
-		Resize(Values.Size());
-		for (size_t i = 0; i < Values.Size(); i++)
+		Resize(Values.size());
+		for (size_t i = 0; i < Values.size(); i++)
 		{
 			Pointer[i] = std::move(Values[i]);
 		}
@@ -168,9 +167,9 @@ struct Unique_Span
 	Vector<T> ToVector() const
 	{
 		Vector<T> R;
-		R.reserve(Size);
+		R.resize(_Size);
 
-		for (size_t i = 0; i < Size; i++)
+		for (size_t i = 0; i < _Size; i++)
 		{
 			R[i] = this->operator[](i);
 		}
@@ -180,17 +179,34 @@ struct Unique_Span
 	Vector<T> MoveToVector() 
 	{
 		Vector<T> R;
-		R.reserve(Size);
+		R.resize(_Size);
 
-		for (size_t i = 0; i < Size; i++)
+		for (size_t i = 0; i < _Size; i++)
 		{
 			R[i] = std::move(this->operator[](i));
 		}
 
-		Size = 0;
+		_Size = 0;
 
 		return R;
 	}
+
+	size_t Size() const
+	{
+		return _Size;
+	}
+	T* Data()
+	{
+		return Pointer.get();
+	}
+
+	const T* Data() const
+	{
+		return Pointer.get();
+	}
+private:
+		Unique_array<T> Pointer;
+		size_t _Size;
 };
 
 using BytesView = Span<Byte>;
