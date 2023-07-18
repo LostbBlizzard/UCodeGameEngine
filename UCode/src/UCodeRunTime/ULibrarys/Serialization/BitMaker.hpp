@@ -34,7 +34,8 @@ public:
 	UCODE_ENGINE_FORCE_INLINE void Resize(size_t NewSize){ _Bytes.resize(NewSize);}
 	UCODE_ENGINE_FORCE_INLINE void Clear(){ _Bytes.clear();}
 	UCODE_ENGINE_FORCE_INLINE auto& Get_Bytes() { return _Bytes; }
-	UCODE_ENGINE_FORCE_INLINE size_t Size() {return _Bytes.size(); }
+	UCODE_ENGINE_FORCE_INLINE const auto& Get_Bytes() const { return _Bytes; }
+	UCODE_ENGINE_FORCE_INLINE size_t Size() const {return _Bytes.size(); }
 
 	void WriteBytes(const Byte* Bits, size_t size)
 	{

@@ -10,6 +10,7 @@ RenderingStart
 class Texture
 {
 public:
+	Texture();
 	Texture(const Path& filePath);
 	Texture(SInt32 width, SInt32 height,const Color32* color);
 	Texture(const BytesView PngData);
@@ -23,6 +24,8 @@ public:
 	Texture(const Texture& source) = delete;
 	Texture& operator=(const Texture& source) = delete;
 	
+	void SetTexture(const BytesView PngData);
+	void InitTexture();
 	void UpdateDataToGPU();
 
 
@@ -45,7 +48,7 @@ private:
 	bool _BufferIsInGPU;
 	Path _FilePath;
 
-	void InitTexture();
+	
 	void FreeFromGPU();
 };
 RenderingEnd

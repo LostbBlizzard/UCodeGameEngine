@@ -25,6 +25,7 @@ workspace "UCodeGameEngine"
     "Dependencies/box2d/include",
     "Dependencies/FileWatcher/include",
     "Dependencies/zip/src",
+    "Dependencies/MinimalSocket/src/header",
    }
    
    
@@ -120,6 +121,7 @@ project "UCodeEditor"
     "Output/box2d/" .. OutDirPath, 
     "Output/FileWatcher/" .. OutDirPath, 
     "Output/zip/" .. OutDirPath, 
+    "Output/MinimalSocket/" .. OutDirPath, 
    }
    links {
     "UCode.lib",
@@ -135,6 +137,8 @@ project "UCodeEditor"
     "box2d.lib",
     "FileWatcher.lib",
     "zip.lib",
+    "MinimalSocket.lib",
+    "Ws2_32.lib",
    }
 
    includedirs{
@@ -210,6 +214,8 @@ project "UCodeApp"
     "UCodeLang.lib",
     "SPIRV-Cross.lib",
     "box2d.lib",
+    "MinimalSocket.lib",
+    "Ws2_32.lib"
    }
 
    includedirs{
@@ -584,4 +590,18 @@ group "Dependencies"
     files {
       "Dependencies/%{prj.name}/src/**.h",
       "Dependencies/%{prj.name}/src/**.c",
+    }
+  project "MinimalSocket"
+    location "Dependencies/%{prj.name}"
+    kind "StaticLib"
+    language "C++" 
+
+    targetdir ("Output/%{prj.name}/" .. OutDirPath)
+    objdir ("Output/int/%{prj.name}/" .. OutDirPath)
+
+    files {
+      "Dependencies/%{prj.name}/src/**.h",
+      "Dependencies/%{prj.name}/src/**.c",
+      "Dependencies/%{prj.name}/src/**.cpp",
+      "Dependencies/%{prj.name}/src/**.hpp",
     }

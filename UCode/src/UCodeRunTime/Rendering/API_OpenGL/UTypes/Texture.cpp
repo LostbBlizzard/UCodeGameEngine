@@ -41,6 +41,11 @@ void Texture::FreeFromGPU()
 	_RendererID = 0;
 }
 
+Texture::Texture()
+{
+
+}
+
 Texture::Texture(const Path& filePath)
 	: _RendererID(0),_Width(0), _Height(0), _BPP(0), _Buffer(nullptr), _BufferIsInGPU(false),_FilePath(filePath)
 {
@@ -63,9 +68,7 @@ Texture::Texture(SInt32 width, SInt32 height, const Color32* color)
 Texture::Texture(const BytesView PngData)
 	: _RendererID(0), _Width(0), _Height(0), _BPP(0), _Buffer(nullptr), _BufferIsInGPU(false), _FilePath(MadewithColor)
 {
-	stbi_set_flip_vertically_on_load(0);
-	_Buffer = Unique_array<Byte>(stbi_load_from_memory(PngData.Data(),PngData.Size(), &_Width, &_Height, &_BPP, 4));
-
+	
 	InitTexture();
 }
 
@@ -106,6 +109,12 @@ Unique_ptr<Texture> Texture::MakeNewNullTexture()
 	Mem::free(tex->_Buffer.release());
 	tex->_Buffer = nullptr;
 	return tex;
+}
+
+void Texture::SetTexture(const BytesView PngData)
+{
+	stbi_set_flip_vertically_on_load(0);
+	_Buffer = Unique_array<Byte>(stbi_load_from_memory(PngData.Data(), PngData.Size(), &_Width, &_Height, &_BPP, 4));
 }
 
 void Texture::UpdateDataToGPU()

@@ -28,13 +28,13 @@ EditorAppCompoent::EditorAppCompoent(UCode::Entity* entity) :
 {
     AppFiles::Init(GetGameRunTime()->Get_Library_Edit());
     
-    AppFiles::AsynReadFileAsBytes(ToPathChar("Art/OpenSans-VariableFont_wdth,wght.ttf"))
+    AppFiles::AsynReadFileAsBytes(ToPathChar("art/OpenSans-VariableFont_wdth,wght.ttf"))
         .OnCompletedOnMainThread([this](Unique_Bytes FontBytes)
     {
 
     auto& io = ImGui::GetIO();
-    //io.Fonts->AddFontFromMemoryTTF(FontBytes.Pointer.get(), FontBytes.Size, 16.0f);
-    //io.FontDefault = io.Fonts->Fonts.back();
+    io.Fonts->AddFontFromMemoryTTF(FontBytes.Pointer.release(), FontBytes.Size, 16.0f);
+    io.FontDefault = io.Fonts->Fonts.back();
     });
 
 

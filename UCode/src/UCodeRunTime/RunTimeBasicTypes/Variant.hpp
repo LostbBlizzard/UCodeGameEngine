@@ -323,6 +323,7 @@ public:
 		_Tag = source._Tag;
 		_Items = source._Items;
 	}
+
 	Variant(ThisType&& source)
 	{
 		_Tag = source._Tag;
@@ -336,6 +337,13 @@ public:
 
 		_Tag = GetTypeValue<T>();
 		new ((T*)&_Items) T(source);
+	}
+	template<typename T> Variant(T&& source)
+	{
+		MustBeMyType<T>();
+
+		_Tag = GetTypeValue<T>();
+		new ((T*)&_Items) T(std::move(source));
 	}
 
 	ThisType& operator=(const ThisType& source)
@@ -355,6 +363,13 @@ public:
 	{
 		this->~Variant();
 		new (this) ThisType(source);
+
+		return *this;
+	}
+	template<typename T> ThisType& operator=(T&& source)
+	{
+		this->~Variant();
+		new (this) ThisType(std::move(source));
 
 		return *this;
 	}

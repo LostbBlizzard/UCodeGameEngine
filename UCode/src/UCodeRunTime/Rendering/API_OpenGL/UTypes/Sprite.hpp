@@ -20,6 +20,13 @@ public:
 	inline auto Get_Width()const { return  _Width; }
 	inline auto Get_Height() const { return _Height; }
 
+	
+	inline auto Set_texture(Texture* texture) {	_texture = texture;}
+	inline auto Set_Xoffset(SInt32 X) { _X = X; }
+	inline auto Set_Yoffset(SInt32 Y){  _Y =Y; }
+	inline auto Set_Width(SInt32 W){ _Width = W; }
+	inline auto Set_Height(SInt32 H) { _Height = H; }
+
 	static constexpr SInt32 GetTexureSize = -1;
 private:
 	Texture* _texture;

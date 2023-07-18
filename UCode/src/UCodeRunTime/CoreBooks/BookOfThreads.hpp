@@ -30,9 +30,18 @@ enum class TaskType
 	Generic,
 	FileIO,
 	NetWorkIO,
+	Rendering,
+	Physics,
+	Audio,
+	DataProcessing,
+	MaxTaskType,
 
 	File_Input = FileIO,
 	File_Output = FileIO,
+	NetWork_Input = NetWorkIO,
+	NetWork_Output = NetWorkIO,
+	Data_Serialzation,
+	Data_Deserialize,
 };
 
 
@@ -44,7 +53,9 @@ struct AsynTask_t
 	using ThisType = AsynTask_t<T>;
 	using OnDoneFuncPtr = Delegate<void,T>;
 	using Future = std::future<T>;
-
+	using Continue = Delegate<AsynTask_t<T>,T&&>;
+	using ContinueRet = AsynTask_t<T>;
+	using Cancel = Delegate<void>;
 	
 	
 	AsynTask_t(Future&& Item)
@@ -92,12 +103,12 @@ struct AsynTask_t
 		return OnCompletedOnThread(std::move(Value), AnyThread);
 	}
 
-	ThisType& OnCompletedOnThread(OnDoneFuncPtr&& Value,TaskType task)
+	ThisType& OnCompletedOnThread(TaskType task,OnDoneFuncPtr&& Value)
 	{
 		return  OnCompletedOnThread(std::move(Value), AnyThread);
 	}
 
-	ThisType& OnCompletedOnThread(OnDoneFuncPtr&& Value,ThreadToRunID Thread)
+	ThisType& OnCompletedOnThread(ThreadToRunID Thread,OnDoneFuncPtr&& Value)
 	{
 		OnDoneInfo V;
 		V.OnDone = std::move(Value);
@@ -105,6 +116,67 @@ struct AsynTask_t
 		AddCallDone(_TastID, V);
 		return *this;
 	}
+
+
+	ContinueRet ContinueCurrentThread(Continue&& Value)
+	{
+		return ContinueOnThread(std::move(Value), CurrentThread);
+	}
+	ContinueRet ContinueOnMainThread(Continue&& Value)
+	{
+		return ContinueOnThread(std::move(Value), MainThread);
+	}
+
+	ContinueRet ContinueOnAnyThread(Continue&& Value)
+	{
+		return ContinueOnThread(std::move(Value), AnyThread);
+	}
+
+	ContinueRet ContinueOnThread(TaskType task, Continue&& Value)
+	{
+		return  ContinueOnThread(std::move(Value), AnyThread);
+	}
+	ContinueRet ContinueOnThread(ThreadToRunID Thread, Continue&& Value)
+	{
+		/*
+		OnContinueInfo V;
+		V.OnDone = std::move(Value);
+		V.ThreadToRun = Thread;
+		AddCallDone(_TastID, V);
+		*/
+		return *this;
+	}
+
+
+
+
+	ThisType& OnCancelCurrentThread(Cancel&& Value)
+	{
+		return OnCancelOnThread(std::move(Value), CurrentThread);
+	}
+	ThisType& OnCancelOnMainThread(Cancel&& Value)
+	{
+		return OnCancelOnThread(std::move(Value), MainThread);
+	}
+
+	ThisType& OnCancelOnAnyThread(Cancel&& Value)
+	{
+		return OnCancelOnThread(std::move(Value), AnyThread);
+	}
+
+	ThisType& OnCancelOnThread(TaskType task, Cancel&& Value)
+	{
+		return  OnCancelOnThread(std::move(Value), AnyThread);
+	}
+	ThisType& OnCancelOnThread(ThreadToRunID Thread,Cancel&& Value)
+	{
+		//OnDoneInfo V;
+		//V.OnDone = std::move(Value);
+		//V.ThreadToRun = Thread;
+		//AddCallDone(_TastID, V);
+		return *this;
+	}
+
 
 
 	T GetValue()
@@ -134,6 +206,10 @@ struct AsynTask_t
 	bool IsDone()
 	{
 		return   Get_Future()._Is_ready();
+	}
+	void CancelTask()
+	{
+
 	}
 	static void RemoveCallID(TaskID ID)
 	{
@@ -184,15 +260,27 @@ private:
 		OnDoneFuncPtr OnDone;
 		ThreadToRunID ThreadToRun = AnyThread;
 	};
+	struct OnContinueInfo
+	{
+		Continue OnContinue;
+		ThreadToRunID ThreadToRun = AnyThread;
+	};
 	
 	inline static std::mutex _DoneLock;
 	inline static BinaryVectorMap< TaskID, OnDoneInfo> _Map;
+	inline static BinaryVectorMap< TaskID, OnContinueInfo> _Continues;
 	inline static BinaryVectorMap < TaskID,std::shared_ptr<Future>> _Futures;
 	
 	static void AddCallDone(TaskID ID,const OnDoneInfo& Info)
 	{
 		_DoneLock.lock();
 		_Map.AddValue(ID, Info);
+		_DoneLock.unlock();
+	}
+	static void AddContinueDone(TaskID ID, const OnContinueInfo& Info)
+	{
+		_DoneLock.lock();
+		_Continues.AddValue(ID, Info);
 		_DoneLock.unlock();
 	}
 	static bool HasOnDone(TaskID ID)
@@ -287,9 +375,9 @@ public:
 
 		_TaskLock.lock();
 		Ret._TastID = _TastID++;
+		_TaskLock.unlock();
 		TaskID NewTasklID = Ret._TastID;
 		Ret.Set_Future(std::move(r));
-		_TaskLock.unlock();
 
 		NewPtr = [NewTasklID,task = std::move(task_promise)]
 		{

@@ -13,6 +13,7 @@ enum class StaticBooksIndex : StaticBooksIndex_t
 	BookOfThreads,
 	AssetManager,
 	ULangRunTime,
+	BookOfDebuging,
 	MaxValue,
 };
 enum class StaticRuntimeComponentsIndex : StaticRunTimeComponentsIndex_t

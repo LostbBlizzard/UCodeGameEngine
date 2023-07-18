@@ -83,18 +83,26 @@ AsynTask_t<Unique_ptr<Texture>> AssetRendering::LoadTextureAsync(Gamelibrary* li
 
 	Unique_Bytes NewBits;
 	NewBits.Copyfrom(bits);
-	Vector<Byte> Bits = NewBits.MoveToVector();
-	Delegate<Unique_ptr<Texture>> Func = [Bits = std::move(Bits)]()
+	Vector<Byte> Bytes = NewBits.MoveToVector();
+
+	Delegate<Unique_ptr<Texture>> Func = [Bits = std::move(Bytes)]() mutable
 	{
-		auto View = BytesView::Make(Bits.data(), Bits.size());
-		auto teptex = new Texture(View);
+
+		auto teptex = new Texture();
+		teptex->SetTexture(BytesView::Make(Bits.data(), Bits.size()));
+		
 
 		return Unique_ptr<Texture>(teptex);
+	};
 
+	auto Func2 = [](Unique_ptr<Texture>&& Tex) mutable
+	{
+		Tex->InitTexture();
+		return std::move(Tex);
 	};
 
 
-	return threads->AddTask_t(TaskType::File_Input,
-		std::move(Func));
+	return threads->AddTask_t(TaskType::DataProcessing,Func)
+		.ContinueOnThread(TaskType::Rendering,Func2);
 }
 CoreEnd
