@@ -95,14 +95,15 @@ AsynTask_t<Unique_ptr<Texture>> AssetRendering::LoadTextureAsync(Gamelibrary* li
 		return Unique_ptr<Texture>(teptex);
 	};
 
-	auto Func2 = [](Unique_ptr<Texture>&& Tex) mutable
+	Delegate<Unique_ptr<Texture>,Unique_ptr<Texture>> Func2 = [](Unique_ptr<Texture>&& Tex) mutable
 	{
 		Tex->InitTexture();
+
 		return std::move(Tex);
 	};
 
 
 	return threads->AddTask_t(TaskType::DataProcessing,Func)
-		.ContinueOnThread(TaskType::Rendering,Func2);
+		.ContinueOnThread<Unique_ptr<Texture>>(TaskType::Rendering,Func2);
 }
 CoreEnd

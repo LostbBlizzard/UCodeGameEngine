@@ -6,22 +6,36 @@ CoreStart
 constexpr StaticBooksIndex_t KeyIdex = (StaticBooksIndex_t)StaticBooksIndex::BookOfThreads;
 
 static std::thread::id MainThreadID = {};
-static ThreadToRunID ThreadCount = MainThread+1;
-thread_local ThreadToRunID CurrentThreadInfo::CurrentThread = -1;
+static ThreadToRunID ThreadCount = NullThread;
+thread_local ThreadToRunID CurrentThreadInfo::CurrentThread = NullThread;
+
+static UInt32 threads_count=0;
 
 //To Do set threads on static
-BookOfThreads::BookOfThreads(Gamelibrary* lib) :libraryBook(lib), _EndThreads(false), _NextLockKey(1)
+BookOfThreads::BookOfThreads(Gamelibrary* lib) :libraryBook(lib), 
+_EndThreads(false), 
+_NextLockKey(1),
+ _TastID(0)
 {
-	MainThreadID = std::this_thread::get_id();
-	_TastID = 0;
+	_TastID =TaskID(0);
 	Threads = this;
+	ThreadCount = ThreadToRunID(0);
+
+	MainThreadID = std::this_thread::get_id();
+
 	const UInt32 num_threads = std::thread::hardware_concurrency();
-	_Threads.resize(num_threads);
+	threads_count = num_threads;
+	_Threads.reserve(num_threads);
 	
-	ThreadCount = MainThread + 1;
 	for (UInt32 i = 0; i < num_threads; i++)
 	{
-		_Threads.at(i) = std::thread(ThreadLoop,this);
+		ThreadInfo* info = _Threads.data() + i;
+		_Threads.push_back(ThreadInfo
+		(
+			ThreadToRunID(i)
+		));
+
+		info->thread.reset(new std::thread(ThreadLoop, this, info));
 	}
 	
 }
@@ -34,48 +48,137 @@ BookOfThreads::~BookOfThreads()
 	for (size_t i = 0; i < _Threads.size(); i++)
 	{
 		auto& Item = _Threads[i];
-		Item.join();
+		Item.thread->join();
 	}
 	_Threads.clear();
 }
-void BookOfThreads::ThreadLoop(BookOfThreads* _This)
+void BookOfThreads::ThreadLoop(BookOfThreads* _This,ThreadInfo* Info)
 {
-	_This->_TaskLock.lock();
-	CurrentThreadInfo::CurrentThread = ThreadCount++;
-	_This->_TaskLock.unlock();
+	CurrentThreadInfo::CurrentThread = Info->_ThreadID;
 
 	while (true)
 	{
-		TastInfo Task;
+		TaskInfo Task;
 		{
 			std::unique_lock<std::mutex> lock(_This->_TaskLock);
 
-			_This->_NewTask.wait(lock, [_This]
+			auto& MyTaskToDo = Info->_Data._TaskToDo;
+			auto& AnyThreadTaskToDo = _This->_AnyThread._TaskToDo;
+
+			_This->_NewTask.wait(lock, [_This, Info, MyTaskToDo, AnyThreadTaskToDo]
 				{
-					return !_This->_TaskToDo.empty() || _This->_EndThreads;
+					return !MyTaskToDo.empty()
+						 || !AnyThreadTaskToDo.empty()
+						 || _This->_EndThreads;
 				}
 			);
 
 			if (_This->_EndThreads){return;}
 
-			Task = _This->_TaskToDo.front();
-			_This->_TaskToDo.pop_back();
+			size_t TaskIndex = 0;
+			TaskInfo* TaskToRun = nullptr;
+
+			for (int i = MyTaskToDo.size() - 1; i >= 0; i--)
+			{
+				auto& Item = MyTaskToDo[i];
+
+				
+				if (IsTasksDone(Item.TaskDependencies))
+				{
+					TaskToRun = &Item;
+					TaskIndex = i;
+					break;
+				}
+			}
+
+			if (TaskToRun == nullptr) 
+			{ 
+				
+				for (int i = AnyThreadTaskToDo.size() - 1; i >= 0; i--)
+				{
+					auto& Item = AnyThreadTaskToDo[i];
+
+
+					if (IsTasksDone(Item.TaskDependencies))
+					{
+						TaskToRun = &Item;
+						TaskIndex = i;
+						break;
+					}
+				}
+				if (TaskToRun == nullptr) {
+					continue;
+				}
+			}
+
+
+			Task = std::move(*TaskToRun);
+			MyTaskToDo.erase(MyTaskToDo.begin() + TaskIndex);
+
 		}
-		Task._Func();
+		(*Task._Func)();
 	}
+}
+
+BookOfThreads::ThreadData& BookOfThreads::GetThreadInfo(ThreadToRunID ID)
+{
+	if (ID == MainThread)
+	{
+		return _MainThreadData;
+	}
+	else if (ID == AnyThread)
+	{
+		return _AnyThread;
+	}
+	else
+	{
+		return _Threads[ID.Get_Base()]._Data;
+	}
+}
+
+BookOfThreads::ThreadData& BookOfThreads::GetThreadNoneWorkingThread()
+{
+	_TaskLock.lock();
+	size_t BestPixk = SIZE_MAX;
+	BookOfThreads::ThreadData* Best = nullptr;
+	for (auto& Item : _Threads)
+	{
+		if (Item._Data._TaskToDo.size() < BestPixk)
+		{
+			BestPixk = Item._Data._TaskToDo.size();
+			Best = &Item._Data;
+		}
+	}
+	_TaskLock.unlock();
+	return *Best;
 }
 
 void BookOfThreads::CallTaskToDoOnMainThread()
 {
 	if (_OnMainThreadLock.try_lock())
 	{
-		Vector<std::function<void()>> CopyList = std::move(_TaskToDoOnMainThread);
-		_OnMainThreadLock.unlock();
+		for (auto& Item : _TaskToReAddOnToMainThread)
+		{
+			_MainThreadData._TaskToDo.push_back(std::move(Item));
+		}
+		_MainThreadData._TaskToDo.clear();
 
+		Vector<TaskInfo> CopyList = std::move(_MainThreadData._TaskToDo);
+		
+		_OnMainThreadLock.unlock();
+	
 		for (auto& Item : CopyList)
 		{
-			Item();
+			if (IsTasksDone(Item.TaskDependencies))
+			{
+				(*Item._Func)();
+			}
+			else
+			{
+				_TaskToReAddOnToMainThread.push_back(std::move(Item));
+			}
 		}
+
 	}
 }
 
@@ -84,7 +187,7 @@ void BookOfThreads::Update()
 	CallTaskToDoOnMainThread();
 }
 
-AsynTask BookOfThreads::AddTask(ThreadToRunID thread, FuncPtr Func)
+AsynTask BookOfThreads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vector<TaskID>& TaskDependencies)
 {
 
 	if (_Threads.size() == 0 || _Threads.size() == 1)
@@ -96,22 +199,30 @@ AsynTask BookOfThreads::AddTask(ThreadToRunID thread, FuncPtr Func)
 	{
 		if (thread == MainThread)
 		{
-			RunOnOnMainThread(std::move(Func));
+			RunOnOnMainThread(std::move(Func),TaskDependencies);
 			return  AsynTask();
 		}
-		if (thread != AnyThread) 
+		else if (thread == AnyThread)
 		{
-			UCODE_ENGINE_IMPlEMENTED_LATER;
+			TaskInfo Task;
+			Task._Func =std::make_shared<FuncPtr>(Func);
+			Task.TaskDependencies = TaskDependencies;
+
+			_TaskLock.lock();
+			GetThreadNoneWorkingThread()._TaskToDo.push_back(std::move(Task));
+			_TaskLock.unlock();	
+			return  AsynTask();
 		}
 		else
 		{
-			TastInfo Task;
-			Task._Func = Func;
-			_TaskLock.lock();
-			
+			TaskInfo Task;
+			Task._Func = std::make_shared<FuncPtr>(Func);
+			Task.TaskDependencies = TaskDependencies;
 
-			_TaskToDo.push_back(Task);
-			_NewTask.notify_one();
+			_TaskLock.lock();
+			auto& V = GetThreadInfo(thread);
+			
+			V._TaskToDo.push_back(std::move(Task));
 
 			_TaskLock.unlock();
 		}
@@ -119,21 +230,6 @@ AsynTask BookOfThreads::AddTask(ThreadToRunID thread, FuncPtr Func)
 
 
 	return AsynTask();
-}
-AsynTask BookOfThreads::AddTask(TaskType TaskType,FuncPtr Func)
-{
-	ThreadToRunID thread;
-	if (TaskType == TaskType::Generic)
-	{
-		thread = AnyThread;
-	}
-	else
-	{
-		//get an no work thread of the same TastType.
-		thread = AnyThread;
-	}
-
-	return AddTask(thread, Func);
 }
 BookOfThreads* BookOfThreads::Get(Gamelibrary* lib)
 {
@@ -157,8 +253,7 @@ ThreadToRunID BookOfThreads::GetNewThreadLockKey()
 	_TaskLock.lock();
 
 	auto R = _NextLockKey;
-	_NextLockKey++;
-	if (_NextLockKey == AnyThread) { _NextLockKey++; }
+	_NextLockKey = ThreadToRunID(R.Get_Base() + 1);
 
 	_TaskLock.unlock();
 	
@@ -168,21 +263,11 @@ ThreadToRunID BookOfThreads::GetNewThreadLockKey()
 void BookOfThreads::FreeThreadLock(ThreadToRunID key)
 {
 }
-
-void BookOfThreads::RunOnOnMainThread(const std::function<void()>& Func)
+void BookOfThreads::RunOnOnMainThread(FuncPtr&& Func, const Vector<TaskID>& TaskDependencies)
 {
 	_OnMainThreadLock.lock();
 
-	_TaskToDoOnMainThread.push_back(Func);
-
-	_OnMainThreadLock.unlock();
-}
-
-void BookOfThreads::RunOnOnMainThread(std::function<void()>&& Func)
-{
-	_OnMainThreadLock.lock();
-
-	_TaskToDoOnMainThread.push_back(std::move(Func));
+	_MainThreadData._TaskToDo.push_back({ std::make_shared<FuncPtr>(std::move(Func)),TaskDependencies });
 
 	_OnMainThreadLock.unlock();
 }
@@ -192,7 +277,7 @@ bool BookOfThreads::IsOnMainThread()
 	return MainThreadID == std::this_thread::get_id();
 }
 
-bool BookOfThreads::ThrowErrIfNotOnMainThread()
+void BookOfThreads::ThrowErrIfNotOnMainThread()
 {
 	if (!IsOnMainThread())
 	{
@@ -200,6 +285,45 @@ bool BookOfThreads::ThrowErrIfNotOnMainThread()
 	}
 }
 
-CoreEnd
+bool BookOfThreads::IsTasksDone(const Vector<TaskID>& Tasks)
+{
+	return false;
+}
 
+bool BookOfThreads::IsTasksDone(TaskID Task)
+{
+	Vector <TaskID> list; list.push_back(Task);
+	return IsTasksDone(list);
+}
+
+ThreadToRunID GetThreadFromTask(TaskType type)
+{
+	if (type == TaskType::Main
+		|| type == TaskType::Rendering
+		|| type == TaskType::Physics
+		|| type == TaskType::Audio)
+	{
+		return MainThread;
+	}
+	else if (type == TaskType::Generic) {
+		return AnyThread;
+	}
+	else
+	{
+		TaskType_t TypeAsInt = (TaskType_t)type;
+		ThreadToRunID_t NewV;
+		if (TypeAsInt > threads_count)
+		{
+			NewV = TypeAsInt-threads_count;
+		}
+		else
+		{
+			NewV = TypeAsInt;
+		}
+
+		return ThreadToRunID(NewV);
+	}
+}
+
+CoreEnd
 

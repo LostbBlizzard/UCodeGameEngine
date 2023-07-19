@@ -1,7 +1,7 @@
 #include "tests.hpp"
 
 #include "NetworkingTests.hpp"
-
+#include "AsynTests.hpp"
 EditorTestStart
 using TestFunc = bool(*)();
 struct TestInfo
@@ -12,6 +12,12 @@ struct TestInfo
 const TestInfo Tests[] =
 {
 	{"NetTest 1",NetTest_1},
+
+	{"AsynTest 1",AsynTest_1},
+	{"AsynTest 2",AsynTest_2},
+	{"AsynTest 3",AsynTest_3},
+	{"AsynTest 4",AsynTest_4},
+	{"AsynTest 5",AsynTest_5},
 };
 
 constexpr size_t TestCount = sizeof(Tests) / sizeof(Tests[0]);

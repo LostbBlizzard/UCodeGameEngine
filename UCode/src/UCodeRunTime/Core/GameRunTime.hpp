@@ -19,7 +19,8 @@ public:
 	Gamelibrary();
 	~Gamelibrary();
 
-
+	Gamelibrary(Gamelibrary&& Other) = default;
+	Gamelibrary& operator=(Gamelibrary&& Other) = default;
 
 	
 	UCODE_ENGINE_FORCE_INLINE void MoveBook(libraryBook* book)
