@@ -175,10 +175,10 @@ Unique_Bytes GameFiles::ReadFileAsBytes(const Path& Path)
 	{
 		Unique_Bytes Bits;
 		File.seekg(0, File.end);
-		Bits.Size = File.tellg();
+		size_t NewSize = File.tellg();
 		File.seekg(0, File.beg);
-		Bits.Pointer = std::make_unique<Byte[]>(Bits.Size);
-		File.read((char*)Bits.Pointer.get(), Bits.Size);
+		Bits.Resize(NewSize);
+		File.read((char*)Bits.Data(), Bits.Size());
 
 		return Bits;
 	}
@@ -452,13 +452,9 @@ Path GameFiles::GetGameFilePathByMove(const Path& path)
 		if (auto Val = _Data.GetFile(path))
 		{
 			auto Bits = ReadGameFileAsBytes(path);
-			GameFiles::WriteBytes(Bits.Pointer.get(),Bits.Size,OutPath);
+			GameFiles::WriteBytes(Bits.Data(),Bits.Size(),OutPath);
 		}
-		else
-		{
 
-		}
-		
 		return OutPath;
 	}
 	else 

@@ -39,6 +39,11 @@ public:
 		{
 
 		}
+		Client()
+			: _Base(nullptr), _ClientIndex(0)
+		{
+
+		}
 	private:
 
 		Client(size_t ClientIndex)
