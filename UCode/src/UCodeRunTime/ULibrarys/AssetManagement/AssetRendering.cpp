@@ -75,7 +75,7 @@ AsynTask_t<Unique_ptr<Texture>> AssetRendering::LoadTextureAsync(Gamelibrary* li
 	
 
 	return threads->AddTask_t(TaskType::File_Input,
-		Func);
+		std::move(Func), {});
 }
 AsynTask_t<Unique_ptr<Texture>> AssetRendering::LoadTextureAsync(Gamelibrary* lib, const BytesView bits)
 {
@@ -103,7 +103,7 @@ AsynTask_t<Unique_ptr<Texture>> AssetRendering::LoadTextureAsync(Gamelibrary* li
 	};
 
 
-	return threads->AddTask_t(TaskType::DataProcessing,Func)
-		.ContinueOnThread<Unique_ptr<Texture>>(TaskType::Rendering,Func2);
+	return threads->AddTask_t(TaskType::DataProcessing, std::move(Func), {})
+		.ContinueOnThread<Unique_ptr<Texture>>(TaskType::Rendering, std::move(Func2));
 }
 CoreEnd

@@ -462,8 +462,12 @@ public:
 	template<typename T> using OnDoneFuncPtr = Delegate<void, T>;
 	//#define MoveParPack(Pack_t,P) std::forward<##Pack_t&&>(##P)...
 	//#define MovedParsParam(Pars) Pars##&&...
-	#define MoveParPack(Pack_t,P) P...
+	//#define MoveParPack(Pack_t,P) P...
+	//#define MoveParPack2(Pack_t, P) std::forward<##Pack_t&&>(##P)...
+
+	#define MoveParPack(Pack_t,P) std::forward<##Pack_t>(##P) ...	
 	#define MovedParsParam(Pars) Pars##...
+
 
 
 	struct TaskInfo
@@ -527,9 +531,16 @@ public:
 		_TaskLock.unlock();
 
 		FuncPtr NewPtr = [NewTasklID,
-			task = std::move(task_promise)]()
+			task = std::move(task_promise),
+			parsV = std::make_tuple<Pars...>(MoveParPack(Pars,pars))]() mutable
 		{
-			//(*task)(MoveParPack(Pars,parsv));
+			std::apply([&](auto&&... args)
+			{
+				(*task)(args...);
+
+			},std::move(parsV));
+
+			
 			if (AsynTask_t<R>::HasOnDone(NewTasklID))
 			{
 				auto Val = AsynTask_t<R>::Get_Future(NewTasklID).get();

@@ -15,9 +15,9 @@ static UInt32 threads_count=0;
 BookOfThreads::BookOfThreads(Gamelibrary* lib) :libraryBook(lib), 
 _EndThreads(false), 
 _NextLockKey(1),
- _TastID(0)
+ _TaskID(0)
 {
-	_TastID =TaskID(0);
+	_TaskID =TaskID(0);
 	Threads = this;
 	ThreadCount = ThreadToRunID(0);
 
