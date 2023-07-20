@@ -1,6 +1,7 @@
 #include "AsynTests.hpp"
 
 #include "UCodeRunTime/CoreBooks/BookOfThreads.hpp"
+
 EditorTestStart
 
 
@@ -23,40 +24,90 @@ struct AsynTestContext
 	}
 };
 
-bool AsynTest_1()
-{
-	AsynTestContext V;V.SetUp();
 
 
-	UCode::Delegate<int, int, int> Func = [](int X, int Y)
-	{
-		std::this_thread::sleep_for(UCode::Time::fsec(1));
-		return X + Y;
-	};
 
-	auto task = V.Threads->AddTask_t(UCode::TaskType::Generic,std::move(Func), {}, 5, 10);
-	while (!task.IsDone()){V.Update();}
-
-	int NewValue = task.GetValue();
-
-	return NewValue == 15;
-}
-bool AsynTest_2()
+template<typename V_t> 
+bool AsynTest_1_V(V_t XValue,V_t YValue)
 {
 	AsynTestContext V; V.SetUp();
 
-	UCode::Delegate<int, int, int> Func = [](int X, int Y)
+	
+	V_t RValue = XValue + YValue;
+
+	UCode::Delegate<V_t,V_t,V_t> Func = [](V_t X,V_t Y)
 	{
 		std::this_thread::sleep_for(UCode::Time::fsec(1));
 		return X + Y;
 	};
 
-	auto task = V.Threads->RunOnOnMainThread(std::move(Func), {}, 5, 10);
-	while (!task.IsDone()){V.Update();}
+	auto task = V.Threads->AddTask_t(UCode::TaskType::Generic, std::move(Func), {}, XValue, YValue);
+	while (!task.IsDone()) { V.Update(); }
 
-	int NewValue = task.GetValue();
+	V_t NewValue = task.GetValue();
 
-	return NewValue == 15;
+	return NewValue == RValue;
+}
+
+template<typename V_t>
+bool AsynTest_1_VMove(V_t XValue,V_t YValue)
+{
+	AsynTestContext V; V.SetUp();
+
+
+	V_t RValue = XValue + YValue;
+
+	UCode::Delegate<V_t,UCode::Unique_ptr<V_t>,UCode::Unique_ptr<V_t>> Func = [](UCode::Unique_ptr<V_t> X,UCode::Unique_ptr<V_t> Y)
+	{
+		std::this_thread::sleep_for(UCode::Time::fsec(1));
+		return *X+  *Y;
+	};
+
+	auto task = V.Threads->AddTask_t(UCode::TaskType::Generic, std::move(Func), {},
+		std::make_unique<V_t>(XValue), 
+		std::make_unique<V_t>(YValue));
+	while (!task.IsDone()) { V.Update(); }
+
+	V_t NewValue = task.GetValue();
+
+	return NewValue == RValue;
+}
+
+
+template<typename V_t>
+bool AsynTest_2_V(V_t XValue, V_t YValue)
+{
+	AsynTestContext V; V.SetUp();
+
+	UCode::Delegate<V_t, V_t, V_t> Func = [](V_t X,V_t Y)
+	{
+		std::this_thread::sleep_for(UCode::Time::fsec(1));
+		return X + Y;
+	};
+	V_t RValue = XValue + YValue;
+
+	auto task = V.Threads->RunOnOnMainThread(std::move(Func), {}, XValue, YValue);
+	while (!task.IsDone()) { V.Update(); }
+
+	V_t NewValue = task.GetValue();
+
+	return NewValue == RValue;
+}
+
+bool AsynTest_1()
+{
+	return
+		AsynTest_1_V<int>(5, 10);
+		AsynTest_1_V<UCode::String>("Hello", "World");
+		//AsynTest_1_VMove<int>(5,19) &&
+		//AsynTest_1_VMove<UCode::String>(UCode::String("Good bye"), UCode::String("World"));
+}
+bool AsynTest_2()
+{
+	return AsynTest_2_V<int>(5, 10) &&
+		AsynTest_2_V<UCode::String>("Hello", "World");
+		//AsynTest_2_V<MoveOnly<int>>(5, 19) &&
+		//AsynTest_2_V<MoveOnly<std::string>>(std::string("Good bye"), std::string("World"));
 }
 bool AsynTest_3()
 {
