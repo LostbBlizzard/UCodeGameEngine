@@ -44,6 +44,20 @@ BookOfThreads::~BookOfThreads()
 {
 	_EndThreads = true;
 	Threads = nullptr;
+	
+	//
+	for (auto& Item : _MainThreadData._TaskToDo)
+	{
+		TryCallCancel(Item.TaskID);
+	}
+	_MainThreadData._TaskToDo.clear();
+	for (auto& Item : _TaskToReAddOnToMainThread)
+	{
+		TryCallCancel(Item.TaskID);
+	}
+	_TaskToReAddOnToMainThread.clear();
+	//
+	
 	_NewTask.notify_all();
 	for (size_t i = 0; i < _Threads.size(); i++)
 	{
@@ -51,6 +65,9 @@ BookOfThreads::~BookOfThreads()
 		Item.thread->join();
 	}
 	_Threads.clear();
+
+
+	
 }
 void BookOfThreads::ThreadLoop(BookOfThreads* _This,ThreadInfo* Info)
 {
@@ -73,7 +90,7 @@ void BookOfThreads::ThreadLoop(BookOfThreads* _This,ThreadInfo* Info)
 				}
 			);
 
-			if (_This->_EndThreads){return;}
+			if (_This->_EndThreads){break;}
 
 			size_t TaskIndex = 0;
 			TaskInfo* TaskToRun = nullptr;
@@ -118,6 +135,12 @@ void BookOfThreads::ThreadLoop(BookOfThreads* _This,ThreadInfo* Info)
 		}
 		(*Task._Func)();
 	}
+
+	for (auto& Item : Info->_Data._TaskToDo)
+	{
+		TryCallCancel(Item.TaskID);
+	}
+	Info->_Data._TaskToDo.clear();
 }
 
 BookOfThreads::ThreadData& BookOfThreads::GetThreadInfo(ThreadToRunID ID)
@@ -207,8 +230,10 @@ AsynTask BookOfThreads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vect
 			TaskInfo Task;
 			Task._Func =std::make_shared<FuncPtr>(Func);
 			Task.TaskDependencies = TaskDependencies;
+			
 
 			_TaskLock.lock();
+			Task.TaskID = _TaskID;
 			GetThreadNoneWorkingThread()._TaskToDo.push_back(std::move(Task));
 			_TaskLock.unlock();	
 			return  AsynTask();
@@ -218,8 +243,10 @@ AsynTask BookOfThreads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vect
 			TaskInfo Task;
 			Task._Func = std::make_shared<FuncPtr>(Func);
 			Task.TaskDependencies = TaskDependencies;
+			
 
 			_TaskLock.lock();
+			Task.TaskID = _TaskID;
 			auto& V = GetThreadInfo(thread);
 			
 			V._TaskToDo.push_back(std::move(Task));

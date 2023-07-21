@@ -380,7 +380,7 @@ AsynTask_t<Unique_Bytes> GameFiles::AsynReadGameFileFullBytes(const Path& path)
 		return GameFiles::ReadGameFileAsBytes(p);
 	};
 	UCode::Delegate<Unique_Bytes> V = Func;
-	return threads->AddTask_t(TaskType::File_Input, std::move(V));
+	return threads->AddTask_t(TaskType::File_Input, std::move(V), {});
 }
 AsynTask_t<Unique_Bytes> GameFiles::AsynReadGameFileBytes(const Path& path, size_t Offset, size_t Bytes)
 {
@@ -392,7 +392,7 @@ AsynTask_t<Unique_Bytes> GameFiles::AsynReadGameFileBytes(const Path& path, size
 		return GameFiles::ReadGameFileAsBytes(p, Offset, Bytes);
 	};
 	UCode::Delegate<Unique_Bytes> V = Func;
-	return threads->AddTask_t(TaskType::File_Input, std::move(V));
+	return threads->AddTask_t(TaskType::File_Input, std::move(V), {});
 }
 AsynTask_t<Unique_Bytes> GameFiles::AsynReadFileFullBytes(const Path& path)
 {
@@ -404,7 +404,7 @@ AsynTask_t<Unique_Bytes> GameFiles::AsynReadFileFullBytes(const Path& path)
 		return GameFiles::ReadFileAsBytes(p);
 	};
 	UCode::Delegate<Unique_Bytes> V = Func;
-	return threads->AddTask_t(TaskType::File_Input, std::move(V));
+	return threads->AddTask_t(TaskType::File_Input, std::move(V), {});
 }
 AsynTask_t<Unique_Bytes> GameFiles::AsynReadFileBytes(const Path& path, size_t Offset, size_t Bytes)
 {
@@ -416,7 +416,7 @@ AsynTask_t<Unique_Bytes> GameFiles::AsynReadFileBytes(const Path& path, size_t O
 		return GameFiles::ReadFileAsBytes(p,Offset,Bytes);
 	};
 	UCode::Delegate<Unique_Bytes> V = Func;
-	return threads->AddTask_t(TaskType::File_Input, std::move(V));
+	return threads->AddTask_t(TaskType::File_Input, std::move(V), {});
 }
 AsynTask_t<String> GameFiles::AsynReadGameFileString(const Path& path)
 {
@@ -428,7 +428,7 @@ AsynTask_t<String> GameFiles::AsynReadGameFileString(const Path& path)
 		return GameFiles::ReadGameFileAsString(p);
 	};
 	UCode::Delegate<String> V = Func;
-	return threads->AddTask_t(TaskType::File_Input, std::move(V));
+	return threads->AddTask_t(TaskType::File_Input, std::move(V), {});
 }
 AsynTask_t<String> GameFiles::AsynReadFileString(const Path& path)
 {
@@ -440,7 +440,7 @@ AsynTask_t<String> GameFiles::AsynReadFileString(const Path& path)
 		return GameFiles::ReadFileAsString(p);
 	};
 	UCode::Delegate<String> V = Func;
-	return threads->AddTask_t(TaskType::File_Input,std::move(V));
+	return threads->AddTask_t(TaskType::File_Input, std::move(V), {});
 }
 
 Path GameFiles::GetGameFilePathByMove(const Path& path)
@@ -472,7 +472,7 @@ AsynTask_t<Path> GameFiles::AsynGetGameFilePathByMove(const Path& path)
 		return this->GetGameFilePathByMove(p);
 	};
 	UCode::Delegate<Path> V = Func;
-	return threads->AddTask_t(TaskType::File_Input, std::move(V));
+	return threads->AddTask_t(TaskType::File_Input, std::move(V), {});
 }
 //
 CoreEnd

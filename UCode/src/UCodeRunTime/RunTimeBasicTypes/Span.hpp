@@ -146,8 +146,8 @@ struct Unique_Span
 
 	void Copyfrom(const Vector<T>& Values)
 	{
-		Resize(Values.Size());
-		for (size_t i = 0; i < Values.Size(); i++)
+		Resize(Values.size());
+		for (size_t i = 0; i < Values.size(); i++)
 		{
 			Pointer[i] = Values[i];
 		}
@@ -203,6 +203,18 @@ struct Unique_Span
 	const T* Data() const
 	{
 		return Pointer.get();
+	}
+
+	T* Release()
+	{
+	 	auto r = Pointer.release();
+		_Size = 0;
+		return r;
+	}
+	void SetReset(T* Value,size_t Size)
+	{
+		Pointer.reset(Value);
+		_Size = Size;
 	}
 private:
 		Unique_array<T> Pointer;

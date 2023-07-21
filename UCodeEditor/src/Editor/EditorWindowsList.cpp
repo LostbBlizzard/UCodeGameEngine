@@ -13,26 +13,27 @@
 #include <EditorWindows/ExternalServices/LibraryWindow.hpp>
 
 #include <EditorWindows/BasicWindows/UserSettingsWindow.hpp>
+#include <EditorWindows/BasicWindows/DebugingWindow.hpp>
 EditorStart
 
 EditorWindowData Data2[] =
 {
-	 OpenProjectWindow::GetEditorData(),
- 	 ConsoleWindow::GetEditorData(),
-	 ProjectFilesWindow::GetEditorData(),
-	 InspectWindow::GetEditorData(),
-	 GameEditorWindow::GetEditorData(),
-	 ProjectWindow::GetEditorData(),
-	 ExportProjectWindow::GetEditorData(),
+	InspectWindow::GetEditorData(),
+	GameEditorWindow::GetEditorData(),
+	ProjectFilesWindow::GetEditorData(),
+	ConsoleWindow::GetEditorData(),
+	ProjectWindow::GetEditorData(),
 
-	
+	DebugingWindow::GetEditorData(),
 
-	 ShaderGraphWindow::GetEditorData(),
+	OpenProjectWindow::GetEditorData(),
+	ExportProjectWindow::GetEditorData(),
+	ShaderGraphWindow::GetEditorData(),
 
-	 UCodeGraph::GetEditorData(), 
-	 GitWindow::GetEditorData(),
-	 LibraryWindow::GetEditorData(),
-	 UserSettingsWindow::GetEditorData(),
+	UCodeGraph::GetEditorData(),
+	GitWindow::GetEditorData(),
+	LibraryWindow::GetEditorData(),
+	UserSettingsWindow::GetEditorData(),
 };
 const EditorWindowData* EditorWindowsList::EditorWindows = Data2;
 const size_t EditorWindowsList::EditorWindows_Size = sizeof(Data2) / sizeof(EditorWindowData);

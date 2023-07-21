@@ -19,8 +19,8 @@ void TcpClient::Connet(const Ip_t& IP, Port_t Port)
 		throw std::exception("Client Is Runing");
 	}
 #endif // DEBUG
-
-	_Base = std::make_unique< MinimalSocket::tcp::TcpClient>(IP);
+	
+	_Base = Unique_ptr<MinimalSocket::tcp::TcpClient>(new MinimalSocket::tcp::TcpClient(MinimalSocket::Address(IP,Port)));
 	bool V = _Base->open(MinimalSocket::Timeout(1));
 	if (V)
 	{

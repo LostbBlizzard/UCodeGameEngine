@@ -41,10 +41,9 @@ bool EditorIndex::FromFile(EditorIndex& Out, const Path& path)
 	{
 		Unique_Bytes Bits;
 		File.seekg(0, File.end);
-		Bits.Size = File.tellg();
+		Bits.Resize(File.tellg());
 		File.seekg(0, File.beg);
-		Bits.Pointer = std::make_unique<Byte[]>(Bits.Size);
-		File.read((char*)Bits.Pointer.get(), Bits.Size);
+		File.read((char*)Bits.Data(), Bits.Size());
 
 		return  FromBytes(Out,Bits.AsView());
 	}
@@ -61,7 +60,7 @@ bool EditorIndex::ToFile(const EditorIndex& Out, const Path& path)
 	if (File.is_open()) 
 	{
 		auto Bits = ToBytes(Out);
-		File.write((const char*)Bits.Pointer.get(), Bits.Size);
+		File.write((const char*)Bits.Data(), Bits.Size());
 		File.close();
 		return true;
 	}
@@ -121,11 +120,7 @@ Unique_Bytes EditorIndex::ToBytes(const EditorIndex& Out)
 
 
 	Unique_Bytes R;
-	R.Pointer.reset(new Byte[bit.Size()]);
-	R.Size = bit.Size();
-
-	memcpy(R.Pointer.get(), bit.Get_Bytes().data(), bit.Size());
-
+	R.Copyfrom(std::move(bit.Get_Bytes()));
 	return R;
 }
 

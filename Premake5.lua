@@ -202,6 +202,7 @@ project "UCodeApp"
     "Output/UCodeLang/" .. OutDirPath, 
     "Output/SPIRV-Cross/" .. OutDirPath, 
     "Output/box2d/" .. OutDirPath, 
+    "Output/MinimalSocket/" .. OutDirPath, 
    }
    links {
     "UCode.lib",

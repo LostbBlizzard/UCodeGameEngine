@@ -160,9 +160,9 @@ UCode::Texture* AppFiles::GetTexture(texture tex)
                         {
                             _textures[id] = Val.release();
                             _loadtextures[id] = true;
-                        }
-                        return s
-                            );
+
+                            return std::move(Val);
+                        });
             };
 
             gamefiles->AsynReadGameFileFullBytes(Path)
@@ -175,8 +175,9 @@ UCode::Texture* AppFiles::GetTexture(texture tex)
                                 {
                                     _textures[id] = Val.release();
                                     _loadtextures[id] = true;
+
+                                    return std::move(Val);
                                 }
-                                return s
                         );
                     }
             );
