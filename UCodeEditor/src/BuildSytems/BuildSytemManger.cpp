@@ -58,7 +58,7 @@ void BuildSytemManger::Build(const WindowsBuildSetings& setings)
 	{
 		fs::remove(ExePath);
 	}
-	UCode::GameFiles::WriteBytes(ExeTepPath.Pointer.get(), ExeTepPath.Size, ExePath);
+	UCode::GameFiles::WriteBytes(ExeTepPath.Data(), ExeTepPath.Size(), ExePath);
 
 
 	const auto SerializerMode = UCode::USerializerType::Bytes;

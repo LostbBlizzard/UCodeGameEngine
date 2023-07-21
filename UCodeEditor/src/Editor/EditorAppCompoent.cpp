@@ -33,7 +33,7 @@ EditorAppCompoent::EditorAppCompoent(UCode::Entity* entity) :
     {
 
     auto& io = ImGui::GetIO();
-    io.Fonts->AddFontFromMemoryTTF(FontBytes.Pointer.release(), FontBytes.Size, 16.0f);
+    io.Fonts->AddFontFromMemoryTTF(FontBytes.Release(), FontBytes.Size(), 16.0f);
     io.FontDefault = io.Fonts->Fonts.back();
     });
 

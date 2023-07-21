@@ -8,7 +8,7 @@ UCODE_EDITOR_NODISCARD bool PluginIndex::WriteToFile(const Path& path, const Plu
 	{
 		Unique_Bytes Bits = ToBits(Data);
 		//
-		File.write((char*)Bits.Pointer.get(), Bits.Size);
+		File.write((char*)Bits.Data(), Bits.Size());
 
 		File.close();
 		return true;
@@ -23,12 +23,9 @@ UCODE_EDITOR_NODISCARD bool PluginIndex::ReadFromFile(const Path& path, PluginIn
 	{
 		Unique_Bytes Bits;
 		File.seekg(0, File.end);
-		Bits.Size = File.tellg();
+		Bits.Resize(File.tellg());
 		File.seekg(0, File.beg);
-		Bits.Pointer = std::make_unique<Byte[]>(Bits.Size);
-
-
-		File.read((char*)Bits.Pointer.get(), Bits.Size);
+		File.read((char*)Bits.Data(), Bits.Size());
 		File.close();
 
 		return FromBits(Bits.AsView(), Data);
@@ -51,9 +48,7 @@ UCODE_EDITOR_NODISCARD Unique_Bytes PluginIndex::ToBits(const PluginIndex& Data)
 
 	//
 	Unique_Bytes R;
-	R.Pointer.reset(new Byte[bit.Size()]);
-	R.Size = bit.Size();
-	memcpy(R.Pointer.get(), bit.Get_Bytes().data(), bit.Size());
+	R.Copyfrom(std::move(bit.Get_Bytes()));
 	return R;
 }
 

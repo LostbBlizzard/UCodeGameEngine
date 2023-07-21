@@ -172,7 +172,7 @@ struct AsynTask_t
 	ThisType& operator=(ThisType&& Other)
 	{
 		_TaskID = Other._TaskID;
-		Other._TaskID = 0;
+		Other._TaskID = NullTaskID;
 		return *this;
 	}
 
@@ -188,7 +188,7 @@ struct AsynTask_t
 
 	SelfRet OnCompletedOnAnyThread(OnDoneFuncPtr&& Value)
 	{
-		return  OnCompletedOnThread(std::move(Value), Value);
+		return  OnCompletedOnThread(std::move(Value), AnyThread);
 	}
 
 	SelfRet OnCompletedOnThread(OnDoneFuncPtr&& Value,TaskType task)
@@ -474,6 +474,7 @@ public:
 	{
 		std::shared_ptr<FuncPtr> _Func;
 		Vector<TaskID> TaskDependencies;
+		TaskID TaskID = NullTaskID;
 	};
 
 	static BookOfThreads* Get(Gamelibrary* lib);
@@ -503,7 +504,7 @@ public:
 			return AsynNonVoidValue;
 		};
 
-		return AddTask_t<AsynNonVoidType,Pars...>(TaskType, Func, TaskDependencies, MoveParPack(Pars, pars));
+		return AddTask_t<AsynNonVoidType,Pars...>(TaskType,std::move(Func), TaskDependencies, MoveParPack(Pars, pars));
 	}
 	
 

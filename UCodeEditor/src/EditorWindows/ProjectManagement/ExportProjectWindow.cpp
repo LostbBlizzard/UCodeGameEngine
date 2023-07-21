@@ -171,7 +171,8 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 		}
 		buildSytem.Setings._OutDir /= AddedOnOutDir;
 
-		SetBuildData(AssetsPath, ProjectInfo, AddedOnOutDir, Info);
+		//BuildSetings::SettingsType Copy = BuildSetings::SettingsType(WindowsBuildSetings(Info));
+		//SetBuildData(AssetsPath, ProjectInfo, AddedOnOutDir,Copy);
 		
 		RuningTask V;
 		V.TaskType = RuningTask::Type::BuildingProject;
@@ -184,7 +185,7 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 
 		_Task = Threads->AddTask_t(
 			UCode::TaskType::FileIO,
-			Func);
+			std::move(Func), {});
 	}
 
 	
@@ -214,7 +215,9 @@ void ExportProjectWindow::ShowWebExportSeting()
 		}
 		buildSytem.Setings._OutDir /= AddedOnOutDir;
 
-		SetBuildData(AssetsPath, ProjectInfo, AddedOnOutDir, Info);
+
+		//auto Copy = Info;
+		//SetBuildData(AssetsPath, ProjectInfo, AddedOnOutDir, Copy);
 
 		RuningTask V;
 		V.TaskType = RuningTask::Type::BuildingProject;
@@ -227,7 +230,7 @@ void ExportProjectWindow::ShowWebExportSeting()
 	
 		_Task = Threads->AddTask_t(
 			UCode::TaskType::FileIO,
-			Func);
+			std::move(Func), {});
 
 	}
 
@@ -267,7 +270,9 @@ void ExportProjectWindow::ShowAndroidExportSeting()
 		}
 		buildSytem.Setings._OutDir /= AddedOnOutDir;
 
-		SetBuildData(AssetsPath, ProjectInfo, AddedOnOutDir, Info);
+
+		//auto Copy = Info;
+		//SetBuildData(AssetsPath, ProjectInfo, AddedOnOutDir, Copy);
 
 		RuningTask V;
 		V.TaskType = RuningTask::Type::BuildingProject;
@@ -280,7 +285,7 @@ void ExportProjectWindow::ShowAndroidExportSeting()
 
 		_Task = Threads->AddTask_t(
 			UCode::TaskType::FileIO,
-			Func);
+			std::move(Func), {});
 	}
 	
 

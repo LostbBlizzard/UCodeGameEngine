@@ -338,7 +338,7 @@ void CodeModule::FilesUpdated(const Vector<FileUpdateData>& paths)
 			task.TaskType = RuningTask::Type::BuildingUCodeFiles;
 			RuningTasksInfo::AddTask(task);
 
-			Threads->AddTask_t(UCode::TaskType::FileIO, OnOtherThread);
+			Threads->AddTask_t(UCode::TaskType::FileIO,std::move(OnOtherThread), {});
 		}
 	}
 }

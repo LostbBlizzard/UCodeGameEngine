@@ -193,12 +193,9 @@ UCODE_ENGINE_NODISCARD bool UDeserializer::FromFile(const Path& Path, UDeseriali
 	{
 		Unique_Bytes Bits;
 		File.seekg(0, File.end);
-		Bits.Size = File.tellg();
+		Bits.Resize(File.tellg());
 		File.seekg(0, File.beg);
-		Bits.Pointer = std::make_unique<Byte[]>(Bits.Size);
-
-
-		File.read((char*)Bits.Pointer.get(), Bits.Size);
+		File.read((char*)Bits.Data(), Bits.Size());
 		
 
 		Out.SetData(Bits.AsView());

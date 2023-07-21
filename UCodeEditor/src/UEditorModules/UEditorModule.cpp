@@ -108,7 +108,7 @@ bool ExportChacheFile::ToFile(const Path& path, const ExportChacheFile& file)
 	if (File.is_open())
 	{
 		auto Bits = ToBytes(file);
-		File.write((const char*)Bits.Pointer.get(), Bits.Size);
+		File.write((const char*)Bits.Data(), Bits.Size());
 		File.close();
 		return true;
 	}
@@ -126,10 +126,9 @@ bool ExportChacheFile::FromFile(const Path& path, ExportChacheFile& file)
 	{
 		Unique_Bytes Bits;
 		File.seekg(0, File.end);
-		Bits.Size = File.tellg();
+		Bits.Resize(File.tellg());
 		File.seekg(0, File.beg);
-		Bits.Pointer = std::make_unique<Byte[]>(Bits.Size);
-		File.read((char*)Bits.Pointer.get(), Bits.Size);
+		File.read((char*)Bits.Data(), Bits.Size());
 
 		return  FromBytes(Bits.AsView(), file);
 	}
@@ -155,9 +154,7 @@ Unique_Bytes ExportChacheFile::ToBytes(const ExportChacheFile& file)
 	}
 
 	auto V = Unique_Bytes();
-	V.Pointer.reset(new Byte[bits.Size()]);
-	V.Size = bits.Size();
-	memcpy(V.Pointer.get(), bits.Get_Bytes().data(), bits.Size());
+	V.Copyfrom(bits.Get_Bytes());
 	return V;
 }
 bool ExportChacheFile::FromBytes(const BytesView& bytes, ExportChacheFile& file)
