@@ -18,6 +18,11 @@ EditorStart
 
 EditorWindowData Data2[] =
 {
+	//OpenProjectWindow  Must be first Item because 
+	//EditorAppCompoent will load this  Data2[0] when app starts 
+
+	OpenProjectWindow::GetEditorData(),
+	
 	InspectWindow::GetEditorData(),
 	GameEditorWindow::GetEditorData(),
 	ProjectFilesWindow::GetEditorData(),
@@ -26,7 +31,6 @@ EditorWindowData Data2[] =
 
 	DebugingWindow::GetEditorData(),
 
-	OpenProjectWindow::GetEditorData(),
 	ExportProjectWindow::GetEditorData(),
 	ShaderGraphWindow::GetEditorData(),
 

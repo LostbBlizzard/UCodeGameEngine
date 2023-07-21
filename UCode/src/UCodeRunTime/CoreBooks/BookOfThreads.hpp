@@ -289,13 +289,13 @@ struct AsynTask_t
 	{
 		Vector<TaskID> Deps;
 		Deps.push_back(_TaskID);
-		Delegate<T2> Func = [this,Value = std::move(Value)]()
+		Delegate<T2> Func = [_TaskID = _TaskID,Value = std::move(Value)]()
 		{
-			return T2();
-			//return Value(this.GetValue());
+			auto Val = Get_Future(_TaskID).get();
+			return Value(std::move(Val));
+			//return T2();
 		};
-		return {};
-		//return BookOfThreads::Threads->AddTask_t<T2>(Thread,Func,Deps);
+		return BookOfThreads::Threads->AddTask_t<T2>(Thread,std::move(Func),Deps);
 	}
 
 	ContinueRet<AsynNonVoidType> ContinueOnThread(ThreadToRunID Thread, Continue<AsynNonVoidType>&& Value)
