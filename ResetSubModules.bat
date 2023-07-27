@@ -52,5 +52,11 @@ cd "Dependencies/plog"
 del "plog.vcxproj"
 del "plog.vcxproj.filters"
 
+cd "../../"
+
+cd "Dependencies/MinimalSocket"
+del "MinimalSocket.vcxproj"
+del "MinimalSocket.vcxproj.filters"
+
 
 pause
