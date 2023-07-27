@@ -8,11 +8,10 @@ The UCodeGameEngine uses The UCode Progaming Language.The Scripting Reference wi
 
 API are grouped by namespaces below.
 
-- [UCodeGameEngine](./Scripting%20Reference/GameEngine.md)
+- [UCodeGameEngine]()
 
+- [UCodeGameEngine::Editor]()
 
-- [UCodeGameEngine::Editor](./Scripting%20Reference/Editor.md)
+- [UCodeGameEngine::Native]()
 
-- [UCodeGameEngine::Native](./Scripting%20Reference/NativeEngine.md.md)
-
-- [UCodeGameEngine::Native::Editor](./Scripting%20Reference/Editor.md)
+- [UCodeGameEngine::Native::Editor]()
