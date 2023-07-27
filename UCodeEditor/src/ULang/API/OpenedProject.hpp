@@ -4,7 +4,7 @@
 
 UCodeAPIEditorStart
 
-#define UCodeLangOutPartype(Type) Type *
+
 
 UCodeLangExportSymbol("UCodeGameEngine") struct AssetDir
 {

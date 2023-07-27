@@ -4,8 +4,6 @@
 UCodeAPIStart
 
 
-#define UCodeLangExclude
-
 
 using LogType_t = int;
 UCodeLangExportSymbol("UCodeGameEngine") enum class LogType :LogType_t
