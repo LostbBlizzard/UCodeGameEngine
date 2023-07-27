@@ -1,30 +1,13 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: MSBuild
+name: CI
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
-
-env:
-  # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: .
-
-  # Configuration type to build.
-  # You can convert this to a build matrix if you need coverage of multiple configuration types.
-  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-  BUILD_CONFIGURATION: Release
-
-permissions:
-  contents: read
-
+  push:
+    branches:
+      - master
+      
 jobs:
-  build:
+  msbuild-build:
     runs-on: windows-latest
 
     steps:
@@ -33,12 +16,29 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
 
-    - name: Restore NuGet packages
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+    - name: Run Premake
+      run: ./VS_2019.bat
 
-    - name: Build
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      # Add additional options to the MSBuild command line here (like platform or verbosity level).
-      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+    - name: Restore cached objs
+      id: cache-objs-restore
+      uses: actions/cache/restore@v3
+      with:
+        path: ./Output
+        key: ${{ runner.os }}-1
+
+    - name: Build 64 bit
+      run: |
+           cd ./BuildTools
+           ./BuildWin64Debug.bat
+
+    - name: Build 32 bit
+      run: |
+           cd ./BuildTools
+           ./BuildWin64Debug.bat
+
+    - name: Save cached Objs
+      id: cache-Objs-save
+      uses: actions/cache/save@v3
+      with:
+        path: ./Output
+        key: ${{ steps.cache-objs-restore.outputs.cache-primary-key }}
