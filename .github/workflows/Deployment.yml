@@ -72,7 +72,7 @@ jobs:
     
     steps:
      - name: Build MacOS
-        run: echo "Build"
+       run: echo "Build"
 
   build-MacOS:
     runs-on: ubuntu-latest
