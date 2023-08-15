@@ -123,13 +123,22 @@ jobs:
           prerelease: ${{ inputs.IsPreRelease }}
           tag_name: Release
       
-      - name: Upload Release Asset
-        id: upload-release-asset 
+      - name: Upload Win64 Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ./premake5.lua
-          asset_name: test.txt
-          asset_content_type: text/plain #https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+          asset_path: Output_Windows/UCodeEditor/Published-windows-x86_64
+          asset_name: UCodeEditor_Win_x86_64
+          asset_content_type: application/zip #https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+
+      - name: Upload Win32 Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: Output_Windows/UCodeEditor/Published-windows-x86
+          asset_name: UCodeEditor_Win_x86
+          asset_content_type: application/zip #https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
