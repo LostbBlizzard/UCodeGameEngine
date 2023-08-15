@@ -42,3 +42,10 @@ jobs:
       with:
         path: ./Output
         key: ${{ steps.cache-objs-restore.outputs.cache-primary-key }}
+
+
+    - name: Run Tests 64 bit
+      run: "echo RunTests"
+
+    - name: Run Tests 32 bit
+      run: "echo RunTests"
