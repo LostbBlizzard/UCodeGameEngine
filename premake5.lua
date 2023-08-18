@@ -1,7 +1,6 @@
-
 workspace "UCodeGameEngine"
    configurations { "Debug", "Release","Published" }
-   platforms { "Win32", "Win64"}
+   platforms { "Win32", "Win64","linux32","linux64","macosx"}
    defines {"YAML_CPP_STATIC_DEFINE","GLEW_STATIC"}
    
    startproject "UCodeEditor"
@@ -30,7 +29,7 @@ workspace "UCodeGameEngine"
       end
    end
 
-   OutDirPath ="%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+   OutDirPath ="%{cfg.platform}/%{cfg.buildcfg}"
 
    includedirs{
     "Dependencies",
