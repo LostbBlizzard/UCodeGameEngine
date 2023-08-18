@@ -4,3 +4,5 @@ Output
 *.filters
 *.vcxproj
 *.user
+.vscode/
+Makefile
