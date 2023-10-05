@@ -1,7 +1,7 @@
 #pragma once
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 #include <chrono>
-#include <UCodeRunTime/RunTimeBasicTypes/IntTypes.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #define TimeStart CoreStart namespace Time{
 #define TimeEnd CoreEnd }
 
@@ -15,10 +15,10 @@ typedef unsigned char Frame;
 class GameTime
 {
 private:
-	static const SInt32 MaxFixedUpdatePerSec = 20;
+	static const i32 MaxFixedUpdatePerSec = 20;
 public:
-	static constexpr float32 FixedTimeDelta = float(1.0f / MaxFixedUpdatePerSec);
-	float32 UpateDelta;
+	static constexpr f32 FixedTimeDelta = float(1.0f / MaxFixedUpdatePerSec);
+	f32 UpateDelta;
 	Frame FramesToDestroy;//The Time it takes for a libraryBook,Entity,Scene and Compoent to be freed in memory
 	constexpr GameTime() :UpateDelta(0), FramesToDestroy(1)
 	{

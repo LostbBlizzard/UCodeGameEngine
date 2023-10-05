@@ -188,8 +188,8 @@ void OpenGlRender::_DrawOpenGl(RenderRunTime2d::DrawData& Data, Camera2d* cam)
     GlCall(glViewport(0, 0, Width, Height));
 
 
-    glm::mat4 Vp = cam->Get_ViewProjectionMatrix();
-    glm::mat4 Tranform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    glm::Mat4 Vp = cam->Get_ViewProjectionMatrix();
+    glm::Mat4 Tranform = glm::translate(glm::Mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
     UseingShader->SetUniformMat4f("_ViewProj", Vp);
     UseingShader->SetUniformMat4f("_Transfrom", Tranform);
 
@@ -363,7 +363,7 @@ OpenGlRender* OpenGlRender::GetOpenGlRender(const GLFWwindow* window)
 }
 void OpenGlRender::UpdateCamWindowSize()
 {
-    SInt32 windowWidth, windowHeight;
+    i32 windowWidth, windowHeight;
 
     RenderRunTime2d* rtime = RenderRunTime2d::FindRenderRunTime(RunTime);
     if (rtime == nullptr || window == nullptr) { return; }
@@ -444,7 +444,7 @@ void OpenGlRender::EndRender()
 
 void OpenGlRender::glfwerror_callback(int error, const char* description)
 {
-    UCODE_ENGINE_THROWERROR("Glfw ERROR(" << error << "):" << description);
+    UCodeGameEngineTHROWERROR("Glfw ERROR(" << error << "):" << description);
 }
 
 static const size_t MaxQuadCount = 1000;
@@ -452,7 +452,7 @@ static const size_t MaxVertexCount = MaxQuadCount * 4;
 static const size_t MaxIndexCount = MaxQuadCount * 6;
 void OpenGlRender::Init()
 {
-    SInt32 Maxtexureslots;
+    i32 Maxtexureslots;
     GlCall(glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &Maxtexureslots));
     TextureSlots.resize(Maxtexureslots);
 
@@ -465,9 +465,9 @@ void OpenGlRender::Init()
 
 
 
-    const SInt32 maxSamplers = 32;
-    SInt32 samplers[maxSamplers];
-    for (SInt32 i = 0; i < maxSamplers; i++)
+    const i32 maxSamplers = 32;
+    i32 samplers[maxSamplers];
+    for (i32 i = 0; i < maxSamplers; i++)
     {
         samplers[i] = i;
     }
@@ -490,10 +490,10 @@ void OpenGlRender::Init()
     QuadVA->AddBuffer(QuadVB.get(), layout);
 
 
-    Unique_array<UInt32> indices =std::make_unique<UInt32[]>(MaxIndexCount);
+    Unique_array<u32> indices =std::make_unique<u32[]>(MaxIndexCount);
 
 
-   UInt32 offset = 0;
+   u32 offset = 0;
     for (auto i = 0; i < MaxIndexCount; i += 6)
     {
 
@@ -538,7 +538,7 @@ void OpenGlRender::EndBatch()
 void OpenGlRender::Flush()
 {
 
-    for (UInt32 i = 0; i < NextTextureSlot; i++)
+    for (u32 i = 0; i < NextTextureSlot; i++)
     {
         auto& Item = TextureSlots[i];
         Item->TryUploadTexToGPU();
@@ -566,7 +566,7 @@ void OpenGlRender::_DrawQuad2d(RenderRunTime2d::DrawQuad2dData& Data)
         BeginBatch();
     }
 
-    SInt32 textureindex = -1;
+    i32 textureindex = -1;
 
     const auto pos = Data.pos;
     const auto color = Data.color;
@@ -577,29 +577,29 @@ void OpenGlRender::_DrawQuad2d(RenderRunTime2d::DrawQuad2dData& Data)
     if (Data.Spr)
     {
         tex = Data.Spr->Get_texture();
-        float32 w = (float32)tex->Get_Width();
-        float32 h = (float32)tex->Get_Height();
+        f32 w = (f32)tex->Get_Width();
+        f32 h = (f32)tex->Get_Height();
 
-        float32 sx = (float32)Data.Spr->Get_Xoffset();
-        float32 sy = (float32)Data.Spr->Get_Yoffset();
-        float32 sw;
-        float32 sh;
+        f32 sx = (f32)Data.Spr->Get_Xoffset();
+        f32 sy = (f32)Data.Spr->Get_Yoffset();
+        f32 sw;
+        f32 sh;
 
         if (Data.Spr->Get_Width() == Sprite::GetTexureSize) {
-            sw = (float32)tex->Get_Width();
+            sw = (f32)tex->Get_Width();
         }
         else
         {
-            sw = (float32)Data.Spr->Get_Width();
+            sw = (f32)Data.Spr->Get_Width();
         }
 
         if (Data.Spr->Get_Height() == Sprite::GetTexureSize)
         {
-            sh = (float32)tex->Get_Height();
+            sh = (f32)tex->Get_Height();
         }
         else
         {
-            sh = (float32)Data.Spr->Get_Height();
+            sh = (f32)Data.Spr->Get_Height();
         }
 
 
@@ -630,7 +630,7 @@ void OpenGlRender::_DrawQuad2d(RenderRunTime2d::DrawQuad2dData& Data)
         {
             if (TextureSlots[i] == tex)
             {
-                textureindex = (SInt8)i;
+                textureindex = (i8)i;
                 break;
             }
         }
@@ -647,7 +647,7 @@ void OpenGlRender::_DrawQuad2d(RenderRunTime2d::DrawQuad2dData& Data)
         NextTextureSlot++;
     }
 
-    const float32 Zpos = 0;
+    const f32 Zpos = 0;
     Vec3 TryPos[]
     {
         { pos.X         ,pos.Y         , Zpos },
@@ -656,8 +656,8 @@ void OpenGlRender::_DrawQuad2d(RenderRunTime2d::DrawQuad2dData& Data)
         { pos.X         ,pos.Y + size.Y, Zpos }
     };
     {//rotation stuff here
-        const float32 RotationY = Data.rotation.Y;
-        const float32 RotationYRad = RotationY * Math::Deg2Rad;
+        const f32 RotationY = Data.rotation.Y;
+        const f32 RotationYRad = RotationY * Math::Deg2Rad;
 
         Vec2* TryPos2[]
         {

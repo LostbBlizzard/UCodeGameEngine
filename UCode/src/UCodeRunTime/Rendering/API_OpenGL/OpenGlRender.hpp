@@ -47,7 +47,7 @@ private:
 	static void glfwerror_callback(int error, const char* description);
 	WindowData _windowdata;
 	GLFWwindow* window;
-	SInt32  oldwindowWidth, oldwindowHeight;
+	i32  oldwindowWidth, oldwindowHeight;
 	inline static Vector<OpenGlRender*> Classes;
 
 	//
@@ -63,11 +63,11 @@ private:
 	Shader* UseingShader;
 
 	Vector<Texture*> TextureSlots;
-	UInt32 IndexCount;
-	UInt32 NextTextureSlot;
+	u32 IndexCount;
+	u32 NextTextureSlot;
 
 	Unique_ptr<Texture> WhiteTexture;
-	UInt32 WhiteTextureSlot;
+	u32 WhiteTextureSlot;
 
 	Unique_ptr<VertexArray> QuadVA;
 	Unique_ptr<VertexBuffer> QuadVB;

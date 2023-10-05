@@ -447,7 +447,7 @@ void  EditorAppCompoent::LoadWindowsPref()
                 Data.SetYAMLString(StringView((char*)Item._WindowData.data() + 1, Item._WindowData.size()-1));
                 break;
             default:
-                UCODE_ENGINE_BADPATH_ASSERT;
+                UCodeGameEngineUnreachble;
                 break;
             }
             

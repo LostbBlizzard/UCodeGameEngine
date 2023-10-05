@@ -8,7 +8,7 @@
 RenderingStart
 
 
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 const static std::string nullstring = "null";
 const static std::string MadewithColor = "madewithColor32";
 #else
@@ -55,7 +55,7 @@ Texture::Texture(const Path& filePath)
 	InitTexture();
 }
 
-Texture::Texture(SInt32 width, SInt32 height, const Color32* color)
+Texture::Texture(i32 width, i32 height, const Color32* color)
 	: _RendererID(0), _Width(width), _Height(height), _BPP(4), _Buffer(nullptr), _BufferIsInGPU(false), _FilePath(MadewithColor)
 {
 	size_t DataSize = (size_t)width * (size_t)height* sizeof(Color32);
@@ -89,7 +89,7 @@ Texture::~Texture()
 
 Unique_ptr<Texture> Texture::MakeNewNullTexture()
 {
-	#ifdef DEBUG
+	#if UCodeGameEngineDEBUG
 	const Color32 NullTexureColorData[]
 	{
 		Color32(),
@@ -119,7 +119,7 @@ void Texture::SetTexture(const BytesView PngData)
 
 void Texture::UpdateDataToGPU()
 {
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 	if (_FilePath != MadewithColor)
 	{
 		throw std::exception("This texture is read only cannot be Updated");

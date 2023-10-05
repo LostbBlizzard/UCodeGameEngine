@@ -15,7 +15,7 @@ public:
 	{
 
 	}
-	SInt32 _width = 1, _height =1;
+	i32 _width = 1, _height =1;
 	String Name ="Window";
 	void Init();
 		

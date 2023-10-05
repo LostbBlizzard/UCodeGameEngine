@@ -2,7 +2,7 @@
 #include <UCodeRunTime/ULibrarys/Rendering/RenderRunTime2d.hpp>
 #include "AssetManager.hpp"
 #include "AssetPtr.hpp"
-#include "UCodeRunTime/RunTimeBasicTypes/Span.hpp"
+#include <UCodeRunTime/BasicTypes.hpp>
 #include "UCodeRunTime/CoreBooks/BookOfThreads.hpp"
 CoreStart
 
@@ -63,7 +63,7 @@ public:
 		Color color;
 		RenderRunTime2d::DrawLayer_t drawLayer;
 		RenderRunTime2d::DrawOrder_t draworder;
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 		Renderer2d* madeby = nullptr;
 #endif // DEBUG
 		DrawQuad2dData(Vec2 p, Vec2 s, Vec2 rot)
@@ -73,10 +73,10 @@ public:
 		{
 
 		};
-		UCODE_ENGINE_FORCE_INLINE void SetTexture(SpritePtr v) { Spr = v; }
-		UCODE_ENGINE_FORCE_INLINE void SetColor(Color v) { color = v; }
-		UCODE_ENGINE_FORCE_INLINE void SetDrawLayer(RenderRunTime2d::DrawLayer_t v) { drawLayer = v; }
-		UCODE_ENGINE_FORCE_INLINE void SetDraworder(RenderRunTime2d::DrawOrder_t v) { draworder = v; }
+		UCodeGameEngineForceinlne void SetTexture(SpritePtr v) { Spr = v; }
+		UCodeGameEngineForceinlne void SetColor(Color v) { color = v; }
+		UCodeGameEngineForceinlne void SetDrawLayer(RenderRunTime2d::DrawLayer_t v) { drawLayer = v; }
+		UCodeGameEngineForceinlne void SetDraworder(RenderRunTime2d::DrawOrder_t v) { draworder = v; }
 
 
 	};

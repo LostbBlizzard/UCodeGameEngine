@@ -3,7 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
 
-#include <UCodeRunTime/RunTimeBasicTypes/Vector.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include "RenderRunTime2d.hpp"
 RenderingStart
 
@@ -64,19 +64,19 @@ void Camera2d::UpdateCamData()
 {
 	if (Type == CamType::Orthographic) 
 	{
-		float32 _AspectRatio = Get_windowAspect();
-		float32 _ortho_size = ortho_size;
+		f32 _AspectRatio = Get_windowAspect();
+		f32 _ortho_size = ortho_size;
 
-		float32 ProjW = _AspectRatio * ortho_size;
+		f32 ProjW = _AspectRatio * ortho_size;
 
 		ProjectionMatrix = glm::ortho(-ProjW, ProjW, -ortho_size, ortho_size);
 	}
 	else
 	{
-		float32 _AspectRatio = Get_windowAspect();
-		float32 _ortho_size = ortho_size;
+		f32 _AspectRatio = Get_windowAspect();
+		f32 _ortho_size = ortho_size;
 
-		float32 ProjW = _AspectRatio * ortho_size;
+		f32 ProjW = _AspectRatio * ortho_size;
 
 		float nearF = 0.1f;
 		ProjectionMatrix = glm::perspective(glm::radians(Fov), Get_windowAspect(), nearF, 10.0f);
@@ -84,7 +84,7 @@ void Camera2d::UpdateCamData()
 
 
 	const auto MyPOs = GetMyEntity()->Get_WorldPosition();
-	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(MyPOs.X, MyPOs.Y, 0));
+	glm::Mat4 transform = glm::translate(glm::Mat4(1.0f), glm::vec3(MyPOs.X, MyPOs.Y, 0));
 
 	ViewMatrix = glm::inverse(transform);
 
@@ -127,8 +127,8 @@ void Camera2d::UnSetAsMainCam()
 
 Bounds2d Camera2d::GetCam_Bounds() const
 {
-	float32 screenAspect = Get_windowAspect();
-	float32 cameraHeight = ortho_size * 2.0f;
+	f32 screenAspect = Get_windowAspect();
+	f32 cameraHeight = ortho_size * 2.0f;
 
 	Vec2 CamPos = GetMyEntity()->Get_WorldPosition2D();
 	Vec2 CamSize = { cameraHeight * screenAspect, cameraHeight };
@@ -145,14 +145,14 @@ Vec2 Camera2d::ScreenToWorldPoint(const Camera2d* cam, const Vec2 CursorPosition
 		
 		const Bounds2d cambounds = cam->GetCam_Bounds();
 
-		const Vec2 WInSize = { (float32)cam->Get_WindowWidth(),(float32)cam->Get_WindowHeight() };
+		const Vec2 WInSize = { (f32)cam->Get_WindowWidth(),(f32)cam->Get_WindowHeight() };
 		const Vec2 Ncords = { (CursorPosition.X / WInSize.X) - 0.5f ,(CursorPosition.Y / WInSize.Y) - 0.5f };
 
 
-		const float32 cameraWidth = cambounds.extents.X;
-		const float32 cameraHeight = cambounds.extents.Y;
-		const float32 x = cambounds.center.X + (cameraWidth * Ncords.X);
-		const float32 y = cambounds.center.Y + (cameraHeight * Ncords.Y);
+		const f32 cameraWidth = cambounds.extents.X;
+		const f32 cameraHeight = cambounds.extents.Y;
+		const f32 x = cambounds.center.X + (cameraWidth * Ncords.X);
+		const f32 y = cambounds.center.Y + (cameraHeight * Ncords.Y);
 
 		return Vec2(x, y);
 	}

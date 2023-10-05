@@ -37,14 +37,14 @@ void TileMapRenderer::OnDraw()
 
 
 
-			Vec2 tilepos = min + Vec2((float32)x, (float32)y);
+			Vec2 tilepos = min + Vec2((f32)x, (f32)y);
 
 			RenderRunTime2d::DrawQuad2dData Data = RenderRunTime2d::DrawQuad2dData(tilepos, Scale, Ro);
 			Data.Spr = Item.texture;
 			Data.color = color * Item.color;
 			Data.drawLayer = DrawLayer;
 			Data.draworder = DrawOrder;
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 			Data.madeby = this;
 #endif
 			Render->DrawQuad2d(Data);
@@ -61,8 +61,8 @@ Bounds2d TileMapRenderer::Get_Bounds() const
 	const Vec2 tilemapsize = GetMyEntity()->Get_WorldScale2D();
 	r.extents =
 	{
-		tilemapsize.X * (float32)Get_TileMapSizeX() ,
-		tilemapsize.Y * (float32)Get_TileMapSizeY()
+		tilemapsize.X * (f32)Get_TileMapSizeX() ,
+		tilemapsize.Y * (f32)Get_TileMapSizeY()
 	};
 	return r;
 }

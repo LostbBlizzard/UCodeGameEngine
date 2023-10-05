@@ -80,7 +80,7 @@ void SpriteRenderer::OnDraw()
 	Data.color = color;
 	Data.drawLayer = DrawLayer;
 	Data.draworder = DrawOrder;
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 	Data.madeby = this;
 #endif
 

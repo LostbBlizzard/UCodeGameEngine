@@ -9,7 +9,7 @@ static std::thread::id MainThreadID = {};
 static ThreadToRunID ThreadCount = NullThread;
 thread_local ThreadToRunID CurrentThreadInfo::CurrentThread = NullThread;
 
-static UInt32 threads_count=0;
+static u32 threads_count=0;
 
 //To Do set threads on static
 BookOfThreads::BookOfThreads(Gamelibrary* lib) :libraryBook(lib), 
@@ -23,11 +23,11 @@ _NextLockKey(1),
 
 	MainThreadID = std::this_thread::get_id();
 
-	const UInt32 num_threads = std::thread::hardware_concurrency();
+	const u32 num_threads = std::thread::hardware_concurrency();
 	threads_count = num_threads;
 	_Threads.reserve(num_threads);
 	
-	for (UInt32 i = 0; i < num_threads; i++)
+	for (u32 i = 0; i < num_threads; i++)
 	{
 		ThreadInfo* info = _Threads.data() + i;
 		_Threads.push_back(ThreadInfo

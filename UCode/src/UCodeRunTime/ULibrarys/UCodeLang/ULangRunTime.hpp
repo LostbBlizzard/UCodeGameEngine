@@ -2,7 +2,7 @@
 #include "LangNamespace.hpp"
 #include <UCodeRunTime/includeULibrayCompoent.hpp>
 #include <UCodeLang/UCodeLang/UCodeLang.hpp>
-#include "UCodeRunTime/RunTimeBasicTypes/String.hpp"
+#include <UCodeRunTime/BasicTypes.hpp>
 LangStart
 
 #define UScript_Attribute "UScript"
@@ -30,19 +30,19 @@ public:
 	void HotReLoadScripts();
 	void ReLoadScripts();
 
-	UCODE_ENGINE_FORCE_INLINE void* Lang_Malloc(size_t Size)
+	UCodeGameEngineForceinlne void* Lang_Malloc(size_t Size)
 	{
 		return (void*)_State.Malloc((UCodeLang::NSize_t)Size);
 	}
-	UCODE_ENGINE_FORCE_INLINE void* Lang_Realloc(void* oldPtr,size_t Size)
+	UCodeGameEngineForceinlne void* Lang_Realloc(void* oldPtr,size_t Size)
 	{
 		return (void*)_State.Realloc((UCodeLang::PtrType)oldPtr,(UCodeLang::NSize_t)Size);
 	}
-	UCODE_ENGINE_FORCE_INLINE void* Lang_Calloc(size_t Size)
+	UCodeGameEngineForceinlne void* Lang_Calloc(size_t Size)
 	{
 		return (void*)_Interpreter.Calloc((UCodeLang::NSize_t)Size);
 	}
-	UCODE_ENGINE_FORCE_INLINE void Lang_Free(void* Ptr)
+	UCodeGameEngineForceinlne void Lang_Free(void* Ptr)
 	{
 		_State.Free((UCodeLang::PtrType)Ptr);
 	}
@@ -67,13 +67,13 @@ public:
 	}
 
 
-	UCODE_ENGINE_FORCE_INLINE const UCodeLang::ClassAssembly& Get_Assembly()
+	UCodeGameEngineForceinlne const UCodeLang::ClassAssembly& Get_Assembly()
 	{
 		return _State.Get_Assembly();
 	}
 	void OpenLibs(const Path& PathDir);
 
-	UCODE_ENGINE_FORCE_INLINE UCodeLang::Allocator& Get_Allocator()
+	UCodeGameEngineForceinlne UCodeLang::Allocator& Get_Allocator()
 	{
 		return _State.Get_Allocator();
 	}
@@ -122,12 +122,12 @@ public:
 
 	void CallAwake();
 
-	UCODE_ENGINE_FORCE_INLINE ULangRunTime* GetULang() const
+	UCodeGameEngineForceinlne ULangRunTime* GetULang() const
 	{
 		return ULangRunTime::Get(Get_Scene()->Get_RunTime()->Get_Library_Edit());
 	}
 
-	UCODE_ENGINE_FORCE_INLINE String GetClassName() const
+	UCodeGameEngineForceinlne String GetClassName() const
 	{
 		if (_ClassData)
 		{
@@ -138,24 +138,24 @@ public:
 			return NoClassScript;
 		}
 	}
-	UCODE_ENGINE_FORCE_INLINE void SetClassName(const String& Name)
+	UCodeGameEngineForceinlne void SetClassName(const String& Name)
 	{
 		_ClassName = Name;
 	}
 
-	UCODE_ENGINE_FORCE_INLINE bool HasScript()const
+	UCodeGameEngineForceinlne bool HasScript()const
 	{ 
 		return _UObj;
 	}
-	UCODE_ENGINE_FORCE_INLINE bool HasClass()const
+	UCodeGameEngineForceinlne bool HasClass()const
 	{
 		return _ClassData;
 	}
-	UCODE_ENGINE_FORCE_INLINE const UCodeLang::Class_Data* Get_ClassData() const
+	UCodeGameEngineForceinlne const UCodeLang::Class_Data* Get_ClassData() const
 	{
 		return  _ClassData;
 	}
-	UCODE_ENGINE_FORCE_INLINE void* Get_UObj() const
+	UCodeGameEngineForceinlne void* Get_UObj() const
 	{
 		return _UObj;
 	}
@@ -222,9 +222,9 @@ public:
 		return {};
 	}
 
-	static UCODE_ENGINE_FORCE_INLINE void Set_Current(ULangRunTime* Value){Current = Value;}
-	static UCODE_ENGINE_FORCE_INLINE ULangRunTime* Get_Current() { return Current; }
-	static UCODE_ENGINE_FORCE_INLINE bool Has_Current(){return  Get_Current();}
+	static UCodeGameEngineForceinlne void Set_Current(ULangRunTime* Value){Current = Value;}
+	static UCodeGameEngineForceinlne ULangRunTime* Get_Current() { return Current; }
+	static UCodeGameEngineForceinlne bool Has_Current(){return  Get_Current();}
 private:
 	inline static thread_local ULangRunTime* Current = nullptr;
 };

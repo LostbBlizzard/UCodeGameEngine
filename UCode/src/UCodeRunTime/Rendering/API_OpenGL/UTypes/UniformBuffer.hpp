@@ -10,6 +10,6 @@ public:
 	void UpdateData(void* Data, size_t Size);
 	~UniformBuffer();
 private:
-	UInt32 id;
+	u32 id;
 };
 RenderingEnd

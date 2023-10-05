@@ -10,8 +10,8 @@ RenderingStart
 
 "layout(std140) uniform Matrices"
 "{"
-    "mat4 _ViewProj;"
-    "mat4 _Transfrom;"
+    "Mat4 _ViewProj;"
+    "Mat4 _Transfrom;"
 "};"
 
 */
@@ -30,8 +30,8 @@ const char* Shader::dafalult_Vertex_shader_text =
 "layout(location = 1) out vec2 F_texCord;\n"
 "layout(location = 2) out float F_TexIndex;\n"
 
-"uniform mat4 _ViewProj;\n"
-"uniform mat4 _Transfrom;\n"
+"uniform Mat4 _ViewProj;\n"
+"uniform Mat4 _Transfrom;\n"
 
 "void main()\n"
 "{\n"
@@ -64,7 +64,7 @@ Shader::Shader(const String& filepath)
     auto s = TextShader::Get_ShaderFromPath(filepath);
     InitShader(s.Vertex, s.fragment);
 }
-Shader::Shader(const Span<UInt32> SPRVB_Vex, const Span<UInt32> SPRVB_Feg)
+Shader::Shader(const Span<u32> SPRVB_Vex, const Span<u32> SPRVB_Feg)
 {
 
 
@@ -190,31 +190,31 @@ void Shader::SetUniform1i(const String& name, int V) const
     auto Location = GetUniformLocation(name);
     GlCall(glUniform1i(Location, V));
 }
-void Shader::SetUniform1iv(const String& name,SInt32 count, int* V) const
+void Shader::SetUniform1iv(const String& name,i32 count, int* V) const
 {
     Bind();
     auto Location = GetUniformLocation(name);
     GlCall(glUniform1iv(Location, count, V));
 }
-void Shader::SetUniform4f(const String& name, float32 V, float32 V2, float32 V3, float32 V4) const
+void Shader::SetUniform4f(const String& name, f32 V, f32 V2, f32 V3, f32 V4) const
 {
     Bind();
     auto Location = GetUniformLocation(name);
     GlCall(glUniform4f(Location, V, V2, V3, V4));
 }
-void Shader::SetUniformMat4f(const String& name, const mat4& V) const
+void Shader::SetUniformMat4f(const String& name, const Mat4& V) const
 {
     Bind();
     auto Location = GetUniformLocation(name);
     GlCall(glUniformMatrix4fv(Location,1,GL_FALSE,&V[0][0]))
 }
-SInt32 Shader::GetUniformLocation(const String& Name) const
+i32 Shader::GetUniformLocation(const String& Name) const
 {
     //
     GlCall(auto r = glGetUniformLocation(ShaderId, Name.c_str()));
     if (r == -1) 
     {
-        UCODE_ENGINE_THROWEXCEPTION("Uniform does not exist");
+        UCodeGameEngineThrowException("Uniform does not exist");
     }
     return r;
 }

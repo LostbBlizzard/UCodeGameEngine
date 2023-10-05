@@ -220,7 +220,7 @@ struct variant_helper;
 template <typename T, typename... Types>
 struct variant_helper<T, Types...>
 {
-	UCODE_ENGINE_FORCE_INLINE static void construct(const VariantTagType type_index, void* data)
+	UCodeGameEngineForceinlne static void construct(const VariantTagType type_index, void* data)
 	{
 		if (type_index == sizeof...(Types))
 		{
@@ -232,7 +232,7 @@ struct variant_helper<T, Types...>
 		}
 	}
 
-	UCODE_ENGINE_FORCE_INLINE static void destroy(const VariantTagType type_index, void* data)
+	UCodeGameEngineForceinlne static void destroy(const VariantTagType type_index, void* data)
 	{
 		if (type_index == sizeof...(Types))
 		{
@@ -244,7 +244,7 @@ struct variant_helper<T, Types...>
 		}
 	}
 
-	UCODE_ENGINE_FORCE_INLINE static void move(const VariantTagType old_type_index, void* old_value, void* new_value)
+	UCodeGameEngineForceinlne static void move(const VariantTagType old_type_index, void* old_value, void* new_value)
 	{
 		if (old_type_index == sizeof...(Types))
 		{
@@ -256,7 +256,7 @@ struct variant_helper<T, Types...>
 		}
 	}
 
-	UCODE_ENGINE_FORCE_INLINE static void copy(const VariantTagType old_type_index, const void* old_value, void* new_value)
+	UCodeGameEngineForceinlne static void copy(const VariantTagType old_type_index, const void* old_value, void* new_value)
 	{
 		if (old_type_index == sizeof...(Types))
 		{
@@ -272,10 +272,10 @@ struct variant_helper<T, Types...>
 template <>
 struct variant_helper<>
 {
-	UCODE_ENGINE_FORCE_INLINE static void construct(const VariantTagType, void*) {}
-	UCODE_ENGINE_FORCE_INLINE static void destroy(const VariantTagType, void*) {}
-	UCODE_ENGINE_FORCE_INLINE static void move(const VariantTagType, void*, void*) {}
-	UCODE_ENGINE_FORCE_INLINE static void copy(const VariantTagType, const void*, void*) {}
+	UCodeGameEngineForceinlne static void construct(const VariantTagType, void*) {}
+	UCodeGameEngineForceinlne static void destroy(const VariantTagType, void*) {}
+	UCodeGameEngineForceinlne static void move(const VariantTagType, void*, void*) {}
+	UCodeGameEngineForceinlne static void copy(const VariantTagType, const void*, void*) {}
 };
 
 

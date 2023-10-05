@@ -276,7 +276,7 @@ group "UCodeAPIs"
   objdir ("Output/int/%{prj.name}/" .. OutDirPath)
 
   postbuildcommands {
-    --"ucodelang --build %{prj.location}ULangModule.ucm"
+    "uclang build %{prj.location}ULangModule.ucm"
    }
 
  project "UCodeGameEngineEditor"
@@ -295,7 +295,7 @@ group "UCodeAPIs"
   objdir ("Output/int/%{prj.name}/" .. OutDirPath)
 
   postbuildcommands {
-   -- "ucodelang --build %{prj.location}ULangModule.ucm"
+   "uclang build %{prj.location}ULangModule.ucm"
    }
 group "Dependencies"
 

@@ -96,7 +96,7 @@ struct DebugingClientPacket
 	}
 	template<typename T> optional<T> As() const
 	{
-		#ifdef DEBUG
+		#if UCodeGameEngineDEBUG
 		if (PacketType != T::PacketType)
 		{
 			throw std::exception("Bad cast");

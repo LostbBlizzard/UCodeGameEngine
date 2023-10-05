@@ -3,8 +3,7 @@
 
 #include "../Core/GameRunTime.hpp"
 
-#include <UCodeRunTime/RunTimeBasicTypes/String.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/Ref.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 #include <UCodeRunTime/ULibrarys/Rendering/GpuTypes/Shader.hpp>
 #include <UCodeRunTime/AppData.hpp>

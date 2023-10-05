@@ -620,7 +620,7 @@ public:
 	}
 	template<typename T> static bool DrawValue(T* Item)
 	{
-		UCODE_ENGINE_STATIC_ASSERT("funcion has no body");
+		UCodeGameEngineSTATIC_ASSERT("funcion has no body");
 	}
 
 	template<> static bool DrawValue<bool>(bool* Item)

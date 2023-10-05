@@ -1,6 +1,6 @@
 #pragma once
 
-#include <UCodeRunTime/RunTimeBasicTypes.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 #include <fstream>
 CoreStart
@@ -18,7 +18,7 @@ struct FileBuffer
 		return _File.is_open();
 	}
 
-	UCODE_ENGINE_FORCE_INLINE auto Get_FileSize()
+	UCodeGameEngineForceinlne auto Get_FileSize()
 	{
 		return _FileSize;
 	}

@@ -20,7 +20,7 @@ VertexBuffer::~VertexBuffer()
 {
 	GlCall(glDeleteBuffers(1, &_BufferId));
 }
-void VertexBuffer::UpdateData(const void* data, size_t  size,SInt32 DataOffset)
+void VertexBuffer::UpdateData(const void* data, size_t  size,i32 DataOffset)
 {
 	Bind();
 	GlCall(glBufferSubData(GL_ARRAY_BUFFER, DataOffset, (GLsizeiptr)size,data));

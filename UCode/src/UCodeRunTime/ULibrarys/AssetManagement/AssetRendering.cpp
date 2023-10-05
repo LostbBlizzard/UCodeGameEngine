@@ -56,7 +56,7 @@ void AssetRendering::DrawQuad2d(RenderRunTime2d* runtime, const DrawQuad2dData& 
 	_Data.color = Data.color;
 	_Data.drawLayer = Data.drawLayer;
 	_Data.draworder = Data.draworder;
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 	_Data.madeby = Data.madeby;
 #endif // DEBUG
 	runtime->DrawQuad2d(_Data);
