@@ -15,15 +15,15 @@ template<typename T> inline const char* _GetTypeName(const T* ParForOverloading)
 {
 	return typeid(T).name();
 }
-template<> inline const char* _GetTypeName<UInt8>(const UInt8* ParForOverloading) { return "uInt8"; }
-template<> inline const char* _GetTypeName<UInt16>(const UInt16* ParForOverloading) { return "uInt16"; }
-template<> inline const char* _GetTypeName<UInt32>(const UInt32* ParForOverloading) { return "uInt32"; }
-template<> inline const char* _GetTypeName<UInt64>(const UInt64* ParForOverloading) { return "uInt64"; }
+template<> inline const char* _GetTypeName<u8>(const u8* ParForOverloading) { return "uInt8"; }
+template<> inline const char* _GetTypeName<u16>(const u16* ParForOverloading) { return "uInt16"; }
+template<> inline const char* _GetTypeName<u32>(const u32* ParForOverloading) { return "uInt32"; }
+template<> inline const char* _GetTypeName<u64>(const u64* ParForOverloading) { return "uInt64"; }
 
-template<> inline const char* _GetTypeName<SInt8>(const SInt8* ParForOverloading) { return "Int8"; }
-template<> inline const char* _GetTypeName<SInt16>(const SInt16* ParForOverloading) { return "Int16"; }
-template<> inline const char* _GetTypeName<SInt32>(const SInt32* ParForOverloading) { return "Int32"; }
-template<> inline const char* _GetTypeName<SInt64>(const SInt64* ParForOverloading) { return "Int64"; }
+template<> inline const char* _GetTypeName<i8>(const i8* ParForOverloading) { return "Int8"; }
+template<> inline const char* _GetTypeName<i16>(const i16* ParForOverloading) { return "Int16"; }
+template<> inline const char* _GetTypeName<i32>(const i32* ParForOverloading) { return "Int32"; }
+template<> inline const char* _GetTypeName<i64>(const i64* ParForOverloading) { return "Int64"; }
 
 template<> inline const char* _GetTypeName<bool>(const bool* ParForOverloading) { return "bool"; }
 template<> inline const char* _GetTypeName<char>(const char* ParForOverloading) { return "char"; }
@@ -86,7 +86,7 @@ struct NameVariant_helper;
 template <typename T2, typename... Types2>
 struct NameVariant_helper<T2, Types2...>
 {
-	UCODE_ENGINE_FORCE_INLINE static const char* GetName(const UCode::VariantTagType type_index)
+	UCodeGameEngineForceinlne static const char* GetName(const UCode::VariantTagType type_index)
 	{
 		if (type_index == sizeof...(Types2))
 		{
@@ -101,7 +101,7 @@ struct NameVariant_helper<T2, Types2...>
 template <>
 struct NameVariant_helper<>
 {
-	UCODE_ENGINE_FORCE_INLINE static const char* GetName(const UCode::VariantTagType type_index) { return {}; }
+	UCodeGameEngineForceinlne static const char* GetName(const UCode::VariantTagType type_index) { return {}; }
 };
 
 template<typename... Types> inline const char*  _GetTypeName(const Variant<Types...>* ParForOverloading)

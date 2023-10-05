@@ -15,13 +15,12 @@ int App::main(int argc, char* argv[])
 
 
     UCode::Loger::InitCheck();
-    typedef std::filesystem::path path2;
 
     try
     {
         #ifdef UCode_Build_Windows_OS
 
-        path2 Tep = argv[0];
+        UCode::Path Tep = argv[0];
 
 
         UCode::Path GameDataPath = Tep.parent_path() / (UCode::Path)GameFilesData::FileDataName;

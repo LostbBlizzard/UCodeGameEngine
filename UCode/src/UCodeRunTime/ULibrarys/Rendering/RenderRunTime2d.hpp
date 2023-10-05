@@ -1,9 +1,7 @@
 #pragma once
 #include <UCodeRunTime/includeULibrayCompoent.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/Vector.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include "RenderingNamespace.hpp"
-
-#include "UCodeRunTime/RunTimeBasicTypes/Bounds.hpp"
 
 #include <UCodeRunTime/ULibrarys/Rendering/Camera2d.hpp>
 #include "GPUTypes.hpp"
@@ -40,21 +38,21 @@ public:
 
 	struct Stats
 	{
-		SInt32 DrawCount = 0;
-		SInt32 QuadCount = 0;
+		i32 DrawCount = 0;
+		i32 QuadCount = 0;
 	};
 	struct Vertex
 	{
 		Vec3 _Position;
 		Color _Color;
 		Vec2 _TexCoords;
-		float32 _TexIndex = 0;
-		inline void SetData(Vec3 p, Color c, Vec2 TC, UInt32 TI)
+		f32 _TexIndex = 0;
+		inline void SetData(Vec3 p, Color c, Vec2 TC, u32 TI)
 		{
 			_Position = p;
 			_Color = c;
 			_TexCoords = TC;
-			_TexIndex = (float32)TI;
+			_TexIndex = (f32)TI;
 		}
 
 	};
@@ -68,7 +66,7 @@ public:
 		Color color;
 		DrawLayer_t drawLayer;
 		DrawOrder_t draworder;
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 		Renderer2d* madeby = nullptr;
 #endif // DEBUG
 		DrawQuad2dData(Vec2 p, Vec2 s, Vec2 rot)

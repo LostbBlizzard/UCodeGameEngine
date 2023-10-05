@@ -50,7 +50,7 @@ void UISpriteRenderer::OnDraw()
 	Data.draworder = DrawOrder;
 
 
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 	Data.madeby = this;
 #endif
 	Render->DrawQuad2d(Data);

@@ -1,6 +1,6 @@
 #pragma once
 #include "CoreNamespace.hpp"
-#include "../RunTimeBasicTypes.hpp"
+#include "../BasicTypes.hpp"
 #include "Entity.hpp"
 CoreStart
 

@@ -1,15 +1,15 @@
 #pragma once
 
 #include "../Core/GameRunTime.hpp"
-#include <UCodeRunTime/RunTimeBasicTypes/Vector.hpp>
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/Delegate.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/unordered_map.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include <mutex>
 #include <thread>
 #include <functional>
 #include <condition_variable>
 #include <future>
+
+#include <xhash>
 CoreStart
 
 
@@ -56,15 +56,28 @@ struct TaskID
 		return this->Base != Other.Base;
 	}
 
-	TaskID_t Get_Base()
+	TaskID_t Get_Base() const
 	{
 		return Base;
 	}
 private:
 	TaskID_t Base;
 };
+CoreEnd
+namespace std {
 
+	template <>
+	struct hash<UCode::TaskID>
+	{
+		std::size_t operator()(const UCode::TaskID& k) const
+		{
+			using std::hash;
+			return ((hash<UCode::TaskID_t>()(k.Get_Base())));
+		}
+	};
 
+}
+CoreStart
 struct AsynNonVoidType {};
 static constexpr  AsynNonVoidType AsynNonVoidValue = AsynNonVoidType();
 
@@ -349,7 +362,7 @@ struct AsynTask_t
 		}
 		return nullptr;
 	}
-	optional<T> TryGet_Op()
+	Optional<T> TryGet_Op()
 	{
 		auto V = TryGet();
 		if (V)
@@ -392,7 +405,7 @@ struct AsynTask_t
 		BookOfThreads::_DoneLock.lock();
 		if (ID != NullTaskID)
 		{
-			if (BookOfThreads::_Map.HasValue(ID)) {
+			if (BookOfThreads::_Map.count(ID)) {
 				BookOfThreads::_Map.erase(ID);
 			}
 		}
@@ -608,7 +621,7 @@ public:
 		Info.ID = ID;
 
 		_DoneLock.lock();
-		_Map.AddValue(ID, Info);
+		_Map[ID] = Info;
 		_DoneLock.unlock();
 	}
 	static void SetTaskData_Cancel(TaskID ID, Delegate<void>&& Value, ThreadToRunID Thread)
@@ -631,7 +644,7 @@ public:
 	{
 		_DoneLock.lock();
 		bool r = false;
-		if (_Map.HasValue(ID))
+		if (_Map.count(ID))
 		{
 			r = _Map.at(ID).OnDoneToRun != NullThread;
 		}
@@ -643,7 +656,7 @@ public:
 	{
 		_DoneLock.lock();
 		bool r = false;
-		if (_Map.HasValue(ID))
+		if (_Map.count(ID))
 		{
 			r = _Map.at(ID).OnCancelToRun != NullThread;
 		}
@@ -656,7 +669,7 @@ public:
 	static void TryCallCancel(TaskID ID)
 	{
 		_DoneLock.lock();
-		if (_Map.HasValue(ID))
+		if (_Map.count(ID))
 		{
 			auto& V = _Map.at(ID);
 
@@ -696,7 +709,7 @@ public:
 	static void TryCallOnDone(TaskID ID, T&& Move)
 	{
 		_DoneLock.lock();
-		if (_Map.HasValue(ID))
+		if (_Map.count(ID))
 		{
 			auto& V = _Map.at(ID);
 
@@ -734,7 +747,7 @@ public:
 	}
 	
 	inline static std::mutex _DoneLock;
-	inline static BinaryVectorMap<TaskID, RuningTaskData> _Map;
+	inline static UnorderedMap<TaskID, RuningTaskData> _Map;
 private:
 	struct ThreadData
 	{
@@ -800,3 +813,5 @@ private:
 
 };
 CoreEnd
+
+

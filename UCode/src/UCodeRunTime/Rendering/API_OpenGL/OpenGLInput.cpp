@@ -116,7 +116,7 @@ void Input::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     const auto RuntimeInput = InputManger::GetInput(OpenGl->RunTime);
 
 
-    RuntimeInput->Input_API_Set_Scroll((float32)xoffset, (float32)yoffset);
+    RuntimeInput->Input_API_Set_Scroll((f32)xoffset, (f32)yoffset);
 
 }
 void Input::mouse_callback(GLFWwindow* window, int button, int action, int mods)
@@ -166,7 +166,7 @@ void Input::cursor_position_callback(GLFWwindow* window, double xpos, double ypo
     
     auto OpenGl = OpenGlRender::GetOpenGlRender(window);
     auto _Input = InputManger::GetInput(OpenGl->RunTime);
-    _Input->Input_API_Set_CursorPosition((float32)xpos, (float32)ypos);
+    _Input->Input_API_Set_CursorPosition((f32)xpos, (f32)ypos);
 
    
 }

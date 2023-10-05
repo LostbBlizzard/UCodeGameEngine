@@ -1,7 +1,7 @@
 #pragma once
 #include "UCodeRunTime/Core/CoreNamespace.hpp"
 
-#include "UCodeRunTime/RunTimeBasicTypes/Ref.hpp"
+#include <UCodeRunTime/BasicTypes.hpp>
 CoreStart
 
 struct AnyManagedPtr;
@@ -48,7 +48,7 @@ private:
 
 struct AnyManagedPtr
 {
-	using _Any = UInt8;
+	using _Any = u8;
 	ManagedPtr<_Any> _This;
 
 	AnyManagedPtr()
@@ -119,7 +119,7 @@ struct AnyManagedPtr
 	{
 		if (_This.Has_Value() && _This.GetCounter() == 1)
 		{
-			UCODE_ENGINE_THROWERROR("Destructor not called for Managed object");
+			UCodeGameEngineThrowException("Destructor not called for Managed object");
 		}
 	}
 };

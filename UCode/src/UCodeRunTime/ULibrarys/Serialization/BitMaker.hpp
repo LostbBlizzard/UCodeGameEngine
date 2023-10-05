@@ -1,6 +1,7 @@
 #pragma once
 #include "BitConverter.hpp"
-#include "UCodeRunTime/RunTimeBasicTypes.hpp"
+#include "UCodeRunTime/BasicTypes.hpp"
+#include <UCodeRunTime/ULibrarys/AssetManagement/UID.hpp>
 CoreStart
 
 //Not By default this will be useing little  Endian
@@ -14,7 +15,7 @@ struct BitData
 class BitMaker
 {
 public:
-	using SizeAsBits = UInt32;
+	using SizeAsBits = u32;
 	BitMaker() :_Bytes(), Converter(&littleEndianConverter)
 	{
 	}
@@ -31,11 +32,11 @@ public:
 
 	}
 
-	UCODE_ENGINE_FORCE_INLINE void Resize(size_t NewSize){ _Bytes.resize(NewSize);}
-	UCODE_ENGINE_FORCE_INLINE void Clear(){ _Bytes.clear();}
-	UCODE_ENGINE_FORCE_INLINE auto& Get_Bytes() { return _Bytes; }
-	UCODE_ENGINE_FORCE_INLINE const auto& Get_Bytes() const { return _Bytes; }
-	UCODE_ENGINE_FORCE_INLINE size_t Size() const {return _Bytes.size(); }
+	UCodeGameEngineForceinlne void Resize(size_t NewSize){ _Bytes.resize(NewSize);}
+	UCodeGameEngineForceinlne void Clear(){ _Bytes.clear();}
+	UCodeGameEngineForceinlne auto& Get_Bytes() { return _Bytes; }
+	UCodeGameEngineForceinlne const auto& Get_Bytes() const { return _Bytes; }
+	UCodeGameEngineForceinlne size_t Size() const {return _Bytes.size(); }
 
 	void WriteBytes(const Byte* Bits, size_t size)
 	{
@@ -46,53 +47,53 @@ public:
 	}
 
 	template<typename T>
-	UCODE_ENGINE_FORCE_INLINE void WriteTypeAsBytes(const T& Value){WriteBytes((const Byte*)&Value, sizeof(Value));}
+	UCodeGameEngineForceinlne void WriteTypeAsBytes(const T& Value){WriteBytes((const Byte*)&Value, sizeof(Value));}
 
 
 	template<typename T>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const T& Value){ BitData<T>::ToBytes(*this, Value);}
+	UCodeGameEngineForceinlne void WriteType(const T& Value){ BitData<T>::ToBytes(*this, Value);}
 
 
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const bool& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGameEngineForceinlne void WriteType(const bool& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const Byte& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGameEngineForceinlne void WriteType(const Byte& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const SInt8& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGameEngineForceinlne void WriteType(const i8& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const char& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGameEngineForceinlne void WriteType(const char& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const UInt16& Value) { WriteTypeAsBytes(Converter->GetBytes(Value));}
+	UCodeGameEngineForceinlne void WriteType(const u16& Value) { WriteTypeAsBytes(Converter->GetBytes(Value));}
 
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const SInt16& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGameEngineForceinlne void WriteType(const i16& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 	
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const UInt32& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGameEngineForceinlne void WriteType(const u32& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 	
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const SInt32& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGameEngineForceinlne void WriteType(const i32& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 	
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const UInt64& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGameEngineForceinlne void WriteType(const u64& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const SInt64& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGameEngineForceinlne void WriteType(const i64& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 	
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const float32& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGameEngineForceinlne void WriteType(const f32& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const float64& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGameEngineForceinlne void WriteType(const f64& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
 
 	//
 	
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const char* Value)
+	UCodeGameEngineForceinlne void WriteType(const char* Value)
 	{ 
 		size_t size = strlen(Value);
 		WriteType((SizeAsBits)size);
@@ -100,7 +101,7 @@ public:
 	}
 
 	template<typename T>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const Span<T> Value)
+	UCodeGameEngineForceinlne void WriteType(const Span<T> Value)
 	{
 		size_t size = Value.Size();
 		WriteType((SizeAsBits)size);
@@ -111,7 +112,7 @@ public:
 	}
 
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const String& Value) 
+	UCodeGameEngineForceinlne void WriteType(const String& Value) 
 	{
 		size_t size = Value.size();
 		WriteType((SizeAsBits)size);
@@ -119,39 +120,39 @@ public:
 	}
 
 	template<typename T>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const Vector<T>& Value) 
+	UCodeGameEngineForceinlne void WriteType(const Vector<T>& Value) 
 	{  
 		WriteType(Span<T>::Make(Value.data(), Value.size()));
 	}
 
 	template<typename T>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const Ref<T>& Value)
+	UCodeGameEngineForceinlne void WriteType(const Ref<T>& Value)
 	{
 		const auto& Obj = Value.get();
 		WriteType(Obj);
 	}
 	//
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const Vec2& Value)
+	UCodeGameEngineForceinlne void WriteType(const Vec2& Value)
 	{
 		WriteType(Value.X);
 		WriteType(Value.Y);
 	}
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const Vec2i& Value)
+	UCodeGameEngineForceinlne void WriteType(const Vec2i& Value)
 	{
 		WriteType(Value.X);
 		WriteType(Value.Y);
 	}
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const Vec3& Value)
+	UCodeGameEngineForceinlne void WriteType(const Vec3& Value)
 	{
 		WriteType(Value.X);
 		WriteType(Value.Y);
 		WriteType(Value.Z);
 	}
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const Vec3i& Value)
+	UCodeGameEngineForceinlne void WriteType(const Vec3i& Value)
 	{
 		WriteType(Value.X);
 		WriteType(Value.Y);
@@ -159,7 +160,7 @@ public:
 	}
 
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const Color& Value)
+	UCodeGameEngineForceinlne void WriteType(const Color& Value)
 	{
 		WriteType(Value.R);
 		WriteType(Value.G);
@@ -167,7 +168,7 @@ public:
 		WriteType(Value.A);
 	}
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const Color32& Value)
+	UCodeGameEngineForceinlne void WriteType(const Color32& Value)
 	{
 		WriteType(Value.R);
 		WriteType(Value.G);
@@ -176,14 +177,14 @@ public:
 	}
 
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const Color24& Value)
+	UCodeGameEngineForceinlne void WriteType(const Color24& Value)
 	{
 		WriteType(Value.R);
 		WriteType(Value.G);
 		WriteType(Value.B);
 	}
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const ColorRGB& Value)
+	UCodeGameEngineForceinlne void WriteType(const ColorRGB& Value)
 	{
 		WriteType(Value.R);
 		WriteType(Value.G);
@@ -191,7 +192,7 @@ public:
 	}
 
 	template<>
-	UCODE_ENGINE_FORCE_INLINE void WriteType(const Version& Value)
+	UCodeGameEngineForceinlne void WriteType(const Version& Value)
 	{
 		WriteType(Value.Major);
 		WriteType(Value.Minor);
@@ -199,13 +200,13 @@ public:
 	}
 	
 
-	template<> UCODE_ENGINE_FORCE_INLINE void WriteType(const Path& Value)
+	template<> UCodeGameEngineForceinlne void WriteType(const Path& Value)
 	{
 		WriteType(Value.generic_string());
 
 	}
 
-	template<> UCODE_ENGINE_FORCE_INLINE void WriteType(const UID& Value)
+	template<> UCodeGameEngineForceinlne void WriteType(const UID& Value)
 	{
 		WriteType(Value.Get_Value());
 
@@ -231,17 +232,17 @@ public:
 
 	}
 
-	UCODE_ENGINE_FORCE_INLINE void SetBytes(const BytesView Bytes)
+	UCodeGameEngineForceinlne void SetBytes(const BytesView Bytes)
 	{
 		SetBytes(Bytes.Data(), Bytes.Size());
 	}
-	UCODE_ENGINE_FORCE_INLINE void SetBytes(const Byte* Bytes,size_t Size)
+	UCodeGameEngineForceinlne void SetBytes(const Byte* Bytes,size_t Size)
 	{
 		_Bytes = Bytes;
 		_BytesSize = Size;
 		Resetoffset();
 	}
-	UCODE_ENGINE_FORCE_INLINE void Resetoffset()
+	UCodeGameEngineForceinlne void Resetoffset()
 	{
 		_BitOffset = 0;
 	}
@@ -291,7 +292,7 @@ public:
 		}
 	}	
 	
-	UCODE_ENGINE_FORCE_INLINE void SizeCheck(size_t Size)
+	UCodeGameEngineForceinlne void SizeCheck(size_t Size)
 	{
 		if (_BitOffset + Size > _BytesSize)
 		{
@@ -305,11 +306,11 @@ public:
 		Out = _Converter->BytesToUChar(_Bytes, _BitOffset);
 		_BitOffset += sizeof(Byte);
 	}
-	template<> void ReadType(SInt8& Out)
+	template<> void ReadType(i8& Out)
 	{
-		SizeCheck(sizeof(SInt8));
+		SizeCheck(sizeof(i8));
 		Out = _Converter->BytesToSChar(_Bytes, _BitOffset);
-		_BitOffset += sizeof(SInt8);
+		_BitOffset += sizeof(i8);
 	}
 	template<> void ReadType(char& Out)
 	{
@@ -325,58 +326,58 @@ public:
 	}
 
 
-	template<> void ReadType(UInt16& Out)
+	template<> void ReadType(u16& Out)
 	{
-		SizeCheck(sizeof(UInt16));
+		SizeCheck(sizeof(u16));
 		_Converter->BytesToInt16(_Bytes, _BitOffset,&Out);
-		_BitOffset += sizeof(UInt16);
+		_BitOffset += sizeof(u16);
 	}
-	template<> void ReadType(SInt16& Out)
+	template<> void ReadType(i16& Out)
 	{
-		SizeCheck(sizeof(SInt16));
+		SizeCheck(sizeof(i16));
 		_Converter->BytesToInt16(_Bytes, _BitOffset, &Out);
-		_BitOffset += sizeof(SInt16);
+		_BitOffset += sizeof(i16);
 	}
 
-	template<> void ReadType(UInt32& Out)
+	template<> void ReadType(u32& Out)
 	{
-		SizeCheck(sizeof(UInt32));
+		SizeCheck(sizeof(u32));
 		_Converter->BytesToInt(_Bytes, _BitOffset, &Out);
-		_BitOffset += sizeof(UInt32);
+		_BitOffset += sizeof(u32);
 	}
-	template<> void ReadType(SInt32& Out)
+	template<> void ReadType(i32& Out)
 	{
-		SizeCheck(sizeof(SInt32));
+		SizeCheck(sizeof(i32));
 		_Converter->BytesToInt(_Bytes, _BitOffset, &Out);
-		_BitOffset += sizeof(SInt32);
+		_BitOffset += sizeof(i32);
 	}
 
-	template<> void ReadType(UInt64& Out)
+	template<> void ReadType(u64& Out)
 	{
-		SizeCheck(sizeof(UInt64));
+		SizeCheck(sizeof(u64));
 		_Converter->BytesToInt64(_Bytes, _BitOffset, &Out);
-		_BitOffset += sizeof(UInt64);
+		_BitOffset += sizeof(u64);
 	}
-	template<> void ReadType(SInt64& Out)
+	template<> void ReadType(i64& Out)
 	{
-		SizeCheck(sizeof(SInt64));
+		SizeCheck(sizeof(i64));
 		_Converter->BytesToInt64(_Bytes, _BitOffset, &Out);
-		_BitOffset += sizeof(SInt64);
+		_BitOffset += sizeof(i64);
 	}
 
 	
-	template<> void ReadType(float32& Out)
+	template<> void ReadType(f32& Out)
 	{
-		SizeCheck(sizeof(float32));
+		SizeCheck(sizeof(f32));
 		_Converter->BytesTofloat(_Bytes, _BitOffset, &Out);
-		_BitOffset += sizeof(float32);
+		_BitOffset += sizeof(f32);
 	}
 
-	template<> void ReadType(float64& Out)
+	template<> void ReadType(f64& Out)
 	{
-		SizeCheck(sizeof(float64));
+		SizeCheck(sizeof(f64));
 		_Converter->BytesTofloat64(_Bytes, _BitOffset, &Out);
-		_BitOffset += sizeof(float64);
+		_BitOffset += sizeof(f64);
 	}
 	
 	template<> void ReadType(String& Out)
@@ -485,14 +486,14 @@ public:
 		ReadType(V);
 		Out = V;
 	}
-	template<> UCODE_ENGINE_FORCE_INLINE void ReadType(UID& Out)
+	template<> UCodeGameEngineForceinlne void ReadType(UID& Out)
 	{
 		UID::UID_t b = 0;
 		ReadType(b,b);
 		Out.Set_Value(b);
 	}
 
-	template<> UCODE_ENGINE_FORCE_INLINE void ReadType(Version& Out)
+	template<> UCodeGameEngineForceinlne void ReadType(Version& Out)
 	{
 		ReadType(Out.Major, Out.Major);
 		ReadType(Out.Minor, Out.Minor);

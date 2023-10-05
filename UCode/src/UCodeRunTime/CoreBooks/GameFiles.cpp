@@ -83,14 +83,14 @@ template<> struct BitData<GameFileIndex>
 	static void ToBytes(BitMaker& This, const _Type& Value)
 	{
 		This.WriteType(Value.FileFullName);
-		This.WriteType((UInt64)Value.FileOffset);
-		This.WriteType((UInt64)Value.FileSize);
+		This.WriteType((u64)Value.FileOffset);
+		This.WriteType((u64)Value.FileSize);
 	}
 	static void FromBytes(BitReader& This, _Type& Out)
 	{
 		This.ReadType(Out.FileFullName, Out.FileFullName);
 
-		UInt64 V = 0;
+		u64 V = 0;
 		This.ReadType(V, V);
 		Out.FileOffset = V;
 
@@ -328,7 +328,7 @@ Path GameFiles::Get_PersistentDataPath(const AppData& data)
 
 	#endif 
 
-	#ifdef DEBUG
+	#if UCodeGameEngineDEBUG
 	Persistentpath = (String)UCode_VS_PROJECTPATH + "Persistentpath/";
 	#endif // DEBUG
 

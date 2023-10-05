@@ -1,12 +1,12 @@
 #pragma once
 #include "../Core/GameRunTime.hpp"
-#include <UCodeRunTime/RunTimeBasicTypes/unordered_map.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 CoreStart
 class BockDictionary :private libraryBook
 {
 public:
-	typedef size_t CompoentKey_t;
+	using CompoentKey_t = size_t;
 	static BockDictionary* Get(Gamelibrary* lib);
 	static BockDictionary* Find(const Gamelibrary* lib);
  	
@@ -53,6 +53,6 @@ public:
 private:
 	BockDictionary(Gamelibrary* lib);
 	~BockDictionary();
-	Unordered_map<CompoentKey_t, libraryBook*> _Books;
+	UnorderedMap<CompoentKey_t, libraryBook*> _Books;
 };
 CoreEnd

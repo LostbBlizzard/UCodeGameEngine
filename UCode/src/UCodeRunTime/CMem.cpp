@@ -80,7 +80,7 @@ namespace Mem
 
 		if (r == nullptr)
 		{
-			UCODE_ENGINE_THROWEXCEPTION("malloc failed no more memory");
+			UCodeGameEngineThrowException("malloc failed no more memory");
 		}
 		
 		size_t* r2 = (size_t*)r;
@@ -98,23 +98,23 @@ namespace Mem
 
 	void* calloc(size_t num, size_t size)
 	{
-		UCODE_ENGINE_THROWEXCEPTION("not added");
+		UCodeGameEngineThrowException("not added");
 		auto r = std::calloc(num, size);
 		if (r == nullptr)
 		{
-			UCODE_ENGINE_THROWEXCEPTION("calloc failed no more memory");
+			UCodeGameEngineThrowException("calloc failed no more memory");
 		}
 		return r;
 	}
 
 	void* realloc(void* _Block, size_t _Size)
 	{
-		UCODE_ENGINE_THROWEXCEPTION("not added");
+		UCodeGameEngineThrowException("not added");
 
 		auto r = std::realloc(_Block, _Size);
 		if (r == nullptr)
 		{
-			UCODE_ENGINE_THROWEXCEPTION("realloc failed no more memory");
+			UCodeGameEngineThrowException("realloc failed no more memory");
 		}
 		return r;
 	}

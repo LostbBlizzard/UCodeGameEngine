@@ -68,11 +68,11 @@ void AssetManager::GarbageCollect()
 
 	LastFixedUpdateTime = Now;
 	auto delta_timefsec = std::chrono::duration_cast<Time::fsec>(delta_timeT);
-	float32 delta_time = delta_timefsec.count();
+	f32 delta_time = delta_timefsec.count();
 
 	GarbageCollect(delta_time);
 }
-void AssetManager::GarbageCollect(const float32 delta_time)
+void AssetManager::GarbageCollect(const f32 delta_time)
 {
 	
 }

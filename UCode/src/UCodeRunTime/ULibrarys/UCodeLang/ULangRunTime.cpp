@@ -490,7 +490,7 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 	break;
 	case ReflectionTypes::uInt8:
 	{
-		auto& Val = *(UInt8*)Pointer;
+		auto& Val = *(u8*)Pointer;
 		if (Serializer.Get_Type() == USerializerType::Bytes)
 		{
 			auto& Bits = Serializer.Get_BitMaker();
@@ -505,7 +505,7 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 	break;
 	case ReflectionTypes::uInt16:
 	{
-		auto& Val = *(UInt16*)Pointer;
+		auto& Val = *(u16*)Pointer;
 		if (Serializer.Get_Type() == USerializerType::Bytes)
 		{
 			auto& Bits = Serializer.Get_BitMaker();
@@ -521,7 +521,7 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 		uInt32Case:
 	case ReflectionTypes::uInt32:
 	{
-		auto& Val = *(UInt32*)Pointer;
+		auto& Val = *(u32*)Pointer;
 		if (Serializer.Get_Type() == USerializerType::Bytes)
 		{
 			auto& Bits = Serializer.Get_BitMaker();
@@ -537,7 +537,7 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 		uInt64Case:
 	case ReflectionTypes::uInt64:
 	{
-		auto& Val = *(UInt32*)Pointer;
+		auto& Val = *(u32*)Pointer;
 		if (Serializer.Get_Type() == USerializerType::Bytes)
 		{
 			auto& Bits = Serializer.Get_BitMaker();
@@ -580,9 +580,9 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 		}
 	}
 	break;
-	case ReflectionTypes::float32:
+	case ReflectionTypes::f32:
 	{
-		auto& Val = *(float32*)Pointer;
+		auto& Val = *(f32*)Pointer;
 		if (Serializer.Get_Type() == USerializerType::Bytes)
 		{
 			auto& Bits = Serializer.Get_BitMaker();
@@ -595,9 +595,9 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 		}
 	}
 	break;
-	case ReflectionTypes::float64:
+	case ReflectionTypes::f64:
 	{
-		auto& Val = *(float64*)Pointer;
+		auto& Val = *(f64*)Pointer;
 		if (Serializer.Get_Type() == USerializerType::Bytes)
 		{
 			auto& Bits = Serializer.Get_BitMaker();
@@ -724,15 +724,15 @@ void ULangHelper::Deserialize(UDeserializer& Serializer, void* Pointer, const UC
 		{
 			auto& Bits = Serializer.Get_BitReader();
 			
-			auto& FPtr = *(SInt8*)Pointer;
+			auto& FPtr = *(i8*)Pointer;
 			Bits.ReadType(FPtr, FPtr);
 		}
 		else
 		{	
 			auto& Bits = Serializer.Get_TextReader();
 			
-			auto& FPtr = *(SInt8*)Pointer;
-			FPtr = Bits.as<SInt8>(FPtr);
+			auto& FPtr = *(i8*)Pointer;
+			FPtr = Bits.as<i8>(FPtr);
 		}
 	}
 	break;
@@ -742,15 +742,15 @@ void ULangHelper::Deserialize(UDeserializer& Serializer, void* Pointer, const UC
 		{
 			auto& Bits = Serializer.Get_BitReader();
 
-			auto& FPtr = *(SInt16*)Pointer;
+			auto& FPtr = *(i16*)Pointer;
 			Bits.ReadType(FPtr, FPtr);
 		}
 		else
 		{
 			auto& Bits = Serializer.Get_TextReader();
 
-			auto& FPtr = *(SInt16*)Pointer;
-			FPtr = Bits.as<SInt16>(FPtr);
+			auto& FPtr = *(i16*)Pointer;
+			FPtr = Bits.as<i16>(FPtr);
 		}
 	}
 	break;
@@ -761,15 +761,15 @@ void ULangHelper::Deserialize(UDeserializer& Serializer, void* Pointer, const UC
 		{
 			auto& Bits = Serializer.Get_BitReader();
 
-			auto& FPtr = *(SInt32*)Pointer;
+			auto& FPtr = *(i32*)Pointer;
 			Bits.ReadType(FPtr, FPtr);
 		}
 		else
 		{
 			auto& Bits = Serializer.Get_TextReader();
 
-			auto& FPtr = *(SInt32*)Pointer;
-			FPtr = Bits.as<SInt32>(FPtr);
+			auto& FPtr = *(i32*)Pointer;
+			FPtr = Bits.as<i32>(FPtr);
 		}
 	}
 	break;
@@ -780,15 +780,15 @@ sInt64Case:
 		{
 			auto& Bits = Serializer.Get_BitReader();
 
-			auto& FPtr = *(SInt64*)Pointer;
+			auto& FPtr = *(i64*)Pointer;
 			Bits.ReadType(FPtr, FPtr);
 		}
 		else
 		{
 			auto& Bits = Serializer.Get_TextReader();
 
-			auto& FPtr = *(SInt64*)Pointer;
-			FPtr = Bits.as<SInt64>(FPtr);
+			auto& FPtr = *(i64*)Pointer;
+			FPtr = Bits.as<i64>(FPtr);
 		}
 	}
 	break;
@@ -798,15 +798,15 @@ sInt64Case:
 		{
 			auto& Bits = Serializer.Get_BitReader();
 
-			auto& FPtr = *(UInt8*)Pointer;
+			auto& FPtr = *(u8*)Pointer;
 			Bits.ReadType(FPtr, FPtr);
 		}
 		else
 		{
 			auto& Bits = Serializer.Get_TextReader();
 
-			auto& FPtr = *(UInt8*)Pointer;
-			FPtr = Bits.as<UInt8>(FPtr);
+			auto& FPtr = *(u8*)Pointer;
+			FPtr = Bits.as<u8>(FPtr);
 		}
 	}
 	break;
@@ -816,15 +816,15 @@ sInt64Case:
 		{
 			auto& Bits = Serializer.Get_BitReader();
 
-			auto& FPtr = *(UInt16*)Pointer;
+			auto& FPtr = *(u16*)Pointer;
 			Bits.ReadType(FPtr, FPtr);
 		}
 		else
 		{
 			auto& Bits = Serializer.Get_TextReader();
 
-			auto& FPtr = *(UInt16*)Pointer;
-			FPtr = Bits.as<UInt16>(FPtr);
+			auto& FPtr = *(u16*)Pointer;
+			FPtr = Bits.as<u16>(FPtr);
 		}
 	}
 	break;
@@ -835,15 +835,15 @@ sInt64Case:
 		{
 			auto& Bits = Serializer.Get_BitReader();
 
-			auto& FPtr = *(UInt32*)Pointer;
+			auto& FPtr = *(u32*)Pointer;
 			Bits.ReadType(FPtr, FPtr);
 		}
 		else
 		{
 			auto& Bits = Serializer.Get_TextReader();
 
-			auto& FPtr = *(UInt32*)Pointer;
-			FPtr = Bits.as<UInt32>(FPtr);
+			auto& FPtr = *(u32*)Pointer;
+			FPtr = Bits.as<u32>(FPtr);
 		}
 	}
 	break;
@@ -854,15 +854,15 @@ uInt64Case:
 		{
 			auto& Bits = Serializer.Get_BitReader();
 
-			auto& FPtr = *(UInt64*)Pointer;
+			auto& FPtr = *(u64*)Pointer;
 			Bits.ReadType(FPtr, FPtr);
 		}
 		else
 		{
 			auto& Bits = Serializer.Get_TextReader();
 
-			auto& FPtr = *(UInt64*)Pointer;
-			FPtr = Bits.as<UInt64>(FPtr);
+			auto& FPtr = *(u64*)Pointer;
+			FPtr = Bits.as<u64>(FPtr);
 		}
 	}
 	break;
@@ -902,39 +902,39 @@ uInt64Case:
 		}
 	}
 	break;
-	case ReflectionTypes::float32:
+	case ReflectionTypes::f32:
 	{
 		if (Serializer.Get_Mode() == USerializerType::Bytes)
 		{
 			auto& Bits = Serializer.Get_BitReader();
 
-			auto& FPtr = *(float32*)Pointer;
+			auto& FPtr = *(f32*)Pointer;
 			Bits.ReadType(FPtr, FPtr);
 		}
 		else
 		{
 			auto& Bits = Serializer.Get_TextReader();
 
-			auto& FPtr = *(float32*)Pointer;
-			FPtr = Bits.as<float32>(FPtr);
+			auto& FPtr = *(f32*)Pointer;
+			FPtr = Bits.as<f32>(FPtr);
 		}
 	}
 	break;
-	case ReflectionTypes::float64:
+	case ReflectionTypes::f64:
 	{
 		if (Serializer.Get_Mode() == USerializerType::Bytes)
 		{
 			auto& Bits = Serializer.Get_BitReader();
 
-			auto& FPtr = *(float64*)Pointer;
+			auto& FPtr = *(f64*)Pointer;
 			Bits.ReadType(FPtr, FPtr);
 		}
 		else
 		{
 			auto& Bits = Serializer.Get_TextReader();
 
-			auto& FPtr = *(float64*)Pointer;
-			FPtr = Bits.as<float64>(FPtr);
+			auto& FPtr = *(f64*)Pointer;
+			FPtr = Bits.as<f64>(FPtr);
 		}
 	}
 	break;

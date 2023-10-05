@@ -12,7 +12,7 @@ UCode::LogType To(LogType Value)
 	case UCode::ULangAPI::LogType::Fatal:return UCode::LogType::Fatal;
 		
 	default:
-		#ifdef DEBUG
+		#if UCodeGameEngineDEBUG
 		throw std::exception("not added");
 		#endif // DEBUG
 		break;

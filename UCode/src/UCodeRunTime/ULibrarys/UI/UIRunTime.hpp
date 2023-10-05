@@ -14,7 +14,7 @@ struct NormVec2
 	Vec2 Value;
 	NormVec2() :Value(){}
 	NormVec2(Vec2 v) :Value(v) {}
-	NormVec2(float32 x, float32 y) : Value(x,y){}
+	NormVec2(f32 x, f32 y) : Value(x,y){}
 };
 
 struct UIInfo

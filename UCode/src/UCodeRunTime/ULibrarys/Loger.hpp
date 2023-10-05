@@ -2,9 +2,7 @@
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 
 #include <plog/Log.h>
-#include "UCodeRunTime/RunTimeBasicTypes/String.hpp"
-#include "UCodeRunTime/RunTimeBasicTypes/IntTypes.hpp"
-
+#include "UCodeRunTime/BasicTypes.hpp"
 CoreStart
 
 

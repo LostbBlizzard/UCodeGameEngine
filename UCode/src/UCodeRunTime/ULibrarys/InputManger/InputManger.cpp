@@ -45,7 +45,7 @@ InputManger* InputManger::FindInput(const GameRunTime* e)
 
 
 
-float32 InputManger::GetInputKey_Float(InputKey input) const
+f32 InputManger::GetInputKey_Float(InputKey input) const
 {
 	switch (input)
 	{
@@ -92,7 +92,7 @@ void InputManger::Input_API_CallInputCallBack(InputKey Inputkey, CallBackType ty
 	}
 }
 
-void InputManger::Input_API_Set_Scroll(float32 x, float32 y)
+void InputManger::Input_API_Set_Scroll(f32 x, f32 y)
 {
 	_ScrollPosition = { x,y };
 

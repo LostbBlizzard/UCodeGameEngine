@@ -7,7 +7,7 @@ RenderingStart
 class Sprite
 {
 public:
-	Sprite(Texture* texture, SInt32 x, SInt32 y, SInt32 width, SInt32 height);
+	Sprite(Texture* texture, i32 x, i32 y, i32 width, i32 height);
 
 
 
@@ -22,17 +22,17 @@ public:
 
 	
 	inline auto Set_texture(Texture* texture) {	_texture = texture;}
-	inline auto Set_Xoffset(SInt32 X) { _X = X; }
-	inline auto Set_Yoffset(SInt32 Y){  _Y =Y; }
-	inline auto Set_Width(SInt32 W){ _Width = W; }
-	inline auto Set_Height(SInt32 H) { _Height = H; }
+	inline auto Set_Xoffset(i32 X) { _X = X; }
+	inline auto Set_Yoffset(i32 Y){  _Y =Y; }
+	inline auto Set_Width(i32 W){ _Width = W; }
+	inline auto Set_Height(i32 H) { _Height = H; }
 
-	static constexpr SInt32 GetTexureSize = -1;
+	static constexpr i32 GetTexureSize = -1;
 private:
 	Texture* _texture;
-	SInt32 _X;
-	SInt32 _Y;
-	SInt32 _Width;
-	SInt32 _Height;
+	i32 _X;
+	i32 _Y;
+	i32 _Width;
+	i32 _Height;
 };
 RenderingEnd
