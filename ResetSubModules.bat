@@ -38,4 +38,8 @@ cd "Dependencies/plog"
 git reset --hard
 cd "../../"
 
+cd "Dependencies/MinimalSocket"
+git reset --hard
+cd "../../"
+
 pause
