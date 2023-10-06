@@ -1,6 +1,5 @@
 #pragma once
-#include <UCodeRunTime/RunTimeBasicTypes/String.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/unordered_map.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include <UCodeRunTime/ULibrarys/Rendering/GpuTypes/Sprite.hpp>
 #include <UCodeRunTime/ULibrarys/AssetManagement/AssetRendering.hpp>
 #include <Editor/EditorNamespace.hpp>

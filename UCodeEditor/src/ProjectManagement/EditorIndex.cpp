@@ -16,9 +16,9 @@ void EditorIndex::GetDataFromDir(const Path& path)
 		if (dirEntry.is_regular_file())
 		{
 			IndexFile Index;
-			Index.FileLastUpdatedTime = *(UInt64*)&dirEntry.last_write_time();
+			Index.FileLastUpdatedTime = *(u64*)&dirEntry.last_write_time();
 			Index.FileHash = 0;
-			Index.FileSize = (UInt64)dirEntry.file_size();
+			Index.FileSize = (u64)dirEntry.file_size();
 			Index.RelativePath = dirEntry.path().generic_string().substr(path.native().size());
 		
 			_Files.push_back(std::move(Index));

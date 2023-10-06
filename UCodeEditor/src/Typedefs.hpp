@@ -6,12 +6,32 @@
 #include <UCodeRunTime/CoreBooks/BookOfThreads.hpp>
 EditorStart
 
-using String = UCode::String;
+
+
 using Path = UCode::Path;
+using PathSpan = UCode::PathSpan;
+using PathChar = UCode::PathChar;
+using PathString = UCode::PathString;
+
+
+using String = UCode::String;
 using StringView = UCode::StringView;
+
+using String8 = UCode::String8;
+using String8View = UCode::String8View;
+
+using String16 = UCode::String16;
+using String16View = UCode::String16View;
+
+using String32 = UCode::String32;
+using String32View = UCode::String32View;
+
 
 template<typename T>
 using Vector = UCode::Vector<T>;
+
+template<typename T>
+using Span = UCode::Span<T>;
 
 template<typename T, size_t Size>
 using Array = UCode::Array<T, Size>;
@@ -30,9 +50,9 @@ using Unique_array = UCode::Unique_array<T>;
 template<typename T> using Weak_ptr = UCode::Weak_ptr<T>;
 
 template<typename Key,typename U>
-using Unordered_map = UCode::Unordered_map<Key,U>;
+using Unordered_map = UCode::UnorderedMap<Key,U>;
 
-template<typename T> using optional = UCode::optional<T>;
+template<typename T> using Optional = UCode::Optional<T>;
 
 template<typename T> using Span = UCode::Span<T>;
 
@@ -60,12 +80,20 @@ using i64 = UCode::i64;
 
 using Byte = UCode::Byte;
 
+using f32 = UCode::f32;
+using f64 = UCode::f64;
 
 using Vec2 = UCode::Vec2;
 using Vec2i = UCode::Vec2i;
 using Vec3 = UCode::Vec3;
 using Vec3i = UCode::Vec3i;
 using Version = UCode::Version;
+
+template<typename T>
+using Optional = UCode::Optional<T>;
+
+template<typename T, typename E>
+using Result = UCode::Result<T,E>;
 
 template<typename T> using ManagedPtr = UCode::ManagedPtr<T>;
 
@@ -76,20 +104,14 @@ using AnyManagedPtr = UCode::AnyManagedPtr;
 template<typename... T>
 using Variant = UCode::Variant<T...>;
 
-template<typename Key, typename U>
-using BinaryVectorMap = UCode::BinaryVectorMap<Key,U>;
-
-template<typename Key, typename U>
-using VectorMap = UCode::VectorMap<Key, U>;
-
-
 template<typename T>
 using AsynTask_t = UCode::AsynTask_t<T>;
 
 using AsynTask = UCode::AsynTask;
 
-#define UCODE_EDITOR_FORCEINLINE UCODE_ENGINE_FORCE_INLINE
-#define UCODE_EDITOR_NODISCARD UCODE_ENGINE_NODISCARD
+
+#define UCODE_EDITOR_FORCEINLINE UCodeGameEngineForceinlne
+#define UCODE_EDITOR_NODISCARD UCodeGameEngineNoDiscard
 
 
 EditorEnd

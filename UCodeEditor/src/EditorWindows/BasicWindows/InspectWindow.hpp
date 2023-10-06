@@ -47,24 +47,24 @@ public:
 	UCODE_EDITOR_FORCEINLINE bool Vec3Field(const char* FieldName, UCode::Vec3& Value) { return win->Vec3Field(FieldName, Value); }
 	UCODE_EDITOR_FORCEINLINE bool Vec3iField(const char* FieldName, UCode::Vec3i& Value) { return win->Vec3Field(FieldName, Value); }
 
-	UCODE_EDITOR_FORCEINLINE bool float32Field(const char* FieldName,float& Value) { return win->float32Field(FieldName, Value); }
-	UCODE_EDITOR_FORCEINLINE bool float64Field(const char* FieldName, double& Value) { return win->float64Field(FieldName, Value); }
+	UCODE_EDITOR_FORCEINLINE bool f32Field(const char* FieldName,float& Value) { return win->f32Field(FieldName, Value); }
+	UCODE_EDITOR_FORCEINLINE bool f64Field(const char* FieldName, double& Value) { return win->f64Field(FieldName, Value); }
 
-	UCODE_EDITOR_FORCEINLINE bool uInt64Field(const char* FieldName, UInt64& Value) { return win->uInt64Field(FieldName, Value); }
-	UCODE_EDITOR_FORCEINLINE bool uInt32Field(const char* FieldName, UInt32& Value) { return win->uInt32Field(FieldName, Value); }
-	UCODE_EDITOR_FORCEINLINE bool uInt16Field(const char* FieldName, UInt16& Value) { return win->uInt16Field(FieldName, Value); }
-	UCODE_EDITOR_FORCEINLINE bool uInt8Field(const char* FieldName, UInt8& Value) { return win->uInt8Field(FieldName, Value); }
+	UCODE_EDITOR_FORCEINLINE bool uInt64Field(const char* FieldName, u64& Value) { return win->uInt64Field(FieldName, Value); }
+	UCODE_EDITOR_FORCEINLINE bool uInt32Field(const char* FieldName, u32& Value) { return win->uInt32Field(FieldName, Value); }
+	UCODE_EDITOR_FORCEINLINE bool uInt16Field(const char* FieldName,u16& Value) { return win->uInt16Field(FieldName, Value); }
+	UCODE_EDITOR_FORCEINLINE bool uInt8Field(const char* FieldName,u8& Value) { return win->uInt8Field(FieldName, Value); }
 
 
-	UCODE_EDITOR_FORCEINLINE bool Int64Field(const char* FieldName, SInt64& Value) { return win->Int64Field(FieldName, Value); }
-	UCODE_EDITOR_FORCEINLINE bool Int32Field(const char* FieldName, SInt32& Value) { return win->Int32Field(FieldName, Value); }
-	UCODE_EDITOR_FORCEINLINE bool Int16Field(const char* FieldName, SInt16& Value) { return win->Int16Field(FieldName, Value); }
-	UCODE_EDITOR_FORCEINLINE bool Int8Field(const char* FieldName, SInt8& Value) {return win->Int8Field(FieldName, Value); }
+	UCODE_EDITOR_FORCEINLINE bool Int64Field(const char* FieldName, i64& Value) { return win->Int64Field(FieldName, Value); }
+	UCODE_EDITOR_FORCEINLINE bool Int32Field(const char* FieldName, i32& Value) { return win->Int32Field(FieldName, Value); }
+	UCODE_EDITOR_FORCEINLINE bool Int16Field(const char* FieldName, i16& Value) { return win->Int16Field(FieldName, Value); }
+	UCODE_EDITOR_FORCEINLINE bool Int8Field(const char* FieldName, i8& Value) {return win->Int8Field(FieldName, Value); }
 
 	UCODE_EDITOR_FORCEINLINE bool CharField(const char* FieldName, char& Value) { return win->CharField(FieldName,Value); }
 	UCODE_EDITOR_FORCEINLINE bool BoolField(const char* FieldName, bool& Value) { return win->BoolField(FieldName, Value); }
 
-	UCODE_EDITOR_FORCEINLINE bool DrawLayerField(const char* FieldName, UInt8& Value) { return win->DrawLayerField(FieldName, Value); }
+	UCODE_EDITOR_FORCEINLINE bool DrawLayerField(const char* FieldName,u8& Value) { return win->DrawLayerField(FieldName, Value); }
 	private:
 		InspectDrawer(InspectWindow* w) { win = w; }
 		InspectWindow* win;
@@ -97,7 +97,7 @@ public:
 	void Inspect(const InspectData& Data) { _Inspect = Data; _Updated = true; }
 	static EditorWindowData GetEditorData();
 
-	typedef UInt8 AsssetType_t;
+	using AsssetType_t = u16;
 	enum class AsssetType :AsssetType_t
 	{
 		Null,
@@ -130,24 +130,24 @@ private:
 	bool ColorField(const char* FieldName, UCode::Color32& Value);
 	bool ColorField(const char* FieldName, UCode::Color24& Value);
 	
-	bool uInt64Field(const char* FieldName, UInt64& Value);
-	bool uInt32Field(const char* FieldName, UInt32& Value);
-	bool uInt16Field(const char* FieldName, UInt16& Value);
-	bool uInt8Field(const char* FieldName,  UInt8& Value);
+	bool uInt64Field(const char* FieldName, u64& Value);
+	bool uInt32Field(const char* FieldName, u32& Value);
+	bool uInt16Field(const char* FieldName,u16& Value);
+	bool uInt8Field(const char* FieldName, u8& Value);
 
-	bool Int64Field(const char* FieldName, SInt64& Value);
-	bool Int32Field(const char* FieldName, SInt32& Value);
-	bool Int16Field(const char* FieldName, SInt16& Value);
-	bool Int8Field(const char* FieldName, SInt8& Value);
+	bool Int64Field(const char* FieldName, i64& Value);
+	bool Int32Field(const char* FieldName, i32& Value);
+	bool Int16Field(const char* FieldName, i16& Value);
+	bool Int8Field(const char* FieldName, i8& Value);
 	
-	bool float32Field(const char* FieldName, float32& Value);
-	bool float64Field(const char* FieldName, float64& Value);
+	bool f32Field(const char* FieldName, f32& Value);
+	bool f64Field(const char* FieldName, f64& Value);
 
 	bool BoolField(const char* FieldName, bool& Value);
 	bool CharField(const char* FieldName, char& Value);
 
 
-	bool DrawLayerField(const char* FieldName, UInt8& Value);
+	bool DrawLayerField(const char* FieldName,u8& Value);
 };
 
 EditorEnd 

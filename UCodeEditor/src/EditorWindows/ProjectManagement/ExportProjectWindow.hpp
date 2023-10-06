@@ -10,7 +10,7 @@ EditorStart
 class ExportProjectWindow :public EditorWindow
 {
 public:
-	enum class Platforms : UInt8
+	enum class Platforms :u16
 	{
 		UCodeEditor,
 		Windows,

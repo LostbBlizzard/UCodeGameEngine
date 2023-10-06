@@ -25,28 +25,28 @@ bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& T
 	case UCodeLang::ReflectionTypes::uInt8:
 	{
 		ImGui::PushID(Pointer);
-		R = ImGuIHelper::uInt8Field("", *(UInt8*)Pointer);
+		R = ImGuIHelper::uInt8Field("", *(u8*)Pointer);
 		ImGui::PopID();
 	}
 	break;
 	case UCodeLang::ReflectionTypes::sInt8:
 	{
 		ImGui::PushID(Pointer);
-		R = ImGuIHelper::Int8Field("", *(SInt8*)Pointer);
+		R = ImGuIHelper::Int8Field("", *(i8*)Pointer);
 		ImGui::PopID();
 	}
 	break;
 	case UCodeLang::ReflectionTypes::uInt16:
 	{
 		ImGui::PushID(Pointer);
-		R = ImGuIHelper::uInt16Field("", *(UInt16*)Pointer);
+		R = ImGuIHelper::uInt16Field("", *(u16*)Pointer);
 		ImGui::PopID();
 	}
 	break;
 	case UCodeLang::ReflectionTypes::sInt16:
 	{
 		ImGui::PushID(Pointer);
-		R = ImGuIHelper::Int16Field("", *(SInt16*)Pointer);
+		R = ImGuIHelper::Int16Field("", *(i16*)Pointer);
 		ImGui::PopID();
 	}
 	break;
@@ -55,7 +55,7 @@ bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& T
 	case UCodeLang::ReflectionTypes::uInt32:
 	{
 		ImGui::PushID(Pointer);
-		R = ImGuIHelper::uInt32Field("", *(UInt32*)Pointer);
+		R = ImGuIHelper::uInt32Field("", *(u32*)Pointer);
 		ImGui::PopID();
 	}
 	break;
@@ -64,7 +64,7 @@ bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& T
 	case UCodeLang::ReflectionTypes::sInt32:
 	{
 		ImGui::PushID(Pointer);
-		R = ImGuIHelper::Int32Field("", *(SInt32*)Pointer);
+		R = ImGuIHelper::Int32Field("", *(i32*)Pointer);
 		ImGui::PopID();
 	}
 	break;
@@ -73,7 +73,7 @@ bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& T
 	case UCodeLang::ReflectionTypes::uInt64:
 	{
 		ImGui::PushID(Pointer);
-		R = ImGuIHelper::uInt64Field("", *(UInt64*)Pointer);
+		R = ImGuIHelper::uInt64Field("", *(u64*)Pointer);
 		ImGui::PopID();
 	}
 	break;
@@ -81,7 +81,7 @@ bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& T
 	case UCodeLang::ReflectionTypes::sInt64:
 	{
 		ImGui::PushID(Pointer);
-		R = ImGuIHelper::Int64Field("", *(SInt64*)Pointer);
+		R = ImGuIHelper::Int64Field("", *(i64*)Pointer);
 		ImGui::PopID();
 	}
 	break;
@@ -113,14 +113,14 @@ bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& T
 	case UCodeLang::ReflectionTypes::float32:
 	{
 		ImGui::PushID(Pointer);
-		R = ImGuIHelper::float32Field("", *(float32*)Pointer);
+		R = ImGuIHelper::f32Field("", *(f32*)Pointer);
 		ImGui::PopID();
 	}
 	break;
 	case UCodeLang::ReflectionTypes::float64:
 	{
 		ImGui::PushID(Pointer);
-		R = ImGuIHelper::float64Field("", *(float64*)Pointer);
+		R = ImGuIHelper::f64Field("", *(f64*)Pointer);
 		ImGui::PopID();
 	}
 	break;

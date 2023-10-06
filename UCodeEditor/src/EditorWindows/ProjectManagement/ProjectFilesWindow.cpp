@@ -27,7 +27,7 @@ void ProjectFilesWindow::DirectoryViewerOpenFile(DirectoryViewer& From, void* Pt
     ptr->_LookingAtDir = Path.parent_path().native() + Path::preferred_separator;
     ptr->UpdateDir();
 }
-ProjectFilesWindow::ProjectFilesWindow(const NewEditorWindowData& windowdata):EditorWindow(windowdata),_LookingAtDir(UCODE_ENGINE_NULLSTRING), _ShowingAddNewItemWindow(nullptr)
+ProjectFilesWindow::ProjectFilesWindow(const NewEditorWindowData& windowdata):EditorWindow(windowdata)
 {
     Viewer.SetCallBackPtr(this);
     Viewer.SetOpenPathCallback(DirectoryViewerOpenFile);
@@ -47,7 +47,7 @@ static String ColorEditFilePath;
 static UCode::Color32* ColorObject =nullptr;
 void ProjectFilesWindow::UpdateWindow()
 {
-    if (_LookingAtDir == UCODE_ENGINE_NULLSTRING)
+    if (!_LookingAtDir.has_value())
     {
         _LookingAtDir = Get_ProjectData()->GetAssetsDir();
         UpdateDir();
@@ -78,7 +78,7 @@ void ProjectFilesWindow::UpdateWindow()
     }
 
 
-    if (_LookingAtDir != UCODE_ENGINE_NULLSTRING)
+    if (_LookingAtDir.has_value())
     {
         {
             const auto AssetsDir = Get_ProjectData()->GetAssetsDir();
@@ -88,7 +88,7 @@ void ProjectFilesWindow::UpdateWindow()
             if (ImGui::Button("Back folder"))
             {
 
-                fs::path oldpath = _LookingAtDir;
+                Path oldpath = _LookingAtDir.value();
                 _LookingAtDir = oldpath.parent_path().parent_path().generic_u8string() + '/';
                 UpdateDir();
             }
@@ -148,9 +148,9 @@ void ProjectFilesWindow::UpdateWindow()
 
                         const String EntityName = DropItem->Get_Name().size() ? DropItem->Get_Name() : UnNamedEntity;
 
-                        String Path = FileHelper::GetNewFileName(_LookingAtDir.generic_string() + EntityName, RawEntityData::FileExtDot);
+                        Path path = FileHelper::GetNewFileName(Path(_LookingAtDir.value().native() + Path(EntityName).native()),Path(RawEntityData::FileExtDot));
 
-                        RawEntityData::WriteToFile(Path, Data);
+                        RawEntityData::WriteToFile(path, Data);
                         UpdateDir();
                     }
 
@@ -171,8 +171,8 @@ void ProjectFilesWindow::UpdateWindow()
                         const String _SceneName = DropItem->Get_Name().size() ? DropItem->Get_Name() : UnNamedScene;
 
 
-                        String Path = FileHelper::GetNewFileName(_LookingAtDir.generic_string() + _SceneName, UCode::Scene2dData::FileExtDot);
-                        UCode::Scene2dData::ToFile(Path, Data, SaveType);
+                        Path path = FileHelper::GetNewFileName(_LookingAtDir.value().native() +  Path(_SceneName).native(),Path(UCode::Scene2dData::FileExtDot));
+                        UCode::Scene2dData::ToFile(path, Data, SaveType);
                         UpdateDir();
                     }
 
@@ -222,19 +222,19 @@ void ProjectFilesWindow::UpdateWindow()
 
             if (MakeSprite)
             {
-                String NewPath = FileHelper::GetNewFileName(_LookingAtDir.generic_string() + FileName,".png");
+                Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path(FileName).native(),".png");
                 UCode::Color32 Bytes = (UCode::Color32)Color;
                 constexpr auto CHANNEL_NUM = 4;
                 constexpr auto width = 1;
-                constexpr auto height = 1;
-                stbi_write_png(NewPath.c_str(), width, height, CHANNEL_NUM, &Bytes, width* CHANNEL_NUM);
+                constexpr auto height = 1;            
+                stbi_write_png(NewPath.generic_string().c_str(), width, height, CHANNEL_NUM, &Bytes, width* CHANNEL_NUM);
             }
             if (MakeColor)
             {
                 ColorData Data;
                 Data._Color = Color;
 
-                String NewPath = FileHelper::GetNewFileName(_LookingAtDir.generic_string() + FileName, (UCode::String)ColorData::FileExtDot);
+                Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path(FileName).native(), (UCode::String)ColorData::FileExtDot);
                 ColorData::WriteToFile(NewPath, Data, Get_ProjectData()->Get_ProjData()._SerializeType);
             }
             if (MakeSprite || MakeColor)
@@ -285,7 +285,7 @@ void ProjectFilesWindow::ShowFileCells()
     float cellSize = thumbnailSize + padding;
     ImVec2 CeSize = { thumbnailSize, thumbnailSize };
     float panelWidth = ImGui::GetContentRegionAvail().x;
-    SInt32 columnCount = (SInt8)(panelWidth / cellSize);
+    i32 columnCount = (i8)(panelWidth / cellSize);
     if (columnCount < 1) {
         columnCount = 1;
     }
@@ -324,7 +324,7 @@ void ProjectFilesWindow::ShowDirButtions()
     {
         if (ImGui::MenuItem("Make folder"))
         {
-            String NewFolderPath = FileHelper::GetNewFileName(_LookingAtDir.generic_string() + "New folder") + '/';
+            Path NewFolderPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New folder").native()) / "";
             if (fs::create_directory(NewFolderPath))
             {
                 UpdateDir();
@@ -334,7 +334,8 @@ void ProjectFilesWindow::ShowDirButtions()
 
         if (ImGui::MenuItem("Make 2DScene"))
         {
-            String NewPath = FileHelper::GetNewFileName(_LookingAtDir.generic_string() + "New 2DScene", "." + (UCode::String)UCode::Scene2dData::FileExt);
+            Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New 2DScene").native()
+                ,Path("." + (UCode::String)UCode::Scene2dData::FileExt));
             UCode::Scene2dData newScene = UCode::Scene2dData();
             UCode::Scene2dData::ToFile(NewPath, newScene, Get_ProjectData()->Get_ProjData()._SerializeType);
             UpdateDir();
@@ -342,7 +343,9 @@ void ProjectFilesWindow::ShowDirButtions()
 
         if (ImGui::MenuItem("Make ULang Script"))
         {
-            String NewPath = FileHelper::GetNewFileName(_LookingAtDir.generic_string() + "New Script", "." + (UCode::String)UCodeLang::FileExt::SourceFile);
+            Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New Script").native(),
+                Path("." + (UCode::String)UCodeLang::FileExt::SourceFile));
+
             std::ofstream NewScirpt (NewPath);
             NewScirpt << "";
             NewScirpt.close();
@@ -359,7 +362,7 @@ void ProjectFilesWindow::ShowDirButtions()
     }
  
 }
-optional<size_t> ProjectFilesWindow::FindAssetFile(const Path& path)
+Optional<size_t> ProjectFilesWindow::FindAssetFile(const Path& path)
 {
     for (size_t i = 0; i < _AssetFiles.size(); i++)
     {
@@ -495,7 +498,7 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
         }
         if (ImGui::MenuItem("Show in Files"))
         {
-            FileHelper::OpenPathinFiles(_LookingAtDir.generic_string());
+            FileHelper::OpenPathinFiles(_LookingAtDir.value());
         }  
         if (ImGui::MenuItem("Rename File"))
         {
@@ -518,8 +521,8 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
     auto style = ImGui::GetStyleColorVec4(ImGuiCol_::ImGuiCol_ChildBg);
     ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_FrameBg, style);
 
-    fs::path Ext = fs::path(Item.FileName).extension();
-    String NewName = fs::path(Item.FileName).replace_extension("").generic_string();
+    Path Ext = Path(Item.FileName).extension();
+    String NewName = Path(Item.FileName).replace_extension("").generic_string();
     ImGui::PushID(&Item);
 
     if (RenameFile.has_value() && RenameFile.value() == Item.FullFileName)
@@ -527,7 +530,7 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
         bool ReNameValue = true;
         if (ImGuIHelper::DrawRenameName(NewName, ReNameValue))
         {
-            auto NewPath = fs::path(_LookingAtDir) / fs::path(NewName).concat(Ext.generic_string());
+            auto NewPath = Path(_LookingAtDir.value()) / Path(NewName).concat(Ext.generic_string());
             FileHelper::RenameFile(Item.FullFileName, NewPath);
             Item.FullFileName = NewPath.generic_string();
             Item.FileName = NewName;
@@ -551,11 +554,11 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
 void ProjectFilesWindow::UpdateDir()
 {
     
-    fs::path path = _LookingAtDir;
+    Path path = _LookingAtDir.value();
 
-    if (_LookingAtDir != UCODE_ENGINE_NULLSTRING) 
+    if (!_LookingAtDir.has_value()) 
     {   
-        _LookingAtDirReadable = FileHelper::ToRelativePath(Get_ProjectData()->Get_ProjectDir(), _LookingAtDir);
+        _LookingAtDirReadable = FileHelper::ToRelativePath(Get_ProjectData()->Get_ProjectDir(), _LookingAtDir.value());
     }
 
     if (fs::exists(path))
@@ -600,7 +603,7 @@ void ProjectFilesWindow::OnSaveWindow(USerializer& SaveIn)
 {
     auto& Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
    
-    auto PathString = FileHelper::ToRelativePath(Assespath.generic_string(), _LookingAtDir.generic_string());
+    auto PathString = FileHelper::ToRelativePath(Assespath, _LookingAtDir.value());
 
 
     SaveIn.Write("_LookingAtDir",PathString);
@@ -620,13 +623,13 @@ void ProjectFilesWindow::OnLoadWindow(UDeserializer& Loadin)
 {
     auto& Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
 
-    Path PathString= UCODE_ENGINE_NULLSTRING;
+    Path PathString= "";
     Loadin.ReadType("_LookingAtDir", PathString, PathString);
 
-    if (PathString != UCODE_ENGINE_NULLSTRING) 
+    if (PathString != "")
     {
         _LookingAtDir = Assespath.native() + PathString.native();
-        if (!fs::is_directory(_LookingAtDir))
+        if (!fs::is_directory(_LookingAtDir.value()))
         {
             _LookingAtDir = Assespath;
         }

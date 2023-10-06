@@ -11,7 +11,6 @@
 #include <Helper/ImGuIHelper_Asset.hpp>
 #include <EditorWindows/ProjectManagement/ExportProjectWindow.hpp>
 
-#include "UCodeRunTime/CMem.hpp"
 #include "Serialization.hpp"
 
 #include "UEditorModules/UEditorModule.hpp"
@@ -28,7 +27,7 @@ EditorAppCompoent::EditorAppCompoent(UCode::Entity* entity) :
 {
     AppFiles::Init(GetGameRunTime()->Get_Library_Edit());
     
-    AppFiles::AsynReadFileAsBytes(ToPathChar("art/OpenSans-VariableFont_wdth,wght.ttf"))
+    AppFiles::AsynReadFileAsBytes("art/OpenSans-VariableFont_wdth,wght.ttf")
         .OnCompletedOnMainThread([this](Unique_Bytes FontBytes)
     {
 
@@ -145,7 +144,7 @@ void EditorAppCompoent::OnProjectLoaded()
     auto& Index = _RunTimeProjectData.Get_AssetIndex();
     auto List = Index.GetDiffFromDir(AssetDir);
     
-    Unordered_map<Path, Vector<EditorIndex::ChangedFile*>> ExtList;
+    Unordered_map<PathString, Vector<EditorIndex::ChangedFile*>> ExtList;
 
     for (auto& Item : List)
     {
@@ -413,7 +412,7 @@ void  EditorAppCompoent::OnAppEnded()
 void  EditorAppCompoent::LoadWindowsPref()
 {
     const Path WinPrePath = _RunTimeProjectData.Get_ProjectPrefsDir().concat(WindowPrefData::FileName);
-    const Path IniPrePath = _RunTimeProjectData.Get_ProjectPrefsDir().concat(ToPathChar("Ini")).concat( WindowPrefData::FileName);
+    const Path IniPrePath = _RunTimeProjectData.Get_ProjectPrefsDir().concat("Ini").concat( WindowPrefData::FileName);
     
    
     //Do Cool Stuff
@@ -447,7 +446,7 @@ void  EditorAppCompoent::LoadWindowsPref()
                 Data.SetYAMLString(StringView((char*)Item._WindowData.data() + 1, Item._WindowData.size()-1));
                 break;
             default:
-                UCodeGameEngineUnreachble;
+                UCodeGameEngineUnreachable();
                 break;
             }
             

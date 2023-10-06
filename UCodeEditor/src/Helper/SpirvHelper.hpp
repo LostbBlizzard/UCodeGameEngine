@@ -7,7 +7,7 @@ EditorStart
 
 struct SpirvHelper
 {
-	using SpirvByte = UCode::UInt32;
+	using SpirvByte = UCode::u32;
 	static void Init();
 
 	static void Finalize();

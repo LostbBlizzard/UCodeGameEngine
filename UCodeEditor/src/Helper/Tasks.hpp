@@ -6,7 +6,7 @@ EditorStart
 struct RuningTask
 {
 
-	enum class Type : UInt8
+	enum class Type :u16
 	{
 		null,
 		BuildingShaders,

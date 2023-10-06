@@ -1,6 +1,5 @@
 #pragma once
-#include <UCodeRunTime/RunTimeBasicTypes.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/String.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include <Editor/EditorNamespace.hpp>
 #include <Typedefs.hpp>
 

@@ -11,9 +11,9 @@ struct ExportChacheFile
 	struct GetState_t;
 	struct OldState
 	{
-		UInt64 FileSize;
-		UInt64 FileLastUpdated;
-		UInt64 FileHash;
+		u64 FileSize;
+		u64 FileLastUpdated;
+		u64 FileHash;
 
 		
 		
@@ -44,7 +44,7 @@ struct ExportChacheFile
 	static Unique_Bytes ToBytes(const ExportChacheFile& file);
 	static bool FromBytes(const BytesView& bytes, ExportChacheFile& file);
 
-	VectorMap<Path, OldState> Info;
+	Unordered_map<PathString, OldState> Info;
 };
 
 struct UEditorAssetDataConext
@@ -90,7 +90,7 @@ class UEditorAssetFile
 {
 public:
 	Path FileFullPath;
-	optional<Path> FileMetaFullPath;//if  UEditorAssetFileData::FileMetaExtWithDot HasValue
+	Optional<Path> FileMetaFullPath;//if  UEditorAssetFileData::FileMetaExtWithDot HasValue
 	
 	virtual ~UEditorAssetFile()
 	{
@@ -134,7 +134,7 @@ class UEditorAssetFileData
 {
 public:
 	Path FileExtWithDot;
-	optional<Path> FileMetaExtWithDot;
+	Optional<Path> FileMetaExtWithDot;
 	bool CanHaveLiveingAssets = false;
 
 
@@ -240,8 +240,8 @@ public:
 		return {};
 	}
 	
-	optional<size_t> GetAssetDataUsingExt(const Path& ExtWithDot);
-	optional<size_t> GetComponentData(const UCode::UComponentsID& ID);
+	Optional<size_t> GetAssetDataUsingExt(const Path& ExtWithDot);
+	Optional<size_t> GetComponentData(const UCode::UComponentsID& ID);
 private:
 };
 
@@ -256,7 +256,7 @@ public:
 	struct FromExt
 	{
 		UEditorModule* Ptr =nullptr;
-		optional<size_t> Index;
+		Optional<size_t> Index;
 	};
 	static  FromExt GetModuleFromFileExt(const Path& ExtWithDot);
 

@@ -7,18 +7,18 @@ const char* nullTexPath = "_NullTex";
 #else
 const char* nullTexPath = "";
 #endif // DEBUG
-constexpr SInt32 SetTodefault = UCode::Sprite::GetTexureSize;
+constexpr i32 SetTodefault = UCode::Sprite::GetTexureSize;
 struct SpriteInfo
 {   
     AppFiles::texture tex;
     
-    SInt32 X, Y, SizeX, SizeY;
+    i32 X, Y, SizeX, SizeY;
     constexpr SpriteInfo(AppFiles::texture texure) : tex(texure)
         , X(SetTodefault), Y(SetTodefault), SizeX(SetTodefault), SizeY(SetTodefault)
     {
 
     }
-    constexpr SpriteInfo(AppFiles::texture texure, SInt32 x, SInt32 y, SInt32 sizeX, SInt32 sizey)
+    constexpr SpriteInfo(AppFiles::texture texure, i32 x, i32 y, i32 sizeX, i32 sizey)
         : tex(texure)
         , X(x), Y(y), SizeX(sizeX), SizeY(sizey)
     {
@@ -259,7 +259,7 @@ UCode::Sprite* AppFiles::GetSprite(sprite tex)
         {
             auto tex = GetTexture(info.tex);
 
-            SInt32 _X, _Y, _SizeX, _SizeY;
+            i32 _X, _Y, _SizeX, _SizeY;
 
             if (info.X == SetTodefault) { _X = 0; }
             else { _X = info.X; }
@@ -296,7 +296,7 @@ UCode::Sprite* AppFiles::GetSprite(sprite tex)
         const SpriteInfo& info = SpriteInfos[id];
 
         auto tex = GetTexture(info.tex);
-        SInt32 _X, _Y, _SizeX, _SizeY;
+        i32 _X, _Y, _SizeX, _SizeY;
 
         if (info.X == SetTodefault) { _X = 0; }
         else { _X = info.X; }

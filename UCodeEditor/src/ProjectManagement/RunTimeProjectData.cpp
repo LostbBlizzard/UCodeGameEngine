@@ -56,27 +56,27 @@ Path RunTimeProjectData::GetAssetsDir()
 }
 Path RunTimeProjectData::GetSrcDir()
 {
-	auto Path = GetAssetsDir().native() + ToPathChar("src") + Path::preferred_separator;
+	auto path = GetAssetsDir().native() + Path("src").native() + Path::preferred_separator;
 
-	fs::path Path_t = Path;
+	Path Path_t = path;
 	if (!fs::exists(Path_t))
 	{
 		fs::create_directories(Path_t);
 	}
 
-	return Path;
+	return path;
 }
 Path RunTimeProjectData::GetSrcLibsDir()
 {
-	auto Path = GetSrcDir().native() + ToPathChar("Libraries") + Path::preferred_separator;
+	auto path = GetSrcDir().native() + Path("Libraries").native() + Path::preferred_separator;
 
-	fs::path Path_t = Path;
+	Path Path_t = path;
 	if (!fs::exists(Path_t))
 	{
 		fs::create_directories(Path_t);
 	}
 
-	return Path;
+	return path;
 }
 Path RunTimeProjectData::GetCachedDir()
 {
@@ -96,8 +96,8 @@ Path RunTimeProjectData::GetCachedDir()
 }
 UCODE_EDITOR_NODISCARD Path RunTimeProjectData::GetOutDir()
 {
-	auto Path = ProjectManger::GetProjectCachedDir(_ProjDir).native() + ToPathChar("OutPut") + Path::preferred_separator;;
-	fs::path Path_t = Path;
+	auto path = ProjectManger::GetProjectCachedDir(_ProjDir).native() + Path("OutPut").native() + Path::preferred_separator;;
+	fs::path Path_t = path;
 
 	if (!fs::exists(Path_t))
 	{
@@ -106,53 +106,53 @@ UCODE_EDITOR_NODISCARD Path RunTimeProjectData::GetOutDir()
 			//idk then
 		}
 	}
-	return Path;
+	return path;
 }
 Path RunTimeProjectData::GetGameLibDir()
 {
-	auto Path = GetCachedDir().native() + ToPathChar("GameLib/");
+	auto path = GetCachedDir().native() + Path("GameLib/").native();
 
-	fs::path Path_t = Path;
+	fs::path Path_t = path;
 	if (!fs::exists(Path_t))
 	{
 		if (fs::create_directories(Path_t))
 		{
 			
 			//Copy defaults.
-		}GameLibManger::MakedafalultLibObjs(Path);
+		}GameLibManger::MakedafalultLibObjs(path);
 	}
 	
-	return Path;
+	return path;
 }
 Path RunTimeProjectData::GetULangIntDir()
 {
-	auto Path = GetCachedDir().native() + ToPathChar("ULang/Int/");
+	auto path = GetCachedDir().native() + Path("ULang/Int/").native();
 
-	fs::path Path_t = Path;
+	Path Path_t = path;
 	if (!fs::exists(Path_t))
 	{
 		if (fs::create_directories(Path_t))
 		{
 
 			//Copy defaults.
-		}GameLibManger::MakedafalultLibObjs(Path);
+		}GameLibManger::MakedafalultLibObjs(path);
 	}
 
-	return Path;
+	return path;
 }
 Path RunTimeProjectData::GetULangOutDir()
 {
-	auto Path = GetGameLibDir().native() + ToPathChar("Lib/");
-	fs::path Path_t = Path;
+	auto path = GetGameLibDir().native() + Path("Lib/").native();
+	Path Path_t = path;
 	if (!fs::exists(Path_t))
 	{
 		if (fs::create_directories(Path_t))
 		{
 
 			//Copy defaults.
-		}GameLibManger::MakedafalultLibObjs(Path);
+		}GameLibManger::MakedafalultLibObjs(path);
 	}
-	return Path;
+	return path;
 }
 Path RunTimeProjectData::Get_ProjectPrefsDir()
 {

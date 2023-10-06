@@ -28,11 +28,12 @@ private:
 	~RenderRunTime2d();
 public:
 	
-	typedef unsigned char DrawLayer_t;
+	using DrawLayer_t = u8;
 	static constexpr DrawLayer_t DrawLayer_Min = 0;
 	static constexpr DrawLayer_t DrawLayer_Max = UCHAR_MAX;
 
-	typedef unsigned char DrawOrder_t;
+
+	using DrawOrder_t = u8;
 	static constexpr DrawOrder_t DrawOrderType_Min =0;
 	static constexpr  DrawOrder_t DrawOrderType_Max = UCHAR_MAX;
 

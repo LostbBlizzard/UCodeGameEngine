@@ -30,14 +30,14 @@ public:
 private:
 	static EditorWindow* MakeWin(const NewEditorWindowData& windowdata);
 
-	enum class ToolBarType : UInt8
+	enum class ToolBarType :u16
 	{
 		Select,
 		Move,
 		Scale,
 		Rotate,
 	};
-	enum class GameWindowType : UInt8
+	enum class GameWindowType :u16
 	{
 		EditorWindow,
 		ExternalWindow,
@@ -48,21 +48,22 @@ private:
 		UCode::Vec3 _Pos;//Vec 3 Because We need to Both 2D and 3D.
 		float Orth_Size =10;
 	};
-	bool _IsRuningGame;
-	bool _IsGamePaused;
+	bool _IsRuningGame = false;
+	bool _IsGamePaused = false;
 	
-	GameWindowType _WindowType;
+	GameWindowType _WindowType = GameWindowType::EditorWindow;
 	Unique_ptr<UCode::GameRunTime> _GameRunTime;
 	Unique_ptr<UCode::RenderAPI::Render> _GameRender;
-	bool _IsGameWindowFocused, _ShowingGameStats;int _ShowingGameStatslocation;
+	bool _IsGameWindowFocused = false, _ShowingGameStats =false;
+	int _ShowingGameStatslocation = 0;
 	
 	
 
 	//
-	Path _UseingScenePath = UCODE_ENGINE_NULLSTRING;
-	UCode::Scene2dData* _SceneData;
-	UCode::RunTimeScene* _SceneDataAsRunTiime;
-	UCode::Camera2d* _SceneCamera;
+	Optional<Path> _UseingScenePath;
+	UCode::Scene2dData* _SceneData = nullptr;
+	UCode::RunTimeScene* _SceneDataAsRunTiime = nullptr;
+	UCode::Camera2d* _SceneCamera = nullptr;
 	SceneCameraData _SceneCameraData;
 	ToolBarType _ToolBar = ToolBarType::Select;
 	
@@ -81,7 +82,7 @@ private:
 	bool IsRenameing = false;
 	UCode::EntityPtr SelectedObject = nullptr;
 	UCode::RunTimeScenePtr SelectedScene = nullptr;
-	optional<Vector<UCodeLang::ReflectionCustomTypeID>> _PickComponent;
+	Optional<Vector<UCodeLang::ReflectionCustomTypeID>> _PickComponent;
 	
 	bool IsSelected(UCode::Entity* Object)
 	{
