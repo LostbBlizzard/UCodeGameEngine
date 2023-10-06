@@ -247,7 +247,7 @@ public:
 		return !(X == other.X && Y == other.Y);
 	}
 
-	T GetRotated(T radians) const
+	Vec2_t GetRotated(T radians) const
 	{
 		return { X * std::cos(radians) - Y * std::sin(radians),
 				 X * std::sin(radians) + Y * std::cos(radians) };
@@ -603,7 +603,7 @@ struct Unique_Span
 	{
 		Other._Size = 0;
 	}
-	This& operator=(This&& Other)
+	This& operator=(This&& Other) noexcept
 	{
 		Pointer = std::move(Other.Pointer);
 		_Size = Other._Size;
@@ -970,5 +970,119 @@ struct Version
 		Minor = minor;
 		Revision = revision;
 	}
+};
+
+template<typename T, typename E>
+class Result
+{
+public:
+	Result() {}
+	~Result() {}
+
+	Result(const T& Value)
+		:_Base(Value) {}
+
+	Result(T&& Value)
+		:_Base(std::move(Value)) {}
+
+	Result(const E& Value)
+		:_Base(Value) {}
+
+	Result(E&& Value)
+		:_Base(std::move(Value)) {}
+
+	bool IsError() const
+	{
+		return _Base.template  Is<E>();
+	}
+	bool IsValue() const
+	{
+		return _Base.template Is<T>();
+	}
+	E* IfError()
+	{
+		return _Base.template Get_If<E>();
+	}
+	T* IfValue()
+	{
+		return _Base.template Get_If<T>();
+	}
+
+	const E* IfError() const
+	{
+		return _Base.template Get_If<E>();
+	}
+	const T* IfValue() const
+	{
+		return _Base.template Get_If<T>();
+	}
+
+	const E& GetError() const
+	{
+		return _Base.template Get<E>();
+	}
+	const T& GetValue() const
+	{
+		return _Base.template Get<T>();
+	}
+	E& GetError()
+	{
+		return _Base.template Get<E>();
+	}
+	T& GetValue()
+	{
+		return _Base.template Get<T>();
+	}
+
+	T ValueOr(const T& Or)
+	{
+		if (IsValue())
+		{
+			return GetValue();
+		}
+		return Or;
+	}
+	const T ValueOr(const T& Or) const
+	{
+		if (IsValue())
+		{
+			return GetValue();
+		}
+		return Or;
+	}
+	T ErrorOr(const T Or)
+	{
+		if (IsError())
+		{
+			return GetError();
+		}
+		return Or;
+	}
+	const T ErrorOr(const T& Or) const
+	{
+		if (IsError())
+		{
+			return GetError();
+		}
+		return Or;
+	}
+	Optional<T> AsOption()
+	{
+		if (IsValue())
+		{
+			return GetValue();
+		}
+		return {};
+	}
+	Optional<E> AsOptionError()
+	{
+		if (IsError())
+		{
+			return GetError();
+		}
+		return {};
+	}
+private:
+	Variant<T, E> _Base;
 };
 CoreEnd

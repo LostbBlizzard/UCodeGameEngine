@@ -140,14 +140,14 @@ void ULangScript::Update()
 		{
 			_HasCalledStart = true;
 			if (_LangStart) {
-				Lang->LangThisCall(*_LangStart, _UObj);
+				Lang->LangThisCall(_LangStart, _UObj);
 			}
 		}
 		else
 		{
 			if (_LangUpdate) 
 			{
-				Lang->LangThisCall(*_LangUpdate, _UObj);
+				Lang->LangThisCall(_LangUpdate, _UObj);
 			}
 		}
 	}
@@ -157,7 +157,7 @@ void ULangScript::FixedUpdate()
 {
 	if (_UObj && _LangFixedUpdate)
 	{
-		GetULang()->LangThisCall(*_LangFixedUpdate, _UObj);
+		GetULang()->LangThisCall(_LangFixedUpdate, _UObj);
 	}
 }
 void ULangScript::UnLoad()
@@ -211,7 +211,7 @@ void ULangScript::CallAwake()
 	if (_UObj && _HasCalledAwake == false && _LangAwake)
 	{
 		_HasCalledAwake = true;
-		GetULang()->LangThisCall(*_LangAwake, _UObj);
+		GetULang()->LangThisCall(_LangAwake, _UObj);
 	}
 }
 void ULangScript::LoadScript(const UCodeLang::AssemblyNode* ClassData, bool callAwake)
@@ -229,7 +229,7 @@ void ULangScript::LoadScript(const UCodeLang::AssemblyNode* ClassData, bool call
 		
 	if (_LangConstructor) 
 	{
-		ULang->LangThisCall(*_LangConstructor, _UObj);
+		ULang->LangThisCall(_LangConstructor, _UObj);
 	}
 	if (callAwake) {CallAwake();}
 }
@@ -580,7 +580,7 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 		}
 	}
 	break;
-	case ReflectionTypes::f32:
+	case ReflectionTypes::float32:
 	{
 		auto& Val = *(f32*)Pointer;
 		if (Serializer.Get_Type() == USerializerType::Bytes)
@@ -595,7 +595,7 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 		}
 	}
 	break;
-	case ReflectionTypes::f64:
+	case ReflectionTypes::float64:
 	{
 		auto& Val = *(f64*)Pointer;
 		if (Serializer.Get_Type() == USerializerType::Bytes)
@@ -902,7 +902,7 @@ uInt64Case:
 		}
 	}
 	break;
-	case ReflectionTypes::f32:
+	case ReflectionTypes::float32:
 	{
 		if (Serializer.Get_Mode() == USerializerType::Bytes)
 		{
@@ -920,7 +920,7 @@ uInt64Case:
 		}
 	}
 	break;
-	case ReflectionTypes::f64:
+	case ReflectionTypes::float64:
 	{
 		if (Serializer.Get_Mode() == USerializerType::Bytes)
 		{

@@ -5,11 +5,13 @@
 
 #include <iostream>
 #include "UCodeRunTime/UDefs.hpp"
+#include "UCodeRunTime/ULibrarys/Loger.hpp"
 
 #include "../RenderAPINamespace.h"
 
+
 #if UCodeGameEngineDEBUG
-#define GlCall(x) _RenderAPI::GLClearError();x;UCodeGameEngineASSERT_IF(_RenderAPI::GLCheckError(#x,__FILE__,__LINE__));
+#define GlCall(x) _RenderAPI::GLClearError();x;UCodeGameEngineAssert(_RenderAPI::GLCheckError(#x,__FILE__,__LINE__));
 #else
 #define GlCall(x) x;
 #endif // DEBUG
@@ -63,7 +65,7 @@ static bool GLCheckError(const char* funk, const char* file,i32 line)
 			UCodeGameEngineUnreachable();
 			break;
 		}
-		UCodeGameEngineUnreachble(RenderAPIErrorStartTag "(" << errorcode << ")" << errortypeName <<'\n'
+		UCODE_ENGINE_LOG(RenderAPIErrorStartTag "(" << errorcode << ")" << errortypeName <<'\n'
 			<< " On Line:" << line << " At file " << file
 			<< '\n' << " Called:" << funk);
 		return true;

@@ -171,8 +171,8 @@ private:
 
 	FileBuffer _FileBuffer;
 	GameFilesData _Data;
-	Path _PersistentDataPath;
-	Path _CacheDataPath;
+	Optional<Path> _PersistentDataPath;
+	Optional<Path> _CacheDataPath;
 	Unique_ptr<Shader> _DefaultShader;
 };
 CoreEnd

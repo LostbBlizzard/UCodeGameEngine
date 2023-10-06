@@ -167,7 +167,7 @@ struct AsynTask_t
 	{
 	
 	}
-	AsynTask_t(ThisType&& Other):
+	AsynTask_t(ThisType&& Other) noexcept:
 		  _TaskID(Other._TaskID)
 	{
 		Other._TaskID = NullTaskID;

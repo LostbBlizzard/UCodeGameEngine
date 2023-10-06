@@ -18,6 +18,7 @@ void TileMapRenderer::Start()
 }
 void TileMapRenderer::OnDraw()
 {
+	/*
 	auto Entity = GetMyEntity();
 	auto Render = GetRenderRunTime();
 
@@ -52,6 +53,7 @@ void TileMapRenderer::OnDraw()
 			i++;
 		}
 	}
+	*/
 }
 Bounds2d TileMapRenderer::Get_Bounds() const
 {

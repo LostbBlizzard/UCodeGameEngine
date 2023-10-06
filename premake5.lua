@@ -88,6 +88,7 @@ project "UCode"
    dependson {
     "GLEW","GLFW","glm", 
     "box2d","yaml-cpp","stb_image","stb_image_write","Imgui","UCodeLang",
+    "MinimalSocket",
     }
    
    targetdir ("Output/%{prj.name}/" .. OutDirPath)
@@ -105,15 +106,91 @@ project "UCode"
     "%{prj.name}/src/OtherLibrarys",
     "Dependencies/UCodeLang",
    }
+project "UCodeApp"
+   location "UCodeApp"
+   kind "ConsoleApp"
+   language "C++"
+   
+   targetdir ("Output/%{prj.name}/" .. OutDirPath)
+   objdir ("Output/int/%{prj.name}/" .. OutDirPath)
+   
+   dependson { "UCode"}
+
+   files { 
+     "%{prj.name}/src/**.c",
+     "%{prj.name}/src/**.h",
+     "%{prj.name}/src/**.cpp",
+     "%{prj.name}/src/**.hpp", 
+   }
+   includedirs{
+    "%{prj.name}/src",
+    "%{prj.name}/src/OtherLibrarys",
+    "UCode/src",
+    "Dependencies/UCodeLang",
+   }
+
+   
+   libdirs { 
+    "Output/UCode/" .. OutDirPath,
+
+    "Output/Imgui/" .. OutDirPath,
+    "Output/yaml-cpp/" .. OutDirPath,
+    "Output/glm/" .. OutDirPath,
+    "Output/stb_image/" .. OutDirPath,    
+    "Output/stb_image_write/" .. OutDirPath,    
+    "Dependencies/GLEW/Lib",
+    "Output/GLFW/" .. OutDirPath, 
+    "Output/UCodeLang/" .. OutDirPath, 
+    "Output/SPIRV-Cross/" .. OutDirPath, 
+    "Output/box2d/" .. OutDirPath, 
+    "Output/MinimalSocket/" .. OutDirPath, 
+   }
+   links {
+    "UCode",
+    "Imgui",
+    "yaml-cpp",
+    "stb_image",
+    "stb_image_write",
+    "GLFW",
+    "UCodeLang",
+    "box2d",
+    "MinimalSocket"
+   }
+
+ 
+   filter { "system:Windows" }
+    links {"Ws2_32.lib"}
+
+  
+   filter { "system:Windows","architecture:x86"}
+    links {
+      "glew32s.lib","Opengl32.lib",
+    }
+
+   filter { "system:Windows","architecture:x86_64"}
+    links {
+     "glew64s.lib","Opengl32.lib",
+    }
+
+   filter { "system:Windows","configurations:Published" }
+      kind ("WindowedApp")
+      buildmessage "Copying Output"
+
+      postbuildcommands {
+       "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name}.exe %{wks.location}UCodeEditor/UFiles/bin/%{prj.name}_%{cfg.platform}.exe"
+      }
+
 project "UCodeEditor"
    location "UCodeEditor"
    kind "ConsoleApp"
    language "C++"
    
    dependson {
-   "GLEW","GLFW","glm", 
-   "box2d","yaml-cpp","stb_image","stb_image_write","Imgui","UCodeLang",
-   "UCode"}
+   "UCodeApp",
+   "FileWatcher",
+   "glslang",
+   "SPIRV-Cross",
+   }
 
    targetdir ("Output/%{prj.name}/" .. OutDirPath)
    objdir ("Output/int/%{prj.name}/" .. OutDirPath)
@@ -186,85 +263,6 @@ project "UCodeEditor"
       {
       "{COPYDIR} %{prj.location}/UFiles %{prj.location}%{cfg.targetdir}/UFiles"
       }
-project "UCodeApp"
-   location "UCodeApp"
-   kind "ConsoleApp"
-   language "C++"
-   
-   targetdir ("Output/%{prj.name}/" .. OutDirPath)
-   objdir ("Output/int/%{prj.name}/" .. OutDirPath)
-   
-   dependson {
-    "GLEW","GLFW","glm", 
-    "box2d","yaml-cpp","stb_image","stb_image_write","Imgui","UCodeLang",
-    "UCode"}
-
-   files { 
-     "%{prj.name}/src/**.c",
-     "%{prj.name}/src/**.h",
-     "%{prj.name}/src/**.cpp",
-     "%{prj.name}/src/**.hpp", 
-   }
-   includedirs{
-    "%{prj.name}/src",
-    "%{prj.name}/src/OtherLibrarys",
-    "UCode/src",
-    "Dependencies/UCodeLang",
-   }
-
-   
-   libdirs { 
-    "Output/UCode/" .. OutDirPath,
-
-    "Output/Imgui/" .. OutDirPath,
-    "Output/yaml-cpp/" .. OutDirPath,
-    "Output/glm/" .. OutDirPath,
-    "Output/stb_image/" .. OutDirPath,    
-    "Output/stb_image_write/" .. OutDirPath,    
-    "Dependencies/GLEW/Lib",
-    "Output/GLFW/" .. OutDirPath, 
-    "Output/UCodeLang/" .. OutDirPath, 
-    "Output/SPIRV-Cross/" .. OutDirPath, 
-    "Output/box2d/" .. OutDirPath, 
-    "Output/MinimalSocket/" .. OutDirPath, 
-   }
-   links {
-    "UCode",
-    
-    "Imgui",
-    "yaml-cpp",
-    "stb_image",
-    "stb_image_write",
-    "GLFW",
-    "UCodeLang",
-    "SPIRV-Cross",
-    "box2d",
-    "MinimalSocket"
-   }
-
- 
-   filter { "system:Windows" }
-    links {"Ws2_32.lib"}
-
-  
-   filter { "system:Windows","architecture:x86"}
-    links {
-      "glew32s.lib","Opengl32.lib",
-    }
-
-   filter { "system:Windows","architecture:x86_64"}
-    links {
-     "glew64s.lib","Opengl32.lib",
-    }
-
-   filter { "system:Windows","configurations:Published" }
-      kind ("WindowedApp")
-      buildmessage "Copying Output"
-
-      postbuildcommands {
-       "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name}.exe %{wks.location}UCodeEditor/UFiles/bin/%{prj.name}_%{cfg.platform}.exe"
-      }
-
 project "UCodeGameEngineDoc"
    location "UCodeGameEngineDoc"
    kind "StaticLib"

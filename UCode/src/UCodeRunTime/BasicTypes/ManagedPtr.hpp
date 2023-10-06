@@ -115,12 +115,10 @@ struct AnyManagedPtr
 		return As_ptr<T>(*this);
 	}
 
-	~AnyManagedPtr()
+	~AnyManagedPtr() noexcept
 	{
-		if (_This.Has_Value() && _This.GetCounter() == 1)
-		{
-			UCodeGameEngineThrowException("Destructor not called for Managed object");
-		}
+		UCodeGameEngineAssert(_This.Has_Value() && _This.GetCounter() == 1);
+		//"Destructor not called for Managed object"
 	}
 };
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "RenderAPINamespace.h"
-#include <UCodeRunTime/RunTimeBasicTypes/String.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 RenderAPIStart
 
 struct WindowData

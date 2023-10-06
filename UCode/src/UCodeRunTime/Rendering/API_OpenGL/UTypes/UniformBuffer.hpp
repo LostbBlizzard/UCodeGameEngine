@@ -1,7 +1,7 @@
 #pragma once
 
 #include <UCodeRunTime/ULibrarys/Rendering/RenderingNamespace.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/IntTypes.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 RenderingStart
 class UniformBuffer
 {

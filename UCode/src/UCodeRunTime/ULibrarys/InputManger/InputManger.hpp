@@ -1,7 +1,7 @@
 #pragma once
 #include <UCodeRunTime/includeULibrayCompoent.hpp>
 #include "InputNamespace.hpp"
-#include <UCodeRunTime/RunTimeBasicTypes/Vector.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 InputStart
 
 enum class InputKey : size_t

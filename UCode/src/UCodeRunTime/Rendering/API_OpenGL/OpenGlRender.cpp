@@ -15,7 +15,7 @@
 //Ucode
 #include  <UCodeRunTime/ULibrarys/Rendering/RenderRunTime2d.hpp>
 #include  <UCodeRunTime/ULibrarys/InputManger/InputManger.hpp>
-#include  <UCodeRunTime/RunTimeBasicTypes/Color.hpp>
+#include  <UCodeRunTime/BasicTypes.hpp>
 #include  <UCodeRunTime/ULibrarys/Math_Library.hpp>
 RenderAPIStart
 OpenGlRender::OpenGlRender(GameRunTime* run)
@@ -188,8 +188,8 @@ void OpenGlRender::_DrawOpenGl(RenderRunTime2d::DrawData& Data, Camera2d* cam)
     GlCall(glViewport(0, 0, Width, Height));
 
 
-    glm::Mat4 Vp = cam->Get_ViewProjectionMatrix();
-    glm::Mat4 Tranform = glm::translate(glm::Mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    glm::mat4 Vp = cam->Get_ViewProjectionMatrix();
+    glm::mat4 Tranform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
     UseingShader->SetUniformMat4f("_ViewProj", Vp);
     UseingShader->SetUniformMat4f("_Transfrom", Tranform);
 
@@ -211,8 +211,7 @@ void OpenGlRender::SetAppStyle_Editor(ImGuiStyle* dst)
 
     style->FrameRounding = 4.0f;
 
-#define UC32ToIMVect4(V32) *(ImVec4*)(&(UCode::Color)V32)
-#define Byte UCode::Color32::Byte    
+#define UC32ToIMVect4(V32) *(ImVec4*)(&(UCode::Color)V32)    
 #define CopyAllButA(V32,A)  {V32.R, V32.G,V32.B ,A}
 #define CopyAllButSubA(V32,A,Sub) { (Byte)(V32.R - (Byte)Sub), (Byte)( V32.G - (Byte)Sub), (Byte)(V32.B - (Byte)Sub),A};
 #define CopyAllButAddA(V32,A,Sub) { (Byte)(V32.R + (Byte)Sub), (Byte)( V32.G + (Byte)Sub), (Byte)(V32.B + (Byte)Sub),A};
@@ -444,7 +443,7 @@ void OpenGlRender::EndRender()
 
 void OpenGlRender::glfwerror_callback(int error, const char* description)
 {
-    UCodeGameEngineTHROWERROR("Glfw ERROR(" << error << "):" << description);
+    UCODE_ENGINE_ERROR("Glfw ERROR(" << error << "):" << description);
 }
 
 static const size_t MaxQuadCount = 1000;

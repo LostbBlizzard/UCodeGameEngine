@@ -94,7 +94,7 @@ struct DebugingClientPacket
 		PacketType = T::PacketType;
 		Data = Value.ToBytes();
 	}
-	template<typename T> optional<T> As() const
+	template<typename T> Optional<T> As() const
 	{
 		#if UCodeGameEngineDEBUG
 		if (PacketType != T::PacketType)
@@ -124,7 +124,7 @@ struct DebugingSeverPacket
 		PacketType = T::PacketType;
 		Data = Value.ToBytes();
 	}
-	template<typename T> optional<T> As() const
+	template<typename T> Optional<T> As() const
 	{
 #		ifdef DEBUG
 		if (PacketType != T::PacketType)

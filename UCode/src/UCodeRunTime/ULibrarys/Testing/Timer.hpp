@@ -1,7 +1,7 @@
 #pragma once
 #include "UCodeRunTime/Core/GameTime.hpp"
 #include <string>
-#include <UCodeRunTime/RunTimeBasicTypes/IntTypes.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 CoreStart
 class Timer
 {
