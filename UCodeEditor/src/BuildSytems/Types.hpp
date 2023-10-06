@@ -3,7 +3,7 @@
 
 EditorStart
 
-enum class PlatformType : UInt8
+enum class PlatformType :u16
 {
 	Null,
 	UCodeEditor,
@@ -12,7 +12,7 @@ enum class PlatformType : UInt8
 	ThisPlatfrom = Windows,
 
 };
-enum class BitSizeType : UInt8
+enum class BitSizeType :u16
 {
 	Null,
 	Bit32,
@@ -20,7 +20,7 @@ enum class BitSizeType : UInt8
 
 	ThisPlatfrom = Bit64,
 };
-enum class ConfigurationType : UInt8
+enum class ConfigurationType :u16
 {
 	Null,
 	Debug,

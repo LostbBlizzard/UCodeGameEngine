@@ -2,9 +2,7 @@
 #include "ProjectData.hpp"
 #include <EditorWindows/OtherTypes/ImageData.hpp>
 
-#include <UCodeRunTime/RunTimeBasicTypes/Vector.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/unordered_map.hpp>
-#include <UCodeRunTime/ULibrarys/AssetManagement/UID.hpp>
+#include <Typedefs.hpp>
 #include <UCodeRunTime/UDefs.hpp>
 #include <filesystem>
 #include "EditorIndex.hpp"

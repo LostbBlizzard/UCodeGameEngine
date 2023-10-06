@@ -1,6 +1,6 @@
 #pragma once
 #include "UCodeRunTime/Core/CoreNamespace.hpp"
-#include "RunTimeBasicTypes.hpp"
+#include "BasicTypes.hpp"
 CoreStart
 
 
@@ -61,7 +61,7 @@ template<typename T> inline const char* _GetTypeName(const Span<T>* ParForOverlo
 	static const String Buffer = GetTypeName<T>() + "[:]";
 	return Buffer.c_str();
 }
-template<typename T>inline const char* _GetTypeName(const optional<T>* ParForOverloading)
+template<typename T>inline const char* _GetTypeName(const Optional<T>* ParForOverloading)
 {
 	static const String Buffer = GetTypeName<T>() + "?";
 	return Buffer.c_str();

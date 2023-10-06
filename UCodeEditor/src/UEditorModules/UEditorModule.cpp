@@ -69,7 +69,7 @@ bool UEditorAssetFileData::Draw(UEditorAssetDataConext& Data, const Path& path)
 		return false;
 	}
 }
-optional<size_t> UEditorModule::GetAssetDataUsingExt(const Path& ExtWithDot)
+Optional<size_t> UEditorModule::GetAssetDataUsingExt(const Path& ExtWithDot)
 {
 	auto Buffer = GetAssetData();
 
@@ -85,7 +85,7 @@ optional<size_t> UEditorModule::GetAssetDataUsingExt(const Path& ExtWithDot)
 	return {};
 }
 
-optional<size_t> UEditorModule::GetComponentData(const UCode::UComponentsID& ID)
+Optional<size_t> UEditorModule::GetComponentData(const UCode::UComponentsID& ID)
 {
 	auto Buffer = GetComponentsData();
 
@@ -144,13 +144,16 @@ Unique_Bytes ExportChacheFile::ToBytes(const ExportChacheFile& file)
 	bits.WriteType((BitMaker::SizeAsBits)file.Info.size());
 	for (auto& Item : file.Info)
 	{
-		bits.WriteType(Item._Key.generic_string());
+		auto& _Value = Item.second;
+		auto& _Key = Item.first;
 
-		bits.WriteType(Item._Value.FileSize);
+		bits.WriteType(Path(_Key).generic_string());
 
-		bits.WriteType(Item._Value.FileLastUpdated);
+		bits.WriteType(_Value.FileSize);
 
-		bits.WriteType(Item._Value.FileHash);
+		bits.WriteType(_Value.FileLastUpdated);
+
+		bits.WriteType(_Value.FileHash);
 	}
 
 	auto V = Unique_Bytes();
@@ -175,7 +178,7 @@ bool ExportChacheFile::FromBytes(const BytesView& bytes, ExportChacheFile& file)
 		bits.ReadType(V1.FileLastUpdated, V1.FileLastUpdated);
 		bits.ReadType(V1.FileHash, V1.FileHash);
 
-		file.Info.AddValue(V0, V1);
+		file.Info[Path(V0).native()] = V1;
 	}
 
 	return true;

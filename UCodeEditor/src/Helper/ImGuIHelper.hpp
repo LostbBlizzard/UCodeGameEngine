@@ -1,6 +1,5 @@
 #pragma once
 #include <UCodeRunTime/ULibrarys/Rendering/GpuTypes/Sprite.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes.hpp>
 #include "AppFiles.hpp"
 #include "Imgui.hpp"
 #include <Typedefs.hpp>
@@ -66,20 +65,20 @@ public:
 	static bool ColorField(const char* FieldName, UCode::Color32& Value);
 	static bool ColorField(const char* FieldName, UCode::Color24& Value);
 
-	static bool uInt64Field(const char* FieldName, UInt64& Value);
-	static bool uInt32Field(const char* FieldName, UInt32& Value);
-	static bool uInt16Field(const char* FieldName, UInt16& Value);
-	static bool uInt8Field(const char* FieldName, UInt8& Value);
+	static bool uInt64Field(const char* FieldName, u64& Value);
+	static bool uInt32Field(const char* FieldName, u32& Value);
+	static bool uInt16Field(const char* FieldName,u16& Value);
+	static bool uInt8Field(const char* FieldName,u8& Value);
 
 	static bool CharField(const char* FieldName, char& Value);
 
-	static bool Int64Field(const char* FieldName, SInt64& Value);
-	static bool Int32Field(const char* FieldName, SInt32& Value);
-	static bool Int16Field(const char* FieldName, SInt16& Value);
-	static bool Int8Field(const char* FieldName, SInt8& Value);
+	static bool Int64Field(const char* FieldName, i64& Value);
+	static bool Int32Field(const char* FieldName, i32& Value);
+	static bool Int16Field(const char* FieldName, i16& Value);
+	static bool Int8Field(const char* FieldName, i8& Value);
 
-	static bool float32Field(const char* FieldName, float32& Value);
-	static bool float64Field(const char* FieldName, float64& Value);
+	static bool f32Field(const char* FieldName, f32& Value);
+	static bool f64Field(const char* FieldName, f64& Value);
 
 	static bool DrawOrdeField(const char* FieldName, unsigned char& Value);
 
@@ -195,11 +194,12 @@ public:
 	template <typename... Types2>
 	struct EnumVariant_helper;
 
+	
 	template <typename T2, typename... Types2>
 	struct EnumVariant_helper<T2, Types2...>
 	{
 		
-		UCODE_ENGINE_FORCE_INLINE static const char* GetName(const UCode::VariantTagType type_index)
+		UCodeGameEngineForceinlne static const char* GetName(const UCode::VariantTagType type_index)
 		{
 			if (type_index == sizeof...(Types2))
 			{
@@ -210,7 +210,7 @@ public:
 				return EnumVariant_helper<Types2...>::GetName(type_index);
 			}
 		}
-		UCODE_ENGINE_FORCE_INLINE static bool DrawItem(const UCode::VariantTagType type_index,void* Object)
+		UCodeGameEngineForceinlne static bool DrawItem(const UCode::VariantTagType type_index,void* Object)
 		{
 			if (type_index == sizeof...(Types2))
 			{
@@ -225,8 +225,8 @@ public:
 	template <>
 	struct EnumVariant_helper<>
 	{
-		UCODE_ENGINE_FORCE_INLINE static const char* GetName(const UCode::VariantTagType type_index) { return {}; }
-		UCODE_ENGINE_FORCE_INLINE static bool DrawItem(const UCode::VariantTagType type_index, void* Object) { return false; }
+		UCODE_EDITOR_FORCEINLINE static const char* GetName(const UCode::VariantTagType type_index) { return {}; }
+		UCODE_EDITOR_FORCEINLINE static bool DrawItem(const UCode::VariantTagType type_index, void* Object) { return false; }
 	};
 	
 		
@@ -311,9 +311,9 @@ public:
 		size_t ItemSize = 0;
 
 		std::function<void(void* Object, size_t Index)> _OnDrawItem;
-		optional<std::function<void(void* Object, size_t Index)>> _AddNewValue;
-		optional<std::function<void(void* Object, size_t Index)>> _AddNewRemove;
-		optional<std::function<void(void* Object, size_t NewSize)>> _ResizeVector;
+		Optional<std::function<void(void* Object, size_t Index)>> _AddNewValue;
+		Optional<std::function<void(void* Object, size_t Index)>> _AddNewRemove;
+		Optional<std::function<void(void* Object, size_t NewSize)>> _ResizeVector;
 	};
 
 	static bool DrawVector(const char* label, void* Object, void* Buffer, size_t Size, const DrawVectorInfo& Item);
@@ -321,7 +321,7 @@ public:
 	static bool InputSize_t(const char* label, size_t* v, int step = 1, int step_fast = 100, ImGuiInputTextFlags flags = 0);
 
 	template<typename T>
-	static bool DrawVector(const char* label, UCodeEditor::Vector<T>& Buffer)
+	static bool DrawVector(const char* label, Vector<T>& Buffer)
 	{
 		DrawVectorInfo Info;
 		Info.ItemSize = sizeof(T);
@@ -357,7 +357,7 @@ public:
 
 
 	template<typename T>
-	static bool DrawSpan(const char* label, UCodeEditor::Span<T>& Buffer)
+	static bool DrawSpan(const char* label, Span<T>& Buffer)
 	{
 		DrawVectorInfo Info;
 		Info.ItemSize = sizeof(T);
@@ -375,14 +375,14 @@ public:
 	}
 
 	template<typename T,size_t Size>
-	static bool DrawArray(const char* label, UCodeEditor::Array<T,Size>& Buffer)
+	static bool DrawArray(const char* label, Array<T,Size>& Buffer)
 	{
 		DrawVectorInfo Info;
 		Info.ItemSize = sizeof(T);
 
 		Info._OnDrawItem = [](void* Object, size_t Index)
 		{
-			UCodeEditor::Array<T, Size>& Objectbuf = *(UCodeEditor::Array<T, Size>*)Object;
+			Array<T, Size>& Objectbuf = *(Array<T, Size>*)Object;
 			auto& Item = Objectbuf[Index];
 
 			DrawValue<T>(&Item);
@@ -397,29 +397,29 @@ public:
 	{
 		std::function<void(void* Object)> _OnDrawItem;
 		
-		optional<std::function<void(void* Object)>> _FreeItem;
-		optional<std::function<void(void* Object)>> _AllocateItem;
+		Optional<std::function<void(void* Object)>> _FreeItem;
+		Optional<std::function<void(void* Object)>> _AllocateItem;
 	};
 
 
 	template<typename T>
-	static bool Draw_UniquePtr(const char* label, UCodeEditor::Unique_ptr<T>& Item)
+	static bool Draw_UniquePtr(const char* label, Unique_ptr<T>& Item)
 	{
 		DrawUniquePtrInfo Info;
 		Info._OnDrawItem = [](void* Object)
 		{
-			UCodeEditor::Unique_ptr<T>& ObjectAsType = *(UCodeEditor::Unique_ptr<T>*)Object;
+			Unique_ptr<T>& ObjectAsType = *(Unique_ptr<T>*)Object;
 			DrawValue<T>(ObjectAsType.get());
 		};
 		Info._FreeItem = [](void* Object)
 		{
-			UCodeEditor::Unique_ptr<T>& ObjectAsType = *(UCodeEditor::Unique_ptr<T>*)Object;
-			ObjectAsType = UCodeEditor::Unique_ptr<T>();
+			Unique_ptr<T>& ObjectAsType = *(Unique_ptr<T>*)Object;
+			ObjectAsType = Unique_ptr<T>();
 		};
 		Info._AllocateItem = [](void* Object)
 		{
-			UCodeEditor::Unique_ptr<T>& ObjectAsType = *(UCodeEditor::Unique_ptr<T>*)Object;
-			ObjectAsType = UCodeEditor::Unique_ptr<T>(new T());
+			Unique_ptr<T>& ObjectAsType = *(Unique_ptr<T>*)Object;
+			ObjectAsType = Unique_ptr<T>(new T());
 		};
 		return Draw_UniquePtr(label, (void*)&Item, Info);
 		
@@ -447,18 +447,18 @@ public:
 	};
 
 	template<typename T>
-	static bool Draw_Optional(const char* label, UCodeEditor::optional<T>& Item)
+	static bool Draw_Optional(const char* label, Optional<T>& Item)
 	{
 		
 		{
-			constexpr bool AreSame = sizeof(UCodeEditor::optional<T>) == sizeof(OptionalMembers<T>);
-			static_assert(AreSame, "optional and OptionalMembers are not the same");
+			constexpr bool AreSame = sizeof(Optional<T>) == sizeof(OptionalMembers<T>);
+			static_assert(AreSame, "Optional and OptionalMembers are not the same");
 		}
 		
 		DrawOptionalInfo Info;
 		Info._OnDrawItem = [](void* Object)
 		{
-			UCodeEditor::optional<T>& ObjectAsType = *(UCodeEditor::optional<T>*)Object;
+			Optional<T>& ObjectAsType = *(Optional<T>*)Object;
 			OptionalMembers<T>& AsMembers = *(OptionalMembers<T>*)&ObjectAsType;
 
 			DrawValue<T>(&AsMembers.Value);
@@ -466,7 +466,7 @@ public:
 
 		Info._HasValue = [](void* Object)
 		{
-			UCodeEditor::optional<T>& ObjectAsType = *(UCodeEditor::optional<T>*)Object;
+			Optional<T>& ObjectAsType = *(Optional<T>*)Object;
 			
 			bool Value = ObjectAsType.has_value();
 
@@ -485,14 +485,14 @@ public:
 		
 		Info._SetValue = [](void* Object)
 		{
-			UCodeEditor::optional<T>& ObjectAsType = *(UCodeEditor::optional<T>*)Object;
+			Optional<T>& ObjectAsType = *(Optional<T>*)Object;
 			OptionalMembers<T>& AsMembers = *(OptionalMembers<T>*) & ObjectAsType;
 			AsMembers.HasValue = true;
 		};
 
 		Info._FreeValue = [](void* Object)
 		{
-			UCodeEditor::optional<T>& ObjectAsType = *(UCodeEditor::optional<T>*)Object;
+			Optional<T>& ObjectAsType = *(Optional<T>*)Object;
 			OptionalMembers<T>& AsMembers = *(OptionalMembers<T>*) & ObjectAsType;
 			AsMembers.HasValue = false;
 		};
@@ -500,7 +500,7 @@ public:
 		return Draw_Optional(label, (void*)&Item, Info);
 	}
 
-	static bool Draw_StringView(const char* label, UCodeEditor::StringView& Item);
+	static bool Draw_StringView(const char* label, StringView& Item);
 
 
 	struct DrawDictionaryInfo
@@ -637,56 +637,56 @@ public:
 		ImGui::PopID();
 		return R;
 	}
-	template<> static bool DrawValue<SInt64>(SInt64* Item)
+	template<> static bool DrawValue<i64>(i64* Item)
 	{
 		ImGui::PushID(Item);
 		auto R = ImGui::InputScalar("", ImGuiDataType_::ImGuiDataType_S64, Item);
 		ImGui::PopID();
 		return R;
 	}
-	template<> static bool DrawValue<UInt64>(UInt64* Item)
+	template<> static bool DrawValue<u64>(u64* Item)
 	{
 		ImGui::PushID(Item);
 		auto R = ImGui::InputScalar("", ImGuiDataType_::ImGuiDataType_U64, Item);
 		ImGui::PopID();
 		return R;
 	}
-	template<> static bool DrawValue<SInt32>(SInt32* Item)
+	template<> static bool DrawValue<i32>(i32* Item)
 	{
 		ImGui::PushID(Item);
 		auto R = ImGui::InputScalar("", ImGuiDataType_::ImGuiDataType_S32, Item);
 		ImGui::PopID();
 		return R;
 	}
-	template<> static bool DrawValue<UInt32>(UInt32* Item)
+	template<> static bool DrawValue<u32>(u32* Item)
 	{
 		ImGui::PushID(Item);
 		auto R = ImGui::InputScalar("",ImGuiDataType_::ImGuiDataType_U32,Item);
 		ImGui::PopID();
 		return R;
 	}
-	template<> static bool DrawValue<SInt16>(SInt16* Item)
+	template<> static bool DrawValue<i16>(i16* Item)
 	{
 		ImGui::PushID(Item);
 		auto R = ImGui::InputScalar("", ImGuiDataType_::ImGuiDataType_S16, Item);
 		ImGui::PopID();
 		return R;
 	}
-	template<> static bool DrawValue<UInt16>(UInt16* Item)
+	template<> static bool DrawValue<u16>(u16* Item)
 	{
 		ImGui::PushID(Item);
 		auto R = ImGui::InputScalar("", ImGuiDataType_::ImGuiDataType_U16, Item);
 		ImGui::PopID();
 		return R;
 	}
-	template<> static bool DrawValue<SInt8>(SInt8* Item)
+	template<> static bool DrawValue<i8>(i8* Item)
 	{
 		ImGui::PushID(Item);
 		auto R = ImGui::InputScalar("", ImGuiDataType_::ImGuiDataType_S8, Item);
 		ImGui::PopID();
 		return R;
 	}
-	template<> static bool DrawValue<UInt8>(UInt8* Item)
+	template<> static bool DrawValue<u8>(u8* Item)
 	{
 		ImGui::PushID(Item);
 		auto R = ImGui::InputScalar("", ImGuiDataType_::ImGuiDataType_U8, Item);

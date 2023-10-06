@@ -1,8 +1,7 @@
 #pragma once
 #include "EditorNamespace.hpp"
 
-#include <UCodeRunTime/RunTimeBasicTypes/String.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/Vector.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include <UCodeRunTime/Core/GameRunTime.hpp>
 #include "UCodeRunTime/includeForCompoent.hpp"
 #include <UCodeRunTime/ULibrarys/Rendering/RenderRunTime2d.hpp>
@@ -122,7 +121,7 @@ private:
 	
 	Vector<Unique_ptr<EditorWindow>> _EditorWindows;
 	Vector<EditorWindowData> _AllWindowsData;
-	SInt8 NextWindowId;
+	i8 NextWindowId;
 
 	void ShowMainMenuBar();
 	void BeginDockSpace(bool* p_open);

@@ -46,7 +46,7 @@ void BuildSytemManger::Build(const WindowsBuildSetings& setings)
 {
 	const Path ExePath = Setings._OutDir / Path(Setings._OutName).concat(".exe").native();
 	const Path GameFilesDataPath = Setings._OutDir / Path(UCode::GameFilesData::FileDataName).native();
-	const auto ExeTepPath = AppFiles::ReadFileAsBytes(Path(ToPathChar("bin/UCodeApp_Win64.exe")));
+	const auto ExeTepPath = AppFiles::ReadFileAsBytes(Path("bin/UCodeApp_Win64.exe"));
 
 	fs::create_directories(Setings._OutDir);
 	fs::create_directories(Setings.TemporaryPlatfromPath);
@@ -59,7 +59,7 @@ void BuildSytemManger::Build(const WindowsBuildSetings& setings)
 		fs::remove(ExePath);
 	}
 	UCode::GameFiles::WriteBytes(ExeTepPath.Data(), ExeTepPath.Size(), ExePath);
-
+	
 
 	const auto SerializerMode = UCode::USerializerType::Bytes;
 	BuildProjectGlobalWasGameData(GameFilesDataPath, SerializerMode);
@@ -144,7 +144,7 @@ void BuildSytemManger::Build(const WebBuildSetings& setings)
 
 	{
 		const Path IndexPath = Setings._OutDir / Path(Setings._OutName).concat(".html").native();
-		auto Txt = AppFiles::ReadFileAsString(Path(ToPathChar("buildtemplates/web/indextemplate.html")));
+		auto Txt = AppFiles::ReadFileAsString(Path("buildtemplates/web/indextemplate.html"));
 		UCode::GameFiles::Writetext(Txt, IndexPath);
 	}
 
@@ -203,7 +203,7 @@ void BuildSytemManger::Build(const AndroidBuildSetings& setings)
 	{
 		{
 			const Path path = (ApkInfoDir / "META-INF" / "MANIFEST.MF");
-			auto Txt =AppFiles::ReadFileAsString(Path(ToPathChar("buildtemplates/android/MANIFEST.MF")));
+			auto Txt =AppFiles::ReadFileAsString(Path("buildtemplates/android/MANIFEST.MF"));
 			UCode::GameFiles::Writetext(Txt, path);
 		}
 	}

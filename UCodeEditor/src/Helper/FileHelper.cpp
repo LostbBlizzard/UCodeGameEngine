@@ -25,49 +25,31 @@ EditorStart
 
 
 
-String FileHelper::GetNewFileName(const String&  path)
+Path FileHelper::GetNewFileName(const Path&  path)
 {
-	fs::path newPath = path;
-	if (!fs::exists(newPath)) { return newPath.generic_string(); }
+	Path newPath = path;
+	if (!fs::exists(newPath)) { return newPath; }
 	for (size_t i = 0; i < 100; i++)
 	{
-		newPath = path + ' ' + std::to_string(i);
-		if (!fs::exists(newPath)) { return newPath.generic_string(); }
+		newPath = path.native() + Path(' ' + std::to_string(i)).native();
+		if (!fs::exists(newPath)) { return newPath; }
 	}
 	return path;
 }
 
-String FileHelper::GetNewFileName(const String&  path, const String&  ext)
+Path FileHelper::GetNewFileName(const Path&  path, const Path&  ext)
 {
-	fs::path newPath = path + ext;
-	if (!fs::exists(newPath)) { return newPath.generic_string(); }
+	Path newPath = path.native() + Path(ext).native();
+	if (!fs::exists(newPath)) { return newPath; }
 	for (size_t i = 0; i < 100; i++)
 	{
-		newPath = path + ' ' + std::to_string(i) + ext;
-		if (!fs::exists(newPath)) { return newPath.generic_string(); }
+		newPath = path.native() + Path(' ' + std::to_string(i)).native() + ext.native();
+		if (!fs::exists(newPath)) { return newPath; }
 	}
 	return path;
 }
 
-String FileHelper::ToRelativePath(const String&  RootPath, const String&  Path)
-{
-	if (Path.length() < RootPath.length())
-	{
-		return Path;
-	}
-	return Path.substr(RootPath.length());
-}
-
-StringView FileHelper::ToRelativePath(const StringView& RootPath, const StringView& Path)
-{
-	if (Path.length() < RootPath.length())
-	{
-		return Path;
-	}
-	return Path.substr(RootPath.length());
-}
-
-Path FileHelper::ToRelativePath(const Path& RootPath, const Path& Path)
+Path FileHelper::ToRelativePath(const Path&  RootPath, const Path&  Path)
 {
 	if (Path.native().length() < RootPath.native().length())
 	{
@@ -75,6 +57,16 @@ Path FileHelper::ToRelativePath(const Path& RootPath, const Path& Path)
 	}
 	return Path.native().substr(RootPath.native().length());
 }
+
+PathSpan FileHelper::ToRelativePath(const PathSpan& RootPath, const PathSpan& Path)
+{
+	if (Path.length() < RootPath.length())
+	{
+		return Path;
+	}
+	return Path.substr(RootPath.length());
+}
+
 
 void FileHelper::ReverseString(String&  r)
 {
@@ -90,23 +82,6 @@ void FileHelper::ReverseString(String&  r)
 		i++;
 		LastI--;
 	}
-}
-String FileHelper::GetFileExt(const String&  text)
-{
-	String r = "";
-	for (size_t i = text.size() - 1; i > 0; i--)
-	{
-		char Item = text[i];
-		r += Item;
-		if (Item == '.')
-		{
-			break;
-		}
-	}
-
-	ReverseString(r);
-
-	return r;
 }
 FileHelper::OpenFileData FileHelper::OpenFileFromUser(FileTypesOptions_t filetypes,const Path&  defaultPath)
 {

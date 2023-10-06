@@ -82,33 +82,33 @@ bool InspectWindow::ColorField(const char* FieldName, UCode::Color24& Value)
 {
 	return ImGuIHelper::ColorField(FieldName, Value);
 }
-bool InspectWindow::uInt64Field(const char* FieldName, UInt64& Value)
+bool InspectWindow::uInt64Field(const char* FieldName, u64& Value)
 {
 	return ImGuIHelper::uInt64Field(FieldName, Value);
 }
-bool InspectWindow::uInt32Field(const char* FieldName, UInt32& Value)
+bool InspectWindow::uInt32Field(const char* FieldName, u32& Value)
 {
 	return ImGuIHelper::uInt32Field(FieldName, Value);
 }
-bool InspectWindow::uInt16Field(const char* FieldName, UInt16& Value)
+bool InspectWindow::uInt16Field(const char* FieldName,u16& Value)
 {
 	return ImGuIHelper::uInt16Field(FieldName, Value);
 }
-bool InspectWindow::uInt8Field(const char* FieldName, UInt8& Value)
+bool InspectWindow::uInt8Field(const char* FieldName,u8& Value)
 {
 	return ImGuIHelper::uInt8Field(FieldName, Value);
 }
-bool InspectWindow::Int64Field(const char* FieldName, SInt64& Value)
+bool InspectWindow::Int64Field(const char* FieldName, i64& Value)
 {
 	return ImGuIHelper::Int64Field(FieldName, Value);
 }
-bool InspectWindow::float32Field(const char* FieldName, float32& Value)
+bool InspectWindow::f32Field(const char* FieldName, f32& Value)
 {
-	return ImGuIHelper::float32Field(FieldName, Value);
+	return ImGuIHelper::f32Field(FieldName, Value);
 }
-bool InspectWindow::float64Field(const char* FieldName, float64& Value)
+bool InspectWindow::f64Field(const char* FieldName, f64& Value)
 {
-	return ImGuIHelper::float64Field(FieldName, Value);
+	return ImGuIHelper::f64Field(FieldName, Value);
 }
 bool InspectWindow::BoolField(const char* FieldName, bool& Value)
 {
@@ -118,19 +118,19 @@ bool InspectWindow::CharField(const char* FieldName, char& Value)
 {
 	return ImGuIHelper::CharField(FieldName,Value);
 }
-bool InspectWindow::DrawLayerField(const char* FieldName, UInt8& Value)
+bool InspectWindow::DrawLayerField(const char* FieldName,u8& Value)
 {
 	return ImGuIHelper_Asset::DrawLayerField(FieldName,Value);
 }
-bool InspectWindow::Int32Field(const char* FieldName, SInt32& Value)
+bool InspectWindow::Int32Field(const char* FieldName, i32& Value)
 {
 	return ImGuIHelper::Int32Field(FieldName, Value);
 }
-bool InspectWindow::Int16Field(const char* FieldName, SInt16& Value)
+bool InspectWindow::Int16Field(const char* FieldName, i16& Value)
 {
 	return ImGuIHelper::Int16Field(FieldName, Value);
 }
-bool InspectWindow::Int8Field(const char* FieldName, SInt8& Value)
+bool InspectWindow::Int8Field(const char* FieldName, i8& Value)
 {
 	return ImGuIHelper::Int8Field(FieldName, Value);
 }

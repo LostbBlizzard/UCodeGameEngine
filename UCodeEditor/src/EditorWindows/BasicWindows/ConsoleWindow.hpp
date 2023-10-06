@@ -20,7 +20,7 @@ public:
 		String MoreText;
 		LogType _Type;
 
-		optional<Delegate<void,ConsoleWindow&,Log&>> _OnOpen;
+		Optional<Delegate<void,ConsoleWindow&,Log&>> _OnOpen;
 	};
 
 	ConsoleWindow(const NewEditorWindowData& windowdata);

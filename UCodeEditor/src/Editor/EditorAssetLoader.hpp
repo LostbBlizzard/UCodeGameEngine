@@ -16,11 +16,11 @@ public:
 	}
 
 
-	optional<UCode::Assetptr> LoadAsset(const UID& Path) override
+	Optional<UCode::Assetptr> LoadAsset(const UID& Path) override
 	{
 		return {};
 	}
-	optional<UCode::Assetptr> LoadAsset(const Path& Path) override
+	Optional<UCode::Assetptr> LoadAsset(const Path& Path) override
 	{
 		return {};
 	}
