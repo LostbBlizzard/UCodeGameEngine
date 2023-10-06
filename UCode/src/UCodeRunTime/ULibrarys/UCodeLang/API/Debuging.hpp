@@ -1,6 +1,6 @@
 #pragma once
 #include "APITypeDefs.hpp"
-#include "UCodeLang/UCodeAnalyzer/CppHelper.hpp"
+#include "UCodeLang/LangCore/LangDef.hpp"
 UCodeAPIStart
 
 

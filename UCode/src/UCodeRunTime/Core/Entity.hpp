@@ -77,7 +77,7 @@ public:
 		T* cast = dynamic_cast<T*>(_Managed.Get_Value());
 		if (cast == nullptr)
 		{
-			UCodeGameEngineTHROWERROR("bad type");
+			UCODE_ENGINE_ERROR("bad type");
 		}
 
 		#endif // DEBUG

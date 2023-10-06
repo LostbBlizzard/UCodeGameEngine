@@ -16,8 +16,8 @@ public:
 		return gamefiles->Get_FilesData();
 	}
 
-	optional<Assetptr> LoadAsset(const UID& Path);
-	optional<Assetptr> LoadAsset(const Path& Path);
+	Optional<Assetptr> LoadAsset(const UID& Path);
+	Optional<Assetptr> LoadAsset(const Path& Path);
 };
 CoreEnd
 

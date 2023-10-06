@@ -4,7 +4,6 @@
 
 #include <stb_image/stb_image.h>
 
-#include <UCodeRunTime/CMem.hpp>
 RenderingStart
 
 
@@ -77,7 +76,7 @@ Texture::~Texture()
 	
 	if (_FilePath == MadewithColor)
 	{
-		Mem::free(_Buffer.release());
+		free(_Buffer.release());
 	}
 	else if (_FilePath != nullstring)
 	{
@@ -106,7 +105,7 @@ Unique_ptr<Texture> Texture::MakeNewNullTexture()
 	Texture* tex = std::make_unique<Texture>(1, 1, NullTexureColorData);
 	#endif // DEBUG
 
-	Mem::free(tex->_Buffer.release());
+	free(tex->_Buffer.release());
 	tex->_Buffer = nullptr;
 	return tex;
 }
@@ -133,7 +132,8 @@ void Texture::MultThread_UpdateTextureFromPath(const Path Path)
 {
 	Set_FilePath(Path);
 	if (_Buffer) {
-		Mem::free(_Buffer.release()); _Buffer = nullptr; }
+		free(_Buffer.release()); 
+	}
 
 	stbi_set_flip_vertically_on_load(0);
 	_Buffer = Unique_array<Byte>(

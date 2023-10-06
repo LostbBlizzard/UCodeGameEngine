@@ -1,6 +1,6 @@
 #pragma once
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/IntTypes.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include <cmath>
 CoreStart
 class Math

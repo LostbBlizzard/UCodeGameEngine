@@ -84,7 +84,7 @@ void Camera2d::UpdateCamData()
 
 
 	const auto MyPOs = GetMyEntity()->Get_WorldPosition();
-	glm::Mat4 transform = glm::translate(glm::Mat4(1.0f), glm::vec3(MyPOs.X, MyPOs.Y, 0));
+	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(MyPOs.X, MyPOs.Y, 0));
 
 	ViewMatrix = glm::inverse(transform);
 

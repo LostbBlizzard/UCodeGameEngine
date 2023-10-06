@@ -35,7 +35,7 @@ void TcpSever::Step()
 	auto OpClient = _Base.acceptNewClient(MinimalSocket::Timeout(1));
 	if (OpClient.has_value())
 	{
-		optional<size_t> NewIndex;
+		Optional<size_t> NewIndex;
 		for (size_t i = 0; i < _Clients.size(); i++)
 		{
 			auto& Item = _Clients[i];

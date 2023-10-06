@@ -47,21 +47,21 @@ public:
 		_State.Free((UCodeLang::PtrType)Ptr);
 	}
 
-	template<typename... Args> void LangCall(const UCodeLang::ClassMethod& Func, Args&&... parameters)
+	template<typename... Args> void LangCall(const UCodeLang::ClassMethod* Func, Args&&... parameters)
 	{
 		_Interpreter.Call(Func, parameters...);
 	}
 
-	template<typename... Args>void LangThisCall(const UCodeLang::ClassMethod& Func, void* This, Args&&... parameters)
+	template<typename... Args>void LangThisCall(const UCodeLang::ClassMethod* Func, void* This, Args&&... parameters)
 	{
 		_Interpreter.ThisCall(Func, This, parameters...);
 	}
 
-	template<typename T, typename... Args> T R_LangCall(const UCodeLang::ClassMethod& Func, Args&&... parameters)
+	template<typename T, typename... Args> T R_LangCall(const UCodeLang::ClassMethod* Func, Args&&... parameters)
 	{
 		return _Interpreter.retCall(Func, parameters...);
 	}
-	template<typename T, typename... Args> T R_LangThisCall(const UCodeLang::ClassMethod& Func,void* This, Args&&... parameters)
+	template<typename T, typename... Args> T R_LangThisCall(const UCodeLang::ClassMethod* Func,void* This, Args&&... parameters)
 	{
 		return _Interpreter.retThisCall(This,Func, parameters...);
 	}

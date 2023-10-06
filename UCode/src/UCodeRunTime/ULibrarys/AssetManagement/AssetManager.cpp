@@ -15,27 +15,27 @@ void AssetManager::AddAsset(Unique_ptr<Asset> Asset)
 
 }
 
-optional<Assetptr> AssetManager::FindAsset(const UID& Path)
+Optional<Assetptr> AssetManager::FindAsset(const UID& Path)
 {
 	return {};
 }
 
-optional<Assetptr> AssetManager::FindAsset(const Path& Path)
+Optional<Assetptr> AssetManager::FindAsset(const Path& Path)
 {
 	return {};
 }
 
-optional<Assetptr> AssetManager::LoadAsset(const UID& Path)
+Optional<Assetptr> AssetManager::LoadAsset(const UID& Path)
 {
 	return {};
 }
 
-optional<Assetptr> AssetManager::LoadAsset(const Path& Path)
+Optional<Assetptr> AssetManager::LoadAsset(const Path& Path)
 {
 	return {};
 }
 
-optional<Assetptr> AssetManager::FindOrLoad(const UID& Path)
+Optional<Assetptr> AssetManager::FindOrLoad(const UID& Path)
 {
 	auto R = FindAsset(Path);
 	if (!R.has_value())
@@ -45,7 +45,7 @@ optional<Assetptr> AssetManager::FindOrLoad(const UID& Path)
 	return R;
 }
 
-optional<Assetptr> AssetManager::FindOrLoad(const Path& Path)
+Optional<Assetptr> AssetManager::FindOrLoad(const Path& Path)
 {
 	auto R = FindAsset(Path);
 	if (!R.has_value())

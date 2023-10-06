@@ -103,9 +103,10 @@ template<> struct BitData<GameFileIndex>
 
 void GameFilesData::Serialize(const GameFilesData& data, USerializer& Out)
 {
-	const char* FileSignature = UCODE_ENGINE_FILE_SIGNATURE;//T=char [30]
+	const char* FileSignature = UCodeGameEngineFileSignature;//T=char [30]
 	Out.Write("Signature", (String)FileSignature);
-	Out.Write("version", UCODE_ENGINE_VERSION_NUMBER);
+
+	Out.Write("version", UCodeGameEngineVersionNumber);
 	Out.Write("Company", data.CompanyName);
 	Out.Write("GameName", data.APPName);
 	Out.Write("AssetDataType", (Type_t)data._Type);
@@ -122,9 +123,9 @@ bool GameFilesData::Deserializ(UDeserializer& In, GameFilesData& Out)
 {
 	String Sing;
 	In.ReadType("Signature", Sing);
-	if (Sing == UCODE_ENGINE_FILE_SIGNATURE)
+	if (Sing == UCodeGameEngineFileSignature)
 	{
-		VersionNumber_t Version;
+		VersionNumber_t Version = 0;
 		In.ReadType("version", Version);
 		In.ReadType("Company", Out.CompanyName);
 		In.ReadType("GameName", Out.APPName);
@@ -342,19 +343,26 @@ const Path& GameFiles::Get_PersistentDataPath()
 {
 
 
-	if (_PersistentDataPath == UCODE_ENGINE_NULLSTRING)
+	if (!_PersistentDataPath.has_value()) 
 	{
 		UCODE_ENGINE_IMPlEMENTED_LATER;
 	}
 
-	fs::create_directories(_PersistentDataPath);
-	return _PersistentDataPath;
+
+	auto& path = _CacheDataPath.value();
+	fs::create_directories(path);
+	return path;
 }
 const Path& GameFiles::Get_CacheDataPath()
 {
-	if (_CacheDataPath == UCODE_ENGINE_NULLSTRING){_CacheDataPath = Get_PersistentDataPath().native() + ToPathChar("_Cache") + ToPathChar('/');}
-	if (!fs::exists(_CacheDataPath)) {fs::create_directory(_CacheDataPath);}
-	return _CacheDataPath;
+	if (!_CacheDataPath.has_value()){
+		_CacheDataPath = Get_PersistentDataPath().native() 
+		+ Path("_Cache").native() + Path("/").native();
+	}
+
+	auto& path = _CacheDataPath.value();
+	if (!fs::exists(path)) {fs::create_directory(path);}
+	return path;
 }
 void GameFiles::Writetext(StringView text, const Path& Path)
 {

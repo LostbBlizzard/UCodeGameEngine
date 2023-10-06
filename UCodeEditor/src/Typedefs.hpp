@@ -1,10 +1,8 @@
 #pragma once
-#include "UCodeRunTime/RunTimeBasicTypes.hpp"
+#include "UCodeRunTime/BasicTypes.hpp"
 #include "Editor/EditorNamespace.hpp"
 #include "UCodeRunTime/ULibrarys/AssetManagement/UID.hpp"
-#include <UCodeRunTime/RunTimeBasicTypes/Delegate.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/ManagedPtr.hpp>
-#include <UCodeLang/LangCore/DataType/BinaryVectorMap.hpp>
+#include <UCodeRunTime/BasicTypes/ManagedPtr.hpp>
 #include <UCodeRunTime/CoreBooks/BookOfThreads.hpp>
 EditorStart
 
@@ -46,32 +44,28 @@ using Unique_Bytes = UCode::Unique_Bytes;
 template<typename R, typename... Pars>
 using Delegate = UCode::Delegate<R, Pars...>;
 
-typedef UCode::UID UID;
+using UID  = UCode::UID;
 
-typedef UCode::UInt8 UInt8;
-typedef UCode::UInt16 UInt16;
-typedef UCode::UInt32 UInt32;
-typedef UCode::UInt64 UInt64;
+using u8 = UCode::u8;
+using u16 = UCode::u16;
+using u32 = UCode::u32;
+using u64 = UCode::u64;
+
+using i8 = UCode::i8;
+using i16 = UCode::i16;
+using i32 = UCode::i32;
+using i64 = UCode::i64;
+
+//For Clarity reasons;
+
+using Byte = UCode::Byte;
 
 
-typedef UCode::SInt8 SInt8;
-typedef UCode::SInt16 SInt16;
-typedef UCode::SInt32 SInt32;
-typedef UCode::SInt64 SInt64;
-
-typedef UCode::float32 float32;
-typedef UCode::float64 float64;
-
-
-//For Clarity reasons
-typedef  UCode::Byte Byte;
-
-typedef UCode::Vec2 Vec2;
-typedef UCode::Vec2i Vec2i;
-typedef UCode::Vec3 Vec3;
-typedef UCode::Vec3i Vec3i;
-
-typedef UCode::Version Version;
+using Vec2 = UCode::Vec2;
+using Vec2i = UCode::Vec2i;
+using Vec3 = UCode::Vec3;
+using Vec3i = UCode::Vec3i;
+using Version = UCode::Version;
 
 template<typename T> using ManagedPtr = UCode::ManagedPtr<T>;
 

@@ -1,5 +1,4 @@
 #pragma once
-//#include "UCodeRunTime/ULibrarys/Loger.hpp"
 
 
 #define UCodeGameEngineOpenGL 1
@@ -15,6 +14,10 @@
 #define UCodeGameEngineMajorVersion 0
 #define UCodeGameEngineMinorVersion 0
 #define UCodeGameEnginePatchVersion 1
+
+using VersionNumber_t = int;
+#define UCodeGameEngineVersionNumber ((VersionNumber_t)(UCodeGameEnginePatchVersion))
+
 
 #if defined(_MSC_VER)
 #define UCodeGameEngineMSVC 1
@@ -119,13 +122,8 @@
 #define UCodeGameEngineNoDiscard [[nodiscard]] 
 #endif // DEBUG
 
-#if UCodeGameEngineDEBUG
-#define UCodeGameEngineNULLSTRING "nullstr"
-#else
-#define UCodeGameEngineNULLSTRING ""
-#endif // DEBUG
-
 #define UCodeGameEngineFileSignature "LBGameEngine"
+
 
 #if UCodeGameEngineDEBUG
 #define UCODE_VS_FULLPATH "../"
@@ -152,8 +150,8 @@ UCodeGameEngineForceinlne void __DebugBreak()
 	#endif // DEBUG 
 }
 
-
-#define UCodeGameEngineAssert(x) if(x){UCODE_ENGINE_LOG("breakpoint Called") __DebugBreak(); }
+//#define UCodeGameEngineAssert(x) if(x){UCODE_ENGINE_LOG("breakpoint Called") __DebugBreak(); }
+#define UCodeGameEngineAssert(x) if(x){__DebugBreak(); }
 #define UCodeGameEngineThrowException(x) throw std::exception(x);
 
 
