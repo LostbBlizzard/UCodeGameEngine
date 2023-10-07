@@ -1,6 +1,6 @@
 #pragma once
 #include <yaml-cpp/yaml.h>
-#include <UCodeRunTime/RunTimeBasicTypes.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include <UCodeRunTime/ULibrarys/AssetManagement/UID.hpp>
 namespace YAML {
 	template<> struct convert<UCode::Vec2> {
@@ -121,10 +121,10 @@ namespace YAML {
 				return false;
 			}
 
-			rhs.R = node[0].as<UCode::Color32::Byte>();
-			rhs.G = node[1].as<UCode::Color32::Byte>();
-			rhs.B = node[2].as<UCode::Color32::Byte>();
-			rhs.A = node[3].as<UCode::Color32::Byte>();
+			rhs.R = node[0].as<UCode::Byte>();
+			rhs.G = node[1].as<UCode::Byte>();
+			rhs.B = node[2].as<UCode::Byte>();
+			rhs.A = node[3].as<UCode::Byte>();
 			return true;
 		}
 
@@ -165,9 +165,9 @@ namespace YAML {
 				return false;
 			}
 
-			rhs.R = node[0].as<UCode::Color32::Byte>();
-			rhs.G = node[1].as<UCode::Color32::Byte>();
-			rhs.B = node[2].as<UCode::Color32::Byte>();
+			rhs.R = node[0].as<UCode::Byte>();
+			rhs.G = node[1].as<UCode::Byte>();
+			rhs.B = node[2].as<UCode::Byte>();
 			return true;
 		}
 

@@ -9,6 +9,15 @@ struct ScencAsset : Asset
 {
 public:
 	Scene2dData _Base;
+	ScencAsset()
+	{
+
+	}
+	ScencAsset(Scene2dData&& base)
+		:_Base(std::move(base))
+	{
+
+	}
 
 	ManagedPtr<ScencAsset> GetManaged()
 	{

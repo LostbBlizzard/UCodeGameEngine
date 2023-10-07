@@ -5,7 +5,7 @@
 EditorStart
 
 #define UPluginSIGNATURE "LostBlizzardUPlugin"
-const char* FileSignature = UCODE_ENGINE_FILE_SIGNATURE;//T=char [30]
+const char* FileSignature = UCodeGameEngineFileSignature;//T=char [30]
 UCODE_EDITOR_NODISCARD bool UPlugin::WriteToFile(const Path& path, const UPlugin& Data)
 {
 	auto File = std::ofstream(path, std::ios_base::binary);

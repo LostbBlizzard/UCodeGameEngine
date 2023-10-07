@@ -71,8 +71,41 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-     - name: Build MacOS
-       run: echo "Build"
+     - name: Make a scripts executable
+        run: |
+          chmod +x ./GNU_Make.sh
+          chmod +x ./BuildTools/BuildLinux32Published.sh
+          chmod +x ./BuildTools/BuildLinux64Published.sh
+
+     - name: Run Premake
+        run: ./GNU_Make.sh
+
+     - name: Restore cached objs
+        id: cache-objs-restore
+        uses: actions/cache/restore@v3
+        with:
+          path: ./Output
+          key: ${{ runner.os }}-deployment
+
+     - name: Build 64 bit
+        run: ./BuildTools/BuildLinux64Published.sh
+
+     - name: Build 32 bit
+        run: ./BuildTools/BuildLinux32Published.sh
+
+     - name: Save cached Objs
+        id: cache-Objs-save
+        uses: actions/cache/save@v3
+        with:
+          path: ./Output
+          key: ${{ steps.cache-objs-restore.outputs.cache-primary-key }}
+
+     - name: Archive Output
+        uses: actions/upload-artifact@v3
+        with:
+          name: Output_Linux
+          path: Output/
+          retention-days: 1
 
   build-MacOS:
     runs-on: ubuntu-latest
@@ -123,13 +156,22 @@ jobs:
           prerelease: ${{ inputs.IsPreRelease }}
           tag_name: Release
       
-      - name: Upload Release Asset
-        id: upload-release-asset 
+      - name: Upload Win64 Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ./premake5.lua
-          asset_name: test.txt
-          asset_content_type: text/plain #https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+          asset_path: Output_Windows/UCodeEditor/Published-windows-x86_64
+          asset_name: UCodeEditor_Win_x86_64
+          asset_content_type: application/zip #https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+
+      - name: Upload Win32 Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: Output_Windows/UCodeEditor/Published-windows-x86
+          asset_name: UCodeEditor_Win_x86
+          asset_content_type: application/zip #https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types

@@ -1,11 +1,8 @@
 AuthorName: "LostbBlizzard"
 ModuleName: "UCodeGameEngine"
 Version: 0:0:0
-Src: "src"
-Obj: "int"
-Out: "out"
 ForceImport:false
 RemoveUnSafe:true
-ModuleNameSpace:"UCodeGameEngine"
+NameSpace:"UCodeGameEngine"
 
 //import LostbBlizzard::NWin32[0:0:0];

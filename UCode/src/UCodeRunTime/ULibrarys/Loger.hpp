@@ -2,9 +2,7 @@
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 
 #include <plog/Log.h>
-#include "UCodeRunTime/RunTimeBasicTypes/String.hpp"
-#include "UCodeRunTime/RunTimeBasicTypes/IntTypes.hpp"
-
+#include "UCodeRunTime/BasicTypes.hpp"
 CoreStart
 
 
@@ -14,7 +12,7 @@ CoreStart
 #define UCODE_ENGINE_FATAL(x)  UCODE_ENGINE_LOG_t(Core::LogType::Fatal,x)
 #define UCODE_ENGINE_Warning(x)  UCODE_ENGINE_LOG_t(Core::LogType::Warning,x)
 
-enum class LogType
+enum class LogType : Byte
 {
 	Fatal,
 	Error,

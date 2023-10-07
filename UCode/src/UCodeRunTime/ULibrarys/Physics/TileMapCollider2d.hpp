@@ -18,7 +18,7 @@ public:
 	{
 		auto numberofcolums = _TileMapSizeY;
 		auto index = y * numberofcolums + x;
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 		//if (TilesData.isvaldIndex(index))
 		{
 			return &TilesData[index];
@@ -33,7 +33,7 @@ public:
 	}
 	inline Tile* Get_Tile(size_t index)
 	{
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 		//if (TilesData.isvaldIndex(index))
 		{
 			return &TilesData[index];

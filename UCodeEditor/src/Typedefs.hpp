@@ -1,19 +1,36 @@
 #pragma once
-#include "UCodeRunTime/RunTimeBasicTypes.hpp"
 #include "Editor/EditorNamespace.hpp"
+#include "UCodeRunTime/BasicTypes.hpp"
 #include "UCodeRunTime/ULibrarys/AssetManagement/UID.hpp"
-#include <UCodeRunTime/RunTimeBasicTypes/Delegate.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/ManagedPtr.hpp>
-#include <UCodeLang/LangCore/DataType/BinaryVectorMap.hpp>
-#include <UCodeRunTime/CoreBooks/BookOfThreads.hpp>
+#include <UCodeRunTime/BasicTypes/ManagedPtr.hpp>
 EditorStart
 
-using String = UCode::String;
+
+
 using Path = UCode::Path;
+using PathSpan = UCode::PathSpan;
+using PathChar = UCode::PathChar;
+using PathString = UCode::PathString;
+
+
+using String = UCode::String;
 using StringView = UCode::StringView;
+
+using String8 = UCode::String8;
+using String8View = UCode::String8View;
+
+using String16 = UCode::String16;
+using String16View = UCode::String16View;
+
+using String32 = UCode::String32;
+using String32View = UCode::String32View;
+
 
 template<typename T>
 using Vector = UCode::Vector<T>;
+
+template<typename T>
+using Span = UCode::Span<T>;
 
 template<typename T, size_t Size>
 using Array = UCode::Array<T, Size>;
@@ -32,9 +49,9 @@ using Unique_array = UCode::Unique_array<T>;
 template<typename T> using Weak_ptr = UCode::Weak_ptr<T>;
 
 template<typename Key,typename U>
-using Unordered_map = UCode::Unordered_map<Key,U>;
+using Unordered_map = UCode::UnorderedMap<Key,U>;
 
-template<typename T> using optional = UCode::optional<T>;
+template<typename T> using Optional = UCode::Optional<T>;
 
 template<typename T> using Span = UCode::Span<T>;
 
@@ -46,32 +63,36 @@ using Unique_Bytes = UCode::Unique_Bytes;
 template<typename R, typename... Pars>
 using Delegate = UCode::Delegate<R, Pars...>;
 
-typedef UCode::UID UID;
+using UID  = UCode::UID;
 
-typedef UCode::UInt8 UInt8;
-typedef UCode::UInt16 UInt16;
-typedef UCode::UInt32 UInt32;
-typedef UCode::UInt64 UInt64;
+using u8 = UCode::u8;
+using u16 = UCode::u16;
+using u32 = UCode::u32;
+using u64 = UCode::u64;
 
+using i8 = UCode::i8;
+using i16 = UCode::i16;
+using i32 = UCode::i32;
+using i64 = UCode::i64;
 
-typedef UCode::SInt8 SInt8;
-typedef UCode::SInt16 SInt16;
-typedef UCode::SInt32 SInt32;
-typedef UCode::SInt64 SInt64;
+//For Clarity reasons;
 
-typedef UCode::float32 float32;
-typedef UCode::float64 float64;
+using Byte = UCode::Byte;
 
+using f32 = UCode::f32;
+using f64 = UCode::f64;
 
-//For Clarity reasons
-typedef  UCode::Byte Byte;
+using Vec2 = UCode::Vec2;
+using Vec2i = UCode::Vec2i;
+using Vec3 = UCode::Vec3;
+using Vec3i = UCode::Vec3i;
+using Version = UCode::Version;
 
-typedef UCode::Vec2 Vec2;
-typedef UCode::Vec2i Vec2i;
-typedef UCode::Vec3 Vec3;
-typedef UCode::Vec3i Vec3i;
+template<typename T>
+using Optional = UCode::Optional<T>;
 
-typedef UCode::Version Version;
+template<typename T, typename E>
+using Result = UCode::Result<T,E>;
 
 template<typename T> using ManagedPtr = UCode::ManagedPtr<T>;
 
@@ -82,20 +103,10 @@ using AnyManagedPtr = UCode::AnyManagedPtr;
 template<typename... T>
 using Variant = UCode::Variant<T...>;
 
-template<typename Key, typename U>
-using BinaryVectorMap = UCode::BinaryVectorMap<Key,U>;
-
-template<typename Key, typename U>
-using VectorMap = UCode::VectorMap<Key, U>;
 
 
-template<typename T>
-using AsynTask_t = UCode::AsynTask_t<T>;
-
-using AsynTask = UCode::AsynTask;
-
-#define UCODE_EDITOR_FORCEINLINE UCODE_ENGINE_FORCE_INLINE
-#define UCODE_EDITOR_NODISCARD UCODE_ENGINE_NODISCARD
+#define UCODE_EDITOR_FORCEINLINE UCodeGameEngineForceinlne
+#define UCODE_EDITOR_NODISCARD UCodeGameEngineNoDiscard
 
 
 EditorEnd

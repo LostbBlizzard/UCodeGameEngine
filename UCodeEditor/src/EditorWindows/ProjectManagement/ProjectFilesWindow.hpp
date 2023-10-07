@@ -1,7 +1,7 @@
 #pragma once
 #include <EditorWindows/EditorWindow.hpp>
 #include <Editor/EditorNamespace.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/Vector.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include <filesystem>
 #include "EditorWindows/OtherTypes/DirectoryViewer.hpp"
 #include "Helper/FileHelper.hpp"
@@ -40,13 +40,13 @@ private:
 
 	void UpdateDir();
 	
-	Path _LookingAtDir;
+	Optional<Path> _LookingAtDir;
 	Path _LookingAtDirReadable;
 	String _FindFileName;
 	Vector<FileData> _Files;
 	DirectoryViewer Viewer;
-	bool _ShowingAddNewItemWindow;
-	optional<Path> RenameFile;
+	bool _ShowingAddNewItemWindow =false;
+	Optional<Path> RenameFile;
 	static constexpr float AssetFileMaxLastUsed = 30;
 	struct AssetFile
 	{
@@ -74,7 +74,7 @@ private:
 	};
 	Vector<AssetFile> _AssetFiles;
 	
-	optional<size_t> FindAssetFile(const Path& path);
+	Optional<size_t> FindAssetFile(const Path& path);
 
 	bool DrawFileItem(ProjectFilesWindow::FileData& Item, ImVec2& ButtionSize);
 	static void DirectoryViewerOpenFile(DirectoryViewer& From, void* Ptr, const Path& Path);

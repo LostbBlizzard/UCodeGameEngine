@@ -1,8 +1,0 @@
-AuthorName: "LostbBlizzard"
-ModuleName: "UCodeGameEngine"
-Version: 0:0:0
-Src: "src"
-Obj: "int"
-Out: "out"
-
-//import LostbBlizzard::NWin32[0:0:0];

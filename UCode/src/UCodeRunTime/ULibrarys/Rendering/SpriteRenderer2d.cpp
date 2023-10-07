@@ -30,20 +30,25 @@ SpriteRenderer::~SpriteRenderer()
 
 void SpriteRenderer::Serialize(USerializer& Serializer) const
 {
+	Serializer.Write("Test", (i32)1);
 	Serializer.Write("Shader", shader);
 	Serializer.Write("Sprite", sprite);
-	Serializer.Write("Color", color);
+	Serializer.Write("Color2", color);
+	
 	Serializer.Write("flipX", flipX);
 	Serializer.Write("flipY", flipY);
+
 	Serializer.Write("DrawLayer", DrawLayer);
 	Serializer.Write("DrawOrder", DrawOrder);
 }
 void SpriteRenderer::Deserialize(UDeserializer& Serializer)
 {
+	i32 V =2;
+	Serializer.ReadType("Test", V,V);
 
 	Serializer.ReadType("Shader", shader, shader);
 	Serializer.ReadType("Sprite", sprite, sprite);
-	Serializer.ReadType("Color", color, color);
+	Serializer.ReadType("Color2", color,color);
 
 	Serializer.ReadType("flipX", flipX, flipX);
 	Serializer.ReadType("flipX", flipY, flipY);
@@ -80,7 +85,7 @@ void SpriteRenderer::OnDraw()
 	Data.color = color;
 	Data.drawLayer = DrawLayer;
 	Data.draworder = DrawOrder;
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 	Data.madeby = this;
 #endif
 

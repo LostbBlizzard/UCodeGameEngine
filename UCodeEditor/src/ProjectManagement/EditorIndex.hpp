@@ -16,9 +16,9 @@ public:
 	struct IndexFile
 	{
 		String RelativePath;
-		UInt64 FileSize = 0;
-		UInt64 FileLastUpdatedTime = 0;
-		UInt64 FileHash = 0;
+		u64 FileSize = 0;
+		u64 FileLastUpdatedTime = 0;
+		u64 FileHash = 0;
 
 		UID UserID;
  	};

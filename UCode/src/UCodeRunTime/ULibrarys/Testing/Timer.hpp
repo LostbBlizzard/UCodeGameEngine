@@ -1,7 +1,7 @@
 #pragma once
 #include "UCodeRunTime/Core/GameTime.hpp"
 #include <string>
-#include <UCodeRunTime/RunTimeBasicTypes/IntTypes.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 CoreStart
 class Timer
 {
@@ -10,8 +10,8 @@ public:
 
 	void EndTime();
 
-	float32 GetTimeInSec();
-	SInt32 GetTimeInMS();
+	f32 GetTimeInSec();
+	i32 GetTimeInMS();
 	std::string GetTimeAsString();
 private:
 	Time::clock::time_point _STime,_TimerEnd;

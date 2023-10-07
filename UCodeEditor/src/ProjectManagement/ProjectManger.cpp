@@ -11,17 +11,17 @@ namespace fs = std::filesystem;
 
 Path ProjectManger::GetProjectInitObjsDir(const Path&  ProjectDir)
 {
-	return GetProjectCachedDir(ProjectDir).native() + ToPathChar("Init") + Path::preferred_separator;
+	return GetProjectCachedDir(ProjectDir).native() + Path("Init").native() + Path::preferred_separator;
 }
 
 Path ProjectManger::GetProjectCachedDir(const Path&  ProjectDir)
 {
-	return  ProjectDir.native() + ToPathChar("CachedData") + Path::preferred_separator;
+	return  ProjectDir.native() + Path("CachedData").native() + Path::preferred_separator;
 }
 
 Path ProjectManger::GetProjectAssetsDir(const Path&  ProjectDir)
 {
-	return ProjectDir.native() + ToPathChar("Assets") + Path::preferred_separator;
+	return ProjectDir.native() + Path("Assets").native() + Path::preferred_separator;
 }
 
 Path ProjectManger::GetProjectDataPath(const Path&  ProjectDir)
@@ -36,7 +36,7 @@ UCODE_EDITOR_NODISCARD Path ProjectManger::GetAssetIndexPath(const Path& Project
 
 Path ProjectManger::GetProjectPrefsDir(const Path&  ProjectDir)
 {
-	return ProjectDir.native() + ToPathChar("Prefs") + Path::preferred_separator;
+	return ProjectDir.native() + Path("Prefs").native() + Path::preferred_separator;
 }
 
 bool ProjectManger::MakeNewProject(const Path& Dir, const String& ProjectName)
@@ -71,6 +71,9 @@ bool ProjectManger::MakeNewProject(const Path& Dir, const String& ProjectName)
 			fs::create_directory(AssetsDir / "Art" / "Fonts");
 			fs::create_directory(AssetsDir / "GameStorage");
 			fs::create_directory(AssetsDir / "GameData");
+
+
+			fs::create_directory(AssetsDir / "EditorTools");
 		}
 	}
 	return true;

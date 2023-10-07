@@ -35,7 +35,7 @@ TextShader TextShader::Get_ShaderFromPath(const std::string& ShaderPath)
         {
             if (Type_ != Type::Null)
             {
-                ss[(SInt32)Type_] << Line << '\n';
+                ss[(i32)Type_] << Line << '\n';
             }
         }
     }

@@ -287,7 +287,7 @@ ImGuIHelper::TreeNodeText ImGuIHelper::TreeNode(const void* id, String&  buffer,
 	return V;
 }
 
- bool ImGuIHelper::uInt64Field(const char* FieldName, UInt64& Value)
+ bool ImGuIHelper::uInt64Field(const char* FieldName, u64& Value)
 {
 	ImGui::Text(FieldName);
 	ImGui::SameLine();
@@ -299,7 +299,7 @@ ImGuIHelper::TreeNodeText ImGuIHelper::TreeNode(const void* id, String&  buffer,
 	return V;
 }
 
- bool ImGuIHelper::uInt32Field(const char* FieldName, UInt32& Value)
+ bool ImGuIHelper::uInt32Field(const char* FieldName, u32& Value)
 {
 	ImGui::Text(FieldName);
 	ImGui::SameLine();
@@ -311,7 +311,7 @@ ImGuIHelper::TreeNodeText ImGuIHelper::TreeNode(const void* id, String&  buffer,
 	return V;
 }
 
- bool ImGuIHelper::uInt16Field(const char* FieldName, UInt16& Value)
+ bool ImGuIHelper::uInt16Field(const char* FieldName,u16& Value)
 {
 	ImGui::Text(FieldName);
 	ImGui::SameLine();
@@ -323,7 +323,7 @@ ImGuIHelper::TreeNodeText ImGuIHelper::TreeNode(const void* id, String&  buffer,
 	return V;
 }
 
- bool ImGuIHelper::uInt8Field(const char* FieldName, UInt8& Value)
+ bool ImGuIHelper::uInt8Field(const char* FieldName,u8& Value)
 {
 	ImGui::Text(FieldName);
 	ImGui::SameLine();
@@ -389,7 +389,7 @@ void ImGuIHelper::ShowOnMiddleLoadingIndicatorCircle(const char* label, const in
 	{
 		NewSize = { Size.y,Size.y };
 	}
-	float32 radius = NewSize.x / 2;
+	f32 radius = NewSize.x / 2;
 
 	auto pos = (*(Vec2*)&ImGui::GetItemRectMax() + *(Vec2*)&ImGui::GetItemRectMin()) / 2;
 	ImVec2 Pos = *(ImVec2*)&pos;
@@ -522,7 +522,7 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 }
 bool ImGuIHelper::InputSize_t(const char* label, size_t* v, int step, int step_fast, ImGuiInputTextFlags flags)
 {
-	if constexpr (sizeof(size_t) == sizeof(UInt64))
+	if constexpr (sizeof(size_t) == sizeof(u64))
 	{
 		return ImGui::InputScalar(label, ImGuiDataType_::ImGuiDataType_U64, v, nullptr, nullptr, nullptr, flags);
 	}
@@ -661,7 +661,7 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 
 	return R;
 }
- bool ImGuIHelper::Int64Field(const char* FieldName, SInt64& Value)
+ bool ImGuIHelper::Int64Field(const char* FieldName, i64& Value)
 {
 	ImGui::Text(FieldName);
 	ImGui::SameLine();
@@ -672,7 +672,7 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 
 	return V;
 }
- bool ImGuIHelper::Int32Field(const char* FieldName, SInt32& Value)
+ bool ImGuIHelper::Int32Field(const char* FieldName, i32& Value)
 {
 	ImGui::Text(FieldName);
 	ImGui::SameLine();
@@ -683,7 +683,7 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 
 	return V;
 }
- bool ImGuIHelper::Int16Field(const char* FieldName, SInt16& Value)
+ bool ImGuIHelper::Int16Field(const char* FieldName, i16& Value)
 {
 	ImGui::Text(FieldName);
 	ImGui::SameLine();
@@ -694,7 +694,7 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 
 	return V;
 }
- bool ImGuIHelper::Int8Field(const char* FieldName, SInt8& Value)
+ bool ImGuIHelper::Int8Field(const char* FieldName, i8& Value)
 {
 	ImGui::Text(FieldName);
 	ImGui::SameLine();
@@ -705,7 +705,7 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 
 	return V;
 }
- bool ImGuIHelper::float32Field(const char* FieldName, float32& Value)
+ bool ImGuIHelper::f32Field(const char* FieldName, f32& Value)
 {
 	ImGui::Text(FieldName);
 	ImGui::SameLine();
@@ -716,7 +716,7 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 
 	return V;
 }
- bool ImGuIHelper::float64Field(const char* FieldName, float64& Value)
+ bool ImGuIHelper::f64Field(const char* FieldName, f64& Value)
 {
 	ImGui::Text(FieldName);
 	ImGui::SameLine();
@@ -790,7 +790,7 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 
 	 return Updated;
  }
-bool ImGuIHelper::Draw_StringView(const char* label, UCodeEditor::StringView& Item)
+bool ImGuIHelper::Draw_StringView(const char* label, StringView& Item)
 {
 	thread_local String V;
 	V = Item;

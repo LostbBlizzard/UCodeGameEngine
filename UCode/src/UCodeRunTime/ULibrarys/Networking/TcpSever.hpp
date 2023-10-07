@@ -2,12 +2,10 @@
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 
 #include "NetTypedef.h"
-#include <UCodeRunTime/RunTimeBasicTypes/Span.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/String.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include <UCodeRunTime/ULibrarys/Serialization/BitMaker.hpp>
 
 #include <MinimalSocket/tcp/TcpServer.h>
-#include <UCodeRunTime/RunTimeBasicTypes/Delegate.hpp>
 CoreStart
 
 class TcpSever

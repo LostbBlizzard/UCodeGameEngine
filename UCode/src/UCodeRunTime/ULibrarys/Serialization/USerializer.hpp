@@ -2,10 +2,7 @@
 #include <yaml-cpp/yaml.h>
 #include <fstream>
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/String.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/Vector.hpp>
-#include <UCodeRunTime/ULibrarys/AssetManagement/UID.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 
 #include "BitMaker.hpp"
 #include "Yaml_Implementation/BasicTypes.hpp"
@@ -17,7 +14,7 @@ CoreStart
 #define UCode_YAML_UCharFix(x)  ( (unsigned int) x)
 #define UCode_YAML_CharFix(x)  ( (signed int) x)
 
-typedef UInt8 USerializerType_t;
+using USerializerType_t = u8;
 enum class USerializerType : USerializerType_t
 {
 	Bytes,
@@ -88,8 +85,8 @@ public:
 	void Reset();
 
 
-	UCODE_ENGINE_FORCE_INLINE USerializerType Get_Type(){return _Type;}
-	UCODE_ENGINE_NODISCARD bool ToFile(const Path& Path, bool WithSerializerType = true);
+	UCodeGameEngineForceinlne USerializerType Get_Type(){return _Type;}
+	UCodeGameEngineNoDiscard bool ToFile(const Path& Path, bool WithSerializerType = true);
 	void ToString(String& Out, bool WithSerializerType = false);
 	void ToBytes(Vector<Byte>& Out,bool WithSerializerType =false);
 	void ToStream(std::ostream& Out, bool WithSerializerType = true);
@@ -99,7 +96,7 @@ public:
 	{
 		if (_Type != USerializerType::Bytes)
 		{
-			UCODE_ENGINE_THROWEXCEPTION("Bad Cast");
+			UCodeGameEngineThrowException("Bad Cast");
 		}
 		return _BitMaker;
 	}
@@ -107,7 +104,7 @@ public:
 	{
 		if (_Type != USerializerType::YAML)
 		{
-			UCODE_ENGINE_THROWEXCEPTION("Bad Cast");
+			UCodeGameEngineThrowException("Bad Cast");
 		}
 		return  _TextMaker;
 	}
@@ -136,7 +133,7 @@ public:
 
 	void SetData(const BytesView Bytes);//the byte[0] is SerializerType 
 
-	UCODE_ENGINE_NODISCARD static bool FromFile(const Path& Path, UDeserializer& Out);//Note the File must be made from USerializer::ToFile
+	UCodeGameEngineNoDiscard static bool FromFile(const Path& Path, UDeserializer& Out);//Note the File must be made from USerializer::ToFile
 	//
 
 	template<typename T>
@@ -183,7 +180,7 @@ public:
 	{
 		if (_Type != USerializerType::Bytes)
 		{
-			UCODE_ENGINE_THROWEXCEPTION("Bad Cast");
+			UCodeGameEngineThrowException("Bad Cast");
 		}
 		return  _BitReader;
 	}
@@ -191,7 +188,7 @@ public:
 	{
 		if (_Type != USerializerType::YAML)
 		{
-			UCODE_ENGINE_THROWEXCEPTION("Bad Cast");
+			UCodeGameEngineThrowException("Bad Cast");
 		}
 		return _YamlReader;
 	}

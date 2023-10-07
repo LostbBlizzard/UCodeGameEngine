@@ -1,12 +1,11 @@
 #include "Entity.hpp"
 #include "GameRunTime.hpp"
-#include "UCodeRunTime/ULibrarys/AssetManagement/SceneData.hpp"
 CoreStart
 	
 
 Compoent::Compoent(Entity* entity,UComponentData* TypeData)
 	: _Entity(entity), _TypeData(TypeData),
-	_IsDestroyed(false),_GameRunTimeHasCalledStart(false), _IsActive(true), _Managed(this)
+  _Managed(this)
 {
 
 }
@@ -21,7 +20,7 @@ GameRunTime* Entity::GetGameRunTime()
 }
 
 Entity::Entity(RunTimeScene* runtime)
-	: _Scene(runtime),_IsDestroyed(false), _IsActive(true), _Managed(this)
+	: _Scene(runtime), _Managed(this)
 {
 
 }

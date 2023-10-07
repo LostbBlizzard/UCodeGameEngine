@@ -1,6 +1,7 @@
 #include "UserSettingsWindow.hpp"
 #include "Helper/UserSettings.hpp"
 #include "Helper/ImGuIHelper.hpp"
+#include <UCodeRunTime/Rendering/API_OpenGL/OpenGlRender.hpp>
 EditorStart
 UserSettingsWindow::UserSettingsWindow(const NewEditorWindowData& windowdata) : EditorWindow(windowdata)
 {
@@ -44,51 +45,106 @@ void UserSettingsWindow::UpdateWindow()
 {
 	auto& Settings = UserSettings::GetSettings();
 
-	ImGuIHelper::InputPath("CodeEditor", Settings.CodeEditorPath, {}, ImGuIHelper::InputPathType::File, Span<String>(&RunableFilesExt[0], RunableFilesExtCount));
-	
-	
-	ImGuIHelper::InputText("Arguments to Pass", Settings.OpenCodeEditorFileArg);
 
-	if (IsShowingExampleArguments == false)
+	if (ImGui::BeginTabBar("##Editor_tabs", ImGuiTabBarFlags_None))
 	{
-		ImGui::SameLine();
-		if (ImGui::Button("..."))
+		if (ImGui::BeginTabItem("CodeEditor"))
 		{
-			IsShowingExampleArguments = true;
-		}
-	}
-	else
-	{
-		ImGui::SameLine();
-		if (ImGui::Button("Cancel"))
-		{
-			IsShowingExampleArguments = false;
-		}
-		ImGui::Separator();
-		
-		for (size_t i = 0; i < ArgumentExamplesCount; i++)
-		{
-			auto& Item = ArgumentExamples[i];
+			ImGuIHelper::InputPath("CodeEditor", Settings.CodeEditorPath, {}, ImGuIHelper::InputPathType::File, Span<String>(&RunableFilesExt[0], RunableFilesExtCount));
 
-			ImGui::PushID(&Item);
 
-			ImGui::Text(Item.EditorName); ImGui::SameLine();
+			ImGuIHelper::InputText("Arguments to Pass", Settings.OpenCodeEditorFileArg);
 
-			bool B = ImGui::Button("Select"); ImGui::SameLine();
-
-			ImGui::BeginDisabled(true);
-			ImGuIHelper::InputText(":", (String&)Item.Value);
-			ImGui::EndDisabled();
-
-			
-			if (B)
+			if (IsShowingExampleArguments == false)
 			{
-				Settings.OpenCodeEditorFileArg = Item.Value;
-				IsShowingExampleArguments = false;
+				ImGui::SameLine();
+				if (ImGui::Button("..."))
+				{
+					IsShowingExampleArguments = true;
+				}
 			}
+			else
+			{
+				ImGui::SameLine();
+				if (ImGui::Button("Cancel"))
+				{
+					IsShowingExampleArguments = false;
+				}
+				ImGui::Separator();
 
-			ImGui::PopID();
+				for (size_t i = 0; i < ArgumentExamplesCount; i++)
+				{
+					auto& Item = ArgumentExamples[i];
+
+					ImGui::PushID(&Item);
+
+					ImGui::Text(Item.EditorName); ImGui::SameLine();
+
+					bool B = ImGui::Button("Select"); ImGui::SameLine();
+
+					ImGui::BeginDisabled(true);
+					ImGuIHelper::InputText(":", (String&)Item.Value);
+					ImGui::EndDisabled();
+
+
+					if (B)
+					{
+						Settings.OpenCodeEditorFileArg = Item.Value;
+						IsShowingExampleArguments = false;
+					}
+
+					ImGui::PopID();
+				}
+			}
+			ImGui::EndTabItem();
 		}
+
+		if (ImGui::BeginTabItem("Editor Style"))
+		{
+			enum class EditorSyle
+			{
+				WoodLandDay,
+				WoodLandNight,
+				DarkMode,
+				Wave,
+			};
+			static  EditorSyle syle;
+			static Vector<ImGuIHelper::EnumValue<EditorSyle>> SyleList =
+			{
+				{"WoodLandDay",EditorSyle::WoodLandDay},
+				//{"WoodLandNight",EditorSyle::WoodLandNight},
+				{"DarkMode",EditorSyle::DarkMode},
+				//{"Wave",EditorSyle::Wave},
+			};
+			if (ImGuIHelper::EnumField("Editor Built-In Syle", syle, SyleList))
+			{
+				switch (syle)
+				{
+				case EditorSyle::WoodLandDay:
+					UCode::RenderAPI::OpenGlRender::SetStyle_WoodLandDay();
+					break;
+				case EditorSyle::WoodLandNight:
+					UCode::RenderAPI::OpenGlRender::SetStyle_WoodLandNight();
+					break;
+				case EditorSyle::DarkMode:
+					UCode::RenderAPI::OpenGlRender::SetStyle_Dark();
+					break;
+				case EditorSyle::Wave:
+					UCode::RenderAPI::OpenGlRender::SetStyle_Wave();
+					break;
+				default:
+					UCodeGameEngineUnreachable();
+					break;
+				}
+			}
+		
+			ImGui::ShowStyleEditor();
+
+
+			ImGui::EndTabItem();
+		}
+
+		ImGui::EndTabBar();
 	}
 }
 

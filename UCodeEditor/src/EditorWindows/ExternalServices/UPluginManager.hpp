@@ -11,7 +11,7 @@ struct PluginIndex
 	{
 		String PluginName;
 		Version PluginVersion;
-		UInt64 BuildNumber;
+		u64 BuildNumber;
 
 		Path FilePath;
 	};

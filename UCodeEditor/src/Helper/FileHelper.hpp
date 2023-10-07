@@ -1,6 +1,6 @@
 #pragma once
 #include "Editor/EditorNamespace.hpp"
-#include "UCodeRunTime/RunTimeBasicTypes/String.hpp"
+#include <UCodeRunTime/BasicTypes.hpp>
 #include <filesystem>
 #include <Typedefs.hpp>
 EditorStart
@@ -19,7 +19,7 @@ public:
 		String Path;
 	};
 
-	typedef UInt8 FileTypesOptions_t;
+	using FileTypesOptions_t = Byte;
 	enum class FileTypesOptions : FileTypesOptions_t
 	{
 		None = 0,
@@ -28,13 +28,11 @@ public:
 		bmp = 1 << 3,
 		tga = 1 << 4,
 	};
-	static String GetNewFileName(const String&  path);
-	static String GetNewFileName(const String&  path,const String&  ext);
-	static String ToRelativePath(const String&  RootPath, const String&  Path);
-	static StringView ToRelativePath(const StringView& RootPath, const StringView& Path);
-	static Path ToRelativePath(const Path& RootPath, const Path& Path);
+	static Path GetNewFileName(const Path&  path);
+	static Path GetNewFileName(const Path&  path,const Path&  ext);
+	static Path ToRelativePath(const Path&  RootPath, const Path& Path);
+	static PathSpan ToRelativePath(const PathSpan& RootPath, const PathSpan& Path);
 	static void ReverseString(String& r);
-	static String GetFileExt(const String&  text);
 	static Path GetFileExt(const Path& text)
 	{
 		return text.extension();

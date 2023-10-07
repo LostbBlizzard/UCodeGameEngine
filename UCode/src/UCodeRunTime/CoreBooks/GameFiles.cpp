@@ -69,7 +69,27 @@ bool GameFilesData::ReadFileKeepOpen(const Path& Path, FileBuffer& OutFile, Game
 		}
 		else
 		{
-			UCODE_ENGINE_IMPlEMENTED_LATER;
+			String Sing;
+			OutFile.ReadType(Sing);
+			if (Sing == UCodeGameEngineFileSignature)
+			{
+				VersionNumber_t Version = 0;
+				OutFile.ReadType(Version);
+				OutFile.ReadType(data.CompanyName);
+				OutFile.ReadType(data.APPName);
+
+				OutFile.ReadType(*(Type_t*)&data._Type);
+				OutFile.ReadType(data.SceneToLoadOnPlay);
+
+				OutFile.ReadType(data.Offsets);
+
+				BitMaker::SizeAsBits V;
+				OutFile.ReadType(V);
+
+				OutFile.Set_FileReadStartIndex(OutFile.Get_FileReadIndex());
+				return true;
+			}
+			return false;
 		}
 		return true;
 	}
@@ -83,14 +103,14 @@ template<> struct BitData<GameFileIndex>
 	static void ToBytes(BitMaker& This, const _Type& Value)
 	{
 		This.WriteType(Value.FileFullName);
-		This.WriteType((UInt64)Value.FileOffset);
-		This.WriteType((UInt64)Value.FileSize);
+		This.WriteType((u64)Value.FileOffset);
+		This.WriteType((u64)Value.FileSize);
 	}
 	static void FromBytes(BitReader& This, _Type& Out)
 	{
 		This.ReadType(Out.FileFullName, Out.FileFullName);
 
-		UInt64 V = 0;
+		u64 V = 0;
 		This.ReadType(V, V);
 		Out.FileOffset = V;
 
@@ -103,11 +123,13 @@ template<> struct BitData<GameFileIndex>
 
 void GameFilesData::Serialize(const GameFilesData& data, USerializer& Out)
 {
-	const char* FileSignature = UCODE_ENGINE_FILE_SIGNATURE;//T=char [30]
+	const char* FileSignature = UCodeGameEngineFileSignature;//T=char [30]
 	Out.Write("Signature", (String)FileSignature);
-	Out.Write("version", UCODE_ENGINE_VERSION_NUMBER);
+
+	Out.Write("version", UCodeGameEngineVersionNumber);
 	Out.Write("Company", data.CompanyName);
 	Out.Write("GameName", data.APPName);
+
 	Out.Write("AssetDataType", (Type_t)data._Type);
 	Out.Write("SceneToLoadOnPlay", data.SceneToLoadOnPlay);
 
@@ -122,14 +144,16 @@ bool GameFilesData::Deserializ(UDeserializer& In, GameFilesData& Out)
 {
 	String Sing;
 	In.ReadType("Signature", Sing);
-	if (Sing == UCODE_ENGINE_FILE_SIGNATURE)
+	if (Sing == UCodeGameEngineFileSignature)
 	{
-		VersionNumber_t Version;
+		VersionNumber_t Version = 0;
 		In.ReadType("version", Version);
 		In.ReadType("Company", Out.CompanyName);
 		In.ReadType("GameName", Out.APPName);
+
 		In.ReadType("AssetDataType", *(Type_t*)&Out._Type);
 		In.ReadType("SceneToLoadOnPlay", Out.SceneToLoadOnPlay);
+
 		In.ReadType("AssetsOffsets", Out.Offsets);
 
 		In.ReadType("Data", Out._Data);
@@ -199,9 +223,26 @@ String GameFiles::ReadGameFileAsString(const Path& path)
 	{
 		return GameFiles::ReadGameFileAsString(_Data._RedirectDir.native() + path.native());
 	}
+	else if (_Data._Type == GameFilesData::Type::ThisFile)
+	{
+		if (auto val = _Data.GetFile(path))
+		{
+			_FileBuffer.Set_FileReadIndex(val->FileOffset);
+
+			String V;
+			V.resize(val->FileSize);
+			_FileBuffer.ReadBytes((Byte*)V.data(), V.size());
+
+			return V;
+		}
+		else
+		{
+			return {};
+		}
+	}
 	else
 	{
-		throw std::exception("bad");
+		UCodeGameEngineUnreachable();
 	}
 }
 Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& path)
@@ -210,9 +251,26 @@ Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& path)
 	{
 		return GameFiles::ReadFileAsBytes(_Data._RedirectDir.native() + path.native());
 	}
+	else if (_Data._Type == GameFilesData::Type::ThisFile)
+	{
+		if (auto val = _Data.GetFile(path))
+		{
+			_FileBuffer.Set_FileReadIndex(val->FileOffset);
+
+			Unique_Bytes V;
+			V.Resize(val->FileSize);
+			_FileBuffer.ReadBytes(V.Data(), V.Size());
+
+			return V;
+		}
+		else
+		{
+			return {};
+		}
+	}
 	else
 	{
-		throw std::exception("bad");
+		UCodeGameEngineUnreachable();
 	}
 }
 Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& Path, size_t Offset, size_t Size)
@@ -328,7 +386,7 @@ Path GameFiles::Get_PersistentDataPath(const AppData& data)
 
 	#endif 
 
-	#ifdef DEBUG
+	#if UCodeGameEngineDEBUG
 	Persistentpath = (String)UCode_VS_PROJECTPATH + "Persistentpath/";
 	#endif // DEBUG
 
@@ -342,19 +400,26 @@ const Path& GameFiles::Get_PersistentDataPath()
 {
 
 
-	if (_PersistentDataPath == UCODE_ENGINE_NULLSTRING)
+	if (!_PersistentDataPath.has_value()) 
 	{
 		UCODE_ENGINE_IMPlEMENTED_LATER;
 	}
 
-	fs::create_directories(_PersistentDataPath);
-	return _PersistentDataPath;
+
+	auto& path = _CacheDataPath.value();
+	fs::create_directories(path);
+	return path;
 }
 const Path& GameFiles::Get_CacheDataPath()
 {
-	if (_CacheDataPath == UCODE_ENGINE_NULLSTRING){_CacheDataPath = Get_PersistentDataPath().native() + ToPathChar("_Cache") + ToPathChar('/');}
-	if (!fs::exists(_CacheDataPath)) {fs::create_directory(_CacheDataPath);}
-	return _CacheDataPath;
+	if (!_CacheDataPath.has_value()){
+		_CacheDataPath = Get_PersistentDataPath().native() 
+		+ Path("_Cache").native() + Path("/").native();
+	}
+
+	auto& path = _CacheDataPath.value();
+	if (!fs::exists(path)) {fs::create_directory(path);}
+	return path;
 }
 void GameFiles::Writetext(StringView text, const Path& Path)
 {

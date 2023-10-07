@@ -1,13 +1,13 @@
 #pragma once
 #include "UCodeRunTime/ULibrarys/AssetManagement/UID.hpp"
-#include "UCodeRunTime/RunTimeBasicTypes/ManagedPtr.hpp"
+#include "UCodeRunTime/BasicTypes/ManagedPtr.hpp"
 CoreStart
 
 template<typename AssetType, typename AssetBase>
 struct AssetPtr
 {
 public:
-	using State_t = unsigned char;
+	using State_t = Byte;
 	using ManagedAssetPtr = ManagedPtr< AssetType>;
 	enum class State : State_t
 	{
@@ -68,17 +68,17 @@ public:
 			_Managed = ToCopy._Managed;
 			break;
 		default:
-			UCODE_ENGINE_BADPATH_ASSERT;
+			UCodeGameEngineUnreachable();
 			break;
 		}
 		return *this;
 	}
 
-	UCODE_ENGINE_FORCE_INLINE AssetPtr& operator=(AssetType* ToCopy) { return *this = AssetPtr(ToCopy); }
-	UCODE_ENGINE_FORCE_INLINE AssetPtr& operator=(const UID& ToCopy) { return *this = AssetPtr(ToCopy); }
-	UCODE_ENGINE_FORCE_INLINE AssetPtr& operator=(const ManagedAssetPtr& ToCopy) { return *this = AssetPtr(ToCopy); }
+	UCodeGameEngineForceinlne AssetPtr& operator=(AssetType* ToCopy) { return *this = AssetPtr(ToCopy); }
+	UCodeGameEngineForceinlne AssetPtr& operator=(const UID& ToCopy) { return *this = AssetPtr(ToCopy); }
+	UCodeGameEngineForceinlne AssetPtr& operator=(const ManagedAssetPtr& ToCopy) { return *this = AssetPtr(ToCopy); }
 
-	UCODE_ENGINE_FORCE_INLINE State Get_State() const { return _State; }
+	UCodeGameEngineForceinlne State Get_State() const { return _State; }
 
 	
 	UID Get_UID() const
@@ -89,7 +89,7 @@ public:
 		}
 		else
 		{
-			UCODE_ENGINE_THROWEXCEPTION("Cant Return A UID");
+			UCodeGameEngineThrowException("Cant Return A UID");
 			return {};
 		}
 	}
@@ -101,7 +101,7 @@ public:
 		}
 		else
 		{
-			UCODE_ENGINE_THROWEXCEPTION("Cant Return ManagedAssetPtr");
+			UCodeGameEngineThrowException("Cant Return ManagedAssetPtr");
 			return {};
 		}
 	}

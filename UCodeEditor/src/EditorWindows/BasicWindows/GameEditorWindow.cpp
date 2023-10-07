@@ -20,14 +20,10 @@ EditorWindow* GameEditorWindow::MakeWin(const NewEditorWindowData& windowdata)
 {
     return new GameEditorWindow(windowdata);
 }
-GameEditorWindow::GameEditorWindow(const NewEditorWindowData& windowdata) : EditorWindow(windowdata), _IsRuningGame(false), _IsGamePaused(false), _WindowType(GameWindowType::EditorWindow), _GameRunTime(nullptr), _GameRender(nullptr)
-, _IsGameWindowFocused(false), _ShowingGameStats(false), _ShowingGameStatslocation(0), _UseingScenePath(UCODE_ENGINE_NULLSTRING)
-, _SceneData(nullptr)
-, _SceneDataAsRunTiime(nullptr)
-,_SceneCamera(nullptr)
+GameEditorWindow::GameEditorWindow(const NewEditorWindowData& windowdata) : EditorWindow(windowdata)
 {
     WindowName = "GameEditorWindow";
-   CallBegin = false;
+    CallBegin = false;
 }
 
 GameEditorWindow::~GameEditorWindow()
@@ -76,9 +72,9 @@ void GameEditorWindow::UpdateWindow()
 void GameEditorWindow::OnSaveWindow(USerializer& JsonToSaveIn)
 {
     auto& Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
-    if (_SceneData) 
+    if (_SceneData && _UseingScenePath.has_value())
     {
-        auto PathString = FileHelper::ToRelativePath(Assespath, _UseingScenePath);
+        auto PathString = FileHelper::ToRelativePath(Assespath, _UseingScenePath.value());
        
         
         JsonToSaveIn.Write("_ScenePath",PathString); 
@@ -91,7 +87,7 @@ void GameEditorWindow::OnSaveWindow(USerializer& JsonToSaveIn)
 void GameEditorWindow::OnLoadWindow(UDeserializer& JsonToOutof)
 {
     auto& Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
-    Path PathString = UCODE_ENGINE_NULLSTRING;
+    Path PathString = "";
     
     JsonToOutof.ReadType("_ScenePath", PathString, PathString);
     Path NewString = Assespath.native() + Path(PathString).native();
@@ -1051,7 +1047,7 @@ void GameEditorWindow::SaveScene()
     if (_SceneData) {
         auto SaveType = Get_ProjectData()->Get_ProjData()._SerializeType;
         UCode::Scene2dData::SaveScene(_SceneDataAsRunTiime, *_SceneData, SaveType);
-        UCode::Scene2dData::ToFile(_UseingScenePath, *_SceneData, SaveType);
+        UCode::Scene2dData::ToFile(_UseingScenePath.value(), *_SceneData, SaveType);
     }
 }
 void GameEditorWindow::OpenScencAtPath(const Path&  Path)
@@ -1108,7 +1104,7 @@ void GameEditorWindow::GameTab()
     {
     case GameWindowType::EditorWindow:WindowTypeText = "EditorWindow"; break;
     case GameWindowType::ExternalWindow:WindowTypeText = "ExternalWindow"; break;
-    default:WindowTypeText = UCODE_ENGINE_NULLSTRING; break;
+    default:UCodeLangUnreachable(); break;
     }
 
     
@@ -1159,7 +1155,7 @@ void GameEditorWindow::GameTab()
 
         if (_IsRuningGame)
         {
-            if (_UseingScenePath == UCODE_ENGINE_NULLSTRING)
+            if (!_UseingScenePath.has_value())
             {
                 
                 ImGui::OpenPopup(CantPlayScenePopName);
@@ -1331,8 +1327,8 @@ void GameEditorWindow::LoadRender(bool MakeWin)
 {
     if (_GameRender == nullptr)
     {
-        SInt32 Sx = (SInt32)_Size.X;
-        SInt32 Sy = (SInt32)_Size.Y;
+        i32 Sx = (i32)_Size.X;
+        i32 Sy = (i32)_Size.Y;
         if (Sx <= 0) { Sx = 1; }
         if (Sy <= 0) { Sy = 1; }
 

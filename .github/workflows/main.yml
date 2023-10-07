@@ -49,3 +49,46 @@ jobs:
 
     - name: Run Tests 32 bit
       run: "echo RunTests"
+  
+  gmake-build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Make a scripts executable
+      run: |
+       chmod +x ./GNU_Make.sh
+       chmod +x ./BuildTools/BuildLinux32Debug.sh
+       chmod +x ./BuildTools/BuildLinux64Debug.sh
+       chmod +x ./BuildTools/RunTestsLinux32Debug.sh
+       chmod +x ./BuildTools/RunTestsLinux64Debug.sh
+
+    - name: Run Premake
+      run: ./GNU_Make.sh
+    
+    - name: Restore cached objs
+      id: cache-objs-restore
+      uses: actions/cache/restore@v3
+      with:
+        path: ./Output
+        key: ${{ runner.os }}-1
+
+    - name: Build 64 bit
+      run: ./BuildTools/BuildLinux64Debug.sh
+
+    - name: Build 32 bit
+      run: ./BuildTools/BuildLinux32Debug.sh
+
+    - name: Save cached Objs
+      id: cache-Objs-save
+      uses: actions/cache/save@v3
+      with:
+        path: ./Output
+        key: ${{ steps.cache-objs-restore.outputs.cache-primary-key }}
+
+    - name: RunTests for 64 bit
+      run: ./BuildTools/RunTestsLinux32Debug.sh
+
+    - name: RunTests for 32 bit
+      run: ./BuildTools/RunTestsLinux64Debug.sh

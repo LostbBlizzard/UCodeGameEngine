@@ -242,10 +242,6 @@ void CodeModule::Init()
 		Components[0] = std::move(Unique_ptr<UEditorComponentData>(new ULangScriptUEditorData()));
 	}
 }
-ExportEditorReturn CodeModule::ExportEditor(ExportEditorContext& Context)
-{
-	return {};
-}
 
 
 void LogErrors(ConsoleWindow* win,const UCodeLang::CompliationErrors& Error)

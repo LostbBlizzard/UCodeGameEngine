@@ -4,11 +4,10 @@
 
 #include <stb_image/stb_image.h>
 
-#include <UCodeRunTime/CMem.hpp>
 RenderingStart
 
 
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 const static std::string nullstring = "null";
 const static std::string MadewithColor = "madewithColor32";
 #else
@@ -55,7 +54,7 @@ Texture::Texture(const Path& filePath)
 	InitTexture();
 }
 
-Texture::Texture(SInt32 width, SInt32 height, const Color32* color)
+Texture::Texture(i32 width, i32 height, const Color32* color)
 	: _RendererID(0), _Width(width), _Height(height), _BPP(4), _Buffer(nullptr), _BufferIsInGPU(false), _FilePath(MadewithColor)
 {
 	size_t DataSize = (size_t)width * (size_t)height* sizeof(Color32);
@@ -68,7 +67,8 @@ Texture::Texture(SInt32 width, SInt32 height, const Color32* color)
 Texture::Texture(const BytesView PngData)
 	: _RendererID(0), _Width(0), _Height(0), _BPP(0), _Buffer(nullptr), _BufferIsInGPU(false), _FilePath(MadewithColor)
 {
-	
+	_Buffer = Unique_array<Byte>(stbi_load_from_memory(PngData.Data(), PngData.Size(), &_Width, &_Height, &_BPP, 4));
+
 	InitTexture();
 }
 
@@ -77,7 +77,7 @@ Texture::~Texture()
 	
 	if (_FilePath == MadewithColor)
 	{
-		Mem::free(_Buffer.release());
+		free(_Buffer.release());
 	}
 	else if (_FilePath != nullstring)
 	{
@@ -89,7 +89,7 @@ Texture::~Texture()
 
 Unique_ptr<Texture> Texture::MakeNewNullTexture()
 {
-	#ifdef DEBUG
+	#if UCodeGameEngineDEBUG
 	const Color32 NullTexureColorData[]
 	{
 		Color32(),
@@ -106,7 +106,7 @@ Unique_ptr<Texture> Texture::MakeNewNullTexture()
 	Texture* tex = std::make_unique<Texture>(1, 1, NullTexureColorData);
 	#endif // DEBUG
 
-	Mem::free(tex->_Buffer.release());
+	free(tex->_Buffer.release());
 	tex->_Buffer = nullptr;
 	return tex;
 }
@@ -119,7 +119,7 @@ void Texture::SetTexture(const BytesView PngData)
 
 void Texture::UpdateDataToGPU()
 {
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 	if (_FilePath != MadewithColor)
 	{
 		throw std::exception("This texture is read only cannot be Updated");
@@ -133,7 +133,8 @@ void Texture::MultThread_UpdateTextureFromPath(const Path Path)
 {
 	Set_FilePath(Path);
 	if (_Buffer) {
-		Mem::free(_Buffer.release()); _Buffer = nullptr; }
+		free(_Buffer.release()); 
+	}
 
 	stbi_set_flip_vertically_on_load(0);
 	_Buffer = Unique_array<Byte>(

@@ -41,7 +41,7 @@ void VertexArray::AddBuffer(const VertexBuffer& buffer, const VertexBufferLayout
 VertexBufferLayout::VertexBufferLayout():_Stride(0)
 {
 }
-UInt32 VertexBufferLayout::Element::GetSizeOfType(UInt32 GlType)
+u32 VertexBufferLayout::Element::GetSizeOfType(u32 GlType)
 {
 	switch (GlType)
 	{
@@ -51,26 +51,26 @@ UInt32 VertexBufferLayout::Element::GetSizeOfType(UInt32 GlType)
 	case GL_UNSIGNED_BYTE:return sizeof(GLubyte);
 	case GL_UNSIGNED_SHORT:return sizeof(GLushort);
 	default:
-		UCODE_ENGINE_BADPATH_ASSERT;
+		UCodeGameEngineUnreachable();
 		return -1;
 	}
 }
-void VertexBufferLayout::Push_float(UInt32 count)
+void VertexBufferLayout::Push_float(u32 count)
 {
 	_Element.push_back({ GL_FLOAT,count ,GL_FALSE });
 	_Stride += count * Element::GetSizeOfType(GL_FLOAT);
 }
-void VertexBufferLayout::Push_Uint(UInt32 count)
+void VertexBufferLayout::Push_Uint(u32 count)
 {
 	_Element.push_back({ GL_UNSIGNED_INT,count ,GL_FALSE });
 	_Stride += count * Element::GetSizeOfType(GL_UNSIGNED_INT);
 }
-void VertexBufferLayout::Push_int(UInt32 count)
+void VertexBufferLayout::Push_int(u32 count)
 {
 	_Element.push_back({ GL_INT,count ,GL_FALSE });
 	_Stride += count * Element::GetSizeOfType(GL_INT);
 }
-void VertexBufferLayout::Push_Uchar(UInt32 count)
+void VertexBufferLayout::Push_Uchar(u32 count)
 {
 	_Element.push_back({ GL_UNSIGNED_BYTE,count ,GL_FALSE });
 	_Stride += count * Element::GetSizeOfType(GL_UNSIGNED_BYTE);

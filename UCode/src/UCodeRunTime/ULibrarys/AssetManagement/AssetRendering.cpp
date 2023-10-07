@@ -56,7 +56,7 @@ void AssetRendering::DrawQuad2d(RenderRunTime2d* runtime, const DrawQuad2dData& 
 	_Data.color = Data.color;
 	_Data.drawLayer = Data.drawLayer;
 	_Data.draworder = Data.draworder;
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 	_Data.madeby = Data.madeby;
 #endif // DEBUG
 	runtime->DrawQuad2d(_Data);
@@ -65,10 +65,13 @@ void AssetRendering::DrawQuad2d(RenderRunTime2d* runtime, const DrawQuad2dData& 
 AsynTask_t<Unique_ptr<Texture>> AssetRendering::LoadTextureAsync(Gamelibrary* lib, const Path& path)
 {
 	BookOfThreads* threads = BookOfThreads::Get(lib);
+	
 
-	Delegate<Unique_ptr<Texture>> Func = [path = path]()
+	Delegate<Unique_ptr<Texture>> Func = [path = path,lib]()
 	{
-		auto teptex =new Texture(path);
+		GameFiles* f = GameFiles::Get(lib);
+
+		auto teptex =new Texture(f->ReadGameFileAsBytes(path).AsView());
 		
 		return Unique_ptr<Texture>(teptex);
 	};

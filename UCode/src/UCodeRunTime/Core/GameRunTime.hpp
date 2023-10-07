@@ -3,14 +3,11 @@
 
 
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes.hpp> 
-#include "UCodeRunTime/RunTimeBasicTypes/Ref.hpp"
-#include <UCodeRunTime/RunTimeBasicTypes/Vector.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 
 #include "libraryBook.hpp"
 #include "Entity.hpp"
 #include "GameTime.hpp"
-
 CoreStart
 
 class Gamelibrary
@@ -23,9 +20,9 @@ public:
 	Gamelibrary& operator=(Gamelibrary&& Other) = default;
 
 	
-	UCODE_ENGINE_FORCE_INLINE void MoveBook(libraryBook* book)
+	UCodeGameEngineForceinlne void MoveBook(libraryBook* book)
 	{
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 		if (book->Getlibrary() != this)
 		{
 			throw std::runtime_error("Cant Move Compoent ,Compoent was made with Entity a different Entity");
@@ -42,21 +39,21 @@ public:
 
 		_Books.push_back(Unique_ptr<libraryBook>(book));
 	}
-	UCODE_ENGINE_FORCE_INLINE void* Get_LibraryOwner() { return LibraryOwner; }
-	UCODE_ENGINE_FORCE_INLINE void Set_LibraryOwner(void* NewOwner) { LibraryOwner = NewOwner; }
-	UCODE_ENGINE_FORCE_INLINE void Set_LibraryOwnerToNull() { LibraryOwner = nullptr; }
-	UCODE_ENGINE_FORCE_INLINE bool HasNoLibraryOwner() { return LibraryOwner==nullptr; }
+	UCodeGameEngineForceinlne void* Get_LibraryOwner() { return LibraryOwner; }
+	UCodeGameEngineForceinlne void Set_LibraryOwner(void* NewOwner) { LibraryOwner = NewOwner; }
+	UCodeGameEngineForceinlne void Set_LibraryOwnerToNull() { LibraryOwner = nullptr; }
+	UCodeGameEngineForceinlne bool HasNoLibraryOwner() { return LibraryOwner==nullptr; }
 	void libraryUpdate();//LibraryOwner is responsible for call this.
 	
-	UCODE_ENGINE_FORCE_INLINE void SetStaticComponent(size_t key, libraryBook* Value) { _StaticBooks[key] = Value; }
-	UCODE_ENGINE_FORCE_INLINE void ReMoveStaticComponent(size_t key) { _StaticBooks[key] = nullptr; }
-	UCODE_ENGINE_FORCE_INLINE libraryBook* Get_StaticComponent(size_t key) const { return _StaticBooks[key]; }
+	UCodeGameEngineForceinlne void SetStaticComponent(size_t key, libraryBook* Value) { _StaticBooks[key] = Value; }
+	UCodeGameEngineForceinlne void ReMoveStaticComponent(size_t key) { _StaticBooks[key] = nullptr; }
+	UCodeGameEngineForceinlne libraryBook* Get_StaticComponent(size_t key) const { return _StaticBooks[key]; }
 
-	UCODE_ENGINE_FORCE_INLINE auto& Get_Books() { return _Books; }
-	UCODE_ENGINE_FORCE_INLINE const auto& Get_Books() const { return _Books; }
+	UCodeGameEngineForceinlne auto& Get_Books() { return _Books; }
+	UCodeGameEngineForceinlne const auto& Get_Books() const { return _Books; }
 
-	UCODE_ENGINE_FORCE_INLINE auto& Get_StaticBooks() { return _StaticBooks; }
-	UCODE_ENGINE_FORCE_INLINE const auto& Get_StaticBooks() const { return _StaticBooks; }
+	UCodeGameEngineForceinlne auto& Get_StaticBooks() { return _StaticBooks; }
+	UCodeGameEngineForceinlne const auto& Get_StaticBooks() const { return _StaticBooks; }
 
 private:
 	Vector<Unique_ptr<libraryBook>> _Books;
@@ -82,37 +79,37 @@ public:
 	RunTimeScene& operator=(const RunTimeScene& other) = delete;
 	
 
-	UCODE_ENGINE_FORCE_INLINE Entity* NewEntity()
+	UCodeGameEngineForceinlne Entity* NewEntity()
 	{
 		auto v =std::make_unique<Entity>(this);
 		auto r = v.get();
 		_Entitys.push_back(std::move(v));
 		return r;
 	}
-	UCODE_ENGINE_FORCE_INLINE void MoveEntity(Entity* e)
+	UCodeGameEngineForceinlne void MoveEntity(Entity* e)
 	{
 		_Entitys.push_back(Unique_ptr<Entity>(e));
 	}
 	
 
-	UCODE_ENGINE_FORCE_INLINE auto& Get_Entitys()
+	UCodeGameEngineForceinlne auto& Get_Entitys()
 	{
 		return _Entitys;
 	}
-	UCODE_ENGINE_FORCE_INLINE const auto& Get_Entitys() const
+	UCodeGameEngineForceinlne const auto& Get_Entitys() const
 	{
 		return _Entitys;
 	}
 
-	UCODE_ENGINE_FORCE_INLINE void SetStaticComponent(size_t key, Compoent* Value) { _StaticComponents[key] = Value; }
-	UCODE_ENGINE_FORCE_INLINE void ReMoveStaticComponent(size_t key) { _StaticComponents[key] = nullptr; }
-	UCODE_ENGINE_FORCE_INLINE Compoent* Get_StaticComponent(size_t key) const { return _StaticComponents[key]; }
+	UCodeGameEngineForceinlne void SetStaticComponent(size_t key, Compoent* Value) { _StaticComponents[key] = Value; }
+	UCodeGameEngineForceinlne void ReMoveStaticComponent(size_t key) { _StaticComponents[key] = nullptr; }
+	UCodeGameEngineForceinlne Compoent* Get_StaticComponent(size_t key) const { return _StaticComponents[key]; }
 
-	UCODE_ENGINE_FORCE_INLINE  GameRunTime* Get_RunTime() { return  _RunTime; }
+	UCodeGameEngineForceinlne  GameRunTime* Get_RunTime() { return  _RunTime; }
 
-	UCODE_ENGINE_FORCE_INLINE bool Get_IsDestroyed() { return _IsSceneDestroyed; }
+	UCodeGameEngineForceinlne bool Get_IsDestroyed() { return _IsSceneDestroyed; }
 
-	UCODE_ENGINE_FORCE_INLINE static void Destroy(RunTimeScene* Scene) { Scene->_IsSceneDestroyed = true; }
+	UCodeGameEngineForceinlne static void Destroy(RunTimeScene* Scene) { Scene->_IsSceneDestroyed = true; }
 	
 
 	static void MoveEntity(Entity* EntityToMove, RunTimeScene* MoveNextTo);
@@ -171,27 +168,27 @@ public:
 	void GameUpdate();
 	void EndRunTime();
 	
-	UCODE_ENGINE_FORCE_INLINE void StopRunTime(){ _IsGameRuning = false; }
-	UCODE_ENGINE_FORCE_INLINE bool Get_IsGameRuning() const { return _IsGameRuning; };
+	UCodeGameEngineForceinlne void StopRunTime(){ _IsGameRuning = false; }
+	UCodeGameEngineForceinlne bool Get_IsGameRuning() const { return _IsGameRuning; };
 
 
 	GameRunTime(const GameRunTime& other) = delete;
 	GameRunTime& operator=(const GameRunTime& other) = delete;
 	
-	UCODE_ENGINE_FORCE_INLINE const Gamelibrary* Get_Library() const { return _Library.get(); }
-	UCODE_ENGINE_FORCE_INLINE Gamelibrary* Get_Library_Edit() { return _Library.get(); }//thread safety
+	UCodeGameEngineForceinlne const Gamelibrary* Get_Library() const { return _Library.get(); }
+	UCodeGameEngineForceinlne Gamelibrary* Get_Library_Edit() { return _Library.get(); }//thread safety
 	
-	UCODE_ENGINE_FORCE_INLINE Ref<Gamelibrary> Get_LibraryRef() { return _Library; }
+	UCodeGameEngineForceinlne Ref<Gamelibrary> Get_LibraryRef() { return _Library; }
 
-	UCODE_ENGINE_FORCE_INLINE auto& Get_Scenes()
+	UCodeGameEngineForceinlne auto& Get_Scenes()
 	{
 		return  _Scenes;
 	}
-	UCODE_ENGINE_FORCE_INLINE const auto& Get_Scenes() const
+	UCodeGameEngineForceinlne const auto& Get_Scenes() const
 	{
 		return  _Scenes;
 	}
-	UCODE_ENGINE_FORCE_INLINE RunTimeScene* Add_NewScene()
+	UCodeGameEngineForceinlne RunTimeScene* Add_NewScene()
 	{
 		auto V = std::make_unique<RunTimeScene>(this);
 		auto R = V.get();
@@ -199,19 +196,19 @@ public:
 		return R;
 	}
 
-	UCODE_ENGINE_FORCE_INLINE Entity* NewEntityOnRunTimeScene()
+	UCodeGameEngineForceinlne Entity* NewEntityOnRunTimeScene()
 	{
 		return _RunTimeScene.NewEntity();
 	}
 
-	UCODE_ENGINE_FORCE_INLINE void SetStaticComponent(size_t key, Compoent* Value) { _StaticComponents[key] = Value; }
-	UCODE_ENGINE_FORCE_INLINE void ReMoveStaticComponent(size_t key) { _StaticComponents[key] = nullptr; }
-	UCODE_ENGINE_FORCE_INLINE Compoent* Get_StaticComponent(size_t key) const { return _StaticComponents[key]; }
-	UCODE_ENGINE_FORCE_INLINE const Time::GameTime& Get_GameTime() const
+	UCodeGameEngineForceinlne void SetStaticComponent(size_t key, Compoent* Value) { _StaticComponents[key] = Value; }
+	UCodeGameEngineForceinlne void ReMoveStaticComponent(size_t key) { _StaticComponents[key] = nullptr; }
+	UCodeGameEngineForceinlne Compoent* Get_StaticComponent(size_t key) const { return _StaticComponents[key]; }
+	UCodeGameEngineForceinlne const Time::GameTime& Get_GameTime() const
 	{
 		return GameTime;
 	}
-	UCODE_ENGINE_FORCE_INLINE void Set_GameTime_FramesToDestroy(Time::Frame FramesToDestroy)
+	UCodeGameEngineForceinlne void Set_GameTime_FramesToDestroy(Time::Frame FramesToDestroy)
 	{
 		GameTime.FramesToDestroy = FramesToDestroy;
 	}
@@ -227,7 +224,7 @@ private:
 	Ref<Gamelibrary> _Library;
 	Time::GameTime GameTime;
 	Time::Time_point LastFixedUpdateTime;
-	float32 _FixedUpdateTimer;
+	f32 _FixedUpdateTimer;
 
 	
 	void DoUpdate();

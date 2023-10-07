@@ -1,7 +1,5 @@
 #include "GameRunTime.hpp"
 #include <UCodeRunTime/StaticComponentsIndex.hpp>
-#include <UCodeRunTime/CoreBooks/BookOfThreads.hpp>
-
 CoreStart
 
 constexpr StaticBooksIndex_t StaticBookSize = (StaticBooksIndex_t)StaticBooksIndex::MaxValue;
@@ -85,7 +83,7 @@ void GameRunTime::GameUpdate()
 
 	LastFixedUpdateTime = Now;
 	auto delta_timefsec = std::chrono::duration_cast<Time::fsec>(delta_timeT);
-	float32 delta_time = delta_timefsec.count();
+	f32 delta_time = delta_timefsec.count();
 
 	_FixedUpdateTimer += delta_time;
 	GameTime.UpateDelta = delta_time;

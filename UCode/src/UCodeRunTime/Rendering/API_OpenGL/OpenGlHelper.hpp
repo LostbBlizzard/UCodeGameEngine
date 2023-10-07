@@ -5,11 +5,13 @@
 
 #include <iostream>
 #include "UCodeRunTime/UDefs.hpp"
+#include "UCodeRunTime/ULibrarys/Loger.hpp"
 
 #include "../RenderAPINamespace.h"
 
-#ifdef DEBUG
-#define GlCall(x) _RenderAPI::GLClearError();x;UCODE_ENGINE_ASSERT_IF(_RenderAPI::GLCheckError(#x,__FILE__,__LINE__));
+
+#if UCodeGameEngineDEBUG
+#define GlCall(x) _RenderAPI::GLClearError();x;UCodeGameEngineAssert(!_RenderAPI::GLCheckError(#x,__FILE__,__LINE__));
 #else
 #define GlCall(x) x;
 #endif // DEBUG
@@ -24,7 +26,7 @@ static void GLClearError()
 
 	}
 }
-static bool GLCheckError(const char* funk, const char* file,SInt32 line)
+static bool GLCheckError(const char* funk, const char* file,i32 line)
 {
 	while (auto errorcode =	glGetError())
 	{
@@ -60,10 +62,10 @@ static bool GLCheckError(const char* funk, const char* file,SInt32 line)
 			break;
 		default:
 			errortypeName = nullptr;
-			UCODE_ENGINE_THROWERROR("default case block as no Value");
+			UCodeGameEngineUnreachable();
 			break;
 		}
-		UCODE_ENGINE_THROWERROR(RenderAPIErrorStartTag "(" << errorcode << ")" << errortypeName <<'\n'
+		UCODE_ENGINE_LOG(RenderAPIErrorStartTag "(" << errorcode << ")" << errortypeName <<'\n'
 			<< " On Line:" << line << " At file " << file
 			<< '\n' << " Called:" << funk);
 		return true;

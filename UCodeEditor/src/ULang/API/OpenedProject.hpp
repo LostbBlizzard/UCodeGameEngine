@@ -1,6 +1,6 @@
 #pragma once
 #include "APITypeDefs.hpp"
-#include "UCodeLang/UCodeAnalyzer/CppHelper.hpp"
+#include "UCodeLang/UCodeAnalyzer/Preprocessors/CppHelper.hpp"
 
 UCodeAPIEditorStart
 
@@ -41,7 +41,7 @@ UCodeLangExportSymbol("UCodeGameEngine") struct OpenedProject
 	/// May Return nothing if its not the ProjectDir.   
 	/// </summary>
 	/// <returns></returns>
-	UCodeLangExport inline static optional<AssetPath> AsAssetPath(const Path& path)
+	UCodeLangExport inline static Optional<AssetPath> AsAssetPath(const Path& path)
 	{
 		AssetPath R;
 		if (AsAssetPath(path,R))
@@ -69,7 +69,7 @@ UCodeLangExportSymbol("UCodeGameEngine") struct OpenedProject
 	/// <returns></returns>
 	UCodeLangExport static bool AsAssetPath(const Path& path, AssetPath& Outpath);
 
-	UCodeLangExport inline static optional<AssetDir> AsAssetDir(const Path& path)
+	UCodeLangExport inline static Optional<AssetDir> AsAssetDir(const Path& path)
 	{
 		AssetDir R;
 		if (AsAssetDir(path, R))
