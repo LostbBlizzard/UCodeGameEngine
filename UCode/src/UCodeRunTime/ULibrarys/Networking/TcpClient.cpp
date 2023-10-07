@@ -13,7 +13,7 @@ TcpClient::~TcpClient()
 
 void TcpClient::Connet(const Ip_t& IP, Port_t Port)
 {
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 	if (IsConneted())
 	{
 		throw std::exception("Client Is Runing");
@@ -34,7 +34,7 @@ void TcpClient::Connet(const Ip_t& IP, Port_t Port)
 
 void TcpClient::Disconnet()
 {
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 	if (!IsConneted())
 	{
 		throw std::exception("Client Is not Runing");
@@ -45,7 +45,7 @@ void TcpClient::Disconnet()
 
 void TcpClient::Step()
 {
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 	if (IsConneted())
 	{
 		throw std::exception("Client Is Runing");
@@ -73,7 +73,7 @@ bool TcpClient::IsConneted()
 
 void TcpClient::SendBytes(const BytesView Bytes)
 {
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 	if (!IsConneted())
 	{
 		throw std::exception("Client Is not Runing");

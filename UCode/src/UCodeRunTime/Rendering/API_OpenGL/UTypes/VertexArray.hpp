@@ -2,14 +2,13 @@
 
 #include <UCodeRunTime/ULibrarys/Rendering/RenderingNamespace.hpp>
 #include "VertexBuffer.hpp"
-#include <UCodeRunTime/RunTimeBasicTypes/Vector.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/IntTypes.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 RenderingStart
 
 class VertexBufferLayout
 {
 private:
-	UInt32 _Stride;
+	u32 _Stride;
 
 	
 
@@ -17,27 +16,27 @@ private:
 public:
 	struct Element
 	{	
-		UInt32 type;
-		UInt32 Count;
+		u32 type;
+		u32 Count;
 		
 		unsigned char nromalized;
-		static UInt32 GetSizeOfType(UInt32 GlType);
+		static u32 GetSizeOfType(u32 GlType);
 	};
 	Vector<Element> _Element;
 	VertexBufferLayout();
 
 	template<typename T>
-	void Push(UInt32 count)
+	void Push(u32 count)
 	{
 		S_ASSERT(NAMEOF(VertexBufferLayout) " Has no implementation Push for Type "NAMEOF(T));
 	};
 	
-	void Push_float(UInt32 count);
-	void Push_Uint(UInt32 count);
-	void Push_int(UInt32 count);
-	void Push_Uchar(UInt32 count);
+	void Push_float(u32 count);
+	void Push_Uint(u32 count);
+	void Push_int(u32 count);
+	void Push_Uchar(u32 count);
 	inline const auto& Get_Elements()const { return _Element; }
-	inline UInt32 GetStride() const {
+	inline u32 GetStride() const {
 		return _Stride;
 	}
 	
@@ -46,7 +45,7 @@ public:
 class VertexArray
 {
 private:
-	UInt32 _BufferId;
+	u32 _BufferId;
 
 public:
 	VertexArray();

@@ -24,7 +24,7 @@ void USerializer::Reset()
 		_TextMaker << YAML::BeginMap;
 	}break;
 	default:
-		UCODE_ENGINE_BADPATH_ASSERT;
+		UCodeGameEngineUnreachable();
 		break;
 	}
 
@@ -68,13 +68,13 @@ void USerializer::ToString(String& Out, bool WithSerializerType)
 	}
 	break;
 	default:
-		UCODE_ENGINE_BADPATH_ASSERT;
+		UCodeGameEngineUnreachable();
 		break;
 	}
 
 }
 
-UCODE_ENGINE_NODISCARD void USerializer::ToBytes(Vector<Byte>& Out, bool WithSerializerType)
+UCodeGameEngineNoDiscard void USerializer::ToBytes(Vector<Byte>& Out, bool WithSerializerType)
 {
 	String buff;
 	ToString(buff, WithSerializerType);
@@ -112,7 +112,7 @@ void USerializer::ToStream(std::ostream& Out, bool WithSerializerType)
 	}
 	break;
 	default:
-		UCODE_ENGINE_BADPATH_ASSERT;
+		UCodeGameEngineUnreachable();
 		break;
 	}
 }
@@ -184,7 +184,7 @@ void UDeserializer::SetData(const BytesView Bytes)
 	}
 }
 
-UCODE_ENGINE_NODISCARD bool UDeserializer::FromFile(const Path& Path, UDeserializer& Out)
+UCodeGameEngineNoDiscard bool UDeserializer::FromFile(const Path& Path, UDeserializer& Out)
 {
 	String Text;
 	String line;

@@ -12,30 +12,62 @@ void AssetManager::GetDataFromGameFiles(GameFiles* gameFiles)
 
 void AssetManager::AddAsset(Unique_ptr<Asset> Asset)
 {
-
+	_Assets.push_back(std::move(Asset));
 }
 
-optional<Assetptr> AssetManager::FindAsset(const UID& Path)
+Optional<Assetptr> AssetManager::FindAsset(const UID& Path)
 {
+	for (auto& Item : _Assets)
+	{
+		if (Item->Uid.value_or(UID()) == Path)
+		{
+			return Item->Get_Managed();
+		}
+	}
 	return {};
 }
 
-optional<Assetptr> AssetManager::FindAsset(const Path& Path)
+Optional<Assetptr> AssetManager::FindAsset(const Path& Path)
 {
+	for (auto& Item : _Assets)
+	{
+		if (Item->ObjectPath.value_or("") == Path)
+		{
+			return Item->Get_Managed();
+		}
+	}
+
+
 	return {};
 }
 
-optional<Assetptr> AssetManager::LoadAsset(const UID& Path)
+Optional<Assetptr> AssetManager::LoadAsset(const UID& Path)
 {
+	auto r = _Loader->LoadAsset(Path);
+	if (r.has_value())
+	{
+		auto m = r.value()->Get_Managed();
+		AddAsset(std::move(r.value()));
+
+		return m;
+	}
 	return {};
 }
 
-optional<Assetptr> AssetManager::LoadAsset(const Path& Path)
+Optional<Assetptr> AssetManager::LoadAsset(const Path& Path)
 {
+	auto r = _Loader->LoadAsset(Path);
+	if (r.has_value())
+	{
+		auto m = r.value()->Get_Managed();
+		AddAsset(std::move(r.value()));
+
+		return m;
+	}
 	return {};
 }
 
-optional<Assetptr> AssetManager::FindOrLoad(const UID& Path)
+Optional<Assetptr> AssetManager::FindOrLoad(const UID& Path)
 {
 	auto R = FindAsset(Path);
 	if (!R.has_value())
@@ -45,7 +77,7 @@ optional<Assetptr> AssetManager::FindOrLoad(const UID& Path)
 	return R;
 }
 
-optional<Assetptr> AssetManager::FindOrLoad(const Path& Path)
+Optional<Assetptr> AssetManager::FindOrLoad(const Path& Path)
 {
 	auto R = FindAsset(Path);
 	if (!R.has_value())
@@ -68,11 +100,11 @@ void AssetManager::GarbageCollect()
 
 	LastFixedUpdateTime = Now;
 	auto delta_timefsec = std::chrono::duration_cast<Time::fsec>(delta_timeT);
-	float32 delta_time = delta_timefsec.count();
+	f32 delta_time = delta_timefsec.count();
 
 	GarbageCollect(delta_time);
 }
-void AssetManager::GarbageCollect(const float32 delta_time)
+void AssetManager::GarbageCollect(const f32 delta_time)
 {
 	
 }

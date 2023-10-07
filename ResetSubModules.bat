@@ -1,62 +1,45 @@
-cd "Dependencies/Imgui"
-del "Imgui.vcxproj"
-del "Imgui.vcxproj.filters"
+cd "Dependencies/UCodeLang"
+git reset --hard
+cd "../../"
 
+cd "Dependencies/Imgui"
+git reset --hard
 cd "../../"
 
 cd "Dependencies/glm"
-del "glm.vcxproj"
-del "glm.vcxproj.filters"
-
-
+git reset --hard
 cd "../../"
 
 cd "Dependencies/SPIRV-Cross"
-del "SPIRV-Cross.vcxproj"
-del "SPIRV-Cross.vcxproj.filters"
-
-
+git reset --hard
 cd "../../"
 
 cd "Dependencies/glslang"
-del "glslang.vcxproj"
-del "glslang.vcxproj.filters"
-
+git reset --hard
 cd "../../"
 
 cd "Dependencies/yaml-cpp"
-del "yaml-cpp.vcxproj"
-del "yaml-cpp.vcxproj.filters"
-
+git reset --hard
 cd "../../"
 
 cd "Dependencies/box2d"
-del "box2d.vcxproj"
-del "box2d.vcxproj.filters"
-
+git reset --hard
 cd "../../"
 
-cd "Dependencies/box2d"
-del "box2d.vcxproj"
-del "box2d.vcxproj.filters"
-
+cd "Dependencies/glm"
+git reset --hard
 cd "../../"
 
 cd "Dependencies/GLFW"
-del "GLFW.vcxproj"
-del "GLFW.vcxproj.filters"
-
+git reset --hard
 cd "../../"
 
 cd "Dependencies/plog"
-del "plog.vcxproj"
-del "plog.vcxproj.filters"
-
+git reset --hard
 cd "../../"
 
 cd "Dependencies/MinimalSocket"
-del "MinimalSocket.vcxproj"
-del "MinimalSocket.vcxproj.filters"
-
+git reset --hard
+cd "../../"
 
 pause

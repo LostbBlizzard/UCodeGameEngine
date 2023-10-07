@@ -7,18 +7,18 @@ const char* nullTexPath = "_NullTex";
 #else
 const char* nullTexPath = "";
 #endif // DEBUG
-constexpr SInt32 SetTodefault = UCode::Sprite::GetTexureSize;
+constexpr i32 SetTodefault = UCode::Sprite::GetTexureSize;
 struct SpriteInfo
 {   
     AppFiles::texture tex;
     
-    SInt32 X, Y, SizeX, SizeY;
+    i32 X, Y, SizeX, SizeY;
     constexpr SpriteInfo(AppFiles::texture texure) : tex(texure)
         , X(SetTodefault), Y(SetTodefault), SizeX(SetTodefault), SizeY(SetTodefault)
     {
 
     }
-    constexpr SpriteInfo(AppFiles::texture texure, SInt32 x, SInt32 y, SInt32 sizeX, SInt32 sizey)
+    constexpr SpriteInfo(AppFiles::texture texure, i32 x, i32 y, i32 sizeX, i32 sizey)
         : tex(texure)
         , X(x), Y(y), SizeX(sizeX), SizeY(sizey)
     {
@@ -42,8 +42,8 @@ const String TexturePaths[]
     "art/caret-forward-outline.png",//Play_NotPlaying
     "art/caret-forward-circle-outline.png",//Play_Play
 
-    "art/21 - UCodeIcons.png",//Paused_Blue
-    "art/22 - UCodeIcons.png",//Paused_Green
+    "art/caret-forward-outline.png",//Paused_Blue
+    "art/caret-forward-circle-outline.png",//Paused_Green
     "art/UCodeEngineLogo.png",//AppIcon
     "art/windows-icon.png",
     "art/web-icon.png",
@@ -152,6 +152,8 @@ UCode::Texture* AppFiles::GetTexture(texture tex)
             newtext = std::move(UCode::Texture::MakeNewNullTexture());
             UCode::GameFiles* gamefiles = UCode::GameFiles::Get(_GameLib);
 
+            UCodeGameEngineAssert(std::filesystem::exists(AppFilesPathDir + Path));
+
             auto Func2 = [id](Unique_Bytes Bytes)
             {
                 return UCode::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView())
@@ -167,7 +169,7 @@ UCode::Texture* AppFiles::GetTexture(texture tex)
 
             gamefiles->AsynReadGameFileFullBytes(Path)
                 .ContinueOnAnyThread(
-                    [id](Unique_Bytes Bytes)
+                    [id](Unique_Bytes&& Bytes)
                     {
                         return UCode::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView())
                             .ContinueOnMainThread(
@@ -222,28 +224,35 @@ AsynTask_t<UCode::Texture*> AppFiles::AsynGetTexture(texture tex)
         }
         else
         {
+            UCodeGameEngineAssert(std::filesystem::exists(AppFilesPathDir + Path));
+
             UCode::GameFiles* gamefiles = UCode::GameFiles::Get(_GameLib);
-
-
-            auto Task = std::move(gamefiles->AsynReadGameFileFullBytes(Path)
-                .OnCompletedOnAnyThread(
-                    [id](Unique_Bytes Bytes)
-                    {
-                       UCode::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView())
-                            .OnCompletedOnMainThread(
-                                [id](Unique_ptr<UCode::Texture>&& Val)
-                                {
-                                    auto RVal = Val.get();
-                                    _textures[id] = Val.release();
-                                    _loadtextures[id] = true;
-                                    return RVal;
-                                });
-                    }));
-
-            AsynTask_t<UCode::Texture*> R;
-            memcpy(&R, &Task, sizeof(AsynTask_t<UCode::Texture*>));
             
-            return R;
+
+            Delegate<AsynTask_t<Unique_ptr<UCode::Texture>>,Unique_Bytes&&> Func = [](Unique_Bytes&& Bytes)
+            {
+                return UCode::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView());
+            };
+
+
+            Delegate<UCode::Texture*,Unique_ptr<UCode::Texture>&&> Func2 = [id](Unique_ptr<UCode::Texture>&& Val)
+            {
+                auto RVal = Val.get();
+                _textures[id] = Val.release();
+                _loadtextures[id] = true;
+                return RVal;
+            };
+         
+
+            /*
+            auto Task = gamefiles->AsynReadGameFileFullBytes(Path)
+                .ContinueOnMainThreadTask(std::move(Func))
+                .ContinueOnMainThread(std::move(Func2));
+            */
+            auto Task = UCode::AssetRendering::LoadTextureAsync(_GameLib, Path)
+                .ContinueOnMainThread(std::move(Func2));
+
+            return Task;
         }
     }
 }
@@ -259,7 +268,7 @@ UCode::Sprite* AppFiles::GetSprite(sprite tex)
         {
             auto tex = GetTexture(info.tex);
 
-            SInt32 _X, _Y, _SizeX, _SizeY;
+            i32 _X, _Y, _SizeX, _SizeY;
 
             if (info.X == SetTodefault) { _X = 0; }
             else { _X = info.X; }
@@ -296,7 +305,7 @@ UCode::Sprite* AppFiles::GetSprite(sprite tex)
         const SpriteInfo& info = SpriteInfos[id];
 
         auto tex = GetTexture(info.tex);
-        SInt32 _X, _Y, _SizeX, _SizeY;
+        i32 _X, _Y, _SizeX, _SizeY;
 
         if (info.X == SetTodefault) { _X = 0; }
         else { _X = info.X; }

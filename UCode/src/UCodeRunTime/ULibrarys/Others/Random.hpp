@@ -1,11 +1,12 @@
 #pragma once
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
-#include "UCodeRunTime/UDefs.hpp"
+#include <UCodeRunTime/BasicTypes.hpp>
+#include <UCodeRunTime/UDefs.hpp>
 CoreStart
 class Random
 {
 public:
-	typedef UInt32 SeedType;
+	using SeedType = u32;
 	struct Rng_state {
 		SeedType Value;
 	};
@@ -27,17 +28,17 @@ public:
 		return r;
 	}
 
-
-	UCODE_ENGINE_FORCE_INLINE bool GetBool() { return GetInt<Byte>(0, 1); }
+	
+	UCodeGameEngineForceinlne bool GetBool() { return GetInt<Byte>(0, 1); }
 
 
 
 	static Random RandomSeed();
-	UCODE_ENGINE_FORCE_INLINE auto Get_State() const { return _state; }
+	UCodeGameEngineForceinlne auto Get_State() const { return _state; }
 private:
-	const static SeedType MaxSeedValue = UInt32MaxValue;
+	const static SeedType MaxSeedValue =UINT32_MAX;
 	
-	UCODE_ENGINE_FORCE_INLINE void NextNumber()
+	UCodeGameEngineForceinlne void NextNumber()
 	{
 		_state.Value = xorshift32(_state);
 	}

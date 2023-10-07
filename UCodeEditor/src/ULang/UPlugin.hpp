@@ -33,7 +33,7 @@ public:
 
 	String PluginName;
 	Version PluginVersion;
-	UInt64 BuildNumber;
+	u64 BuildNumber;
 	Vector<FileIndex> Offsets;
 	Vector<Byte> _Data;
 

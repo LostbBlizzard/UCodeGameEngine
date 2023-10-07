@@ -1,9 +1,9 @@
 #pragma once
 
 #include <UCodeRunTime/Core/libraryBook.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include <UCodeRunTime/ULibrarys/AssetManagement/UID.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/ManagedPtr.hpp>
+#include <UCodeRunTime/BasicTypes/ManagedPtr.hpp>
 #include <UCodeRunTime/Core/GameTime.hpp>
 #include <UCodeRunTime/CoreBooks/GameFiles.hpp>
 #include <type_traits>
@@ -22,13 +22,13 @@ public:
 	friend AssetManager;
 	//a hint to AssetManager for it to know when best to free this
 	//how much this object allocated
-	optional<size_t> ObjectSize;
+	Optional<size_t> ObjectSize;
 
 	//The path for AssetManager to get the object
-	optional<Path> ObjectPath;
+	Optional<Path> ObjectPath;
 
 	//The UID for AssetManager to get the object
-	optional<UID> Uid;
+	Optional<UID> Uid;
 
 	//
 	
@@ -101,11 +101,11 @@ public:
 		return 1000 * 1000 * MB;
 	}
 
-	virtual optional<Assetptr> LoadAsset(const UID& Path)
+	virtual Optional<Unique_ptr<Asset>> LoadAsset(const UID& Path)
 	{
 		return {};
 	}
-	virtual optional<Assetptr> LoadAsset(const Path& Path)
+	virtual Optional<Unique_ptr<Asset>> LoadAsset(const Path& Path)
 	{
 		return {};
 	}
@@ -124,14 +124,14 @@ public:
 	
 	void AddAsset(Unique_ptr<Asset> Asset);
 
-	optional<Assetptr> FindAsset(const UID& Path);
-	optional<Assetptr> FindAsset(const Path& Path);
+	Optional<Assetptr> FindAsset(const UID& Path);
+	Optional<Assetptr> FindAsset(const Path& Path);
 	
-	optional<Assetptr> LoadAsset(const UID& Path);
-	optional<Assetptr> LoadAsset(const Path& Path);
+	Optional<Assetptr> LoadAsset(const UID& Path);
+	Optional<Assetptr> LoadAsset(const Path& Path);
 
-	optional<Assetptr> FindOrLoad(const UID& Path);
-	optional<Assetptr> FindOrLoad(const Path& Path);
+	Optional<Assetptr> FindOrLoad(const UID& Path);
+	Optional<Assetptr> FindOrLoad(const Path& Path);
 
 	void Set_AssetLoader(AssetLoader* Loader)
 	{
@@ -157,7 +157,7 @@ private:
 	AssetManager(Gamelibrary* lib);
 	~AssetManager();
 	void GarbageCollect();
-	void GarbageCollect(const float32 delta_time);
+	void GarbageCollect(const f32 delta_time);
 	void Update() override;
 
 	size_t UpdateTics = 0;

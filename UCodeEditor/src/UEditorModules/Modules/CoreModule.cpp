@@ -50,6 +50,18 @@ public:
             ImGui::EndDragDropSource();
         }
 	}
+
+	ExportFileRet ExportFile(const Path& path, const ExportFileContext& Item) override
+	{
+		UCode::Scene2dData V;
+		UCode::Scene2dData::FromFile(V, path);
+
+		UCode::Scene2dData::ToFile(Item.Output, V, USerializerType::Bytes);
+
+		ExportFileRet r;
+		r._UID = V._UID;
+		return r;
+	}
 };
 
 
@@ -135,14 +147,14 @@ public:
 
 		if (CamTV == UCode::Camera2d::CamType::Orthographic)
 		{
-			float32 V = Component->Get_Ortho_size();
-			ImGuIHelper::float32Field("Ortho_Size", V);
+			f32 V = Component->Get_Ortho_size();
+			ImGuIHelper::f32Field("Ortho_Size", V);
 			Component->Set_Ortho_size(V);
 		}
 		else
 		{
-			float32 V = Component->Get_Fov();
-			ImGuIHelper::float32Field("Fov", V);
+			f32 V = Component->Get_Fov();
+			ImGuIHelper::f32Field("Fov", V);
 			Component->Set_Fov(V);
 		}
 	}
@@ -170,14 +182,14 @@ public:
 		Component->Set_CamType(CamTV);
 		if (CamTV == UCode::Camera2d::CamType::Orthographic)
 		{
-			float32 V = Component->Get_Ortho_size();
-			Data.Draw->float32Field("Ortho_Size", V);
+			f32 V = Component->Get_Ortho_size();
+			Data.Draw->f32Field("Ortho_Size", V);
 			Component->Set_Ortho_size(V);
 		}
 		else
 		{
-			float32 V = Component->Get_Fov();
-			Data.Draw->float32Field("Fov", V);
+			f32 V = Component->Get_Fov();
+			Data.Draw->f32Field("Fov", V);
 			Component->Set_Fov(V);
 		}
 	}

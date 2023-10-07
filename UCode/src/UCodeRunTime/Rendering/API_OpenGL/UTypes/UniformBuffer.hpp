@@ -1,7 +1,7 @@
 #pragma once
 
 #include <UCodeRunTime/ULibrarys/Rendering/RenderingNamespace.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/IntTypes.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 RenderingStart
 class UniformBuffer
 {
@@ -10,6 +10,6 @@ public:
 	void UpdateData(void* Data, size_t Size);
 	~UniformBuffer();
 private:
-	UInt32 id;
+	u32 id;
 };
 RenderingEnd

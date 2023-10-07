@@ -15,7 +15,7 @@ if (ThisEndian != OutEndian) {return R.FlpBytes();}\
 const Endian InputEndian = InputOutEndian;\
 if (ThisEndian != InputEndian) {auto v = bits.FlpBytes();bits =v; }\
 
-Byte32 BitConverter::GetBytes(SInt32 Value)
+Byte32 BitConverter::GetBytes(i32 Value)
 {
 	Byte32 R;
 	Byte* VPointer = (Byte*)&Value;
@@ -32,7 +32,7 @@ Byte32 BitConverter::GetBytes(SInt32 Value)
 
 	return R;
 }
-SInt32 BitConverter::BytesToInt(const void* DataBytes, size_t Index)
+i32 BitConverter::BytesToInt(const void* DataBytes, size_t Index)
 {
 	Byte* B = ((Byte*)DataBytes) + Index;
 	Byte32 bits = *(Byte32*)B;
@@ -44,7 +44,7 @@ SInt32 BitConverter::BytesToInt(const void* DataBytes, size_t Index)
 	return *R;
 }
 
-Byte16 BitConverter::GetBytes(SInt16 Value)
+Byte16 BitConverter::GetBytes(i16 Value)
 {
 	Byte16 R;
 	Byte* VPointer = (Byte*)&Value;
@@ -55,17 +55,17 @@ Byte16 BitConverter::GetBytes(SInt16 Value)
 	G_FixEndianess
 	return R;
 }
-SInt16 BitConverter::BytesToInt16(const void* DataBytes, size_t Index)
+i16 BitConverter::BytesToInt16(const void* DataBytes, size_t Index)
 {
 	Byte* B = ((Byte*)DataBytes) + Index;
 	Byte16 bits = *(Byte16*)B;
-	SInt16* R = (SInt16*)&bits;
+	i16* R = (i16*)&bits;
 
 	R_FixEndianess
 	return *R;
 }
 
-Byte64 BitConverter::GetBytes(SInt64 Value)
+Byte64 BitConverter::GetBytes(i64 Value)
 {
 	Byte64 R;
 	Byte* VPointer = (Byte*)&Value;
@@ -83,11 +83,11 @@ Byte64 BitConverter::GetBytes(SInt64 Value)
 	G_FixEndianess
 	return R;
 }
-SInt64 BitConverter::BytesToInt64(const void* DataBytes, size_t Index)
+i64 BitConverter::BytesToInt64(const void* DataBytes, size_t Index)
 {
 	Byte* B = ((Byte*)DataBytes) + Index;
 	Byte64 bits = *(Byte64*)B;
-	SInt64* R = (SInt64*)&bits;
+	i64* R = (i64*)&bits;
 
 	R_FixEndianess
 	return *R;

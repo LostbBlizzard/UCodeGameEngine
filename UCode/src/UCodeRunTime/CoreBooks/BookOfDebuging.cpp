@@ -5,7 +5,7 @@ CoreStart
 
 void DebugingClient::Connet(DebugingSever* Sever)
 {
-	#ifdef DEBUG
+	#if UCodeGameEngineDEBUG
 	if (IsConneted())
 	{
 		throw std::exception("Is Conneted");
@@ -17,7 +17,7 @@ void DebugingClient::Connet(DebugingSever* Sever)
 
 void DebugingClient::Connet(const UCode::Ip_t& SeverIp, UCode::Port_t SeverPort)
 {
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 	if (IsConneted())
 	{
 		throw std::exception("Is Conneted");
@@ -38,7 +38,7 @@ void DebugingClient::Connet(const UCode::Ip_t& SeverIp, UCode::Port_t SeverPort)
 	V.Connection.Connet(SeverIp, SeverPort);
 
 
-	SeverConnection =std::move(V);
+	//SeverConnection =std::move(V);
 }
 
 void DebugingClient::Disconnect()
@@ -47,7 +47,7 @@ void DebugingClient::Disconnect()
 }
 void DebugingClient::Update()
 {
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 	if (!IsConneted())
 	{
 		throw std::exception("Is not Conneted");
@@ -119,7 +119,7 @@ void DebugingClient::ReadPacket(DebugingSeverPacket&& Packet)
 }
 void DebugingSever::StartSever(const UCode::Ip_t& SeverIp, UCode::Port_t SeverPort)
 {
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 	if (!IsSeverRuning())
 	{
 		throw std::exception("Sever is runing");
@@ -141,7 +141,7 @@ void DebugingSever::StartSever(const UCode::Ip_t& SeverIp, UCode::Port_t SeverPo
 
 void DebugingSever::StartSever(DebugingClient* client)
 {
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 	if (!IsSeverRuning())
 	{
 		throw std::exception("Sever is runing");
@@ -216,7 +216,7 @@ void DebugingSever::UpdateReadData()
 void DebugingSever::FromClient(DebugingClient* client, DebugingClientPacket&& Packet)
 {
 
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 	if (!IsSeverRuning())
 	{
 		throw std::exception("Sever not runing");

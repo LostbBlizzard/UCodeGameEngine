@@ -1,12 +1,12 @@
 #pragma once
 #include "RenderAPINamespace.h"
-#include <UCodeRunTime/RunTimeBasicTypes/String.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 RenderAPIStart
 
 struct WindowData
 {
 public:
-	SInt32 width, height;
+	i32 width, height;
 	String WindowName;
 	bool ImGui_Init = true;//Set To false if rendering context already been loaded on current thread
 	bool GenNewWindow = true;//If false Input will not work you have to emulate it useing InputManger.
@@ -15,7 +15,7 @@ public:
 	bool SetUpInputs = true;
 	bool UpdateAppIfInputUpdate =false;
 	
-	WindowData(SInt32 w, SInt32 h, String name) :width(w), height(h), WindowName(name)
+	WindowData(i32 w, i32 h, String name) :width(w), height(h), WindowName(name)
 	{
 
 	}

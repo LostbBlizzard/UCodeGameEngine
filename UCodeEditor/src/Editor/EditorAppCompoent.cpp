@@ -11,7 +11,6 @@
 #include <Helper/ImGuIHelper_Asset.hpp>
 #include <EditorWindows/ProjectManagement/ExportProjectWindow.hpp>
 
-#include "UCodeRunTime/CMem.hpp"
 #include "Serialization.hpp"
 
 #include "UEditorModules/UEditorModule.hpp"
@@ -28,13 +27,14 @@ EditorAppCompoent::EditorAppCompoent(UCode::Entity* entity) :
 {
     AppFiles::Init(GetGameRunTime()->Get_Library_Edit());
     
-    AppFiles::AsynReadFileAsBytes(ToPathChar("art/OpenSans-VariableFont_wdth,wght.ttf"))
+    AppFiles::AsynReadFileAsBytes("art/OpenSans-VariableFont_wdth,wght.ttf")
         .OnCompletedOnMainThread([this](Unique_Bytes FontBytes)
     {
-
+                /*
     auto& io = ImGui::GetIO();
     io.Fonts->AddFontFromMemoryTTF(FontBytes.Release(), FontBytes.Size(), 16.0f);
     io.FontDefault = io.Fonts->Fonts.back();
+    */
     });
 
 
@@ -125,9 +125,11 @@ bool EditorAppCompoent::OpenProject(const Path& ProjectDir)
 void EditorAppCompoent::OnProjectLoadedPreWindows()
 { auto GameLib = Get_EditorLibrary();
     UCode::GameFiles* gamefiles = gamefiles->Get(GameLib);
-    UCode::GameFilesData Newdata;
-    Newdata.SetRedirectDir(_RunTimeProjectData.GetGameLibDir());
-    gamefiles->ReInit(Newdata);
+    
+    
+    //UCode::GameFilesData Newdata;
+    //Newdata.SetRedirectDir(_RunTimeProjectData.GetGameLibDir());
+    //gamefiles->ReInit(Newdata);
 
     UCode::ULangRunTime* SRuntime = UCode::ULangRunTime::Get(GameLib);
 
@@ -145,7 +147,7 @@ void EditorAppCompoent::OnProjectLoaded()
     auto& Index = _RunTimeProjectData.Get_AssetIndex();
     auto List = Index.GetDiffFromDir(AssetDir);
     
-    Unordered_map<Path, Vector<EditorIndex::ChangedFile*>> ExtList;
+    Unordered_map<PathString, Vector<EditorIndex::ChangedFile*>> ExtList;
 
     for (auto& Item : List)
     {
@@ -413,7 +415,7 @@ void  EditorAppCompoent::OnAppEnded()
 void  EditorAppCompoent::LoadWindowsPref()
 {
     const Path WinPrePath = _RunTimeProjectData.Get_ProjectPrefsDir().concat(WindowPrefData::FileName);
-    const Path IniPrePath = _RunTimeProjectData.Get_ProjectPrefsDir().concat(ToPathChar("Ini")).concat( WindowPrefData::FileName);
+    const Path IniPrePath = _RunTimeProjectData.Get_ProjectPrefsDir().concat("Ini").concat( WindowPrefData::FileName);
     
    
     //Do Cool Stuff
@@ -447,7 +449,7 @@ void  EditorAppCompoent::LoadWindowsPref()
                 Data.SetYAMLString(StringView((char*)Item._WindowData.data() + 1, Item._WindowData.size()-1));
                 break;
             default:
-                UCODE_ENGINE_BADPATH_ASSERT;
+                UCodeGameEngineUnreachable();
                 break;
             }
             
@@ -530,8 +532,7 @@ void  EditorAppCompoent::EndDockSpace()
 
 void EditorAppCompoent::OnDraw()
 {
-  
-
+    
     if (_RunTimeProjectData.Is_ProjLoaded()) 
     {
         if (_AutoSaveTimer <= 0.0f)
@@ -559,6 +560,7 @@ void EditorAppCompoent::OnDraw()
 
     bool Hi = true;
     BeginDockSpace(&Hi);
+
 
     {
         auto& Tasks = RuningTasksInfo::Get_Tasks();

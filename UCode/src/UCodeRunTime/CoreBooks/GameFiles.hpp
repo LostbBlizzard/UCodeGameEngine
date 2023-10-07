@@ -3,8 +3,7 @@
 
 #include "../Core/GameRunTime.hpp"
 
-#include <UCodeRunTime/RunTimeBasicTypes/String.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/Ref.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 #include <UCodeRunTime/ULibrarys/Rendering/GpuTypes/Shader.hpp>
 #include <UCodeRunTime/AppData.hpp>
@@ -97,7 +96,7 @@ public:
 	}
 
 	inline static const char* FileDataName = "GameFiles.data";
-
+	inline static const char* FileExtWithDot = ".data";
 
 	//a folder were important files and defaults. 
 	static Path GetUCodeDir()
@@ -172,8 +171,8 @@ private:
 
 	FileBuffer _FileBuffer;
 	GameFilesData _Data;
-	Path _PersistentDataPath;
-	Path _CacheDataPath;
+	Optional<Path> _PersistentDataPath;
+	Optional<Path> _CacheDataPath;
 	Unique_ptr<Shader> _DefaultShader;
 };
 CoreEnd

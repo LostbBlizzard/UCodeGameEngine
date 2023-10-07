@@ -1,5 +1,5 @@
-_ProjectDir: C:/CoolStuff/CoolCodeingStuff/Cpp/Projects/UCodeGameEngine/UCode/PersistentData/
+_ProjectDir: C:/CoolStuff/CoolCodeingStuff/cpp/UCodeGameEngine/UCode/PersistentData/
 _Projects:
   -
-    - Pong
-    - C:/CoolStuff/CoolCodeingStuff/Cpp/Projects/UCodeGameEngine/UCode/PersistentData/Pong
+    - Hello
+    - C:/CoolStuff/CoolCodeingStuff/cpp/UCodeGameEngine/UCode/PersistentData/Hello

@@ -1,5 +1,5 @@
 #pragma once
-#include "..\..\..\..\UCode\src\UCodeRunTime\CoreModule.hpp"
+#include "..\..\..\..\UCode\src\UCodeRunTime\Modules\CoreModule.hpp"
 #include "../UEditorModule.hpp"
 
 

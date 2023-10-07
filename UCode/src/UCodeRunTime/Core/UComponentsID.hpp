@@ -1,6 +1,6 @@
 #pragma once
 #include "CoreNamespace.hpp"
-#include "../RunTimeBasicTypes/String.hpp"
+#include "UCodeRunTime/BasicTypes.hpp"
 CoreStart
 
 using UComponentsID = String;

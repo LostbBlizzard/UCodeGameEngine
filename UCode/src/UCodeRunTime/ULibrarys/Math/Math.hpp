@@ -1,32 +1,32 @@
 #pragma once
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
-#include <UCodeRunTime/RunTimeBasicTypes/IntTypes.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include <cmath>
 CoreStart
 class Math
 {
 public:
-	static const float32 PI;
-	static const float32 Rad2Deg;
-	static const float32 Deg2Rad;
+	static const f32 PI;
+	static const f32 Rad2Deg;
+	static const f32 Deg2Rad;
 
-	inline static float32 Lerp(float32 a, float32 b, float32 f)
+	inline static f32 Lerp(f32 a, f32 b, f32 f)
 	{
 		return a + f * (b - a);
 	}
-	inline static float32 Sin(float32 Radians)
+	inline static f32 Sin(f32 Radians)
 	{
 		return sinf(Radians);
 	}
-	inline static float32 Cos(float32 Radians)
+	inline static f32 Cos(f32 Radians)
 	{
 		return cosf(Radians);
 	}
-	inline static float32 Sqrt(float32 value)
+	inline static f32 Sqrt(f32 value)
 	{
 		return sqrtf(value);
 	}
-	inline static float32 Atan2(float32 y, float32 x)
+	inline static f32 Atan2(f32 y, f32 x)
 	{
 		return atan2f(y, x);
 	}

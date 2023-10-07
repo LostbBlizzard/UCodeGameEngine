@@ -1,17 +1,18 @@
 #pragma once
-#include "..\RunTimeBasicTypes.hpp"
+#include "..\BasicTypes.hpp"
 #include "GameTime.hpp"
 #include "UComponentsID.hpp"
 #include <type_traits>
 
-#include "UCodeRunTime/RunTimeBasicTypes/ManagedPtr.hpp"
-#include "UCodeRunTime/ULibrarys/Serialization_Library.h"
+#include "UCodeRunTime/BasicTypes/ManagedPtr.hpp"
 CoreStart
-	class RunTimeScene;
-	class Entity;
-	class GameRunTime;
-	class GameTime;
-	class Compoent;
+class RunTimeScene;
+class Entity;
+class GameRunTime;
+class GameTime;
+class Compoent;
+class USerializer;
+class UDeserializer;
 
 using EntityPtr = ManagedPtr<Entity>;
 using Compoent_Ptr = ManagedPtr<Compoent>;
@@ -32,9 +33,9 @@ class Compoent
 {
 	friend Entity;
 private:
-	Entity* _Entity;
-	UComponentData* _TypeData;
-	bool _IsDestroyed, _GameRunTimeHasCalledStart, _IsActive;
+	Entity* _Entity = nullptr;
+	UComponentData* _TypeData =nullptr;
+	bool _IsDestroyed= false, _GameRunTimeHasCalledStart = false, _IsActive = true;
 	Compoent_Ptr _Managed;
 public:
 	Compoent(Entity* entity, UComponentData* TypeData);
@@ -47,37 +48,37 @@ public:
 	virtual void Serialize(USerializer& Serializer) const {}
 	virtual void Deserialize(UDeserializer& Serializer) {}
 
-	UCODE_ENGINE_FORCE_INLINE Entity* GetMyEntity() const { return _Entity; }
+	UCodeGameEngineForceinlne Entity* GetMyEntity() const { return _Entity; }
 
 
-	UCODE_ENGINE_FORCE_INLINE void Set_CompoentActive(bool V) { _IsActive = V; }
-	UCODE_ENGINE_FORCE_INLINE void Enable_Compoent() { _IsActive = true; }
-	UCODE_ENGINE_FORCE_INLINE void Disable_Compoent() { _IsActive = false; }
-	UCODE_ENGINE_FORCE_INLINE bool Get_IsActive() const { return _IsActive; }
+	UCodeGameEngineForceinlne void Set_CompoentActive(bool V) { _IsActive = V; }
+	UCodeGameEngineForceinlne void Enable_Compoent() { _IsActive = true; }
+	UCodeGameEngineForceinlne void Disable_Compoent() { _IsActive = false; }
+	UCodeGameEngineForceinlne bool Get_IsActive() const { return _IsActive; }
 
 	
-	UCODE_ENGINE_FORCE_INLINE static void Destroy(Compoent* compoent) { compoent->_IsDestroyed = true; }
-	UCODE_ENGINE_FORCE_INLINE bool Get_IsDestroyed() const { return _IsDestroyed; }
-	UCODE_ENGINE_FORCE_INLINE UComponentData* Get_CompoentTypeData() const { return _TypeData; }
+	UCodeGameEngineForceinlne static void Destroy(Compoent* compoent) { compoent->_IsDestroyed = true; }
+	UCodeGameEngineForceinlne bool Get_IsDestroyed() const { return _IsDestroyed; }
+	UCodeGameEngineForceinlne UComponentData* Get_CompoentTypeData() const { return _TypeData; }
 
 	inline bool Get_IsActive_InRunTime() const;
 	inline GameRunTime* GetGameRunTime() const;
 	inline RunTimeScene* Get_Scene() const;
 
 	
-	template<class T, typename... Pars> UCODE_ENGINE_FORCE_INLINE T* AddCompoent(Pars... parameters);
-	template<class T> UCODE_ENGINE_FORCE_INLINE T* GetCompent();
+	template<class T, typename... Pars> UCodeGameEngineForceinlne T* AddCompoent(Pars... parameters);
+	template<class T> UCodeGameEngineForceinlne T* GetCompent();
 
 	template<class T> CompoentPtr<T> Get_ManagedPtr()
 	{
 		constexpr bool IsCompoent = std::is_base_of<Compoent, T>();
 		static_assert(IsCompoent, " 'T' is not a Compoent");
-		#ifdef DEBUG
+		#if UCodeGameEngineDEBUG
 
 		T* cast = dynamic_cast<T*>(_Managed.Get_Value());
 		if (cast == nullptr)
 		{
-			UCODE_ENGINE_THROWERROR("bad type");
+			UCODE_ENGINE_ERROR("bad type");
 		}
 
 		#endif // DEBUG
@@ -102,11 +103,11 @@ public:
 	
 	
 
-	UCODE_ENGINE_FORCE_INLINE const auto& Get_Compoents() const
+	UCodeGameEngineForceinlne const auto& Get_Compoents() const
 	{
 		return _Compoents;
 	}
-	UCODE_ENGINE_FORCE_INLINE auto& Get_Compoents()
+	UCodeGameEngineForceinlne auto& Get_Compoents()
 	{
 		return _Compoents;
 	}
@@ -124,7 +125,7 @@ public:
 	inline void MoveCompoent(Compoent* t)
 	{
 
-		#ifdef DEBUG
+		#if UCodeGameEngineDEBUG
 		if (t->GetMyEntity() != this)
 		{
 			throw std::runtime_error("Cant Move Compoent ,Compoent was made with Entity a different Entity");
@@ -178,23 +179,23 @@ public:
 		return nullptr;
 	}
 
-	UCODE_ENGINE_FORCE_INLINE RunTimeScene* Get_Scene() const { return _Scene; }
+	UCodeGameEngineForceinlne RunTimeScene* Get_Scene() const { return _Scene; }
 	GameRunTime* GetGameRunTime();
 
-	UCODE_ENGINE_FORCE_INLINE void Set_Active(bool V) { _IsActive = V; }
-	UCODE_ENGINE_FORCE_INLINE void Enable_Entity() { _IsActive = true; }
-	UCODE_ENGINE_FORCE_INLINE void Disable_Entity() { _IsActive = false; }
-	UCODE_ENGINE_FORCE_INLINE bool Get_IsActive() const { return _IsActive; }
+	UCodeGameEngineForceinlne void Set_Active(bool V) { _IsActive = V; }
+	UCodeGameEngineForceinlne void Enable_Entity() { _IsActive = true; }
+	UCodeGameEngineForceinlne void Disable_Entity() { _IsActive = false; }
+	UCodeGameEngineForceinlne bool Get_IsActive() const { return _IsActive; }
 
 	//
-	UCODE_ENGINE_FORCE_INLINE static void Destroy(Entity* compoent) { compoent->_IsDestroyed = true; }
-	UCODE_ENGINE_FORCE_INLINE bool Get_IsDestroyed() const { return _IsDestroyed; }
+	UCodeGameEngineForceinlne static void Destroy(Entity* compoent) { compoent->_IsDestroyed = true; }
+	UCodeGameEngineForceinlne bool Get_IsDestroyed() const { return _IsDestroyed; }
 
 	//Dont use me unless you know what you're doing
-	UCODE_ENGINE_FORCE_INLINE void EditorAPI_Set_Scene(RunTimeScene* S) { _Scene = S; }
+	UCodeGameEngineForceinlne void EditorAPI_Set_Scene(RunTimeScene* S) { _Scene = S; }
 	
 	//Dont use me unless you know what you're doing
-	UCODE_ENGINE_FORCE_INLINE void EditorAPI_Set_ParentEntity(Entity* S) { _ParentEntity = S; }
+	UCodeGameEngineForceinlne void EditorAPI_Set_ParentEntity(Entity* S) { _ParentEntity = S; }
 	
 	EntityPtr Get_ManagedPtr()
 	{
@@ -205,11 +206,11 @@ public:
 		return _Managed;
 	}
 
-	UCODE_ENGINE_FORCE_INLINE auto& Get_Entitys()
+	UCodeGameEngineForceinlne auto& Get_Entitys()
 	{
 		return _Entitys;
 	}
-	UCODE_ENGINE_FORCE_INLINE auto& Get_Entitys() const
+	UCodeGameEngineForceinlne auto& Get_Entitys() const
 	{
 		return _Entitys;
 	}
@@ -218,66 +219,66 @@ public:
 
 
 
-	UCODE_ENGINE_FORCE_INLINE auto& Get_Name()
+	UCodeGameEngineForceinlne auto& Get_Name()
 	{
 		return _Name;
 	}
-	UCODE_ENGINE_FORCE_INLINE auto& Get_Name() const
+	UCodeGameEngineForceinlne auto& Get_Name() const
 	{
 		return _Name;
 	}
 
 
-	UCODE_ENGINE_FORCE_INLINE auto& Get_LocalPosition()
+	UCodeGameEngineForceinlne auto& Get_LocalPosition()
 	{
 		return  _LocalPosition;
 	}
-	UCODE_ENGINE_FORCE_INLINE auto& Get_LocalPosition() const
+	UCodeGameEngineForceinlne auto& Get_LocalPosition() const
 	{
 		return  _LocalPosition;
 	}
 
-	UCODE_ENGINE_FORCE_INLINE auto& Get_LocalPosition2D()
+	UCodeGameEngineForceinlne auto& Get_LocalPosition2D()
 	{
 		return  *(Vec2*)&_LocalPosition;
 	}
-	UCODE_ENGINE_FORCE_INLINE auto& Get_LocalPosition2D() const
+	UCodeGameEngineForceinlne auto& Get_LocalPosition2D() const
 	{
 		return  *(Vec2*)&_LocalPosition;
 	}
 
-	UCODE_ENGINE_FORCE_INLINE auto& Get_LocalRotation()
+	UCodeGameEngineForceinlne auto& Get_LocalRotation()
 	{
 		return  _LocalRotation;
 	}
-	UCODE_ENGINE_FORCE_INLINE auto& Get_LocalRotation() const
+	UCodeGameEngineForceinlne auto& Get_LocalRotation() const
 	{
 		return  _LocalRotation;
 	}
 
-	UCODE_ENGINE_FORCE_INLINE auto& Get_LocalRotation2D()
+	UCodeGameEngineForceinlne auto& Get_LocalRotation2D()
 	{
 		return  *(Vec2*)&_LocalRotation;
 	}
-	UCODE_ENGINE_FORCE_INLINE auto& Get_LocalRotation2D() const
+	UCodeGameEngineForceinlne auto& Get_LocalRotation2D() const
 	{
 		return  *(Vec2*)&_LocalRotation;
 	}
 
-	UCODE_ENGINE_FORCE_INLINE auto& Get_LocalScale()
+	UCodeGameEngineForceinlne auto& Get_LocalScale()
 	{
 		return  _LocalScale;
 	}
-	UCODE_ENGINE_FORCE_INLINE auto& Get_LocalScale() const
+	UCodeGameEngineForceinlne auto& Get_LocalScale() const
 	{
 		return  _LocalScale;
 	}
 
-	UCODE_ENGINE_FORCE_INLINE auto& Get_LocalScale2D()
+	UCodeGameEngineForceinlne auto& Get_LocalScale2D()
 	{
 		return  *(Vec2*)&_LocalScale;
 	}
-	UCODE_ENGINE_FORCE_INLINE auto& Get_LocalScale2D() const
+	UCodeGameEngineForceinlne auto& Get_LocalScale2D() const
 	{
 		return  *(Vec2*)&_LocalScale;
 	}
@@ -301,18 +302,18 @@ public:
 	void Set_WorldScale(const Vec3& Value);
 	void Set_WorldScale(const Vec2& Value);
 
-	UCODE_ENGINE_FORCE_INLINE const auto Get_Parent() const
+	UCodeGameEngineForceinlne const auto Get_Parent() const
 	{
 		return   _ParentEntity;
 	}
 
-	UCODE_ENGINE_FORCE_INLINE auto Get_Parent() 
+	UCodeGameEngineForceinlne auto Get_Parent() 
 	{
 		return   _ParentEntity;
 	}
 private:
-	RunTimeScene* _Scene;
-	bool _IsDestroyed, _IsActive;
+	RunTimeScene* _Scene =nullptr;
+	bool _IsDestroyed =false, _IsActive =true;
 	Vector<Unique_ptr<Compoent>> _Compoents;
 	Vector<Unique_ptr<Entity>> _Entitys;
 	String _Name;
@@ -336,23 +337,23 @@ private:
  
 
 //Helpers
-UCODE_ENGINE_FORCE_INLINE bool Compoent::Get_IsActive_InRunTime() const
+UCodeGameEngineForceinlne bool Compoent::Get_IsActive_InRunTime() const
 {
 	return _IsActive && _Entity->Get_IsActive();
 }
-UCODE_ENGINE_FORCE_INLINE GameRunTime* Compoent::GetGameRunTime() const { return _Entity->GetGameRunTime(); }
-UCODE_ENGINE_FORCE_INLINE RunTimeScene* Compoent::Get_Scene() const{ return _Entity->Get_Scene();}
+UCodeGameEngineForceinlne GameRunTime* Compoent::GetGameRunTime() const { return _Entity->GetGameRunTime(); }
+UCodeGameEngineForceinlne RunTimeScene* Compoent::Get_Scene() const{ return _Entity->Get_Scene();}
 	
 
 
 
 
 
-template<class T, typename ...Pars> UCODE_ENGINE_FORCE_INLINE T* Compoent::AddCompoent(Pars... parameters)
+template<class T, typename ...Pars> UCodeGameEngineForceinlne T* Compoent::AddCompoent(Pars... parameters)
 {
 		return _Entity->AddCompoent<T>(parameters...);
 }
-template<class T> UCODE_ENGINE_FORCE_INLINE T* Compoent::GetCompent()
+template<class T> UCodeGameEngineForceinlne T* Compoent::GetCompent()
 {
 	return _Entity->GetCompent<T>();
 }

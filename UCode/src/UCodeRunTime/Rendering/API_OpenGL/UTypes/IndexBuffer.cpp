@@ -1,7 +1,7 @@
 #include "IndexBuffer.hpp"
 #include <UCodeRunTime/Rendering/API_OpenGL/OpenGlHelper.hpp>
 RenderingStart
-IndexBuffer::IndexBuffer(const unsigned int* data, UInt32 count)
+IndexBuffer::IndexBuffer(const unsigned int* data, u32 count)
 {
 	GlCall(glGenBuffers(1, &_BufferId));																					//Binding the VAO so we can manipulate it
 	GlCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _BufferId));

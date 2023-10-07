@@ -1,10 +1,10 @@
 #pragma once
 #include <UCodeRunTime/includeULibrayCompoent.hpp>
 #include "InputNamespace.hpp"
-#include <UCodeRunTime/RunTimeBasicTypes/Vector.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 InputStart
 
-enum class InputKey : size_t
+enum class InputKey : Byte
 {
 	Null,
 
@@ -54,10 +54,10 @@ public:
 	{
 		return _InputBuff[(size_t)input];
 	}
-	float32 GetInputKey_Float(InputKey input) const;
+	f32 GetInputKey_Float(InputKey input) const;
 	inline Vec2 Get_CursorPosition() { return _CursorPosition; }
 
-	UCODE_ENGINE_NODISCARD InputCallBackKey SetCallBack(const InputCallBack& callback,InputKey Inputkey, CallBackType type);
+	UCodeGameEngineNoDiscard InputCallBackKey SetCallBack(const InputCallBack& callback,InputKey Inputkey, CallBackType type);
 	void ReMoveCallBack(InputCallBackKey id);
 
 	void Input_API_CallInputCallBack(InputKey Inputkey,CallBackType type);
@@ -65,11 +65,11 @@ public:
 	{
 		_InputBuff[(size_t)input] = Value;
 	}
-	inline void Input_API_Set_CursorPosition(float32 x, float32 y)
+	inline void Input_API_Set_CursorPosition(f32 x, f32 y)
 	{
 		_CursorPosition = { x,y };
 	}
-	void Input_API_Set_Scroll(float32 x, float32 y);
+	void Input_API_Set_Scroll(f32 x, f32 y);
 private:
 	struct CallBackData
 	{

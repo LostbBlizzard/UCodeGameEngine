@@ -1,7 +1,7 @@
 #pragma once
 #include "RenderAPINamespace.h"
 #include "RenderAPI.hpp"
-#include <UCodeRunTime/RunTimeBasicTypes/String.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 RenderAPIStart
 
 struct Window
@@ -15,7 +15,7 @@ public:
 	{
 
 	}
-	SInt32 _width = 1, _height =1;
+	i32 _width = 1, _height =1;
 	String Name ="Window";
 	void Init();
 		

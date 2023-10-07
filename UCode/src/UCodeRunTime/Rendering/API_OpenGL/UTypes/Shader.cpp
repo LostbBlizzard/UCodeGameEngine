@@ -2,7 +2,7 @@
 
 #include <UCodeRunTime/Rendering/API_OpenGL/OpenGlHelper.hpp>
 #include "TextShader.hpp"
-#include <UCodeRunTime/RunTimeBasicTypes/Ref.hpp>
+#include <UCodeRunTime/BasicTypes.hpp>
 #include <UCodeRunTime/ULibrarys/Loger.hpp>
 RenderingStart
 
@@ -10,51 +10,101 @@ RenderingStart
 
 "layout(std140) uniform Matrices"
 "{"
-    "mat4 _ViewProj;"
-    "mat4 _Transfrom;"
+    "Mat4 _ViewProj;"
+    "Mat4 _Transfrom;"
 "};"
 
 */
 
-const char* Shader::dafalult_Vertex_shader_text =
-"#version 450 core\n"
+/*
+const char* Shader::dafalult_Vertex_shader_text = R"(
+#version 450 core
 
 
+layout(location = 0) in vec3 V_Pos;
+layout(location = 1) in vec4 V_Color;
+layout(location = 2) in vec2 V_texCord;
+layout(location = 3) in float V_TexIndex;
 
-"layout(location = 0) in vec3 V_Pos;\n"
-"layout(location = 1) in vec4 V_Color;\n"
-"layout(location = 2) in vec2 V_texCord;\n"
-"layout(location = 3) in float V_TexIndex;\n"
+layout(location = 0) out vec4 F_Color;
+layout(location = 1) out vec2 F_texCord;
+layout(location = 2) out float F_TexIndex;
 
-"layout(location = 0) out vec4 F_Color;\n"
-"layout(location = 1) out vec2 F_texCord;\n"
-"layout(location = 2) out float F_TexIndex;\n"
+uniform Mat4 _ViewProj;
+uniform Mat4 _Transfrom;
 
-"uniform mat4 _ViewProj;\n"
-"uniform mat4 _Transfrom;\n"
+void main()
+{
+F_Color = V_Color;
+F_texCord = V_texCord;
+F_TexIndex = V_TexIndex;
+gl_Position = (_ViewProj * _Transfrom) * vec4(V_Pos, 1.0);
+}
 
-"void main()\n"
-"{\n"
-"F_Color = V_Color;\n"
-"F_texCord = V_texCord;\n"
-"F_TexIndex = V_TexIndex;\n"
-"gl_Position = (_ViewProj * _Transfrom) * vec4(V_Pos, 1.0);\n"
-"}";
+)";
 
-const char* Shader::dafalult_fragment_shader_text =
-"#version 450 core\n"
-"layout(location = 0) in vec4 F_Color;\n"
-"layout(location = 1) in vec2 F_texCord;\n"
-"layout(location = 2) in float F_TexIndex;\n"
+const char* Shader::dafalult_fragment_shader_text = R"(
+#version 450 core
+layout(location = 0) in vec4 F_Color;
+layout(location = 1) in vec2 F_texCord;
+layout(location = 2) in float F_TexIndex;
 
-"layout(set=0, binding = 0) uniform sampler2D F_Textures[32];\n"
-"layout(location = 0) out vec4 P_Color;\n"
-"void main()\n"
-"{\n"
-"int Index = int(F_TexIndex);\n"
-"vec4 texturerColor = texture(F_Textures[Index], F_texCord);\n"
-"P_Color = texturerColor * F_Color;\n"
-"}\n";
+layout(set=0, binding = 0) uniform sampler2D F_Textures[32];
+layout(location = 0) out vec4 P_Color;
+void main()
+{
+int Index = int(F_TexIndex);
+vec4 texturerColor = texture(F_Textures[Index], F_texCord);
+P_Color = texturerColor * F_Color;
+}
+
+)";
+*/
+
+
+const char* Shader::dafalult_Vertex_shader_text = R"(
+#version 330 core
+
+
+layout(location = 0) in vec3 V_Pos;
+layout(location = 1) in vec4 V_Color;
+layout(location = 2) in vec2 V_texCord;
+layout(location = 3) in float V_TexIndex;
+
+layout(location = 0) out vec4 F_Color;
+layout(location = 1) out vec2 F_texCord;
+layout(location = 2) out float F_TexIndex;
+
+uniform mat4 _ViewProj;
+uniform mat4 _Transfrom;
+
+void main()
+{
+F_Color = V_Color;
+F_texCord = V_texCord;
+F_TexIndex = V_TexIndex;
+gl_Position = (_ViewProj * _Transfrom) * vec4(V_Pos, 1.0);
+}
+
+)";
+
+const char* Shader::dafalult_fragment_shader_text = R"(
+#version 330 core
+layout(location = 0) in vec4 F_Color;
+layout(location = 1) in vec2 F_texCord;
+layout(location = 2) in float F_TexIndex;
+
+uniform sampler2D F_Textures[32];
+layout(location = 0) out vec4 P_Color;
+void main()
+{
+int Index = int(F_TexIndex);
+vec4 texturerColor = texture(F_Textures[Index], F_texCord);
+P_Color = texturerColor * F_Color;
+}
+
+)";
+
 Shader::Shader(const String& Vex,const String& Feg)
 {
     InitShader(Vex, Feg);
@@ -64,7 +114,7 @@ Shader::Shader(const String& filepath)
     auto s = TextShader::Get_ShaderFromPath(filepath);
     InitShader(s.Vertex, s.fragment);
 }
-Shader::Shader(const Span<UInt32> SPRVB_Vex, const Span<UInt32> SPRVB_Feg)
+Shader::Shader(const Span<u32> SPRVB_Vex, const Span<u32> SPRVB_Feg)
 {
 
 
@@ -190,31 +240,31 @@ void Shader::SetUniform1i(const String& name, int V) const
     auto Location = GetUniformLocation(name);
     GlCall(glUniform1i(Location, V));
 }
-void Shader::SetUniform1iv(const String& name,SInt32 count, int* V) const
+void Shader::SetUniform1iv(const String& name,i32 count, int* V) const
 {
     Bind();
     auto Location = GetUniformLocation(name);
     GlCall(glUniform1iv(Location, count, V));
 }
-void Shader::SetUniform4f(const String& name, float32 V, float32 V2, float32 V3, float32 V4) const
+void Shader::SetUniform4f(const String& name, f32 V, f32 V2, f32 V3, f32 V4) const
 {
     Bind();
     auto Location = GetUniformLocation(name);
     GlCall(glUniform4f(Location, V, V2, V3, V4));
 }
-void Shader::SetUniformMat4f(const String& name, const mat4& V) const
+void Shader::SetUniformMat4f(const String& name, const Mat4& V) const
 {
     Bind();
     auto Location = GetUniformLocation(name);
     GlCall(glUniformMatrix4fv(Location,1,GL_FALSE,&V[0][0]))
 }
-SInt32 Shader::GetUniformLocation(const String& Name) const
+i32 Shader::GetUniformLocation(const String& Name) const
 {
     //
     GlCall(auto r = glGetUniformLocation(ShaderId, Name.c_str()));
     if (r == -1) 
     {
-        UCODE_ENGINE_THROWEXCEPTION("Uniform does not exist");
+        UCodeGameEngineThrowException("Uniform does not exist");
     }
     return r;
 }

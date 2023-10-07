@@ -44,7 +44,7 @@ UCode::AsynTask UCompiler::CompileProject(const CompileData& Data)
 
 	return UCode::AsynTask();
 }
-optional<Path> UCompiler::GetIntermediate(const Path& FullFilePath, RunTimeProjectData* RunTimeProject)
+Optional<Path> UCompiler::GetIntermediate(const Path& FullFilePath, RunTimeProjectData* RunTimeProject)
 {
 	const Path& InPath = RunTimeProject->GetAssetsDir();
 	
@@ -52,7 +52,7 @@ optional<Path> UCompiler::GetIntermediate(const Path& FullFilePath, RunTimeProje
 
 	return GetRelativeIntermediate(RelativePath, RunTimeProject);
 }
-optional<Path> UCompiler::GetRelativeIntermediate(const Path& RelativeFilePath, RunTimeProjectData* RunTimeProject)
+Optional<Path> UCompiler::GetRelativeIntermediate(const Path& RelativeFilePath, RunTimeProjectData* RunTimeProject)
 {
 	const Path& intPath = RunTimeProject->GetULangIntDir();
 	

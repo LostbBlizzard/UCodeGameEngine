@@ -25,3 +25,6 @@
 [submodule "Dependencies/box2d"]
 	path = Dependencies/box2d
 	url = https://github.com/LostbBlizzard/box2d
+[submodule "Dependencies/MinimalSocket"]
+	path = Dependencies/MinimalSocket
+	url = https://github.com/LostbBlizzard/Minimal-Socket
