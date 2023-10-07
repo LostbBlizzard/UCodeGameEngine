@@ -19,7 +19,7 @@
 #include <filesystem>
 
 #include "BasicTypes/Variant.hpp"
-//#include "UCodeRunTime/ULibrarys/AssetManagement/UID.hpp"
+#include "UCodeRunTime/ULibrarys/AssetManagement/UID.hpp"
 CoreStart
 
 

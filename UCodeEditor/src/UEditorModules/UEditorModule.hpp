@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Typedefs.hpp"
-#include "ProjectManagement/EditorIndex.hpp"
+//#include "ProjectManagement/EditorIndex.hpp"
 #include "UCodeRunTime/Core/UComponentsID.hpp"
 #include "EditorWindows/BasicWindows/InspectWindow.hpp"
 EditorStart

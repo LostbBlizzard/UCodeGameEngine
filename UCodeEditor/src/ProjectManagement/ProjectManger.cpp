@@ -71,6 +71,9 @@ bool ProjectManger::MakeNewProject(const Path& Dir, const String& ProjectName)
 			fs::create_directory(AssetsDir / "Art" / "Fonts");
 			fs::create_directory(AssetsDir / "GameStorage");
 			fs::create_directory(AssetsDir / "GameData");
+
+
+			fs::create_directory(AssetsDir / "EditorTools");
 		}
 	}
 	return true;

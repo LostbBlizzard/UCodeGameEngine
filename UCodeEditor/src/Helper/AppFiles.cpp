@@ -167,7 +167,7 @@ UCode::Texture* AppFiles::GetTexture(texture tex)
 
             gamefiles->AsynReadGameFileFullBytes(Path)
                 .ContinueOnAnyThread(
-                    [id](Unique_Bytes Bytes)
+                    [id](Unique_Bytes&& Bytes)
                     {
                         return UCode::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView())
                             .ContinueOnMainThread(
@@ -223,27 +223,32 @@ AsynTask_t<UCode::Texture*> AppFiles::AsynGetTexture(texture tex)
         else
         {
             UCode::GameFiles* gamefiles = UCode::GameFiles::Get(_GameLib);
-
-
-            auto Task = std::move(gamefiles->AsynReadGameFileFullBytes(Path)
-                .OnCompletedOnAnyThread(
-                    [id](Unique_Bytes Bytes)
-                    {
-                       UCode::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView())
-                            .OnCompletedOnMainThread(
-                                [id](Unique_ptr<UCode::Texture>&& Val)
-                                {
-                                    auto RVal = Val.get();
-                                    _textures[id] = Val.release();
-                                    _loadtextures[id] = true;
-                                    return RVal;
-                                });
-                    }));
-
-            AsynTask_t<UCode::Texture*> R;
-            memcpy(&R, &Task, sizeof(AsynTask_t<UCode::Texture*>));
             
-            return R;
+
+            Delegate<AsynTask_t<Unique_ptr<UCode::Texture>>,Unique_Bytes&&> Func = [](Unique_Bytes&& Bytes)
+            {
+                return UCode::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView());
+            };
+
+
+            Delegate<UCode::Texture*,Unique_ptr<UCode::Texture>&&> Func2 = [id](Unique_ptr<UCode::Texture>&& Val)
+            {
+                auto RVal = Val.get();
+                _textures[id] = Val.release();
+                _loadtextures[id] = true;
+                return RVal;
+            };
+         
+
+            /*
+            auto Task = gamefiles->AsynReadGameFileFullBytes(Path)
+                .ContinueOnMainThreadTask(std::move(Func))
+                .ContinueOnMainThread(std::move(Func2));
+            */
+            auto Task = UCode::AssetRendering::LoadTextureAsync(_GameLib, Path)
+                .ContinueOnMainThread(std::move(Func2));
+
+            return Task;
         }
     }
 }

@@ -30,10 +30,11 @@ EditorAppCompoent::EditorAppCompoent(UCode::Entity* entity) :
     AppFiles::AsynReadFileAsBytes("art/OpenSans-VariableFont_wdth,wght.ttf")
         .OnCompletedOnMainThread([this](Unique_Bytes FontBytes)
     {
-
+                /*
     auto& io = ImGui::GetIO();
     io.Fonts->AddFontFromMemoryTTF(FontBytes.Release(), FontBytes.Size(), 16.0f);
     io.FontDefault = io.Fonts->Fonts.back();
+    */
     });
 
 
@@ -529,8 +530,7 @@ void  EditorAppCompoent::EndDockSpace()
 
 void EditorAppCompoent::OnDraw()
 {
-  
-
+    
     if (_RunTimeProjectData.Is_ProjLoaded()) 
     {
         if (_AutoSaveTimer <= 0.0f)
@@ -558,6 +558,7 @@ void EditorAppCompoent::OnDraw()
 
     bool Hi = true;
     BeginDockSpace(&Hi);
+
 
     {
         auto& Tasks = RuningTasksInfo::Get_Tasks();

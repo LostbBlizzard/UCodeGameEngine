@@ -42,8 +42,13 @@ public:
 	}
 	void SetWindowIcon(const Texture& tex);
 	void _DrawOpenGl(RenderRunTime2d::DrawData& Data,Camera2d* cam);
+	
+	static void SetStyle_WoodLandDay(ImGuiStyle* dst = nullptr);
+	static void SetStyle_WoodLandNight(ImGuiStyle* dst = nullptr);
+	static void SetStyle_Dark(ImGuiStyle* dst = nullptr);
+	static void SetStyle_Wave(ImGuiStyle* dst = nullptr);
 private:
-	static void SetAppStyle_Editor(ImGuiStyle* dst = nullptr);
+	
 	static void glfwerror_callback(int error, const char* description);
 	WindowData _windowdata;
 	GLFWwindow* window;

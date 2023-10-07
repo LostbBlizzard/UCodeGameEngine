@@ -20,8 +20,8 @@ public:
 	inline static void Destroy(libraryBook* compoent) { compoent->_IsDestroyed = true; }
 	inline bool Get_IsDestroyed() const { return _IsDestroyed; }
 private:
-	Gamelibrary* _library;
-	bool _IsDestroyed;
+	Gamelibrary* _library =nullptr;
+	bool _IsDestroyed =false;
 
 	virtual void Update() {};
 };

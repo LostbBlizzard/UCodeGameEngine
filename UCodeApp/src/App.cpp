@@ -9,6 +9,47 @@
 using namespace UCode;
 int App::main(int argc, char* argv[])
 {
+
+    {
+        /*
+        UCode::USeverApp app;
+        app.Init();
+        auto runtime = app.Get_RunTime();
+        auto Library = runtime->Get_Library_Edit();
+
+        BookOfThreads* b = BookOfThreads::Get(Library);
+
+        thread_local AsynTask MyTask;
+        Delegate<int> func = []()
+        {
+            auto p = MyTask.GetProgress();
+            std::cout << MyTask.GetProgress().AsPercent() << std::endl;
+            return 5;
+        };
+
+        Delegate<int,int> func2 = [](int&& V)
+        {
+            std::cout << MyTask.GetProgress().AsPercent() << std::endl;
+            return V + 1;
+        };
+
+        Delegate<void, int> func3 = [&app](int&& V)
+        {
+            std::cout << MyTask.GetProgress().AsPercent() << std::endl;
+
+            app.Get_RunTime()->EndRunTime();
+        };
+
+        MyTask = b->AddTask_t(TaskType::Main, std::move(func), {})
+            .ContinueCurrentThread<int>(std::move(func2))
+            .ContinueCurrentThread(std::move(func3));
+
+        app.Run();
+    
+        std::cout << MyTask.GetProgress().AsPercent() << std::endl;
+        */
+    }
+
     #ifdef DEBUG
     while (true);//debuger beak point
     #endif // DEBUG

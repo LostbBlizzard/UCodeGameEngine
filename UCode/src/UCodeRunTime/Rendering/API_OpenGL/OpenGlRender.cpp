@@ -120,8 +120,8 @@ void OpenGlRender::Init(WindowData windowdata)
             io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
             //io.IniFilename = nullptr;
             
-            OpenGlRender::SetAppStyle_Editor();
-            
+            OpenGlRender::SetStyle_WoodLandDay();
+            //OpenGlRender::SetStyle_Dark();
 
             // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
             ImGuiStyle& style = ImGui::GetStyle();
@@ -203,7 +203,7 @@ void OpenGlRender::_DrawOpenGl(RenderRunTime2d::DrawData& Data, Camera2d* cam)
     Buffer.UnBind();
 
 }
-void OpenGlRender::SetAppStyle_Editor(ImGuiStyle* dst)
+void OpenGlRender::SetStyle_WoodLandDay(ImGuiStyle* dst)
 {
     //Hippoptamus gray
     ImGuiStyle* style = dst ? dst : &ImGui::GetStyle();
@@ -347,6 +347,33 @@ void OpenGlRender::SetAppStyle_Editor(ImGuiStyle* dst)
 
     colors[ImGuiCol_DockingPreview] = UC32ToIMVect4(ComplimentaryColorliter);
     colors[ImGuiCol_DockingEmptyBg] = UC32ToIMVect4(BackRoundColorColorDarker);
+}
+void OpenGlRender::SetStyle_WoodLandNight(ImGuiStyle* dst)
+{
+
+}
+void OpenGlRender::SetStyle_Dark(ImGuiStyle* dst)
+{
+    ImVec4* colors = ImGui::GetStyle().Colors;
+    colors[ImGuiCol_WindowBg] = ImVec4(0.07f, 0.07f, 0.07f, 1.00f);
+    colors[ImGuiCol_ChildBg] = ImVec4(0.12f, 0.11f, 0.11f, 1.00f);
+    colors[ImGuiCol_Border] = ImVec4(0.06f, 0.47f, 0.51f, 0.61f);
+    colors[ImGuiCol_FrameBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
+    colors[ImGuiCol_MenuBarBg] = ImVec4(0.07f, 0.07f, 0.07f, 1.00f);
+    colors[ImGuiCol_ScrollbarBg] = ImVec4(0.07f, 0.07f, 0.07f, 1.00f);
+    colors[ImGuiCol_Button] = ImVec4(0.09f, 0.48f, 0.25f, 1.00f);
+    colors[ImGuiCol_ButtonHovered] = ImVec4(0.62f, 0.76f, 0.65f, 1.00f);
+    colors[ImGuiCol_ButtonActive] = ImVec4(0.43f, 0.65f, 0.48f, 1.00f);
+    colors[ImGuiCol_Separator] = ImVec4(0.50f, 0.50f, 0.50f, 0.61f);
+    colors[ImGuiCol_SeparatorActive] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+    colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.07f, 0.07f, 0.07f, 1.00f);
+
+
+
+}
+void OpenGlRender::SetStyle_Wave(ImGuiStyle* dst)
+{
+
 }
 OpenGlRender* OpenGlRender::GetOpenGlRender(const GLFWwindow* window)
 {
