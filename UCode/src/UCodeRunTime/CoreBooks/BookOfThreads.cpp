@@ -23,6 +23,8 @@ _NextLockKey(1),
 
 	MainThreadID = std::this_thread::get_id();
 
+	CurrentThreadInfo::CurrentThread = MainThread;
+
 	const u32 num_threads = std::thread::hardware_concurrency();
 	threads_count = num_threads;
 	_Threads.reserve(num_threads);
@@ -184,24 +186,40 @@ void BookOfThreads::CallTaskToDoOnMainThread()
 		{
 			_MainThreadData._TaskToDo.push_back(std::move(Item));
 		}
-		_MainThreadData._TaskToDo.clear();
-
+		_TaskToReAddOnToMainThread.clear();
+		
 		Vector<TaskInfo> CopyList = std::move(_MainThreadData._TaskToDo);
 		
 		_OnMainThreadLock.unlock();
 	
-		for (auto& Item : CopyList)
+
+		/*
+		for (auto i = CopyList.rbegin();i != CopyList.rend(); ++i)
 		{
+
+			auto& Item = *i;
+		*/
+		_MainThreadData._TaskToDo = CopyList;//for GetProgress
+		size_t V = _MainThreadData._TaskToDo.size();
+
+		for (auto  Item: CopyList)
+		{	
 			if (IsTasksDone(Item.TaskDependencies))
 			{
 				(*Item._Func)();
 			}
 			else
 			{
+				//_TaskToReAddOnToMainThread.push_back(std::move(Item));
+
 				_TaskToReAddOnToMainThread.push_back(std::move(Item));
 			}
 		}
 
+		for (size_t i = 0; i < V; i++)
+		{
+			_MainThreadData._TaskToDo.erase(_MainThreadData._TaskToDo.begin());
+		}
 	}
 }
 
@@ -212,6 +230,8 @@ void BookOfThreads::Update()
 
 AsynTask BookOfThreads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vector<TaskID>& TaskDependencies)
 {
+	RunOnOnMainThread(std::move(Func), TaskDependencies);
+	return  AsynTask();
 
 	if (_Threads.size() == 0 || _Threads.size() == 1)
 	{ 
@@ -233,9 +253,9 @@ AsynTask BookOfThreads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vect
 			
 
 			_TaskLock.lock();
-			Task.TaskID = _TaskID;
-			GetThreadNoneWorkingThread()._TaskToDo.push_back(std::move(Task));
+			Task.TaskID = TaskID(_TaskID.Get_Base()-1);
 			_TaskLock.unlock();	
+			GetThreadNoneWorkingThread()._TaskToDo.push_back(std::move(Task));
 			return  AsynTask();
 		}
 		else
@@ -246,7 +266,7 @@ AsynTask BookOfThreads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vect
 			
 
 			_TaskLock.lock();
-			Task.TaskID = _TaskID;
+			Task.TaskID = TaskID(_TaskID.Get_Base()-1);
 			auto& V = GetThreadInfo(thread);
 			
 			V._TaskToDo.push_back(std::move(Task));
@@ -294,7 +314,7 @@ void BookOfThreads::RunOnOnMainThread(FuncPtr&& Func, const Vector<TaskID>& Task
 {
 	_OnMainThreadLock.lock();
 
-	_MainThreadData._TaskToDo.push_back({ std::make_shared<FuncPtr>(std::move(Func)),TaskDependencies });
+	_MainThreadData._TaskToDo.push_back({ std::make_shared<FuncPtr>(std::move(Func)),TaskDependencies,TaskID(_TaskID.Get_Base()-1) });
 
 	_OnMainThreadLock.unlock();
 }
@@ -314,7 +334,14 @@ void BookOfThreads::ThrowErrIfNotOnMainThread()
 
 bool BookOfThreads::IsTasksDone(const Vector<TaskID>& Tasks)
 {
-	return false;
+	for (auto& Item : Tasks)
+	{
+		if (_Map.count(Item))
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 bool BookOfThreads::IsTasksDone(TaskID Task)

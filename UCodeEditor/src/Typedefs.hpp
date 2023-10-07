@@ -1,9 +1,8 @@
 #pragma once
-#include "UCodeRunTime/BasicTypes.hpp"
 #include "Editor/EditorNamespace.hpp"
+#include "UCodeRunTime/BasicTypes.hpp"
 #include "UCodeRunTime/ULibrarys/AssetManagement/UID.hpp"
 #include <UCodeRunTime/BasicTypes/ManagedPtr.hpp>
-#include <UCodeRunTime/CoreBooks/BookOfThreads.hpp>
 EditorStart
 
 
@@ -104,10 +103,6 @@ using AnyManagedPtr = UCode::AnyManagedPtr;
 template<typename... T>
 using Variant = UCode::Variant<T...>;
 
-template<typename T>
-using AsynTask_t = UCode::AsynTask_t<T>;
-
-using AsynTask = UCode::AsynTask;
 
 
 #define UCODE_EDITOR_FORCEINLINE UCodeGameEngineForceinlne

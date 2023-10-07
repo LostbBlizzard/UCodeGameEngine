@@ -1,7 +1,5 @@
 #include "GameRunTime.hpp"
 #include <UCodeRunTime/StaticComponentsIndex.hpp>
-#include <UCodeRunTime/CoreBooks/BookOfThreads.hpp>
-
 CoreStart
 
 constexpr StaticBooksIndex_t StaticBookSize = (StaticBooksIndex_t)StaticBooksIndex::MaxValue;

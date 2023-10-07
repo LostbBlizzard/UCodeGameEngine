@@ -5,13 +5,14 @@
 #include <type_traits>
 
 #include "UCodeRunTime/BasicTypes/ManagedPtr.hpp"
-#include "UCodeRunTime/ULibrarys/Serialization_Library.h"
 CoreStart
-	class RunTimeScene;
-	class Entity;
-	class GameRunTime;
-	class GameTime;
-	class Compoent;
+class RunTimeScene;
+class Entity;
+class GameRunTime;
+class GameTime;
+class Compoent;
+class USerializer;
+class UDeserializer;
 
 using EntityPtr = ManagedPtr<Entity>;
 using Compoent_Ptr = ManagedPtr<Compoent>;
@@ -32,9 +33,9 @@ class Compoent
 {
 	friend Entity;
 private:
-	Entity* _Entity;
-	UComponentData* _TypeData;
-	bool _IsDestroyed, _GameRunTimeHasCalledStart, _IsActive;
+	Entity* _Entity = nullptr;
+	UComponentData* _TypeData =nullptr;
+	bool _IsDestroyed= false, _GameRunTimeHasCalledStart = false, _IsActive = true;
 	Compoent_Ptr _Managed;
 public:
 	Compoent(Entity* entity, UComponentData* TypeData);
@@ -311,8 +312,8 @@ public:
 		return   _ParentEntity;
 	}
 private:
-	RunTimeScene* _Scene;
-	bool _IsDestroyed, _IsActive;
+	RunTimeScene* _Scene =nullptr;
+	bool _IsDestroyed =false, _IsActive =true;
 	Vector<Unique_ptr<Compoent>> _Compoents;
 	Vector<Unique_ptr<Entity>> _Entitys;
 	String _Name;

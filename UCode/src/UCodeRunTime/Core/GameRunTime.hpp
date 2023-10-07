@@ -8,7 +8,6 @@
 #include "libraryBook.hpp"
 #include "Entity.hpp"
 #include "GameTime.hpp"
-
 CoreStart
 
 class Gamelibrary

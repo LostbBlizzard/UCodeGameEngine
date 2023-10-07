@@ -16,45 +16,95 @@ RenderingStart
 
 */
 
-const char* Shader::dafalult_Vertex_shader_text =
-"#version 450 core\n"
+/*
+const char* Shader::dafalult_Vertex_shader_text = R"(
+#version 450 core
 
 
+layout(location = 0) in vec3 V_Pos;
+layout(location = 1) in vec4 V_Color;
+layout(location = 2) in vec2 V_texCord;
+layout(location = 3) in float V_TexIndex;
 
-"layout(location = 0) in vec3 V_Pos;\n"
-"layout(location = 1) in vec4 V_Color;\n"
-"layout(location = 2) in vec2 V_texCord;\n"
-"layout(location = 3) in float V_TexIndex;\n"
+layout(location = 0) out vec4 F_Color;
+layout(location = 1) out vec2 F_texCord;
+layout(location = 2) out float F_TexIndex;
 
-"layout(location = 0) out vec4 F_Color;\n"
-"layout(location = 1) out vec2 F_texCord;\n"
-"layout(location = 2) out float F_TexIndex;\n"
+uniform Mat4 _ViewProj;
+uniform Mat4 _Transfrom;
 
-"uniform Mat4 _ViewProj;\n"
-"uniform Mat4 _Transfrom;\n"
+void main()
+{
+F_Color = V_Color;
+F_texCord = V_texCord;
+F_TexIndex = V_TexIndex;
+gl_Position = (_ViewProj * _Transfrom) * vec4(V_Pos, 1.0);
+}
 
-"void main()\n"
-"{\n"
-"F_Color = V_Color;\n"
-"F_texCord = V_texCord;\n"
-"F_TexIndex = V_TexIndex;\n"
-"gl_Position = (_ViewProj * _Transfrom) * vec4(V_Pos, 1.0);\n"
-"}";
+)";
 
-const char* Shader::dafalult_fragment_shader_text =
-"#version 450 core\n"
-"layout(location = 0) in vec4 F_Color;\n"
-"layout(location = 1) in vec2 F_texCord;\n"
-"layout(location = 2) in float F_TexIndex;\n"
+const char* Shader::dafalult_fragment_shader_text = R"(
+#version 450 core
+layout(location = 0) in vec4 F_Color;
+layout(location = 1) in vec2 F_texCord;
+layout(location = 2) in float F_TexIndex;
 
-"layout(set=0, binding = 0) uniform sampler2D F_Textures[32];\n"
-"layout(location = 0) out vec4 P_Color;\n"
-"void main()\n"
-"{\n"
-"int Index = int(F_TexIndex);\n"
-"vec4 texturerColor = texture(F_Textures[Index], F_texCord);\n"
-"P_Color = texturerColor * F_Color;\n"
-"}\n";
+layout(set=0, binding = 0) uniform sampler2D F_Textures[32];
+layout(location = 0) out vec4 P_Color;
+void main()
+{
+int Index = int(F_TexIndex);
+vec4 texturerColor = texture(F_Textures[Index], F_texCord);
+P_Color = texturerColor * F_Color;
+}
+
+)";
+*/
+
+
+const char* Shader::dafalult_Vertex_shader_text = R"(
+#version 330 core
+
+
+layout(location = 0) in vec3 V_Pos;
+layout(location = 1) in vec4 V_Color;
+layout(location = 2) in vec2 V_texCord;
+layout(location = 3) in float V_TexIndex;
+
+layout(location = 0) out vec4 F_Color;
+layout(location = 1) out vec2 F_texCord;
+layout(location = 2) out float F_TexIndex;
+
+uniform mat4 _ViewProj;
+uniform mat4 _Transfrom;
+
+void main()
+{
+F_Color = V_Color;
+F_texCord = V_texCord;
+F_TexIndex = V_TexIndex;
+gl_Position = (_ViewProj * _Transfrom) * vec4(V_Pos, 1.0);
+}
+
+)";
+
+const char* Shader::dafalult_fragment_shader_text = R"(
+#version 330 core
+layout(location = 0) in vec4 F_Color;
+layout(location = 1) in vec2 F_texCord;
+layout(location = 2) in float F_TexIndex;
+
+uniform sampler2D F_Textures[32];
+layout(location = 0) out vec4 P_Color;
+void main()
+{
+int Index = int(F_TexIndex);
+vec4 texturerColor = texture(F_Textures[Index], F_texCord);
+P_Color = texturerColor * F_Color;
+}
+
+)";
+
 Shader::Shader(const String& Vex,const String& Feg)
 {
     InitShader(Vex, Feg);
