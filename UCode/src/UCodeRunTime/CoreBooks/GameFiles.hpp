@@ -96,7 +96,7 @@ public:
 	}
 
 	inline static const char* FileDataName = "GameFiles.data";
-
+	inline static const char* FileExtWithDot = ".data";
 
 	//a folder were important files and defaults. 
 	static Path GetUCodeDir()

@@ -4,6 +4,7 @@
 #include "Helper/ImGuIHelper.hpp"
 #include "Modules/CoreModule.hpp"
 #include <filesystem>
+#include <UCodeRunTime/CoreBooks/StandardAssetLoader.hpp>
 EditorStart
 
 void UEditorModules::Init()
@@ -68,6 +69,117 @@ bool UEditorAssetFileData::Draw(UEditorAssetDataConext& Data, const Path& path)
 
 		return false;
 	}
+}
+ExportEditorReturn UEditorModule::ExportEditor(ExportEditorContext& Context)
+{
+
+	namespace fs = std::filesystem;
+
+	auto Buffer = GetAssetData();
+
+	ExportEditorReturn r;
+	r.OutputModuleFile = (Context.TemporaryGlobalPath / this->ID).native() + Path(UCode::GameFilesData::FileExtWithDot).native();
+	UCode::GameFilesData V;
+	UCode::StandardAssetLoader::UIdMap IDMaps;
+	
+	fs::create_directories(r.OutputModuleFile.parent_path());
+
+	for (const auto& dirEntry : fs::recursive_directory_iterator(Context.AssetPath))
+	{
+		if (dirEntry.is_regular_file()) 
+		{
+			auto& path = dirEntry.path();
+			auto& Relat = FileHelper::ToRelativePath(Context.AssetPath, path);
+			auto v = GetAssetDataUsingExt(path.extension());
+			if (v.has_value())
+			{
+				auto V1 = v.value();
+
+				auto Buffer = GetAssetData();
+				auto& AssetData = Buffer[V1];
+
+
+				ExportFileContext Exfile;
+				Exfile.ChashPath = Context.TemporaryGlobalPath / "Assets" / Relat;
+				Exfile.Output = Exfile.ChashPath.native() + Path(".out").native();
+				
+
+
+				fs::create_directories(Exfile.Output.parent_path());
+
+				ExportFileRet outfile;
+				if (AssetData->CallLiveingAssetsWhenExport)
+				{
+					auto V = AssetData->GetMakeNewAssetFile();
+
+					UEditorAssetFileInitContext initCon;
+					V->FileFullPath = path;
+					V->Init(initCon);
+
+					outfile = V->ExportFile(Exfile);
+
+				}
+				else
+				{
+					outfile = AssetData->ExportFile(path, Exfile);
+				}
+
+				auto bytes = UCode::GameFiles::ReadFileAsBytes(Exfile.Output);
+				UCode::GameFileIndex index;
+				index.FileOffset = V._Data.size();
+				index.FileFullName = Relat;
+				index.FileSize = bytes.Size();
+				
+				if (outfile._UID.has_value()) 
+				{
+					IDMaps._Paths[outfile._UID.value()] = index.FileFullName;
+				}
+
+
+				V.Offsets.push_back(std::move(index));
+
+				
+				for (size_t i = 0; i < bytes.Size(); i++)
+				{
+					auto& Item = bytes[i];
+				
+					V._Data.push_back(Item);
+				}
+			}
+		}
+	}
+
+	{
+		UCode::USerializer serializer(USerializerType::Bytes);
+
+		IDMaps.Serialize(serializer);
+		
+		auto bytes = serializer.Get_BitMaker().Get_Bytes();
+		
+
+		UCode::GameFileIndex index;
+		index.FileOffset = V._Data.size();
+		index.FileFullName = UCode::GameFilesData::GetUCodeDir() / UCode::StandardAssetLoader::UIdMap::FileWithDot;
+		index.FileSize = bytes.size();
+
+		V.Offsets.push_back(std::move(index));
+		
+		for (size_t i = 0; i < bytes.size(); i++)
+		{
+			auto& Item = bytes[i];
+
+			V._Data.push_back(Item);
+		}
+	}
+
+	{
+		UCode::USerializer serializer(USerializerType::Bytes);
+
+		UCode::GameFilesData::Serialize(V,serializer);
+
+		serializer.ToFile(r.OutputModuleFile);
+	}
+	return r;
 }
 Optional<size_t> UEditorModule::GetAssetDataUsingExt(const Path& ExtWithDot)
 {

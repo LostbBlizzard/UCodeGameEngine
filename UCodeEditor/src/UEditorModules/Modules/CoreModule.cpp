@@ -50,6 +50,18 @@ public:
             ImGui::EndDragDropSource();
         }
 	}
+
+	ExportFileRet ExportFile(const Path& path, const ExportFileContext& Item) override
+	{
+		UCode::Scene2dData V;
+		UCode::Scene2dData::FromFile(V, path);
+
+		UCode::Scene2dData::ToFile(Item.Output, V, USerializerType::Bytes);
+
+		ExportFileRet r;
+		r._UID = V._UID;
+		return r;
+	}
 };
 
 

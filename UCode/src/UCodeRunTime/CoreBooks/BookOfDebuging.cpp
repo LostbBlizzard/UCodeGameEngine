@@ -38,7 +38,7 @@ void DebugingClient::Connet(const UCode::Ip_t& SeverIp, UCode::Port_t SeverPort)
 	V.Connection.Connet(SeverIp, SeverPort);
 
 
-	SeverConnection =std::move(V);
+	//SeverConnection =std::move(V);
 }
 
 void DebugingClient::Disconnect()

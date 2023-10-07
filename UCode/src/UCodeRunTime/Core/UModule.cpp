@@ -1,5 +1,6 @@
 #include "UModule.hpp"
-#include "../CoreModule.hpp"
+#include "UCodeRunTime/Modules/CoreModule.hpp"
+#include "UCodeRunTime/ULibrarys/AssetManagement/AssetManager.hpp"
 CoreStart
 void UModules::Init()
 {
@@ -29,6 +30,21 @@ UModuleComponentData* UModules::GetComponet(const UComponentsID& ID)
 	}
 	return nullptr;
 }
+UModuleAssetData* UModules::GetAsset(const Path& ExtWithDot)
+{
+	auto List = GetModules();
+	for (size_t i = 0; i < List.Size(); i++)
+	{
+		auto& Item = List[i];
+		auto V = Item->GetAssetData(ExtWithDot);
+		if (V)
+		{
+			return V;
+		}
+
+	}
+	return nullptr;
+}
 UModuleComponentData* UModule::GetComponet(const UComponentsID& ID)
 {
 	auto List = GetCompoents();
@@ -43,6 +59,19 @@ UModuleComponentData* UModule::GetComponet(const UComponentsID& ID)
 	}
 	return nullptr;
 }
+UModuleAssetData* UModule::GetAssetData(const Path& ExtWithDot)
+{
+	auto List = GetAssets();
+	for (size_t i = 0; i < List.Size(); i++)
+	{
+		auto& Item = List[i];
 
+		if (Item._AssetExtWithDot == ExtWithDot)
+		{
+			return &Item;
+		}
+	}
+	return nullptr;
+}
 CoreEnd
 

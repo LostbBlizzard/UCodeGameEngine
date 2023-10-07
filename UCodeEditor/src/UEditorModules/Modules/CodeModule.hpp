@@ -24,8 +24,6 @@ public:
 	}
 
 
-	ExportEditorReturn ExportEditor(ExportEditorContext& Context) override;
-
 	void FilesUpdated(const Vector<FileUpdateData>& paths) override;
 
 private:

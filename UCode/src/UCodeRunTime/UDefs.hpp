@@ -151,7 +151,7 @@ UCodeGameEngineForceinlne void __DebugBreak()
 }
 
 //#define UCodeGameEngineAssert(x) if(x){UCODE_ENGINE_LOG("breakpoint Called") __DebugBreak(); }
-#define UCodeGameEngineAssert(x) if(x){__DebugBreak(); }
+#define UCodeGameEngineAssert(x) if(!x){__DebugBreak(); }
 #define UCodeGameEngineThrowException(x) throw std::exception(x);
 
 

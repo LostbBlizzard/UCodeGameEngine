@@ -1,0 +1,56 @@
+_Name: "[UnNamedScene]"
+_UID:
+  - 0
+_Entitys:
+  - _LocalPosition:
+      - 0
+      - 0
+      - 0
+    _LocalRotation:
+      - 0
+      - 0
+      - 0
+    _LocalScale:
+      - 1
+      - 1
+      - 1
+    _Compoents:
+      - _TypeID: SpriteRenderer
+        _Data:
+          Shader:
+            - 1
+          Sprite:
+            - 1
+          Color:
+            - 1
+            - 1
+            - 1
+            - 1
+          flipX: false
+          flipY: false
+          DrawLayer: 0
+          DrawOrder: 0
+    _Entitys:
+      []
+    _Name: "[UnNamedEntity]"
+  - _LocalPosition:
+      - 0
+      - 0
+      - 0
+    _LocalRotation:
+      - 0
+      - 0
+      - 0
+    _LocalScale:
+      - 1
+      - 1
+      - 1
+    _Compoents:
+      - _TypeID: Camera
+        _Data:
+          Type: 0
+          ortho_size: 5
+          Fov: 90
+    _Entitys:
+      []
+    _Name: Cam

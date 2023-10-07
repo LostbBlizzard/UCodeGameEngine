@@ -12,26 +12,58 @@ void AssetManager::GetDataFromGameFiles(GameFiles* gameFiles)
 
 void AssetManager::AddAsset(Unique_ptr<Asset> Asset)
 {
-
+	_Assets.push_back(std::move(Asset));
 }
 
 Optional<Assetptr> AssetManager::FindAsset(const UID& Path)
 {
+	for (auto& Item : _Assets)
+	{
+		if (Item->Uid.value_or(UID()) == Path)
+		{
+			return Item->Get_Managed();
+		}
+	}
 	return {};
 }
 
 Optional<Assetptr> AssetManager::FindAsset(const Path& Path)
 {
+	for (auto& Item : _Assets)
+	{
+		if (Item->ObjectPath.value_or("") == Path)
+		{
+			return Item->Get_Managed();
+		}
+	}
+
+
 	return {};
 }
 
 Optional<Assetptr> AssetManager::LoadAsset(const UID& Path)
 {
+	auto r = _Loader->LoadAsset(Path);
+	if (r.has_value())
+	{
+		auto m = r.value()->Get_Managed();
+		AddAsset(std::move(r.value()));
+
+		return m;
+	}
 	return {};
 }
 
 Optional<Assetptr> AssetManager::LoadAsset(const Path& Path)
 {
+	auto r = _Loader->LoadAsset(Path);
+	if (r.has_value())
+	{
+		auto m = r.value()->Get_Managed();
+		AddAsset(std::move(r.value()));
+
+		return m;
+	}
 	return {};
 }
 

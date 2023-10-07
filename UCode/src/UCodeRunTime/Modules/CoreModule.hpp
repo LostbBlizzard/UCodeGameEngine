@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/UModule.hpp"
+#include "../Core/UModule.hpp"
 CoreStart
 class CoreModule :public UModule
 {
@@ -10,10 +10,15 @@ public:
 	{
 		return { _Compoents.data(),_Compoents.size() };
 	};
-
+	
+	const Span<UModuleAssetData> GetAssets() override
+	{
+		return { _Assets.data(),_Assets.size() };
+	};
 
 private:
 	Array< UModuleComponentData, 3> _Compoents;
+	Array<UModuleAssetData,1> _Assets;
 };
 CoreEnd
 

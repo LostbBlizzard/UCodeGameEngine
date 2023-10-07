@@ -67,7 +67,8 @@ Texture::Texture(i32 width, i32 height, const Color32* color)
 Texture::Texture(const BytesView PngData)
 	: _RendererID(0), _Width(0), _Height(0), _BPP(0), _Buffer(nullptr), _BufferIsInGPU(false), _FilePath(MadewithColor)
 {
-	
+	_Buffer = Unique_array<Byte>(stbi_load_from_memory(PngData.Data(), PngData.Size(), &_Width, &_Height, &_BPP, 4));
+
 	InitTexture();
 }
 

@@ -113,7 +113,11 @@ void Render::UpdateFrame()
 			}
 			_Render->ProcessInput();
 		}
-
+		else
+		{
+			_Render->UpdateScreen();
+			_Render->ProcessInput();
+		}
 	}
 	else
 	{

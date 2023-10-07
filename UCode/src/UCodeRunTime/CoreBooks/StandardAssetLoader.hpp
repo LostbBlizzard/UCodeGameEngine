@@ -5,10 +5,56 @@ class StandardAssetLoader :public AssetLoader
 {
 public:
 	GameFiles* gamefiles = nullptr;
+
+	struct UIdMap
+	{
+		UnorderedMap<UID, Path> _Paths;
+
+		void Serialize(USerializer& Out)
+		{
+			Out.Write("_Size", (BitMaker::SizeAsBits)_Paths.size());
+
+			for (auto& Item : _Paths)
+			{
+				Out.Write("_UID", Item.first);
+				Out.Write("_Path", Item.second.generic_string());
+			}
+		}
+		void Deserialize(UDeserializer& Out)
+		{
+			BitMaker::SizeAsBits S = 0;
+			Out.ReadType("_Size", S);
+			_Paths.reserve(S);
+
+			for (size_t i = 0; i < S; i++)
+			{
+				UID V1;
+				Path V2;
+				Out.ReadType("_UID", V1);
+				Out.ReadType("_Path", V2);
+
+				_Paths[V1] = std::move(V2);
+			}
+		}
+		~UIdMap()
+		{
+
+		}
+
+		inline static const char* FileWithDot = "UID.data";
+	};
+
 	inline void Init(GameFiles* files, UCode::AssetManager* Manager)
 	{
 		gamefiles = files;
 		_Manager = Manager;
+	
+		auto byte = gamefiles->ReadGameFileAsBytes(GameFilesData::GetUCodeDir() / Path(UIdMap::FileWithDot).native());
+		
+		UDeserializer v;
+		v.SetBytes(byte.AsView());
+		_uids.Deserialize(v);
+
 	}
 
 	inline const GameFilesData& Get_GameFile()
@@ -16,8 +62,28 @@ public:
 		return gamefiles->Get_FilesData();
 	}
 
-	Optional<Assetptr> LoadAsset(const UID& Path);
-	Optional<Assetptr> LoadAsset(const Path& Path);
+	Optional<Unique_ptr<Asset>> LoadAsset(const UID& Path) override
+	{
+		auto v = GetUIDToPath(Path);
+		if (v.has_value()) {
+			return LoadAsset(v.value());
+		}
+		else
+		{
+			return {};
+		}
+	}
+	Optional<Unique_ptr<Asset>> LoadAsset(const Path& Path) override;
+private:
+	UIdMap _uids;
+	Optional<Path> GetUIDToPath(const UID& id)
+	{
+		if (_uids._Paths.count(id))
+		{
+			return _uids._Paths.at(id);
+		}
+		return {};
+	}
 };
 CoreEnd
 
