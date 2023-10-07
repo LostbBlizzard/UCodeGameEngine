@@ -162,8 +162,10 @@ namespace YAML {//This should be moved somewere else
 	template<> struct convert<UCode::Scene2dData::Compoent_Data> {
 		static Node encode(const UCode::Scene2dData::Compoent_Data& rhs) {
 			Node node;
-			node["_TypeID"] = rhs._CompoentType;
+		 	node["_TypeID"] = rhs._CompoentType;
 			node["_Data"] = YAML::Load(rhs._Data.substr(1));
+
+
 			return node;
 		}
 
@@ -177,7 +179,7 @@ namespace YAML {//This should be moved somewere else
 			E << DataNode;
 
 			rhs._Data += (char)(UCode::USerializerType::YAML);
-			rhs._Data = E.c_str();
+			rhs._Data += E.c_str();
 			return true;
 		}
 	};

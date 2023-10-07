@@ -172,13 +172,12 @@ project "UCodeApp"
      "glew64s.lib","Opengl32.lib",
     }
 
-   filter { "system:Windows","configurations:Published" }
-      kind ("WindowedApp")
-      buildmessage "Copying Output"
+  
+    buildmessage "Copying Output"
 
-      postbuildcommands {
+    postbuildcommands {
        "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name}.exe %{wks.location}UCodeEditor/UFiles/bin/%{prj.name}_%{cfg.platform}.exe"
-      }
+    }
 
 project "UCodeEditor"
    location "UCodeEditor"

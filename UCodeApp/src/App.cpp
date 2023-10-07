@@ -52,7 +52,6 @@ int App::main(int argc, char* argv[])
     
 
     UCode::Loger::InitCheck();
-
     //try
     {
         #ifdef UCode_Build_Windows_OS

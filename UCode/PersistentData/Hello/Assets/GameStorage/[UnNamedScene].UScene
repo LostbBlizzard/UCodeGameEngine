@@ -17,14 +17,15 @@ _Entitys:
     _Compoents:
       - _TypeID: SpriteRenderer
         _Data:
+          Test: 1
           Shader:
-            - 1
+            - 0
           Sprite:
-            - 1
-          Color:
-            - 1
-            - 1
-            - 1
+            - 0
+          Color2:
+            - 0.0422654264
+            - 0.769230783
+            - 0.33784467
             - 1
           flipX: false
           flipY: false
@@ -54,3 +55,35 @@ _Entitys:
     _Entitys:
       []
     _Name: Cam
+  - _LocalPosition:
+      - 3
+      - 0
+      - 0
+    _LocalRotation:
+      - 0
+      - 0
+      - 0
+    _LocalScale:
+      - 1
+      - 1
+      - 1
+    _Compoents:
+      - _TypeID: SpriteRenderer
+        _Data:
+          Test: 1
+          Shader:
+            - 0
+          Sprite:
+            - 0
+          Color2:
+            - 0.956043959
+            - 0.738131464
+            - 0.162842676
+            - 1
+          flipX: false
+          flipY: false
+          DrawLayer: 0
+          DrawOrder: 0
+    _Entitys:
+      []
+    _Name: "[UnNamedEntity]"
