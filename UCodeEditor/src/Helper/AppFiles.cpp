@@ -42,8 +42,8 @@ const String TexturePaths[]
     "art/caret-forward-outline.png",//Play_NotPlaying
     "art/caret-forward-circle-outline.png",//Play_Play
 
-    "art/21 - UCodeIcons.png",//Paused_Blue
-    "art/22 - UCodeIcons.png",//Paused_Green
+    "art/caret-forward-outline.png",//Paused_Blue
+    "art/caret-forward-circle-outline.png",//Paused_Green
     "art/UCodeEngineLogo.png",//AppIcon
     "art/windows-icon.png",
     "art/web-icon.png",
@@ -152,6 +152,8 @@ UCode::Texture* AppFiles::GetTexture(texture tex)
             newtext = std::move(UCode::Texture::MakeNewNullTexture());
             UCode::GameFiles* gamefiles = UCode::GameFiles::Get(_GameLib);
 
+            UCodeGameEngineAssert(std::filesystem::exists(AppFilesPathDir + Path));
+
             auto Func2 = [id](Unique_Bytes Bytes)
             {
                 return UCode::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView())
@@ -222,6 +224,8 @@ AsynTask_t<UCode::Texture*> AppFiles::AsynGetTexture(texture tex)
         }
         else
         {
+            UCodeGameEngineAssert(std::filesystem::exists(AppFilesPathDir + Path));
+
             UCode::GameFiles* gamefiles = UCode::GameFiles::Get(_GameLib);
             
 

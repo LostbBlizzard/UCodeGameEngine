@@ -72,7 +72,7 @@ void GameEditorWindow::UpdateWindow()
 void GameEditorWindow::OnSaveWindow(USerializer& JsonToSaveIn)
 {
     auto& Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
-    if (_SceneData) 
+    if (_SceneData && _UseingScenePath.has_value())
     {
         auto PathString = FileHelper::ToRelativePath(Assespath, _UseingScenePath.value());
        

@@ -69,7 +69,27 @@ bool GameFilesData::ReadFileKeepOpen(const Path& Path, FileBuffer& OutFile, Game
 		}
 		else
 		{
-			UCODE_ENGINE_IMPlEMENTED_LATER;
+			String Sing;
+			OutFile.ReadType(Sing);
+			if (Sing == UCodeGameEngineFileSignature)
+			{
+				VersionNumber_t Version = 0;
+				OutFile.ReadType(Version);
+				OutFile.ReadType(data.CompanyName);
+				OutFile.ReadType(data.APPName);
+
+				OutFile.ReadType(*(Type_t*)&data._Type);
+				OutFile.ReadType(data.SceneToLoadOnPlay);
+
+				OutFile.ReadType(data.Offsets);
+
+				BitMaker::SizeAsBits V;
+				OutFile.ReadType(V);
+
+				OutFile.Set_FileReadStartIndex(OutFile.Get_FileReadIndex());
+				return true;
+			}
+			return false;
 		}
 		return true;
 	}
@@ -109,6 +129,7 @@ void GameFilesData::Serialize(const GameFilesData& data, USerializer& Out)
 	Out.Write("version", UCodeGameEngineVersionNumber);
 	Out.Write("Company", data.CompanyName);
 	Out.Write("GameName", data.APPName);
+
 	Out.Write("AssetDataType", (Type_t)data._Type);
 	Out.Write("SceneToLoadOnPlay", data.SceneToLoadOnPlay);
 
@@ -129,8 +150,10 @@ bool GameFilesData::Deserializ(UDeserializer& In, GameFilesData& Out)
 		In.ReadType("version", Version);
 		In.ReadType("Company", Out.CompanyName);
 		In.ReadType("GameName", Out.APPName);
+
 		In.ReadType("AssetDataType", *(Type_t*)&Out._Type);
 		In.ReadType("SceneToLoadOnPlay", Out.SceneToLoadOnPlay);
+
 		In.ReadType("AssetsOffsets", Out.Offsets);
 
 		In.ReadType("Data", Out._Data);
@@ -200,9 +223,26 @@ String GameFiles::ReadGameFileAsString(const Path& path)
 	{
 		return GameFiles::ReadGameFileAsString(_Data._RedirectDir.native() + path.native());
 	}
+	else if (_Data._Type == GameFilesData::Type::ThisFile)
+	{
+		if (auto val = _Data.GetFile(path))
+		{
+			_FileBuffer.Set_FileReadIndex(val->FileOffset);
+
+			String V;
+			V.resize(val->FileSize);
+			_FileBuffer.ReadBytes((Byte*)V.data(), V.size());
+
+			return V;
+		}
+		else
+		{
+			return {};
+		}
+	}
 	else
 	{
-		throw std::exception("bad");
+		UCodeGameEngineUnreachable();
 	}
 }
 Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& path)
@@ -211,9 +251,26 @@ Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& path)
 	{
 		return GameFiles::ReadFileAsBytes(_Data._RedirectDir.native() + path.native());
 	}
+	else if (_Data._Type == GameFilesData::Type::ThisFile)
+	{
+		if (auto val = _Data.GetFile(path))
+		{
+			_FileBuffer.Set_FileReadIndex(val->FileOffset);
+
+			Unique_Bytes V;
+			V.Resize(val->FileSize);
+			_FileBuffer.ReadBytes(V.Data(), V.Size());
+
+			return V;
+		}
+		else
+		{
+			return {};
+		}
+	}
 	else
 	{
-		throw std::exception("bad");
+		UCodeGameEngineUnreachable();
 	}
 }
 Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& Path, size_t Offset, size_t Size)

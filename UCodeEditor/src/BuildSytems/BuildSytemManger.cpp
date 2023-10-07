@@ -8,6 +8,8 @@
 
 #include "UEditorModules/UEditorModule.hpp"
 #include "zip.h"
+
+#include <UCodeRunTime/CoreBooks/StandardAssetLoader.hpp>
 EditorStart
 
 namespace fs = std::filesystem;
@@ -36,7 +38,10 @@ void BuildSytemManger::BuildProject()
 	{
 		Build(*Val);
 	}
-
+	else
+	{
+		UCodeGameEngineUnreachable();
+	}
 }
 void BuildSytemManger::Reset()
 {
@@ -74,8 +79,11 @@ void BuildSytemManger::BuildProjectGlobalWasGameData(const Path& GameFilesDataPa
 	auto ModulesList = UCodeEditor::UEditorModules::GetModules();
 
 	ExportEditorContext Export;
+	Export.AssetPath = Setings._InputDir;
 	Export.TemporaryGlobalPath = Setings.TemporaryGlobalPath;
 	Export.ChachInfo = &Chache;
+
+	fs::create_directories(Export.TemporaryGlobalPath);
 
 	Vector<ExportEditorReturn> ModulesRets;
 	for (size_t i = 0; i < ModulesList.Size(); i++)
@@ -87,6 +95,8 @@ void BuildSytemManger::BuildProjectGlobalWasGameData(const Path& GameFilesDataPa
 	}
 
 
+	auto Uidmappath = UCode::GameFilesData::GetUCodeDir() / UCode::StandardAssetLoader::UIdMap::FileWithDot;
+	UCode::StandardAssetLoader::UIdMap IDMap;
 	{
 		UCode::GameFilesData GameData;
 		GameData._Type = UCode::GameFilesData::Type::ThisFile;
@@ -100,20 +110,60 @@ void BuildSytemManger::BuildProjectGlobalWasGameData(const Path& GameFilesDataPa
 				if (UCode::GameFilesData::ReadFile(Item.OutputModuleFile, data)) 
 				{
 
-					size_t OffsetToAdd = data._Data.size();
-
+					size_t OffsetToAdd = GameData._Data.size();
+					size_t MyDataSize = data._Data.size();
 					for (auto& Item : data.Offsets)
 					{
+						if (Item.FileFullName == Uidmappath)
+						{
+							UCode::StandardAssetLoader::UIdMap myidmap;
+							UDeserializer deserializer;
+							deserializer.SetBytes(BytesView::Make(&data._Data[Item.FileOffset],Item.FileSize));
+
+							myidmap.Deserialize(deserializer);
+
+							for (auto& Item : myidmap._Paths) 
+							{
+								IDMap._Paths[Item.first] = std::move(Item.second);
+							}
+
+							MyDataSize -= Item.FileSize;//Will allways be last.
+							continue;
+						}
+
 						GameData.Offsets.push_back(std::move(Item));
 
 
-						auto MovedItem = GameData.Offsets.back();
+						auto& MovedItem = GameData.Offsets.back();
 						MovedItem.FileOffset += OffsetToAdd;
 					}
 
-					GameData._Data.resize(GameData._Data.size() + data._Data.size());
-					memcpy(GameData._Data.data() + GameData._Data.size(), data._Data.data(), data._Data.size());
+					GameData._Data.resize(GameData._Data.size() + MyDataSize);
+					memcpy(GameData._Data.data() + OffsetToAdd, data._Data.data(), MyDataSize);
 				}
+			}
+		}
+
+		{
+			UCode::USerializer serializer(USerializerType::Bytes);
+
+			IDMap.Serialize(serializer);
+
+			auto bytes = serializer.Get_BitMaker().Get_Bytes();
+
+
+			UCode::GameFileIndex index;
+			index.FileOffset = GameData._Data.size();
+			index.FileFullName = UCode::GameFilesData::GetUCodeDir() / UCode::StandardAssetLoader::UIdMap::FileWithDot;
+			index.FileSize = bytes.size();
+
+			GameData.Offsets.push_back(std::move(index));
+
+			for (size_t i = 0; i < bytes.size(); i++)
+			{
+				auto& Item = bytes[i];
+
+				GameData._Data.push_back(Item);
 			}
 		}
 

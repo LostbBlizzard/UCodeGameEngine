@@ -49,22 +49,17 @@ int App::main(int argc, char* argv[])
         std::cout << MyTask.GetProgress().AsPercent() << std::endl;
         */
     }
-
-    #ifdef DEBUG
-    while (true);//debuger beak point
-    #endif // DEBUG
-
+    
 
     UCode::Loger::InitCheck();
 
-    try
+    //try
     {
         #ifdef UCode_Build_Windows_OS
 
-        UCode::Path Tep = argv[0];
+        
 
-
-        UCode::Path GameDataPath = Tep.parent_path() / (UCode::Path)GameFilesData::FileDataName;
+        UCode::Path GameDataPath = (UCode::Path)GameFilesData::FileDataName;
         #endif
         GameFilesData GameData;
         FileBuffer Buffer;
@@ -106,9 +101,9 @@ int App::main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
     }
-    catch (const std::exception& ex)
+    //catch (const std::exception& ex)
     {
-        UCode::Loger::Log((UCode::String)"App crashed :" + (UCode::String)ex.what(), UCode::LogType::Fatal);
+       // UCode::Loger::Log((UCode::String)"App crashed :" + (UCode::String)ex.what(), UCode::LogType::Fatal);
 
 
         #ifdef DEBUG

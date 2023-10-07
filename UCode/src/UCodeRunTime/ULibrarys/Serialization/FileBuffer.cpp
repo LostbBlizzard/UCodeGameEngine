@@ -1,5 +1,6 @@
 #include "FileBuffer.hpp"
 #include <filesystem>
+#include <UCodeRunTime/CoreBooks/GameFiles.hpp>
 
 #ifdef UCode_Build_Windows_OS
 #include <Windows.h>
@@ -58,42 +59,54 @@ void FileBuffer::CanFitFullFileCheck()
 {
 	if (_FileSize <= _BufferSize)
 	{
-		if (_Buffer == nullptr)
+		if (_FullFileInMem == false)
 		{
-			_Buffer =std::make_unique<Byte[]>(_FileSize);
+			_Buffer = std::make_unique<Byte[]>(_FileSize);
 			_BufferSize = _FileSize;
 			_BufferPos = 0;
+
+			_File.read((char*)_Buffer.get(), _FileSize);
+			_FullFileInMem = true;
 		}
 
-		_File.read((char*)_Buffer.get(), _FileSize);
-		_FullFileInMem = true;
+	
 
 	}
 }
-Byte FileBuffer::ReadByte()
+void FileBuffer::ReadBytes(Byte* bytes, size_t Count)
 {
-	CanFitFullFileCheck();
 	BufferCheck();
+	CanFitFullFileCheck();
 
 
-	Byte V;
 	if (_FullFileInMem)
 	{
-		V = _Buffer[_BufferPos];
+		memcpy(bytes, &_Buffer[_BufferStart+_BufferPos], Count);
 	}
 	else
 	{
 		Byte* Ptr = GetBufferoffset();
-		_File.read((char*)Ptr, 1);
-
-		V = _Buffer[_BufferPos];
+		_File.read((char*)bytes, Count);
 	}
-	_BufferPos += 1;
+	_BufferPos += Count;
 	if (_BufferPos == _BufferSize)
 	{
 		_BufferPos = 0;
 	}
-	return V;
+}
+void FileBuffer::ReadType(GameFileIndex& Out)
+{
+	ReadType(Out.FileFullName);
+
+	u64 V = 0;
+
+	ReadType(V);
+
+	Out.FileOffset = V;
+
+	ReadType(V);
+
+	Out.FileSize = V;
 }
 
 void FileBuffer::Set_FileReadIndex(size_t Index)
@@ -104,7 +117,7 @@ void FileBuffer::Set_FileReadIndex(size_t Index)
 	}
 	else
 	{
-		_File.seekg(Index);
+		_File.seekg(_BufferStart + Index);
 	}
 }
 
@@ -147,13 +160,5 @@ void FileBuffer::ReadFullFile(String& OutBuffer)
 FileBuffer::~FileBuffer()
 {
 	Close();
-}
-FileBuffer::FileBuffer(FileBuffer&& source)
-{
-	throw std::exception("not added");
-}
-FileBuffer& FileBuffer::operator=(FileBuffer&& source)
-{
-	throw std::exception("not added");
 }
 CoreEnd

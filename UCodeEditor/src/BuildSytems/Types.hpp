@@ -1,6 +1,6 @@
 #pragma once
 #include "Typedefs.hpp"
-
+#include <variant>
 EditorStart
 
 enum class PlatformType :u16

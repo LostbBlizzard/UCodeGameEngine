@@ -25,13 +25,16 @@ const ExportProjectWindow::PlatformsData PlatformsData_[] =
 };
 constexpr size_t PlatfromSize = sizeof(PlatformsData_) / sizeof(PlatformsData_[0]);
 
+
+bool IsDone = false;
+
 void ExportProjectWindow::UpdateWindow()
 {
 	bool _Building = RuningTasksInfo::HasTaskRuning(RuningTask::Type::BuildingProject);
 	if (_Building)
 	{
 		
-		if (_Task.valid() && _Task.IsDone())
+		if (IsDone)
 		{
 		
 			ImGui::Text("Building Project...");
@@ -171,8 +174,8 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 		}
 		buildSytem.Setings._OutDir /= AddedOnOutDir;
 
-		//BuildSetings::SettingsType Copy = BuildSetings::SettingsType(WindowsBuildSetings(Info));
-		//SetBuildData(AssetsPath, ProjectInfo, AddedOnOutDir,Copy);
+		BuildSetings::SettingsType Copy = Info;
+		SetBuildData(AssetsPath, ProjectInfo, AddedOnOutDir,Copy);
 		
 		RuningTask V;
 		V.TaskType = RuningTask::Type::BuildingProject;
@@ -183,9 +186,9 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 			buildSytem->BuildProject();
 		};
 
-		_Task = Threads->AddTask_t(
-			UCode::TaskType::FileIO,
-			std::move(Func), {});
+		//_Task = Threads->AddTask_t(UCode::TaskType::FileIO,std::move(Func), {});
+		buildSytem.BuildProject();
+		IsDone = true;
 	}
 
 	

@@ -53,9 +53,14 @@ struct UEditorAssetDataConext
 	Vec2 ButtionSize;
 };
 
-
+struct ExportFileContext
+{
+	Path Output;
+	Path ChashPath;
+};
 struct ExportEditorContext
 {
+	Path AssetPath;
 	Path TemporaryGlobalPath;
 	ExportChacheFile* ChachInfo = nullptr;
 };
@@ -85,7 +90,11 @@ struct UEditorAssetDrawButtionContext
 };
 
 
-
+struct ExportFileRet
+{
+	bool WasUpdated = false;
+	Optional<UID> _UID;
+};
 class UEditorAssetFile
 {
 public:
@@ -128,7 +137,13 @@ public:
 	{
 
 	}
+	virtual ExportFileRet ExportFile(const ExportFileContext& Item)
+	{
+		return ExportFileRet();
+	}
 };
+
+
 
 class UEditorAssetFileData
 {
@@ -140,6 +155,7 @@ public:
 
 	bool CallLiveingAssetsWhenUpdated = false;
 	bool CallLiveingAssetsWhenMetaWasUpdated = false;
+	bool CallLiveingAssetsWhenExport = false;
 	virtual Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile()
 	{
 		return {};
@@ -163,6 +179,10 @@ public:
 	virtual void MetaFileUpdated(const Path& path)
 	{
 
+	}
+	virtual ExportFileRet ExportFile(const Path& path,const ExportFileContext& Item)
+	{
+		return  ExportFileRet();
 	}
 
 	inline const static String DefaultMetaFileExtWithDot = ".meta";
@@ -235,10 +255,7 @@ public:
 
 	}
 
-	virtual ExportEditorReturn ExportEditor(ExportEditorContext& Context)
-	{
-		return {};
-	}
+	ExportEditorReturn ExportEditor(ExportEditorContext& Context);
 	
 	Optional<size_t> GetAssetDataUsingExt(const Path& ExtWithDot);
 	Optional<size_t> GetComponentData(const UCode::UComponentsID& ID);

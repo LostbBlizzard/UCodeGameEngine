@@ -306,7 +306,7 @@ public:
 		char Items[ItemSize];
 	};
 	static_assert(sizeof...(Types) > 0, "Must have at one Type");
-	Variant():_Tag(NullTag)
+	Variant() noexcept :_Tag(NullTag)
 	{
 		
 	}
@@ -318,55 +318,58 @@ public:
 		}
 	}
 
-	Variant(const ThisType& source)
+	Variant(const ThisType& source) noexcept
 	{
 		_Tag = source._Tag;
 		_Items = source._Items;
 	}
 
-	Variant(ThisType&& source)
+	Variant(ThisType&& source) noexcept
 	{
 		_Tag = source._Tag;
 		_Items = source._Items;
 		//
 		new (&source) ThisType();
 	}
-	template<typename T> Variant(const T& source)
+	template<typename T> Variant(const T& source) noexcept
 	{
 		MustBeMyType<T>();
 
 		_Tag = GetTypeValue<T>();
 		new ((T*)&_Items) T(source);
 	}
-	template<typename T> Variant(T&& source)
+
+	/*
+	template<typename T> Variant(T&& source) noexcept
 	{
 		MustBeMyType<T>();
 
 		_Tag = GetTypeValue<T>();
 		new ((T*)&_Items) T(std::move(source));
 	}
+	*/
 
-	ThisType& operator=(const ThisType& source)
+	ThisType& operator=(const ThisType& source) noexcept
 	{
 		this->~Variant();
 		new (this) ThisType(source);
 
 		return *this;
 	}
-	ThisType& operator=(ThisType&& source)
+	ThisType& operator=(ThisType&& source) noexcept
 	{
 		new (this) ThisType(source);
 
 		return *this;
 	}
-	template<typename T> ThisType& operator=(const T& source)
+	template<typename T> ThisType& operator=(const T& source) noexcept
 	{
 		this->~Variant();
 		new (this) ThisType(source);
 
 		return *this;
 	}
-	template<typename T> ThisType& operator=(T&& source)
+	template<typename T> ThisType& operator=(T&& source) noexcept
 	{
 		this->~Variant();
 		new (this) ThisType(std::move(source));

@@ -101,11 +101,11 @@ public:
 		return 1000 * 1000 * MB;
 	}
 
-	virtual Optional<Assetptr> LoadAsset(const UID& Path)
+	virtual Optional<Unique_ptr<Asset>> LoadAsset(const UID& Path)
 	{
 		return {};
 	}
-	virtual Optional<Assetptr> LoadAsset(const Path& Path)
+	virtual Optional<Unique_ptr<Asset>> LoadAsset(const Path& Path)
 	{
 		return {};
 	}
