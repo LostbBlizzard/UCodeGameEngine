@@ -1,5 +1,5 @@
 #pragma once
-#include "..\BasicTypes.hpp"
+#include "../BasicTypes.hpp"
 #include "GameTime.hpp"
 #include "UComponentsID.hpp"
 #include <type_traits>

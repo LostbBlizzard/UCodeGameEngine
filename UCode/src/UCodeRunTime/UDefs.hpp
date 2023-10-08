@@ -135,7 +135,9 @@ using VersionNumber_t = int;
 #include <vcruntime_exception.h>
 #endif
 
-
+#if UCodeGameEnginePlatformPosix
+#include <csignal>
+#endif
 
 UCodeGameEngineForceinlne void __DebugBreak()
 {
@@ -152,8 +154,12 @@ UCodeGameEngineForceinlne void __DebugBreak()
 
 //#define UCodeGameEngineAssert(x) if(x){UCODE_ENGINE_LOG("breakpoint Called") __DebugBreak(); }
 #define UCodeGameEngineAssert(x) if(!x){__DebugBreak(); }
-#define UCodeGameEngineThrowException(x) throw std::exception(x);
 
+#if UCodeGameEnginePlatformPosix
+#define UCodeGameEngineThrowException(x) throw std::runtime_error(x);
+#else 
+#define UCodeGameEngineThrowException(x) throw std::exception(x);
+#endif
 
 #if UCodeGameEngineDEBUG
 #define UCodeGameEngineUnreachable() UCodeGameEngineThrowException("reached unreachable path")

@@ -49,7 +49,7 @@ public:
 		}
 	}
 
-	template<>
+	
 	void Write(const char* FieldName, const unsigned char& Value)
 	{
 		switch (_Type)
@@ -65,7 +65,7 @@ public:
 		}
 	}
 
-	template<>
+	
 	void Write(const char* FieldName, const signed char& Value)
 	{
 		switch (_Type)

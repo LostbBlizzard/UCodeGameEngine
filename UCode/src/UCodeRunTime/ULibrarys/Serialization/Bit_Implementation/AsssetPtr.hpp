@@ -42,8 +42,8 @@ struct BitData<UCode::AssetPtr<Asset,AssetBase>>
 	}
 	static void FromBytes(BitReader& This, TypePtr& Out)
 	{
-		TypePtr::State V= TypePtr::State::Null;
-		This.ReadType(*(TypePtr::State_t*)&V, *(TypePtr::State_t*)&V);
+		typename TypePtr::State V= TypePtr::State::Null;
+		This.ReadType(*(typename TypePtr::State_t*)&V, *(typename TypePtr::State_t*)&V);
 		switch (V)
 		{
 		case TypePtr::State::UID:

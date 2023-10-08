@@ -15,3 +15,4 @@ template<> struct convert<Type> {\
 		}\
 }; \
 } \
+
