@@ -50,12 +50,12 @@ BookOfThreads::~BookOfThreads()
 	//
 	for (auto& Item : _MainThreadData._TaskToDo)
 	{
-		TryCallCancel(Item.TaskID);
+		TryCallCancel(Item.taskID);
 	}
 	_MainThreadData._TaskToDo.clear();
 	for (auto& Item : _TaskToReAddOnToMainThread)
 	{
-		TryCallCancel(Item.TaskID);
+		TryCallCancel(Item.taskID);
 	}
 	_TaskToReAddOnToMainThread.clear();
 	//
@@ -140,7 +140,7 @@ void BookOfThreads::ThreadLoop(BookOfThreads* _This,ThreadInfo* Info)
 
 	for (auto& Item : Info->_Data._TaskToDo)
 	{
-		TryCallCancel(Item.TaskID);
+		TryCallCancel(Item.taskID);
 	}
 	Info->_Data._TaskToDo.clear();
 }
@@ -253,7 +253,7 @@ AsynTask BookOfThreads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vect
 			
 
 			_TaskLock.lock();
-			Task.TaskID = TaskID(_TaskID.Get_Base()-1);
+			Task.taskID = TaskID(_TaskID.Get_Base()-1);
 			_TaskLock.unlock();	
 			GetThreadNoneWorkingThread()._TaskToDo.push_back(std::move(Task));
 			return  AsynTask();
@@ -266,7 +266,7 @@ AsynTask BookOfThreads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vect
 			
 
 			_TaskLock.lock();
-			Task.TaskID = TaskID(_TaskID.Get_Base()-1);
+			Task.taskID = TaskID(_TaskID.Get_Base()-1);
 			auto& V = GetThreadInfo(thread);
 			
 			V._TaskToDo.push_back(std::move(Task));

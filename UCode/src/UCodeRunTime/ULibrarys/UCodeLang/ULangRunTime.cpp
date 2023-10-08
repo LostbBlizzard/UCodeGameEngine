@@ -66,7 +66,7 @@ void ULangRunTime::OpenLibs(const Path& PathDir)
 	{
 		_State.AddLib(Item.RunPtr.get());
 	}
-	_State.AddLib(UCodeAPI_Lib::Get());
+	_State.AddLib(UCodeAPI::Get());
 	_State.LinkLibs();
 
 	for (size_t i = 0; i < _Scripts.size(); i++)

@@ -1000,12 +1000,12 @@ private:
 
 
 template<typename T2>
-void Asyn_AddTask_t(ThreadToRunID Thread,Delegate<T2>&& Func,const Vector<TaskID>& Deps)
+AsynTask_t<T2> Asyn_AddTask_t(ThreadToRunID Thread,Delegate<T2>&& Func,const Vector<TaskID>& Deps)
 {
 	return BookOfThreads::Threads->AddTask_t<T2>(Thread,std::move(Func),Deps);
 }
 
-void Asyn_RunOnOnMainThread(Delegate<void>&& Func)
+inline void Asyn_RunOnOnMainThread(Delegate<void>&& Func)
 {
 	BookOfThreads::Threads->RunOnOnMainThread(std::move(Func));
 }
@@ -1016,16 +1016,16 @@ bool Asyn_TryCallOnDone(TaskID id, T&& Move)
 	return BookOfThreads::TryCallOnDone<T>(id, std::move(Move));
 }
 
-void Asyn_TryCallCancel(TaskID id)
+inline void Asyn_TryCallCancel(TaskID id)
 {
 	BookOfThreads::TryCallCancel(id);
 }
-void Asyn_SetTaskData_Done(TaskID id,AnyDoneFuncPtr&& done,ThreadToRunID Thread)
+inline void Asyn_SetTaskData_Done(TaskID id,AnyDoneFuncPtr&& done,ThreadToRunID Thread)
 {
 	BookOfThreads::SetTaskData_Done(id,std::move(done),Thread);
 }
 
-void SetTaskData_Cancel(TaskID id,Delegate<void>&& Value, ThreadToRunID Thread)
+inline void SetTaskData_Cancel(TaskID id,Delegate<void>&& Value, ThreadToRunID Thread)
 {
 	BookOfThreads::SetTaskData_Cancel(id, std::move(Value), Thread);
 }
@@ -1041,34 +1041,38 @@ std::future<T>& Asyn_GetFuture(TaskID id)
 {
 	return BookOfThreads::_Map[id].GetFuture<T>();
 }
-bool Asyn_IsDoneLocked()
+inline bool Asyn_IsDoneLocked()
 {
 	return BookOfThreads::IsDoneLocked();
 }
-bool Asyn_HasOnDone(TaskID id)
+inline bool Asyn_HasOnDone(TaskID id)
 {
 	return BookOfThreads::HasOnDone(id);
 }
-size_t Asyn_Map_Count(TaskID id)
+inline size_t Asyn_Map_Count(TaskID id)
 {
 	return BookOfThreads::_Map.count(id);
 }
 
-void Asyn_Map_Erase(TaskID id)
+inline void Asyn_Map_Erase(TaskID id)
 {
 	BookOfThreads::_Map.erase(id);
 }
-void Asyn_LockDoneLock()
+inline void Asyn_LockDoneLock()
 {
 	BookOfThreads::LockDoneLock();
 }
-void Asyn_LockDoneUnlock()
+inline void Asyn_LockDoneUnlock()
 {
 	BookOfThreads::LockDoneUnLock();
 }
-TaskProgress Asyn_GetProgress(TaskID id)
+inline TaskProgress Asyn_GetProgress(TaskID id)
 {
 	return BookOfThreads::GetProgress(id);
+}
+inline void Asyn_SetTaskData_Cancel(TaskID id,Delegate<void>&& Value, ThreadToRunID Thread)
+{
+	BookOfThreads::SetTaskData_Cancel(id, std::move(Value), Thread);
 }
 CoreEnd
 

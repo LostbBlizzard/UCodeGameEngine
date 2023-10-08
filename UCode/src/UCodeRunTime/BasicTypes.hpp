@@ -531,7 +531,6 @@ struct Span
 		{
 			UCodeGameEngineThrowException("Index out of range");
 		}
-		}
 #endif // DEBUG
 
 		return _Data[Index];
@@ -615,24 +614,24 @@ struct Unique_Span
 
 	constexpr UCodeGameEngineForceinlne T& operator[](size_t Index)
 	{
-#if UCodeGameEngineDEBUG
+		#if UCodeGameEngineDEBUG
 		if (Index >= _Size)
 		{
-			throw UCodeGameEngineThrowException("Index out of range");
+			UCodeGameEngineThrowException("Index out of range");
 		}
-#endif // DEBUG
+		#endif // DEBUG
 
 		return Pointer[Index];
 	}
 
 	constexpr UCodeGameEngineForceinlne const T& operator[](size_t Index) const
 	{
-#if UCodeGameEngineDEBUG
+		#if UCodeGameEngineDEBUG
 		if (Index >= _Size)
 		{
-			throw std::exception("Index out of range");
+			UCodeGameEngineThrowException("Index out of range");
 		}
-#endif // DEBUG
+		#endif // DEBUG
 
 		return Pointer[Index];
 	}
