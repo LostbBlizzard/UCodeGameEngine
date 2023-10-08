@@ -279,8 +279,8 @@ public:
 			return { X / m,Y / m };
 		}
 	}
-	constexpr static Vec2_t One() { return Vec2(1, 1); }
-	constexpr static Vec2_t Zero() { return Vec2(0, 0); }
+	constexpr static Vec2_t One() { return Vec2_t(1, 1); }
+	constexpr static Vec2_t Zero() { return Vec2_t(0, 0); }
 
 
 
@@ -307,7 +307,7 @@ struct Vec3_t
 
 	constexpr Vec3_t operator+(const Vec3_t& other)const
 	{
-		return Vec3(X + other.X, Y + other.Y, Z + other.Z);
+		return Vec3_t(X + other.X, Y + other.Y, Z + other.Z);
 	}
 	constexpr Vec3_t operator-(const Vec3_t& other)const
 	{
@@ -447,7 +447,7 @@ struct Vec3i_t
 	T X, Y, Z;
 
 	using ftype = f32;
-	using Vec3f = Vec3_t<ftype>;
+	using myVec3f = Vec3_t<ftype>;
 
 	constexpr Vec3i_t() : X(0), Y(0), Z(0) {}
 	constexpr Vec3i_t(T x, T y, T z) : X(x), Y(y), Z(z) {}
@@ -489,9 +489,9 @@ struct Vec3i_t
 		return !(X == other.X && Y == other.Y && Z == other.Z);
 	}
 
-	constexpr void ToVec3() const
+	constexpr myVec3f ToVec3() const
 	{
-		return Vec3f((ftype)X, (ftype)Y, (ftype)Z);
+		return myVec3f((ftype)X, (ftype)Y, (ftype)Z);
 	}
 
 	constexpr static Vec3i_t One() { return Vec3i_t(1, 1, 1); }
@@ -529,7 +529,8 @@ struct Span
 #if UCodeGameEngineDEBUG
 		if (Index > _Size)
 		{
-			throw std::exception("Index out of range");
+			UCodeGameEngineThrowException("Index out of range");
+		}
 		}
 #endif // DEBUG
 
@@ -541,7 +542,7 @@ struct Span
 #if UCodeGameEngineDEBUG
 		if (Index > _Size)
 		{
-			throw std::exception("Index out of range");
+			UCodeGameEngineThrowException("Index out of range");
 		}
 #endif // DEBUG
 
@@ -617,7 +618,7 @@ struct Unique_Span
 #if UCodeGameEngineDEBUG
 		if (Index >= _Size)
 		{
-			throw std::exception("Index out of range");
+			throw UCodeGameEngineThrowException("Index out of range");
 		}
 #endif // DEBUG
 

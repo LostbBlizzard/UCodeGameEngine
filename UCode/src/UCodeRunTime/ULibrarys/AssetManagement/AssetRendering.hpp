@@ -15,7 +15,9 @@ public:
 
 	ManagedPtr<TextureAsset> GetManaged()
 	{
-		return *(ManagedPtr<TextureAsset>*)&this->Get_Managed();
+		auto v =this->Get_Managed();
+
+		return *(ManagedPtr<TextureAsset>*)&v;
 	}
 };
 using TextureAssetPtr = ManagedPtr<TextureAsset>;
@@ -30,7 +32,8 @@ public:
 
 	ManagedPtr<SpriteAsset> GetManaged()
 	{
-		return *(ManagedPtr<SpriteAsset>*)&this->Get_Managed();
+		auto v =this->Get_Managed();
+		return *(ManagedPtr<SpriteAsset>*)&v;
 	}
 };
 using SpritePtr =AssetPtr<SpriteAsset,Sprite>;

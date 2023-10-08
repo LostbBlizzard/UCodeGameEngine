@@ -80,6 +80,15 @@ workspace "UCodeGameEngine"
       optimize "Speed"
       symbols "off"
       
+
+   filter { "system:Windows" }
+      defines {"_GLFW_WIN32"}
+
+   filter { "system:linux" }
+      defines {"_GLFW_X11"}
+  
+   filter { "system:MacOS" }
+      defines {"_GLFW_COCOA"}
       
 project "UCode"
    location "UCode"
@@ -163,6 +172,7 @@ project "UCodeApp"
    filter { "system:Windows" }
     links {"Ws2_32.lib"}
 
+   
   
    filter { "system:Windows","architecture:x86"}
     links {
@@ -456,7 +466,7 @@ group "Dependencies"
       "Dependencies/%{prj.name}/**.c",
     }
   
-    project "GLEW"
+  project "GLEW"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"
     language "C++" 
@@ -577,10 +587,17 @@ group "Dependencies"
     targetdir ("Output/%{prj.name}/" .. OutDirPath)
     objdir ("Output/int/%{prj.name}/" .. OutDirPath)
 
+    filter { "system:Windows" }
+      files {
+       "Dependencies/%{prj.name}/glslang/OSDependent/Windows/**.cpp",
+       "Dependencies/%{prj.name}/glslang/OSDependent/Windows/**.h", 
+      }
+    filter { "system:linux" }
+     files {
+       "Dependencies/%{prj.name}/glslang/OSDependent/Unix/**.cpp",
+       "Dependencies/%{prj.name}/glslang/OSDependent/Unix/**.h", 
+     }
     files {
-      "Dependencies/%{prj.name}/glslang/OSDependent/Windows/**.cpp",
-      "Dependencies/%{prj.name}/glslang/OSDependent/Windows/**.h", 
-
       "Dependencies/%{prj.name}/glslang/Include/**.cpp",
       "Dependencies/%{prj.name}/glslang/Include/**.h", 
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <xhash>
+#include <functional>
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 #include <inttypes.h>
 CoreStart

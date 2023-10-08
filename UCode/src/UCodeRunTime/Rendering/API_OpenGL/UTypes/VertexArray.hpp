@@ -28,7 +28,7 @@ public:
 	template<typename T>
 	void Push(u32 count)
 	{
-		S_ASSERT(NAMEOF(VertexBufferLayout) " Has no implementation Push for Type "NAMEOF(T));
+		S_ASSERT("VertexBufferLayout Has no implementation Push for Type 'T'");
 	};
 	
 	void Push_float(u32 count);
