@@ -26,9 +26,9 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
-
-#include <UCodeRunTime/Core/CoreNamespace.hpp>
 #include <algorithm>
+#include <UCodeRunTime/Core/CoreNamespace.hpp>
+#include <UCodeRunTime/UDefs.hpp>
 CoreStart
 
 //based on https://github.com/mapbox/variant/blob/master/include/mapbox/variant.hpp#L93
@@ -388,7 +388,7 @@ public:
 		MustBeMyType<T>();
 		if (!IsType<T>())
 		{
-			throw std::exception("bad type cast");
+		UCodeGameEngineThrowException("bad type cast");
 		}
 		return *(T*)&_Tag;
 	}
@@ -397,7 +397,7 @@ public:
 		MustBeMyType<T>();
 		if (!IsType<T>())
 		{
-			throw std::exception("bad type cast");
+			UCodeGameEngineThrowException("bad type cast");
 		}
 		return *(T*)&_Tag;
 	}

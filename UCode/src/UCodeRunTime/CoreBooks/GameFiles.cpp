@@ -213,8 +213,7 @@ Unique_Bytes GameFiles::ReadFileAsBytes(const Path& Path)
 }
 Unique_Bytes GameFiles::ReadFileAsBytes(const Path& path, size_t Offset, size_t Size)
 {
-
-	throw std::exception("bad");
+	UCodeGameEngineThrowException("bad");
 	return Unique_Bytes();
 }
 String GameFiles::ReadGameFileAsString(const Path& path)
@@ -275,7 +274,7 @@ Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& path)
 }
 Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& Path, size_t Offset, size_t Size)
 {
-	throw std::exception("bad");
+	UCodeGameEngineThrowException("bad");
 	return {};
 }
 
@@ -362,9 +361,10 @@ Path GameFiles::Get_PersistentDataPath(const AppData& data)
 {
 	const String CompanyName = "company";
 	const String APPName = "app";
-	#ifdef UCode_Build_Windows_OS
 
 	fs::path Persistentpath;
+	#ifdef UCode_Build_Windows_OS
+
 	PWSTR path_tmp;
 	auto V = SHGetKnownFolderPath(FOLDERID_LocalAppDataLow, 0, nullptr, &path_tmp);
 

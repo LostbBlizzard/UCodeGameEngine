@@ -97,18 +97,19 @@ struct DebugingClientPacket
 	}
 	template<typename T> Optional<T> As() const
 	{
+		
 		#if UCodeGameEngineDEBUG
 		if (PacketType != T::PacketType)
 		{
-			throw std::exception("Bad cast");
+			UCodeGameEngineThrowException("Bad cast");
 		}
 		#endif // DEBUG
 		T R;
-		if (T::ReadBytes(Data.AsView(), R))
+		if (T::ReadBytes(Data, R))
 		{
 			return R;
 		}
-		return {}
+		return {};
 	}
 };
 struct DebugingSeverPacket
@@ -127,18 +128,18 @@ struct DebugingSeverPacket
 	}
 	template<typename T> Optional<T> As() const
 	{
-#		ifdef DEBUG
+#		ifdef UCodeGameEngineDEBUG
 		if (PacketType != T::PacketType)
 		{
-			throw std::exception("Bad cast");
+			UCodeGameEngineThrowException("Bad cast");
 		}
 		#endif // DEBUG
 		T R;
-		if (T::ReadBytes(Data.AsView(), R))
+		if (T::ReadBytes(Data, R))
 		{
 			return R;
 		}
-		return {}
+		return {};
 	}
 
 	Unique_Bytes ToBytes() const

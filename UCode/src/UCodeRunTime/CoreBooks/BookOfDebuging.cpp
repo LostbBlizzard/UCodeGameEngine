@@ -8,7 +8,7 @@ void DebugingClient::Connet(DebugingSever* Sever)
 	#if UCodeGameEngineDEBUG
 	if (IsConneted())
 	{
-		throw std::exception("Is Conneted");
+		UCodeGameEngineThrowException("Is Conneted");
 	}
 	#endif // DEBUG
 
@@ -20,7 +20,7 @@ void DebugingClient::Connet(const UCode::Ip_t& SeverIp, UCode::Port_t SeverPort)
 #if UCodeGameEngineDEBUG
 	if (IsConneted())
 	{
-		throw std::exception("Is Conneted");
+	   UCodeGameEngineThrowException("Is Conneted");
 	}
 #endif // DEBUG
 
@@ -50,7 +50,7 @@ void DebugingClient::Update()
 #if UCodeGameEngineDEBUG
 	if (!IsConneted())
 	{
-		throw std::exception("Is not Conneted");
+		UCodeGameEngineThrowException("Is not Conneted");
 	}
 #endif // DEBUG
 	UpdateReadData();
@@ -80,7 +80,7 @@ void DebugingClient::UpdateReadData()
 	}
 	else if (auto Val = SeverConnection.IfType<DebugingSever*>())
 	{
-		throw std::exception("not added");
+		UCodeGameEngineThrowException("not added");
 		//(*Val)->
 	}
 
@@ -122,7 +122,7 @@ void DebugingSever::StartSever(const UCode::Ip_t& SeverIp, UCode::Port_t SeverPo
 #if UCodeGameEngineDEBUG
 	if (!IsSeverRuning())
 	{
-		throw std::exception("Sever is runing");
+		UCodeGameEngineThrowException("Sever is runing");
 	}
 #endif // DEBUG
 
@@ -144,7 +144,7 @@ void DebugingSever::StartSever(DebugingClient* client)
 #if UCodeGameEngineDEBUG
 	if (!IsSeverRuning())
 	{
-		throw std::exception("Sever is runing");
+		UCodeGameEngineThrowException("Sever is runing");
 	}
 #endif // DEBUG
 
@@ -219,18 +219,18 @@ void DebugingSever::FromClient(DebugingClient* client, DebugingClientPacket&& Pa
 #if UCodeGameEngineDEBUG
 	if (!IsSeverRuning())
 	{
-		throw std::exception("Sever not runing");
+		UCodeGameEngineThrowException("Sever not runing");
 	}
 	if (auto V = ClientConnection.IfType<DebugingClient*>())
 	{
 		if (*V != client)
 		{
-			throw std::exception("bad client");
+			UCodeGameEngineThrowException("bad client");
 		}
 	}
 	else
 	{
-		throw std::exception("is net sever not interal sever");
+		UCodeGameEngineThrowException("is net sever not interal sever");
 	}
 #endif // DEBUG
 	ReadPackets.push_back(std::move(Packet));

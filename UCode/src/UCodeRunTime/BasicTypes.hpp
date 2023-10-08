@@ -49,6 +49,7 @@ using utf8 = unsigned char;
 using utf16 = char16_t;
 using utf32 = char32_t;
 
+
 template<typename T, size_t Size>
 using Array = std::array<T, Size>;
 
@@ -203,6 +204,13 @@ using PathSpan = std::basic_string_view<PathChar>;
 
 using PathString = std::filesystem::path::string_type;
 
+CoreEnd
+
+
+#include "UCodeRunTime/ULibrarys/Loger.hpp"
+
+
+CoreStart
 
 template<typename T>
 struct Vec2_t
