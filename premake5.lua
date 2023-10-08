@@ -30,6 +30,7 @@ workspace "UCodeGameEngine"
    end
 
    OutDirPath ="%{cfg.platform}/%{cfg.buildcfg}"
+   UCPathExe = "%{wks.location}Output/UCodelangCL/" .. OutDirPath .. "/uclang"
 
    includedirs{
     "Dependencies",
@@ -87,7 +88,7 @@ project "UCode"
 
    dependson {
     "GLEW","GLFW","glm", 
-    "box2d","yaml-cpp","stb_image","stb_image_write","Imgui","UCodeLang",
+    "box2d","yaml-cpp","stb_image","stb_image_write","Imgui","UCodeLangCl",
     "MinimalSocket",
     }
    
@@ -106,6 +107,7 @@ project "UCode"
     "%{prj.name}/src/OtherLibrarys",
     "Dependencies/UCodeLang",
    }
+
 project "UCodeApp"
    location "UCodeApp"
    kind "ConsoleApp"
@@ -189,6 +191,8 @@ project "UCodeEditor"
    "FileWatcher",
    "glslang",
    "SPIRV-Cross",
+   "UCodeGameEngine",
+   "UCodeGameEngineEditor",
    }
 
    targetdir ("Output/%{prj.name}/" .. OutDirPath)
@@ -255,13 +259,30 @@ project "UCodeEditor"
    filter { "system:Windows","architecture:x86_64"}
     links {"glew64s.lib","Opengl32.lib"}
 
+   buildmessage "Copying UFilesAPI"
+   postbuildcommands 
+   {
+    "{COPYDIR} %{wks.location}UCodeAPI/GameEngine %{prj.location}/UFiles/source/UCodeGameEngine",
+    "{COPYDIR} %{wks.location}UCodeAPI/GameEngineEditor %{prj.location}/UFiles/source/UCodeGameEngineEditor",
+
+   }
+
    filter { "configurations:Published" }
       kind ("WindowedApp")
       buildmessage "Copying UFilesDir"
       postbuildcommands 
       {
       "{COPYDIR} %{prj.location}/UFiles %{prj.location}%{cfg.targetdir}/UFiles"
+      }--Make into GameFile.data file.
+
+   filter { "configurations:Release" }
+      kind ("WindowedApp")
+      buildmessage "Copying UFilesDir"
+      postbuildcommands 
+      {
+      "{COPYDIR} %{prj.location}/UFiles %{prj.location}%{cfg.targetdir}/UFiles"
       }
+
 project "UCodeGameEngineDoc"
    location "UCodeGameEngineDoc"
    kind "StaticLib"
@@ -282,39 +303,57 @@ group "UCodeAPIs"
   location "UCodeAPI/GameEngine"
   kind "StaticLib"
   language "C"
-  files { 
-  "%{prj.name}/src/**.uc",
 
-  "%{prj.name}/src/**.c",
-  "%{prj.name}/src/**.h",
-  "%{prj.name}/src/**.cpp",
-  "%{prj.name}/src/**.hpp", 
-  }
+
   targetdir ("Output/%{prj.name}/" .. OutDirPath)
   objdir ("Output/int/%{prj.name}/" .. OutDirPath)
+  dependson { "UCodeLangCl" }
+  files { 
+  "%{prj.location}/src/**.uc",
 
+  "%{prj.location}/src/**.c",
+  "%{prj.location}/src/**.h",
+  "%{prj.location}/src/**.cpp",
+  "%{prj.location}/src/**.hpp", 
+
+  "%{prj.location}/src/**.uc", 
+  "%{prj.location}/ULangModule.ucm",
+  "%{prj.location}/LICENSE.txt", 
+  }
+  
+  prebuildcommands
+  {
+     UCPathExe.." cpptoulangvm %{wks.location}UCode/src/UCodeRunTime/ULibrarys/UCodeLang/API/API.hpp %{wks.location}UCode/src/UCodeRunTime/ULibrarys/UCodeLang/UCodeAPI.cpp %{prj.location}src/API.uc",
+  }
   postbuildcommands {
-    "uclang build %{prj.location}ULangModule.ucm"
+    --"uclang build %{prj.location}ULangModule.ucm"
    }
 
  project "UCodeGameEngineEditor"
   location "UCodeAPI/GameEngineEditor"
   kind "StaticLib"
   language "C"
-  files { 
-  "%{prj.name}/src/**.uc",
-
-  "%{prj.name}/src/**.c",
-  "%{prj.name}/src/**.h",
-  "%{prj.name}/src/**.cpp",
-  "%{prj.name}/src/**.hpp", 
-  }
+  
   targetdir ("Output/%{prj.name}/" .. OutDirPath)
   objdir ("Output/int/%{prj.name}/" .. OutDirPath)
 
+  dependson { "UCodeLangCl" }
+  files { 
+  "%{prj.location}/src/**.uc",
+
+  "%{prj.location}/src/**.c",
+  "%{prj.location}/src/**.h",
+  "%{prj.location}/src/**.cpp",
+  "%{prj.location}/src/**.hpp", 
+
+  "%{prj.location}/src/**.uc", 
+  "%{prj.location}/ULangModule.ucm",
+  "%{prj.location}/LICENSE.txt", 
+  }
+  
   postbuildcommands {
-   "uclang build %{prj.location}ULangModule.ucm"
-   }
+   --"uclang build %{prj.location}ULangModule.ucm"
+  }
 group "Dependencies"
 
   project "Imgui"
@@ -400,6 +439,7 @@ group "Dependencies"
       "Dependencies/%{prj.name}/**.h", 
       "Dependencies/%{prj.name}/**.c",
     }
+
   project "stb_image_write"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"
@@ -415,7 +455,8 @@ group "Dependencies"
       "Dependencies/%{prj.name}/**.h", 
       "Dependencies/%{prj.name}/**.c",
     }
-  project "GLEW"
+  
+    project "GLEW"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"
     language "C++" 
@@ -449,6 +490,7 @@ group "Dependencies"
     includedirs{
       "Dependencies/%{prj.name}",
     }
+
   project "UCodeLang"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"
@@ -489,7 +531,44 @@ group "Dependencies"
 
     "Dependencies/%{prj.name}/UCodeLang/Dependencies/Zydis/include/**.h",
     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/include/**.h",
-   }
+    }
+
+  project "UCodeLangCl"
+    location "Dependencies/UCodeLang"
+    kind "ConsoleApp"
+    language "C++" 
+    
+    targetname ("uclang")
+
+    targetdir ("Output/%{prj.name}/" .. OutDirPath)
+    objdir ("Output/int/%{prj.name}/" .. OutDirPath)
+
+
+
+    dependson {
+       "UCodeLang",
+     }
+
+    libdirs { 
+    "Output/UCodeLang/" .. OutDirPath,
+    }
+    
+    links {
+    "UCodeLang",
+     }
+
+    files {
+      "Dependencies/UCodeLang/UCodelangCL/src/**.hpp",
+      "Dependencies/UCodeLang/UCodelangCL/src/**.cpp",
+      "Dependencies/UCodeLang/UCodelangCL/src/**.h", 
+      "Dependencies/UCodeLang/UCodelangCL/src/**.c",
+    }
+
+    includedirs{
+      "Dependencies/UCodeLang/UCodeLang",
+      "Dependencies/UCodeLang/UCodelangCL",
+      }
+
   project "glslang"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"
@@ -528,6 +607,7 @@ group "Dependencies"
     includedirs{
       "Dependencies/%{prj.name}",
     }
+  
   project "SPIRV-Cross"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"
@@ -546,6 +626,7 @@ group "Dependencies"
     includedirs{
       "Dependencies/%{prj.name}",
     }
+  
   project "plog"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"
@@ -564,6 +645,7 @@ group "Dependencies"
     includedirs{
       "Dependencies/%{prj.name}",
     }
+  
   project "box2d"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"
@@ -581,6 +663,7 @@ group "Dependencies"
     includedirs{
       "Dependencies/%{prj.name}/include",
     }
+  
   project "FileWatcher"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"
@@ -598,6 +681,7 @@ group "Dependencies"
     includedirs{
       "Dependencies/%{prj.name}/include",
     }
+  
   project "zip"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"
@@ -610,6 +694,7 @@ group "Dependencies"
       "Dependencies/%{prj.name}/src/**.h",
       "Dependencies/%{prj.name}/src/**.c",
     }
+  
   project "MinimalSocket"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"

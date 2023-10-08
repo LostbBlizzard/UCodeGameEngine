@@ -4,7 +4,7 @@
 #include <UCodeRunTime/BasicTypes.hpp>
 InputStart
 
-enum class InputKey : size_t
+enum class InputKey : Byte
 {
 	Null,
 
