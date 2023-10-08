@@ -12,7 +12,7 @@ CoreStart
 #define UCODE_ENGINE_FATAL(x)  UCODE_ENGINE_LOG_t(Core::LogType::Fatal,x)
 #define UCODE_ENGINE_Warning(x)  UCODE_ENGINE_LOG_t(Core::LogType::Warning,x)
 
-enum class LogType
+enum class LogType : Byte
 {
 	Fatal,
 	Error,

@@ -1,2 +1,0 @@
-%UCodeGameEngine::Native:
-     $Handle = !uintptr;

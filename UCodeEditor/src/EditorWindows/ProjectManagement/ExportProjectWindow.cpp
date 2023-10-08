@@ -9,10 +9,7 @@ ExportProjectWindow::ExportProjectWindow(const NewEditorWindowData& windowdata)
 }
 ExportProjectWindow::~ExportProjectWindow()
 {
-	if (_Task.valid()) 
-	{
-		_Task.wait();
-	}
+
 }
 
 const ExportProjectWindow::PlatformsData PlatformsData_[] =
