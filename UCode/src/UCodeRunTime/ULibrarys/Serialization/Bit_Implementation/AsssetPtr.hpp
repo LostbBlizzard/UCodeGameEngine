@@ -25,7 +25,7 @@ struct BitData<UCode::AssetPtr<Asset,AssetBase>>
 				}
 			}
 		}
-		This.WriteType(*(TypePtr::State_t*)&tepv);
+		This.WriteType(*(typename TypePtr::State_t*)&tepv);
 		switch (Value.Get_State())
 		{
 		case TypePtr::State::UID:

@@ -210,7 +210,9 @@ void OpenGlRender::SetStyle_WoodLandDay(ImGuiStyle* dst)
     ImVec4* colors = style->Colors;
 
     style->FrameRounding = 4.0f;
+ 
 
+    /*
 #define UC32ToIMVect4(V32) *(ImVec4*)(&(UCode::Color)V32)    
 #define CopyAllButA(V32,A)  {V32.R, V32.G,V32.B ,A}
 #define CopyAllButSubA(V32,A,Sub) { (Byte)(V32.R - (Byte)Sub), (Byte)( V32.G - (Byte)Sub), (Byte)(V32.B - (Byte)Sub),A};
@@ -347,6 +349,7 @@ void OpenGlRender::SetStyle_WoodLandDay(ImGuiStyle* dst)
 
     colors[ImGuiCol_DockingPreview] = UC32ToIMVect4(ComplimentaryColorliter);
     colors[ImGuiCol_DockingEmptyBg] = UC32ToIMVect4(BackRoundColorColorDarker);
+    */
 }
 void OpenGlRender::SetStyle_WoodLandNight(ImGuiStyle* dst)
 {

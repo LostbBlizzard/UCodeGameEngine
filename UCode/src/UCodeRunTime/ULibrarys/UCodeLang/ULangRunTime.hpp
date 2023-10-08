@@ -59,11 +59,11 @@ public:
 
 	template<typename T, typename... Args> T R_LangCall(const UCodeLang::ClassMethod* Func, Args&&... parameters)
 	{
-		return _Interpreter.retCall(Func, parameters...);
+		return _Interpreter.RCall<T>(Func, parameters...);
 	}
 	template<typename T, typename... Args> T R_LangThisCall(const UCodeLang::ClassMethod* Func,void* This, Args&&... parameters)
 	{
-		return _Interpreter.retThisCall(This,Func, parameters...);
+		return _Interpreter.RThisCall<T>(This,Func, parameters...);
 	}
 
 
@@ -209,7 +209,7 @@ public:
 	{
 		if (Has_Current())
 		{
-			return Get_Current()->R_LangCall(Func, parameters);
+			return Get_Current()->R_LangCall<T>(Func, parameters...);
 		}
 		return {};
 	}
@@ -217,7 +217,7 @@ public:
 	{
 		if (Has_Current())
 		{
-			return Get_Current()->R_LangThisCall(Func,This, parameters);
+			return Get_Current()->R_LangThisCall<T>(Func,This, parameters...);
 		}
 		return {};
 	}

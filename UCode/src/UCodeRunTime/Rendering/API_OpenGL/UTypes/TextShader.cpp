@@ -1,7 +1,7 @@
 #include "TextShader.hpp"
 #include <sstream>
 #include <fstream>
-#include "..\..\..\CoreBooks\GameFiles.hpp"
+#include "../../../CoreBooks/GameFiles.hpp"
 
 RenderingStart
 TextShader TextShader::Get_ShaderFromPath(const std::string& ShaderPath)

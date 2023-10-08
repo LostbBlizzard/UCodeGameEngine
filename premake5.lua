@@ -85,10 +85,10 @@ workspace "UCodeGameEngine"
       defines {"_GLFW_WIN32"}
 
    filter { "system:linux" }
-      defines {"_GLFW_X11"}
+      defines {"_GLFW_X11","GLEW_NO_GLU"}
   
    filter { "system:MacOS" }
-      defines {"_GLFW_COCOA"}
+      defines {"_GLFW_COCOA","GLEW_NO_GLU"}
       
 project "UCode"
    location "UCode"
@@ -156,6 +156,10 @@ project "UCodeApp"
     "Output/box2d/" .. OutDirPath, 
     "Output/MinimalSocket/" .. OutDirPath, 
    }
+
+
+   
+
    links {
     "UCode",
     "Imgui",
@@ -183,11 +187,14 @@ project "UCodeApp"
     links {
      "glew64s.lib","Opengl32.lib",
     }
-
+   
+   filter { "system:linux" }
+    links {"GL","glew"}
+   
   
-    buildmessage "Copying Output"
+   buildmessage "Copying Output"
 
-    postbuildcommands {
+   postbuildcommands {
        "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name}.exe %{wks.location}UCodeEditor/UFiles/bin/%{prj.name}_%{cfg.platform}.exe"
     }
 

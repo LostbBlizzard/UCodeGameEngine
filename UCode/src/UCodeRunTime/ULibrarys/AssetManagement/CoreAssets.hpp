@@ -21,7 +21,8 @@ public:
 
 	ManagedPtr<ScencAsset> GetManaged()
 	{
-		return *(ManagedPtr<ScencAsset>*) & this->Get_Managed();
+		auto V = this->Get_Managed();
+		return *(ManagedPtr<ScencAsset>*)&V;
 	}
 };
 
