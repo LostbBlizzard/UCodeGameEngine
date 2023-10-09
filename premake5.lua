@@ -4,6 +4,7 @@ workspace "UCodeGameEngine"
    defines {"YAML_CPP_STATIC_DEFINE","GLEW_STATIC"}
    
    startproject "UCodeEditor"
+   cppdialect "c++17"
    
    if os.host() == "windows" then
      if os.is64bit() then
@@ -32,36 +33,7 @@ workspace "UCodeGameEngine"
    OutDirPath ="%{cfg.platform}/%{cfg.buildcfg}"
    UCPathExe = "%{wks.location}Output/UCodelangCL/" .. OutDirPath .. "/uclang"
 
-   includedirs{
-    "Dependencies",
-    "Dependencies/glm",
-    "Dependencies/GLFW/include",
-    "Dependencies/GLFW/deps",
-    "Dependencies/GLEW",
-    "Dependencies/plog/include",
-    "Dependencies/UCodeLang",
-    "Dependencies/UCodeLang/UCodeLang",
-    "Dependencies/yaml-cpp/include",
-    "Dependencies/Imgui",
-    "Dependencies/glslang",
-    "Dependencies/box2d/include",
-    "Dependencies/FileWatcher/include",
-    "Dependencies/zip/src",
-    "Dependencies/MinimalSocket/src/header",
-   }
    
-   
-   filter { "platforms:Win32" }
-    system "Windows"
-    architecture "x86"
-    defines { "UCode_Build_32Bit"}
-   filter { "platforms:Win64" }
-     system "Windows"
-     architecture "x86_64"
-     defines { "UCode_Build_64Bit"}
-   filter { "system:Windows" }
-     cppdialect "c++17"
-     defines { "UCode_Build_Windows_OS","_GLFW_WIN32"}
 
    
 
@@ -81,14 +53,101 @@ workspace "UCodeGameEngine"
       symbols "off"
       
 
-   filter { "system:Windows" }
-      defines {"_GLFW_WIN32"}
+function includeUCode()
+    includedirs{
+      "Dependencies",
+      "Dependencies/glm",
+      "Dependencies/GLFW/include",
+      "Dependencies/GLFW/deps",
+      --"Dependencies/GLEW",
+      "Dependencies/plog/include",
+      "Dependencies/UCodeLang",
+      "Dependencies/UCodeLang/UCodeLang",
+      "Dependencies/yaml-cpp/include",
+      "Dependencies/Imgui",
+      "Dependencies/glslang",
+      "Dependencies/box2d/include",
+      "Dependencies/FileWatcher/include",
+      "Dependencies/zip/src",
+      "Dependencies/MinimalSocket/src/header",
+    }
 
-   filter { "system:linux" }
-      defines {"_GLFW_X11","GLEW_NO_GLU"}
-  
-   filter { "system:MacOS" }
-      defines {"_GLFW_COCOA","GLEW_NO_GLU"}
+    filter { "platforms:Win32" }
+      system "Windows"
+      architecture "x86"
+      defines { "UCode_Build_32Bit"}
+    
+    filter { "platforms:Win64" }
+      system "Windows"
+      architecture "x86_64"
+      defines { "UCode_Build_64Bit"}
+    
+    filter { "system:Windows" }
+      defines { "UCode_Build_Windows_OS"}
+      
+      filter { "system:Windows" }
+        defines {"_GLFW_WIN32"}
+      
+      filter { "system:linux" }
+        defines {"_GLFW_X11","GLEW_NO_GLU"}
+        
+      filter { "system:MacOS" }
+        defines {"_GLFW_COCOA","GLEW_NO_GLU"}
+      
+end
+      
+function linkUCode()
+    libdirs { 
+      "Output/UCode/" .. OutDirPath,
+      "Output/Imgui/" .. OutDirPath,
+      "Output/yaml-cpp/" .. OutDirPath,
+      "Output/glm/" .. OutDirPath,
+      "Output/stb_image/" .. OutDirPath,    
+      "Output/stb_image_write/" .. OutDirPath,    
+      --"Dependencies/GLEW/Lib",
+      "Output/GLFW/" .. OutDirPath, 
+      "Output/UCodeLang/" .. OutDirPath, 
+      "Output/SPIRV-Cross/" .. OutDirPath, 
+      "Output/box2d/" .. OutDirPath, 
+      "Output/MinimalSocket/" .. OutDirPath, 
+    }
+        
+             
+          
+    links {
+      "UCode",
+      "Imgui",
+      "yaml-cpp",
+      "stb_image",
+      "stb_image_write",
+      "GLFW",
+      "UCodeLang",
+      "box2d",
+      "MinimalSocket"
+    }
+          
+           
+    filter { "system:Windows" }
+      links {"Ws2_32.lib"}
+          
+             
+            
+    filter { "system:Windows","architecture:x86"}
+      links {
+            "glew32s.lib","Opengl32.lib",
+      }
+          
+    filter { "system:Windows","architecture:x86_64"}
+      links {
+            "glew64s.lib","Opengl32.lib",
+      }
+             
+    filter { "system:linux" }
+      links {"GL"}
+      links {"GLEW"}
+      
+end
+   
       
 project "UCode"
    location "UCode"
@@ -99,10 +158,11 @@ project "UCode"
     "GLEW","GLFW","glm", 
     "box2d","yaml-cpp","stb_image","stb_image_write","Imgui","UCodeLangCl",
     "MinimalSocket",
-    }
+   }
    
    targetdir ("Output/%{prj.name}/" .. OutDirPath)
    objdir ("Output/int/%{prj.name}/" .. OutDirPath)
+   
    
    files { 
      "%{prj.name}/src/**.c",
@@ -111,11 +171,10 @@ project "UCode"
      "%{prj.name}/src/**.hpp", 
    }
 
-   includedirs{
-    "%{prj.name}/src",
-    "%{prj.name}/src/OtherLibrarys",
-    "Dependencies/UCodeLang",
-   }
+   includedirs{"%{prj.name}/src"}
+   
+   includeUCode();
+
 
 project "UCodeApp"
    location "UCodeApp"
@@ -125,7 +184,7 @@ project "UCodeApp"
    targetdir ("Output/%{prj.name}/" .. OutDirPath)
    objdir ("Output/int/%{prj.name}/" .. OutDirPath)
    
-   dependson { "UCode"}
+   dependson {"UCode"}
 
    files { 
      "%{prj.name}/src/**.c",
@@ -133,63 +192,10 @@ project "UCodeApp"
      "%{prj.name}/src/**.cpp",
      "%{prj.name}/src/**.hpp", 
    }
-   includedirs{
-    "%{prj.name}/src",
-    "%{prj.name}/src/OtherLibrarys",
-    "UCode/src",
-    "Dependencies/UCodeLang",
-   }
+   includedirs{"%{prj.name}/src"}
 
-   
-   libdirs { 
-    "Output/UCode/" .. OutDirPath,
-
-    "Output/Imgui/" .. OutDirPath,
-    "Output/yaml-cpp/" .. OutDirPath,
-    "Output/glm/" .. OutDirPath,
-    "Output/stb_image/" .. OutDirPath,    
-    "Output/stb_image_write/" .. OutDirPath,    
-    "Dependencies/GLEW/Lib",
-    "Output/GLFW/" .. OutDirPath, 
-    "Output/UCodeLang/" .. OutDirPath, 
-    "Output/SPIRV-Cross/" .. OutDirPath, 
-    "Output/box2d/" .. OutDirPath, 
-    "Output/MinimalSocket/" .. OutDirPath, 
-   }
-
-
-   
-
-   links {
-    "UCode",
-    "Imgui",
-    "yaml-cpp",
-    "stb_image",
-    "stb_image_write",
-    "GLFW",
-    "UCodeLang",
-    "box2d",
-    "MinimalSocket"
-   }
-
- 
-   filter { "system:Windows" }
-    links {"Ws2_32.lib"}
-
-   
-  
-   filter { "system:Windows","architecture:x86"}
-    links {
-      "glew32s.lib","Opengl32.lib",
-    }
-
-   filter { "system:Windows","architecture:x86_64"}
-    links {
-     "glew64s.lib","Opengl32.lib",
-    }
-   
-   filter { "system:linux" }
-    links {"GL","glew"}
+   includeUCode();
+   linkUCode();
    
   
    buildmessage "Copying Output"
@@ -221,60 +227,11 @@ project "UCodeEditor"
      "%{prj.name}/src/**.cpp",
      "%{prj.name}/src/**.hpp", 
    }
-   includedirs{
-    "%{prj.name}/src",
-    "%{prj.name}/src/OtherLibrarys",
-    "UCode/src",
-    "Dependencies",
-   }
+   includedirs{"%{prj.name}/src"}
   
+   includeUCode();
+   linkUCode();
    
-   libdirs { 
-    "Output/UCode/" .. OutDirPath,
-
-    "Output/Imgui/" .. OutDirPath,
-    "Output/yaml-cpp/" .. OutDirPath,
-    "Output/glm/" .. OutDirPath,
-    "Output/stb_image/" .. OutDirPath,    
-    "Output/stb_image_write/" .. OutDirPath,    
-    "Dependencies/GLEW/Lib",
-    "Output/GLFW/" .. OutDirPath, 
-    "Output/UCodeLang/" .. OutDirPath, 
-    "Output/SPIRV-Cross/" .. OutDirPath, 
-    "Output/glslang/" .. OutDirPath, 
-    "Output/box2d/" .. OutDirPath, 
-    "Output/FileWatcher/" .. OutDirPath, 
-    "Output/zip/" .. OutDirPath, 
-    "Output/MinimalSocket/" .. OutDirPath, 
-   }
-
-   links {
-    "UCode",
-    "Imgui",
-    "yaml-cpp",
-    "stb_image",
-    "stb_image_write",
-    "GLFW",
-    "UCodeLang",
-    "SPIRV-Cross",
-    "glslang",
-    "box2d",
-    "FileWatcher",
-    "zip",
-    "MinimalSocket"
-   }
-   
-   filter { "system:Windows" }
-    links {"Ws2_32.lib"}
-
-  
-   filter { "system:Windows","architecture:x86"}
-    links {
-      "glew32s.lib","Opengl32.lib",
-    }
-
-   filter { "system:Windows","architecture:x86_64"}
-    links {"glew64s.lib","Opengl32.lib"}
 
    buildmessage "Copying UFilesAPI"
    postbuildcommands 
@@ -399,6 +356,7 @@ group "Dependencies"
 
     includedirs{
       "Dependencies",
+      "Dependencies/Imgui",
     }
 
   project "yaml-cpp"
@@ -418,6 +376,7 @@ group "Dependencies"
     }
 
     includedirs{
+      "Dependencies/yaml-cpp/include",
       "Dependencies/%{prj.name}",
     }
 
@@ -473,24 +432,28 @@ group "Dependencies"
       "Dependencies/%{prj.name}/**.c",
     }
   
-  project "GLEW"
-    location "Dependencies/%{prj.name}"
-    kind "StaticLib"
-    language "C++" 
+  
+  --filter { "system:not windows" }
+  
+   --project "GLEW"
+    --location "Dependencies/%{prj.name}"
+    --kind "StaticLib"
+    --language "C++" 
 
-    targetdir ("Output/%{prj.name}/" .. OutDirPath)
-    objdir ("Output/int/%{prj.name}/" .. OutDirPath)
+    --targetdir ("Output/%{prj.name}/" .. OutDirPath)
+    --objdir ("Output/int/%{prj.name}/" .. OutDirPath)
 
-    files {
-      "Dependencies/%{prj.name}/**.hpp",
-      "Dependencies/%{prj.name}/**.cpp",
-      "Dependencies/%{prj.name}/**.h", 
-      "Dependencies/%{prj.name}/**.c",
-    }
-    includedirs{
-      "Dependencies/%{prj.name}",
-    }
+    --files {
+      --"Dependencies/%{prj.name}/**.hpp",
+      --"Dependencies/%{prj.name}/**.cpp",
+      --"Dependencies/%{prj.name}/**.h", 
+      --"Dependencies/%{prj.name}/**.c",
+    --}
+    --includedirs{
+      --"Dependencies/%{prj.name}",
+    --}
 
+  
   project "GLFW"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"
@@ -506,8 +469,10 @@ group "Dependencies"
 
     includedirs{
       "Dependencies/%{prj.name}",
+      
     }
 
+  
   project "UCodeLang"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"
@@ -525,6 +490,7 @@ group "Dependencies"
 
     includedirs{
       "Dependencies/%{prj.name}",
+      "Dependencies/%{prj.name}/UCodeLang",
       "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/include",
       "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/include",
       "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/src",
@@ -733,3 +699,5 @@ group "Dependencies"
       "Dependencies/%{prj.name}/src/**.cpp",
       "Dependencies/%{prj.name}/src/**.hpp",
     }
+
+
