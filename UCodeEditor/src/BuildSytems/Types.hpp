@@ -44,7 +44,7 @@ struct WindowsBuildSetings
 		Default = (int)Architecture::Native,
 		#endif // 
 		#else
-		Default = (int)Architecture::x86_64;//most people on 64 bit
+		Default = (int)Architecture::x86_64,//most people on 64 bit
 		#endif
 	};
 

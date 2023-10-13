@@ -21,7 +21,7 @@ UserSettings& UserSettings::GetSettings()
 			UCodeEditor_UserSettings.CodeEditorPath = "C:/Windows/System32/notepad.exe";
 			UCodeEditor_UserSettings.OpenCodeEditorFileArg = "/W " + (String)UserSettings::FilePathArg;//open file as unicode
 			#else
-			UCODE_ENGINE_STATIC_ASSERT("default code editor was not given  for the platform");
+			UCodeGameEngineThrowException("default code editor was not given  for the platform");
 			#endif // 
 		
 			ToFile(GetPath(), UCodeEditor_UserSettings);

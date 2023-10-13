@@ -193,9 +193,12 @@ public:
 
 			ImGuIHelper::Image(AppFiles::sprite::Uility_image, { 20 ,20 });
 			ImGui::SameLine();
-			Item.Drawer->StringField("Type",(String)"Color");
 
-			Item.Drawer->StringField("Name", FileFullPath.filename().replace_extension("").generic_string());
+			String tep ="Color";
+			Item.Drawer->StringField("Type",tep);
+
+			String tep2 = FileFullPath.filename().replace_extension("").generic_string();
+			Item.Drawer->StringField("Name",tep2);
 			
 
 			ImGui::EndDisabled();

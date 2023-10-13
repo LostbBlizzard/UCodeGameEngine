@@ -16,7 +16,9 @@ void EditorIndex::GetDataFromDir(const Path& path)
 		if (dirEntry.is_regular_file())
 		{
 			IndexFile Index;
-			Index.FileLastUpdatedTime = *(u64*)&dirEntry.last_write_time();
+
+			auto tep =dirEntry.last_write_time();
+			Index.FileLastUpdatedTime = *(u64*)&tep;
 			Index.FileHash = 0;
 			Index.FileSize = (u64)dirEntry.file_size();
 			Index.RelativePath = dirEntry.path().generic_string().substr(path.native().size());
@@ -140,7 +142,7 @@ ChangedFileType FileWatcher::ToType(FW::Action action)
 	case FW::Actions::Delete:return ChangedFileType::FileRemoved;
 	case FW::Actions::Modified:return ChangedFileType::FileUpdated;
 	default:
-		throw std::exception("bad path");
+		UCodeGameEngineUnreachable();
 		break;
 	}
 }

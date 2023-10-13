@@ -29,10 +29,13 @@ public:
 		Dedicated_Server,
 
 
-
-#ifdef UCode_Build_Windows_OS
-		ThisPlatform = Windows,
-#endif // UCode_Build_Windows_OS
+#if UCodeGameEnginePlatformWindows
+	ThisPlatform = Windows,
+#elif UCodeGameEnginePlatformLinux
+	ThisPlatform = Linux_Standalone,
+#elif UCodeGameEnginePlatformMacOS
+	ThisPlatform = Mac,
+#endif 
 	};
 	struct PlatformsData
 	{

@@ -8,7 +8,7 @@
 #include <functional>
 #include <condition_variable>
 #include <future>
-
+#include <chrono>
 CoreStart
 
 
@@ -479,11 +479,12 @@ struct AsynTask_t
 	}
 	void wait()
 	{
-		return   Get_Future().wait();
+		return  Get_Future().wait();
 	}
 	bool IsDone()
 	{
-		return   Get_Future()._Is_ready();
+		using namespace std::chrono_literals;
+		return  Get_Future().wait_for(0s) == std::future_status::ready;
 	}
 	void CancelTask()
 	{

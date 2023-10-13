@@ -71,7 +71,7 @@ void GameEditorWindow::UpdateWindow()
 
 void GameEditorWindow::OnSaveWindow(USerializer& JsonToSaveIn)
 {
-    auto& Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
+    auto Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
     if (_SceneData && _UseingScenePath.has_value())
     {
         auto PathString = FileHelper::ToRelativePath(Assespath, _UseingScenePath.value());
@@ -86,7 +86,7 @@ void GameEditorWindow::OnSaveWindow(USerializer& JsonToSaveIn)
 
 void GameEditorWindow::OnLoadWindow(UDeserializer& JsonToOutof)
 {
-    auto& Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
+    auto Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
     Path PathString = "";
     
     JsonToOutof.ReadType("_ScenePath", PathString, PathString);
@@ -262,8 +262,8 @@ void GameEditorWindow::SceneEditorTab()
                 Data.draworder = 255;
                 runtime->DrawQuad2d(Data);
 
-
-                Vec2 Cursor = *(Vec2*)&ImGui::GetCursorPos();
+                auto tep =ImGui::GetCursorPos();
+                Vec2 Cursor = *(Vec2*)&tep;
                 Vec2 ViewSize = *(Vec2*)&Viewportsize;
 
 
@@ -290,8 +290,8 @@ void GameEditorWindow::SceneEditorTab()
 
 
    
-    
-    Vec2 V = *(Vec2*)&ImGui::GetCursorPos();
+    auto tep =ImGui::GetCursorPos();
+    Vec2 V = *(Vec2*)&tep;
     ImGui::Image((ImTextureID)SceneTex, Viewportsize, { 0,0 }, { 1,-1 });
     bool IsOverImage = ImGui::IsItemHovered();
     if (IsOverImage) 
@@ -1083,8 +1083,11 @@ void GameEditorWindow::OpenScencAtPath(const Path&  Path)
 }
 Vec2 GameEditorWindow::MousePosFromImage(const Vec2 CursorPos, const Vec2 ImageSize)
 {
-    Vec2 Mpos = *(Vec2*)&ImGui::GetMousePos();
-    auto  CursorPosScreen = CursorPos + *(Vec2*)&ImGui::GetWindowPos();
+    auto tep =ImGui::GetMousePos();
+    Vec2 Mpos = *(Vec2*)&tep;
+
+    auto tep2 =ImGui::GetMousePos();
+    auto  CursorPosScreen = CursorPos + *(Vec2*)&tep2;
     auto A = Mpos - CursorPos;
     
     //std::cout << Mpos.X << "," << Mpos.Y << ":" << CursorPosScreen.X << "," << CursorPosScreen.Y << '\n';

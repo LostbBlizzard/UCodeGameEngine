@@ -601,7 +601,7 @@ EditorWindowData ProjectFilesWindow::GetEditorData()
 
 void ProjectFilesWindow::OnSaveWindow(USerializer& SaveIn)
 {
-    auto& Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
+    auto Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
    
     auto PathString = FileHelper::ToRelativePath(Assespath, _LookingAtDir.value());
 
@@ -621,7 +621,7 @@ void ProjectFilesWindow::OnSaveWindow(USerializer& SaveIn)
 
 void ProjectFilesWindow::OnLoadWindow(UDeserializer& Loadin)
 {
-    auto& Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
+    auto Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
 
     Path PathString= "";
     Loadin.ReadType("_LookingAtDir", PathString, PathString);

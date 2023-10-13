@@ -1,6 +1,22 @@
 #include "StringHelper.hpp"
 
 EditorStart
+
+bool StartsWith(StringView Val,StringView Match)
+{
+		if (Val.size() >= Match.size())
+		{
+			return false;
+		}
+		for (size_t i = 0; i < Match.size(); i++)
+		{
+			if (Match[i] != Val[i])
+			{
+				return false;
+			}
+		}
+		return true;	
+}
 bool StringHelper::Fllter(const String& filter, const String& ToCheck)
 {
 	if (filter.size())
@@ -8,7 +24,7 @@ bool StringHelper::Fllter(const String& filter, const String& ToCheck)
 		String filterLoW = filter;
 		String ToCheckLow = ToCheck;
 
-		if (ToCheckLow._Starts_with(filterLoW)){return true;}
+		if (StartsWith(ToCheckLow,filterLoW)){return true;}
 
 
 		return false;

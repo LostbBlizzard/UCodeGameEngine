@@ -5,6 +5,13 @@ EditorStart
 class StringHelper
 {
 public:
+	
+	static bool StartsWith(StringView Val,StringView Match);
+	static bool StartsWith(const String& Val,StringView Match)
+	{
+		return StartsWith((StringView)Val,Match);
+	}
+
 
 	static bool Fllter(const String& filter, const String& ToCheck);
 

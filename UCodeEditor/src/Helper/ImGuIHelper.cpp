@@ -391,7 +391,9 @@ void ImGuIHelper::ShowOnMiddleLoadingIndicatorCircle(const char* label, const in
 	}
 	f32 radius = NewSize.x / 2;
 
-	auto pos = (*(Vec2*)&ImGui::GetItemRectMax() + *(Vec2*)&ImGui::GetItemRectMin()) / 2;
+    auto tep =ImGui::GetItemRectMax();
+	auto tep2 =ImGui::GetItemRectMin();
+	auto pos = (*(Vec2*)&tep + *(Vec2*)&tep2) / 2;
 	ImVec2 Pos = *(ImVec2*)&pos;
 	ImGui::SetCursorPos(Pos);
 

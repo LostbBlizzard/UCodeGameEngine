@@ -98,7 +98,9 @@ public:
 
 			ImGuIHelper::Image(AppFiles::sprite::Uility_image, { 20 ,20 });
 			ImGui::SameLine();
-			ImGuIHelper::InputText("Type", (String)"Compoent/SpriteRenderer");
+
+			String tep = "Compoent/SpriteRenderer";
+			ImGuIHelper::InputText("Type", tep);
 
 			ImGui::EndDisabled();
 			ImGui::SameLine();
@@ -168,7 +170,9 @@ public:
 
 			ImGuIHelper::Image(AppFiles::sprite::Uility_image, { 20 ,20 });
 			ImGui::SameLine();
-			ImGuIHelper::InputText("Type", (String)"Compoent/Camera");
+
+			String tep = "Compoent/Camera";
+			ImGuIHelper::InputText("Type", tep);
 			ImGui::EndDisabled();
 			ImGui::SameLine();
 			bool V = Component->Get_IsActive();
@@ -269,9 +273,13 @@ public:
 
 			ImGuIHelper::Image(AppFiles::sprite::Uility_image, { 20 ,20 });
 			ImGui::SameLine();
-			Item.Drawer->StringField("Type", (String)"Image/Png");
 
-			Item.Drawer->StringField("Name", FileFullPath.filename().replace_extension("").generic_string());
+			String tep ="Image/Png";
+			Item.Drawer->StringField("Type",tep);
+
+
+			String tep2 = FileFullPath.filename().replace_extension("").generic_string();
+			Item.Drawer->StringField("Name", tep2);
 
 
 			ImGui::EndDisabled();
@@ -332,9 +340,13 @@ public:
 
 			ImGuIHelper::Image(AppFiles::sprite::Uility_image, { 20 ,20 });
 			ImGui::SameLine();
-			Item.Drawer->StringField("Type", (String)"Entity/Prefab");
 
-			Item.Drawer->StringField("Name", FileFullPath.filename().replace_extension("").generic_string());
+			String tep ="Entity/Prefab";
+			Item.Drawer->StringField("Type", tep);
+
+
+			String tep2 = FileFullPath.filename().replace_extension("").generic_string();
+			Item.Drawer->StringField("Name", tep2);
 
 
 			ImGui::EndDisabled();

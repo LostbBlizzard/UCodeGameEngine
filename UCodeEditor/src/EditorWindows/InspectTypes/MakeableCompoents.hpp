@@ -22,8 +22,8 @@ public:
     const static size_t Compoents_Size;
 
     
-    inline static  const char* NewMenuName = "\Menu";
-    inline static  const char* EndMenuName = "\End";
+    inline static  const char* NewMenuName = "/Menu";
+    inline static  const char* EndMenuName = "/End";
 
     template<typename T>
     static UCode::Compoent* Make_Compoent(UCode::Entity* entity)
