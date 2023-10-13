@@ -28,7 +28,7 @@ public:
 	struct Pin
 	{
 		ax::NodeEditor::PinId   ID;
-		Node* Node;
+		Node* node;
 		String Name;
 		PinType     Type;
 		PinKind     Kind;

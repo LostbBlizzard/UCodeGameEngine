@@ -222,11 +222,15 @@ public:
 			}
 		}
 	};
+
+	
+	template <typename... Types2>
 	struct EnumVariant_helper
 	{
 		UCODE_EDITOR_FORCEINLINE static const char* GetName(const UCode::VariantTagType type_index) { return {}; }
 		UCODE_EDITOR_FORCEINLINE static bool DrawItem(const UCode::VariantTagType type_index, void* Object) { return false; }
 	};
+	
 	
 		
 	template<typename... T>
@@ -287,7 +291,7 @@ public:
 			return Updated;
 		};
 
-		auto R = EnumVariantField(label, V, Func, EnumValues, Type::ItemsInListCount, sizeof(Type::TagType));
+		auto R = EnumVariantField(label, V, Func, EnumValues, Type::ItemsInListCount, sizeof(typename Type::TagType));
 
 
 		return R;

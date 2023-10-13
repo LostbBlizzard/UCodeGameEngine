@@ -20,9 +20,11 @@ void EditorWindow::WindowStart()
 
 
 
+	auto tep = ImGui::GetWindowPos();
+	_Pos = *(UCode::Vec2*)&tep;
 
-	_Pos = *(UCode::Vec2*)&ImGui::GetWindowPos();
-	_Size = *(UCode::Vec2*)&ImGui::GetContentRegionAvail();
+	auto tep2 = ImGui::GetContentRegionAvail();
+	_Size = *(UCode::Vec2*)&tep2;
 	_Collapsed = ImGui::IsWindowCollapsed();
 	auto V = window->DockNode;
 

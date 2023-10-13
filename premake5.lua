@@ -85,16 +85,13 @@ function includeUCode()
       defines { "UCode_Build_64Bit"}
     
     filter { "system:Windows" }
-      defines { "UCode_Build_Windows_OS"}
+      defines {"_GLFW_WIN32"}
       
-      filter { "system:Windows" }
-        defines {"_GLFW_WIN32"}
-      
-      filter { "system:linux" }
-        defines {"_GLFW_X11","GLEW_NO_GLU"}
+    filter { "system:linux" }
+      defines {"_GLFW_X11","GLEW_NO_GLU"}
         
-      filter { "system:MacOS" }
-        defines {"_GLFW_COCOA","GLEW_NO_GLU"}
+    filter { "system:MacOS" }
+      defines {"_GLFW_COCOA","GLEW_NO_GLU"}
       
 end
       
@@ -275,6 +272,10 @@ project "UCodeEditor"
     "{COPYDIR} %{wks.location}UCodeAPI/GameEngineEditor %{prj.location}/UFiles/source/UCodeGameEngineEditor",
 
    }
+   filter {"system:Windows"}
+    removefiles{"%{prj.name}/src/OtherLibrarys/Nativefiledialog/nfd_gtk.c"}
+   filter {"system:linux"}
+    removefiles{"%{prj.name}/src/OtherLibrarys/Nativefiledialog/nfd_win.cpp"}
 
    filter { "configurations:Published" }
       kind ("WindowedApp")

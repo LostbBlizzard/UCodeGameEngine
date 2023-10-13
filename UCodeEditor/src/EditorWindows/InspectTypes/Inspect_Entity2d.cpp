@@ -4,7 +4,7 @@
 
 #include "EditorWindows/EditorStrings.hpp" 
 
-#include "UCodeRunTime/ULibrarys//UCodeLang/ULangRunTime.hpp"
+#include "UCodeRunTime/ULibrarys/UCodeLang/ULangRunTime.hpp"
 
 #include "Helper/ImGuIHelper.hpp"
 #include "Editor/EditorAppCompoent.hpp"
@@ -12,7 +12,7 @@
 #include "imgui_internal.h"
 #include "Helper/ImGuIHelper_Asset.hpp"
 #include <stack>
-#include "../UEditorModules/UEditorModule.hpp"
+#include "UEditorModules/UEditorModule.hpp"
 #include "ULang/UCompiler.hpp"
 EditorStart
 
@@ -44,7 +44,9 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
 
         ImGuIHelper::Image(AppFiles::sprite::Entity, { 20 ,20 });
         ImGui::SameLine();
-        ImGuIHelper::InputText("Type", (String)"Entity");
+
+        String tep ="Entity";
+        ImGuIHelper::InputText("Type",tep);
         ImGui::EndDisabled();
 
         ImGui::SameLine();
@@ -133,7 +135,8 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
             }
 
             Tep = item->Get_WorldScale();
-            if (Draw.Vec3Field("World Scale", item->Get_WorldScale()))
+
+            if (Draw.Vec3Field("World Scale",Tep))
             {
                 item->Set_WorldScale(Tep);
             }

@@ -117,7 +117,8 @@ void OpenProjectWindow::UpdateWindow()
     }
     else
     {
-        ImGuIHelper::InputText("Project folder", ProjectDir.generic_string()); 
+        auto tep = ProjectDir.generic_string();
+        ImGuIHelper::InputText("Project folder",tep); 
         ImGui::SameLine();
         if (ImGui::ArrowButton("More", ImGuiDir_::ImGuiDir_Up))
         {

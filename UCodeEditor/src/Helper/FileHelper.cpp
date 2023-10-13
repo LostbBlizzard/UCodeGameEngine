@@ -230,7 +230,7 @@ void FileHelper::OpenPathinFiles(const Path&  Dir)
 	ShellExecuteA(NULL, "open", (LPSTR)Dir.generic_string().c_str(), NULL, NULL, SW_SHOWDEFAULT);
 	
 #else
-	THROWNOTIMPlEMENTED_("OpenPathinFiles");
+	UCodeGameEngineThrowException("OpenPathinFiles");
 #endif
 	
 }
@@ -276,7 +276,7 @@ bool FileHelper::TrashFile(const Path& File)
 	}
 	return false;
 #else
-	THROWNOTIMPlEMENTED_("TrashFile")
+	UCodeGameEngineThrowException("TrashFile")
 #endif
 
 }

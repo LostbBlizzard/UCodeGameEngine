@@ -31,7 +31,7 @@ Path UGlobalState::GetGlobalDirectory()
     }
 
 	#else
-	UCODE_ENGINE_STATIC_ASSERT("GetGlobalDirectory Has no Body");
+    UCodeGameEngineThrowException("GetGlobalDirectory Has no Body");
 	#endif // Windows
 }
 Path UGlobalState::GetPluginDirectory()

@@ -45,7 +45,7 @@ public:
 	
 	template<typename T> T* Get_Window()
 	{
-		auto& Data = T::GetEditorData();
+		auto Data = T::GetEditorData();
 
 		for (auto& Item : _EditorWindows)
 		{

@@ -89,7 +89,7 @@ ExportEditorReturn UEditorModule::ExportEditor(ExportEditorContext& Context)
 		if (dirEntry.is_regular_file()) 
 		{
 			auto& path = dirEntry.path();
-			auto& Relat = FileHelper::ToRelativePath(Context.AssetPath, path);
+			auto Relat = FileHelper::ToRelativePath(Context.AssetPath, path);
 			auto v = GetAssetDataUsingExt(path.extension());
 			if (v.has_value())
 			{

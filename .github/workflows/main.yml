@@ -58,6 +58,9 @@ jobs:
 
     - name: Get Packages
       run: sudo apt-get install libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev
+
+    - name: Get Packages GTk
+      run: sudo apt-get libgtk-3-dev
     
     - name: Make a scripts executable
       run: |

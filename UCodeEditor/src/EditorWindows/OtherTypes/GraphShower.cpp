@@ -74,7 +74,7 @@ GraphShower::Pin& GraphShower::AddPin(Node& node,GraphShower::PinKind type)
 	Pin& r =Pins.back();
 	r.ID = NextID; NextID++;
 	r.Kind = type;
-	r.Node = &node;
+	r.node = &node;
 
 	return r;
 }
