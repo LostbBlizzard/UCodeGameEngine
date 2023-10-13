@@ -2,7 +2,7 @@
 #include <filesystem>
 #include <UCodeRunTime/CoreBooks/GameFiles.hpp>
 
-#ifdef UCode_Build_Windows_OS
+#if UCodeGameEnginePlatformWindows
 #include <Windows.h>
 #include <shlobj.h>
 #endif // UCode_Build_Windows_OS
@@ -33,15 +33,15 @@ void FileBuffer::Close()
 }
 size_t FileBuffer::Get_BufferSize()
 {
-	size_t BufferSize;
-#ifdef UCode_Build_Windows_OS
+	size_t BufferSize =0;
+	#if UCodeGameEnginePlatformWindows
 	SYSTEM_INFO sysInfo;
 
 	GetSystemInfo(&sysInfo);
 
 	BufferSize = sysInfo.dwPageSize;
-#endif // UCode_Build_Windows_OS
-	return BufferSize;
+	#endif // UCode_Build_Windows_OS
+	return BufferSize * 8;
 }
 void FileBuffer::BufferCheck()
 {

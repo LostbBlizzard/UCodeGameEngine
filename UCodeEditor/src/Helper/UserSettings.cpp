@@ -17,7 +17,7 @@ UserSettings& UserSettings::GetSettings()
 		bool Ok = FromFile(GetPath(), UCodeEditor_UserSettings);
 		if (!Ok)
 		{
-			#ifdef UCode_Build_Windows_OS
+			#if UCodeGameEnginePlatformWindows
 			UCodeEditor_UserSettings.CodeEditorPath = "C:/Windows/System32/notepad.exe";
 			UCodeEditor_UserSettings.OpenCodeEditorFileArg = "/W " + (String)UserSettings::FilePathArg;//open file as unicode
 			#else

@@ -2,7 +2,7 @@
 #include "App.hpp"
 
 #ifdef PUBLISHED
-#ifdef UCode_Build_Windows_OS
+#if UCodeGameEnginePlatformWindows
 
 #include <Windows.h>
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLine, int iCmdShow)

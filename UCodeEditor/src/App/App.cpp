@@ -2,7 +2,7 @@
 #include "../Editor/EditorApp.hpp"
 
 
-#ifdef DEBUG
+#if UCodeGameEngineDEBUG
 #include "tests/tests.hpp"
 #endif // DEBUG
 
@@ -10,7 +10,7 @@ int App::main(int argc, char* argv[])
 {
 	int a = 0;
 
-	#ifndef DEBUG
+	#ifndef UCodeGameEngineDEBUG
 	try
 	#endif // DEBUG
 
@@ -19,7 +19,7 @@ int App::main(int argc, char* argv[])
 		{
 			UCode::StringView Str = argv[i];
 
-			#ifdef DEBUG
+			#if UCodeGameEngineDEBUG
 			if (Str == "--RunTests")
 			{
 				return UCodeEditor::Tests::RunTests();
@@ -36,7 +36,7 @@ int App::main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 	}
 
-	#ifndef DEBUG
+	#ifndef UCodeGameEngineDEBUG
 	catch (const std::exception& ex)
 	{
 		UCode::Loger::Log( (UCode::String)"App crashed :" + (UCode::String)ex.what(), UCode::LogType::Fatal);
