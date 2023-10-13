@@ -55,6 +55,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Get Packages
+      run: sudo apt-get install libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev
     
     - name: Make a scripts executable
       run: |

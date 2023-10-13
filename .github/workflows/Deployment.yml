@@ -70,6 +70,9 @@ jobs:
   build-Linux:
     runs-on: ubuntu-latest
     
+  - name: Get Packages
+    run: sudo apt-get install libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev
+    
     steps:
      - name: Make a scripts executable
         run: |

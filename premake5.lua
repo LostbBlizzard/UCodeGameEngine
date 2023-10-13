@@ -59,7 +59,7 @@ function includeUCode()
       "Dependencies/glm",
       "Dependencies/GLFW/include",
       "Dependencies/GLFW/deps",
-      --"Dependencies/GLEW",
+      "Dependencies/GLEW",
       "Dependencies/plog/include",
       "Dependencies/UCodeLang",
       "Dependencies/UCodeLang/UCodeLang",
@@ -70,6 +70,8 @@ function includeUCode()
       "Dependencies/FileWatcher/include",
       "Dependencies/zip/src",
       "Dependencies/MinimalSocket/src/header",
+      
+      "UCode/src",
     }
 
     filter { "platforms:Win32" }
@@ -104,7 +106,7 @@ function linkUCode()
       "Output/glm/" .. OutDirPath,
       "Output/stb_image/" .. OutDirPath,    
       "Output/stb_image_write/" .. OutDirPath,    
-      --"Dependencies/GLEW/Lib",
+      "Dependencies/GLEW/Lib",
       "Output/GLFW/" .. OutDirPath, 
       "Output/UCodeLang/" .. OutDirPath, 
       "Output/SPIRV-Cross/" .. OutDirPath, 
@@ -197,12 +199,45 @@ project "UCodeApp"
    includeUCode();
    linkUCode();
    
-  
-   buildmessage "Copying Output"
+   links {
+    "UCode",
+    "Imgui",
+    "yaml-cpp",
+    "stb_image",
+    "stb_image_write",
+    "GLFW",
+    "UCodeLang",
+    "box2d",
+    "MinimalSocket"
+  } 
 
-   postbuildcommands {
-       "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name}.exe %{wks.location}UCodeEditor/UFiles/bin/%{prj.name}_%{cfg.platform}.exe"
-    }
+
+  filter { "system:Windows"}
+    buildmessage "Copying Output"
+
+    filter { "architecture:x86_64" }
+      postbuildcommands {
+         "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name}.exe %{wks.location}UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe"
+      }
+    
+    filter { "architecture:x86" }
+      postbuildcommands {
+         "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name}.exe %{wks.location}UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe"
+      }
+
+  filter { "system:linux"}
+    buildmessage "Copying Output"
+    
+    filter { "architecture:x86_64" }
+      postbuildcommands {
+        "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name} %{wks.location}UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64"
+      }
+    
+    filter { "architecture:x86" }
+      postbuildcommands {
+        "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name} %{wks.location}UCodeEditor/UFiles/bin/UCAppLinuxDebug86X32"
+      }
+
 
 project "UCodeEditor"
    location "UCodeEditor"
@@ -432,28 +467,6 @@ group "Dependencies"
       "Dependencies/%{prj.name}/**.c",
     }
   
-  
-  --filter { "system:not windows" }
-  
-   --project "GLEW"
-    --location "Dependencies/%{prj.name}"
-    --kind "StaticLib"
-    --language "C++" 
-
-    --targetdir ("Output/%{prj.name}/" .. OutDirPath)
-    --objdir ("Output/int/%{prj.name}/" .. OutDirPath)
-
-    --files {
-      --"Dependencies/%{prj.name}/**.hpp",
-      --"Dependencies/%{prj.name}/**.cpp",
-      --"Dependencies/%{prj.name}/**.h", 
-      --"Dependencies/%{prj.name}/**.c",
-    --}
-    --includedirs{
-      --"Dependencies/%{prj.name}",
-    --}
-
-  
   project "GLFW"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"
@@ -571,6 +584,7 @@ group "Dependencies"
        "Dependencies/%{prj.name}/glslang/OSDependent/Unix/**.h", 
      }
     files {
+      "Dependencies/%{prj.name}/build_info.h",
       "Dependencies/%{prj.name}/glslang/Include/**.cpp",
       "Dependencies/%{prj.name}/glslang/Include/**.h", 
 
@@ -596,6 +610,7 @@ group "Dependencies"
 
     includedirs{
       "Dependencies/%{prj.name}",
+      "Dependencies",
     }
   
   project "SPIRV-Cross"
@@ -615,6 +630,10 @@ group "Dependencies"
 
     includedirs{
       "Dependencies/%{prj.name}",
+    }
+    removefiles 
+    {
+      "Dependencies/%{prj.name}/main.cpp"
     }
   
   project "plog"
@@ -689,6 +708,8 @@ group "Dependencies"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"
     language "C++" 
+
+    includedirs {"Dependencies/MinimalSocket/src/header"}
 
     targetdir ("Output/%{prj.name}/" .. OutDirPath)
     objdir ("Output/int/%{prj.name}/" .. OutDirPath)

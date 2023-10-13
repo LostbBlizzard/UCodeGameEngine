@@ -3,43 +3,38 @@
 #include "BasicTypes.hpp"
 CoreStart
 
-
 template<typename T>
-inline const char* GetTypeName()
-{
-	const T* Tep = nullptr;//unsed.
-	return _GetTypeName<T>(Tep);
-}
+inline const char* GetTypeName();
 
 template<typename T> inline const char* _GetTypeName(const T* ParForOverloading)
 {
 	return typeid(T).name();
 }
-template<> inline const char* _GetTypeName<u8>(const u8* ParForOverloading) { return "uInt8"; }
-template<> inline const char* _GetTypeName<u16>(const u16* ParForOverloading) { return "uInt16"; }
-template<> inline const char* _GetTypeName<u32>(const u32* ParForOverloading) { return "uInt32"; }
-template<> inline const char* _GetTypeName<u64>(const u64* ParForOverloading) { return "uInt64"; }
+ inline const char* _GetTypeName(const u8* ParForOverloading) { return "uInt8"; }
+ inline const char* _GetTypeName(const u16* ParForOverloading) { return "uInt16"; }
+ inline const char* _GetTypeName(const u32* ParForOverloading) { return "uInt32"; }
+ inline const char* _GetTypeName(const u64* ParForOverloading) { return "uInt64"; }
 
-template<> inline const char* _GetTypeName<i8>(const i8* ParForOverloading) { return "Int8"; }
-template<> inline const char* _GetTypeName<i16>(const i16* ParForOverloading) { return "Int16"; }
-template<> inline const char* _GetTypeName<i32>(const i32* ParForOverloading) { return "Int32"; }
-template<> inline const char* _GetTypeName<i64>(const i64* ParForOverloading) { return "Int64"; }
+ inline const char* _GetTypeName(const i8* ParForOverloading) { return "Int8"; }
+ inline const char* _GetTypeName(const i16* ParForOverloading) { return "Int16"; }
+ inline const char* _GetTypeName(const i32* ParForOverloading) { return "Int32"; }
+ inline const char* _GetTypeName(const i64* ParForOverloading) { return "Int64"; }
 
-template<> inline const char* _GetTypeName<bool>(const bool* ParForOverloading) { return "bool"; }
-template<> inline const char* _GetTypeName<char>(const char* ParForOverloading) { return "char"; }
+ inline const char* _GetTypeName(const bool* ParForOverloading) { return "bool"; }
+ inline const char* _GetTypeName(const char* ParForOverloading) { return "char"; }
 
 /*
-template<> const char* GetTypeName<char8_t>() { return "char(UTF-8)"; }
-template<> const char* GetTypeName<char16_t>() { return "char(UTF-16)"; }
-template<> const char* GetTypeName<char32_t>() { return "char(UTF-32)"; }
+ const char* GetTypeName<char8_t>() { return "char(UTF-8)"; }
+ const char* GetTypeName<char16_t>() { return "char(UTF-16)"; }
+ const char* GetTypeName<char32_t>() { return "char(UTF-32)"; }
 */
 
-template<> inline const char* _GetTypeName<String>(const String* ParForOverloading)
+inline const char* _GetTypeName(const String* ParForOverloading)
 {
 	return "String";
 }
 
-template<> inline const char* _GetTypeName<StringView>(const StringView* ParForOverloading)
+inline const char* _GetTypeName(const StringView* ParForOverloading)
 {
 	return "StringView";
 }
@@ -76,6 +71,13 @@ template<typename T>inline const char* _GetTypeName(const Ref<T>* ParForOverload
 {
 	static const String Buffer = GetTypeName<T>() + "$";
 	return Buffer.c_str();
+}
+
+template<typename T>
+inline const char* GetTypeName()
+{
+	const T* Tep = nullptr;//unsed.
+	return _GetTypeName<T>(Tep);
 }
 
 
