@@ -211,7 +211,7 @@ void OpenGlRender::SetStyle_WoodLandDay(ImGuiStyle* dst)
 
     style->FrameRounding = 4.0f;
  
-
+    
     /*
 #define UC32ToIMVect4(V32) *(ImVec4*)(&(UCode::Color)V32)    
 #define CopyAllButA(V32,A)  {V32.R, V32.G,V32.B ,A}

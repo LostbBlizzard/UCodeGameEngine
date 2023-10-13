@@ -315,6 +315,20 @@ project "UCodeGameEngineDoc"
      "%{prj.name}/src/**.cpp",
      "%{prj.name}/src/**.hpp", 
    }
+project "UCodeGameEngineWebsite"
+   location "UCodeGameEngineWebsite"
+   kind "StaticLib"
+   language "C++"
+
+   targetdir ("Output/%{prj.name}/" .. OutDirPath)
+   objdir ("Output/int/%{prj.name}/" .. OutDirPath)
+   
+   files { 
+     "%{prj.name}/src/**.c",
+     "%{prj.name}/src/**.h",
+     "%{prj.name}/src/**.cpp",
+     "%{prj.name}/src/**.hpp", 
+   }
 
 group "UCodeAPIs"
  project "UCodeGameEngine"
