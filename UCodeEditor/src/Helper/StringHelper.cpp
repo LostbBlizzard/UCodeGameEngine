@@ -2,7 +2,7 @@
 
 EditorStart
 
-bool StartsWith(StringView Val,StringView Match)
+bool  StringHelper::StartsWith(StringView Val,StringView Match)
 {
 		if (Val.size() >= Match.size())
 		{

@@ -376,4 +376,4 @@ nfdresult_t NFD_PickFolder(const nfdchar_t *defaultPath,
     WaitForCleanup();
     
     return result;
-}nfd_gtk.c
+}
