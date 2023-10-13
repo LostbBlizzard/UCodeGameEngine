@@ -51,7 +51,7 @@ void BuildSytemManger::Build(const WindowsBuildSetings& setings)
 {
 	const Path ExePath = Setings._OutDir / Path(Setings._OutName).concat(".exe").native();
 	const Path GameFilesDataPath = Setings._OutDir / Path(UCode::GameFilesData::FileDataName).native();
-	const auto ExeTepPath = AppFiles::ReadFileAsBytes(Path("bin/UCodeApp_Win64.exe"));
+	const auto ExeTepPath = AppFiles::ReadFileAsBytes(Path("bin/UCAppWinDebug86X64.exe"));
 
 	fs::create_directories(Setings._OutDir);
 	fs::create_directories(Setings.TemporaryPlatfromPath);

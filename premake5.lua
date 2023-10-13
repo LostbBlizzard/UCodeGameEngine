@@ -1,6 +1,6 @@
 workspace "UCodeGameEngine"
    configurations { "Debug", "Release","Published" }
-   platforms { "Win32", "Win64","linux32","linux64","macosx"}
+   platforms { "Win32", "Win64","linux32","linux64","macosx","Web","Android","IOS"}
    defines {"YAML_CPP_STATIC_DEFINE","GLEW_STATIC"}
    
    startproject "UCodeEditor"
@@ -54,7 +54,10 @@ workspace "UCodeGameEngine"
       
 
 function includeUCode()
-    includedirs{
+
+
+    filter {}  
+     includedirs{
       "Dependencies",
       "Dependencies/glm",
       "Dependencies/GLFW/include",
@@ -72,7 +75,7 @@ function includeUCode()
       "Dependencies/MinimalSocket/src/header",
       
       "UCode/src",
-    }
+     }
 
     filter { "platforms:Win32" }
       system "Windows"
@@ -92,60 +95,54 @@ function includeUCode()
         
     filter { "system:MacOS" }
       defines {"_GLFW_COCOA","GLEW_NO_GLU"}
+
+    filter {}
       
 end
       
-function linkUCode()       
+function linkUCode()    
+
+
     filter { "system:Windows" }
       links {"Ws2_32.lib"}
-          
-             
-            
+              
     filter { "system:Windows","architecture:x86"}
-      links {
-            "glew32s.lib","Opengl32.lib",
-      }
+      links {"glew32s.lib","Opengl32.lib"}
           
     filter { "system:Windows","architecture:x86_64"}
-      links {
-            "glew64s.lib","Opengl32.lib",
-      }
+      links {"glew64s.lib","Opengl32.lib"}
+
              
     filter { "system:linux" }
       links {"GL"}
       links {"GLEW"}
-      
     
-    libdirs { 
-        "Output/Imgui/" .. OutDirPath,
-        "Output/yaml-cpp/" .. OutDirPath,
-        "Output/glm/" .. OutDirPath,
-        "Output/stb_image/" .. OutDirPath,    
-        "Output/stb_image_write/" .. OutDirPath,    
-        "Dependencies/GLEW/Lib",
-        "Output/GLFW/" .. OutDirPath, 
-        "Output/UCodeLang/" .. OutDirPath, 
-        "Output/SPIRV-Cross/" .. OutDirPath, 
-        "Output/box2d/" .. OutDirPath, 
-        "Output/MinimalSocket/" .. OutDirPath, 
-        "Output/UCode/" .. OutDirPath,
-      }
-          
-               
-            
-    links {
-        "UCode",
-        "Imgui",
-        "yaml-cpp",
-        "stb_image",
-        "stb_image_write",
-        "GLFW",
-        "UCodeLang",
-        "box2d",
-        "MinimalSocket"
-      }
-
-
+    filter {}
+     libdirs { 
+      "Output/Imgui/" .. OutDirPath,
+      "Output/yaml-cpp/" .. OutDirPath,
+      "Output/glm/" .. OutDirPath,
+      "Output/stb_image/" .. OutDirPath,    
+      "Output/stb_image_write/" .. OutDirPath,    
+      "Dependencies/GLEW/Lib",
+      "Output/GLFW/" .. OutDirPath, 
+      "Output/UCodeLang/" .. OutDirPath, 
+      "Output/SPIRV-Cross/" .. OutDirPath, 
+      "Output/box2d/" .. OutDirPath, 
+      "Output/MinimalSocket/" .. OutDirPath, 
+      "Output/UCode/" .. OutDirPath,
+     }
+     links {
+      "UCode",
+      "Imgui",
+      "yaml-cpp",
+      "stb_image",
+      "stb_image_write",
+      "GLFW",
+      "UCodeLang",
+      "box2d",
+      "MinimalSocket"
+     }
 end
    
       
@@ -194,32 +191,30 @@ project "UCodeApp"
    }
    includedirs{"%{prj.name}/src"}
 
-   includeUCode();
+   includeUCode()
 
-   linkUCode();
+   linkUCode()
    
-   filter { "system:Windows"}
-    buildmessage "Copying Output"
 
-   filter { "architecture:x86_64" }
+  
+   buildmessage "Copying Output"
+
+   filter { "system:Windows","architecture:x86_64" }
       postbuildcommands {
          "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name}.exe %{wks.location}UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe"
       }
     
-    filter { "architecture:x86" }
+   filter { "system:Windows","architecture:x86" }
       postbuildcommands {
          "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name}.exe %{wks.location}UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe"
       }
-
-   filter { "system:linux"}
-    buildmessage "Copying Output"
-    
-    filter { "architecture:x86_64" }
+ 
+   filter { "system:linux","architecture:x86_64" }
       postbuildcommands {
         "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name} %{wks.location}UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64"
       }
     
-    filter { "architecture:x86" }
+   filter { "system:linux","architecture:x86" }
       postbuildcommands {
         "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name} %{wks.location}UCodeEditor/UFiles/bin/UCAppLinuxDebug86X32"
       }
@@ -264,10 +259,9 @@ project "UCodeEditor"
       "Output/zip/" .. OutDirPath, 
    }
   
-   includeUCode();
+   includeUCode()
 
-   linkUCode();
-
+   linkUCode()
    
    
 
@@ -285,8 +279,14 @@ project "UCodeEditor"
     linkoptions {"`pkg-config --libs gtk+-3.0`"}
     buildoptions {"`pkg-config --cflags gtk+-3.0`"}
 
+
+   filter { "configurations:Published","system:Windows"}
+    kind ("WindowedApp")
+   
+   filter { "configurations:Release","system:Windows"}
+    kind ("WindowedApp")
+
    filter { "configurations:Published" }
-      kind ("WindowedApp")
       buildmessage "Copying UFilesDir"
       postbuildcommands 
       {
@@ -294,7 +294,6 @@ project "UCodeEditor"
       }--Make into GameFile.data file.
 
    filter { "configurations:Release" }
-      kind ("WindowedApp")
       buildmessage "Copying UFilesDir"
       postbuildcommands 
       {
@@ -415,6 +414,8 @@ group "Dependencies"
     includedirs{
       "Dependencies",
       "Dependencies/Imgui",
+      "Dependencies/GLFW/include",
+      "Dependencies/GLFW/deps",
     }
 
   project "yaml-cpp"
@@ -516,6 +517,22 @@ group "Dependencies"
     filter { "system:MacOS" }
       defines {"_GLFW_COCOA","GLEW_NO_GLU"}
     
+  project "GLEW"
+    location "Dependencies/%{prj.name}"
+    kind "StaticLib"
+    language "C++" 
+
+    targetdir ("Output/%{prj.name}/" .. OutDirPath)
+    objdir ("Output/int/%{prj.name}/" .. OutDirPath)
+
+    filter { "system:Windows" }
+     files {
+       "Dependencies/%{prj.name}/GL/**.h", 
+     }
+
+    includedirs{
+      "Dependencies/%{prj.name}",
+    }
   
   project "UCodeLang"
     location "Dependencies/%{prj.name}"
@@ -608,12 +625,18 @@ group "Dependencies"
       files {
        "Dependencies/%{prj.name}/glslang/OSDependent/Windows/**.cpp",
        "Dependencies/%{prj.name}/glslang/OSDependent/Windows/**.h", 
+      } 
+      removefiles {
+      "Dependencies/%{prj.name}/glslang/OSDependent/Windows/main.cpp"
       }
     filter { "system:linux" }
      files {
        "Dependencies/%{prj.name}/glslang/OSDependent/Unix/**.cpp",
        "Dependencies/%{prj.name}/glslang/OSDependent/Unix/**.h", 
      }
+
+    filter { }
+    
     files {
       "Dependencies/%{prj.name}/build_info.h",
       "Dependencies/%{prj.name}/glslang/Include/**.cpp",
@@ -634,10 +657,7 @@ group "Dependencies"
       "Dependencies/%{prj.name}/OGLCompilersDLL/**.h",
       "Dependencies/%{prj.name}/OGLCompilersDLL/**.cpp",
     }
-    removefiles 
-    {
-      "Dependencies/%{prj.name}/glslang/OSDependent/Windows/main.cpp"
-    }
+   
 
     includedirs{
       "Dependencies/%{prj.name}",
