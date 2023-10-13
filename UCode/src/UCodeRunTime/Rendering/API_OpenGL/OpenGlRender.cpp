@@ -210,133 +210,54 @@ void OpenGlRender::SetStyle_WoodLandDay(ImGuiStyle* dst)
     ImVec4* colors = style->Colors;
 
     style->FrameRounding = 4.0f;
- 
-    
-    /*
-#define UC32ToIMVect4(V32) *(ImVec4*)(&(UCode::Color)V32)    
-#define CopyAllButA(V32,A)  {V32.R, V32.G,V32.B ,A}
-#define CopyAllButSubA(V32,A,Sub) { (Byte)(V32.R - (Byte)Sub), (Byte)( V32.G - (Byte)Sub), (Byte)(V32.B - (Byte)Sub),A};
-#define CopyAllButAddA(V32,A,Sub) { (Byte)(V32.R + (Byte)Sub), (Byte)( V32.G + (Byte)Sub), (Byte)(V32.B + (Byte)Sub),A};
 
-    constexpr Byte ColorLitDarDiff = 25;
-    constexpr UCode::Color32 MainColor = { 101, 50, 33 ,155 };//#653221
-    constexpr UCode::Color32 MainColorLiter = CopyAllButAddA(MainColor, 255, ColorLitDarDiff);
-    constexpr UCode::Color32 MainColorDarker = CopyAllButAddA(MainColor, 255, ColorLitDarDiff);
-    constexpr UCode::Color32 MainColorActive = MainColorLiter;
-
-    constexpr UCode::Color32 BackRoundColorColor = { 25,15,15 };
-    constexpr UCode::Color32 BackRoundColorColorLiter = CopyAllButAddA(BackRoundColorColor, 255, ColorLitDarDiff);
-    constexpr UCode::Color32 BackRoundColorColorDarker = CopyAllButSubA(BackRoundColorColor, 255, 8);
-    constexpr UCode::Color32 BackRoundColorLiterActive = BackRoundColorColorLiter;
-
-    constexpr UCode::Color32 ComplimentaryColor = { 5,MainColor.R,MainColor.G,255 };//#053221
-    constexpr UCode::Color32 ComplimentaryColorliter = CopyAllButAddA(ComplimentaryColor, 255, ColorLitDarDiff);
-    constexpr UCode::Color32 ComplimentaryColorDarker = CopyAllButSubA(ComplimentaryColor, 255, 4);
-    constexpr UCode::Color32 ComplimentaryColorActive = ComplimentaryColorliter;
-
-
-
-
-    constexpr UCode::Color32 ButtonHovered = CopyAllButA(MainColor, 255);
-    constexpr UCode::Color32 ButtonActive = CopyAllButA(MainColorActive, 255);
-
-    constexpr UCode::Color32 Text = {  };
-    constexpr Color32 TextDisabled = { (Byte)(Text.R / (Byte)2),(Byte)(Text.G / (Byte)2),(Byte)(Text.B / (Byte)2),255 };
-
-    constexpr Color32 WindowBack = BackRoundColorColor;
-    constexpr Color32 ChildBg = BackRoundColorColorLiter;
-    constexpr Color32 PopupBg = BackRoundColorColor;
-    constexpr Color32 Border = CopyAllButA(MainColorLiter, 155);
-    constexpr Color32 BorderShadow = { 155,155,155,155 };
-
-    colors[ImGuiCol_Text] = UC32ToIMVect4(Text);
-    colors[ImGuiCol_TextDisabled] = UC32ToIMVect4(TextDisabled);
-
-    colors[ImGuiCol_WindowBg] = UC32ToIMVect4(WindowBack);
-    colors[ImGuiCol_ChildBg] = UC32ToIMVect4(ChildBg);
-    colors[ImGuiCol_PopupBg] = UC32ToIMVect4(PopupBg);
-    colors[ImGuiCol_Border] = UC32ToIMVect4(Border);
-    colors[ImGuiCol_BorderShadow] = UC32ToIMVect4(BorderShadow);
-
-    constexpr Color32 FrameBg = BackRoundColorColorDarker;
-    constexpr Color32 FrameBgHovered = CopyAllButA(ComplimentaryColorliter, 200);;
-    constexpr Color32 FrameBgActive = CopyAllButA(FrameBgHovered, 155);
-
-    colors[ImGuiCol_FrameBg] = UC32ToIMVect4(FrameBg);
-    colors[ImGuiCol_FrameBgHovered] = UC32ToIMVect4(FrameBgHovered);
-    colors[ImGuiCol_FrameBgActive] = UC32ToIMVect4(FrameBgActive);
-
-    colors[ImGuiCol_TitleBg] = UC32ToIMVect4(ComplimentaryColor);
-    colors[ImGuiCol_TitleBgActive] = UC32ToIMVect4(ComplimentaryColorActive);
-    colors[ImGuiCol_TitleBgCollapsed] = UC32ToIMVect4(BackRoundColorColor);
-
-    constexpr Color32 MenuBar = CopyAllButA(BackRoundColorColorDarker, 255);
-    constexpr Color32 ScrollbarBg = MenuBar;
-    constexpr Color32 ScrollbarGrab = CopyAllButA(ComplimentaryColorliter, 255);
-    constexpr Color32 ScrollbarGrabHovered = CopyAllButAddA(ScrollbarGrab, 188, 5);
-    constexpr Color32 ScrollbarGrabActive = CopyAllButA(ComplimentaryColorActive, 200);
-
-    colors[ImGuiCol_MenuBarBg] = UC32ToIMVect4(MenuBar);
-    colors[ImGuiCol_ScrollbarBg] = UC32ToIMVect4(ScrollbarBg);
-
-    colors[ImGuiCol_ScrollbarGrab] = UC32ToIMVect4(ScrollbarGrab);
-    colors[ImGuiCol_ScrollbarGrabHovered] = UC32ToIMVect4(ScrollbarGrabHovered);
-    colors[ImGuiCol_ScrollbarGrabActive] = UC32ToIMVect4(ScrollbarGrabActive);
-
-
-    constexpr Color32 CheckMark = CopyAllButA(ComplimentaryColorDarker, 255);
-    colors[ImGuiCol_CheckMark] = UC32ToIMVect4(CheckMark);
-    constexpr Color32 SliderGrab = CopyAllButA(ComplimentaryColorliter, 255);
-    constexpr Color32 SliderActive = CopyAllButA(ComplimentaryColorActive, 200);
-
-
-    colors[ImGuiCol_SliderGrab] = UC32ToIMVect4(SliderGrab);
-    colors[ImGuiCol_SliderGrabActive] = UC32ToIMVect4(SliderActive);
-
-
-
-
-    colors[ImGuiCol_Button] = UC32ToIMVect4(MainColor);
-    colors[ImGuiCol_ButtonHovered] = UC32ToIMVect4(ButtonHovered);
-    colors[ImGuiCol_ButtonActive] = UC32ToIMVect4(ButtonActive);
-
-    constexpr Color32 Header = CopyAllButA(ComplimentaryColorDarker, 235);
-    constexpr Color32 HeaderHovered = CopyAllButA(ComplimentaryColorActive, 235);
-    constexpr Color32 HeaderActive = CopyAllButA(ComplimentaryColorliter, 255);
-
-
-
-    colors[ImGuiCol_Header] = UC32ToIMVect4(Header);
-    colors[ImGuiCol_HeaderHovered] = UC32ToIMVect4(HeaderHovered);
-    colors[ImGuiCol_HeaderActive] = UC32ToIMVect4(HeaderActive);
-
-
-
-    colors[ImGuiCol_Separator] = colors[ImGuiCol_Border];
-
-
-    constexpr Color32 SeparatorHovered = HeaderHovered;
-    constexpr Color32 SeparatorActive = CopyAllButA(BackRoundColorLiterActive, 255);
-    colors[ImGuiCol_SeparatorHovered] = UC32ToIMVect4(SeparatorHovered);
-    colors[ImGuiCol_SeparatorActive] = UC32ToIMVect4(SeparatorActive);
-
+    colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+    colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.06f, 0.06f, 1.00f);
+    colors[ImGuiCol_ChildBg] = ImVec4(0.20f, 0.16f, 0.16f, 1.00f);
+    colors[ImGuiCol_PopupBg] = ImVec4(0.10f, 0.06f, 0.06f, 1.00f);
+    colors[ImGuiCol_Border] = ImVec4(0.49f, 0.29f, 0.23f, 0.61f);
+    colors[ImGuiCol_BorderShadow] = ImVec4(0.61f, 0.61f, 0.61f, 0.61f);
+    colors[ImGuiCol_FrameBg] = ImVec4(0.07f, 0.03f, 0.03f, 1.00f);
+    colors[ImGuiCol_FrameBgHovered] = ImVec4(0.12f, 0.49f, 0.29f, 0.78f);
+    colors[ImGuiCol_FrameBgActive] = ImVec4(0.12f, 0.49f, 0.29f, 0.61f);
+    colors[ImGuiCol_TitleBg] = ImVec4(0.02f, 0.40f, 0.20f, 1.00f);
+    colors[ImGuiCol_TitleBgActive] = ImVec4(0.12f, 0.49f, 0.29f, 1.00f);
+    colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.10f, 0.06f, 0.06f, 1.00f);
+    colors[ImGuiCol_MenuBarBg] = ImVec4(0.07f, 0.03f, 0.03f, 1.00f);
+    colors[ImGuiCol_ScrollbarBg] = ImVec4(0.07f, 0.03f, 0.03f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.12f, 0.49f, 0.29f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.14f, 0.51f, 0.31f, 0.74f);
+    colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.12f, 0.49f, 0.29f, 0.78f);
+    colors[ImGuiCol_CheckMark] = ImVec4(0.00f, 0.38f, 0.18f, 1.00f);
+    colors[ImGuiCol_SliderGrab] = ImVec4(0.12f, 0.49f, 0.29f, 1.00f);
+    colors[ImGuiCol_SliderGrabActive] = ImVec4(0.12f, 0.49f, 0.29f, 0.78f);
+    colors[ImGuiCol_Button] = ImVec4(0.40f, 0.20f, 0.13f, 0.61f);
+    colors[ImGuiCol_ButtonHovered] = ImVec4(0.40f, 0.20f, 0.13f, 1.00f);
+    colors[ImGuiCol_ButtonActive] = ImVec4(0.49f, 0.29f, 0.23f, 1.00f);
+    colors[ImGuiCol_Header] = ImVec4(0.00f, 0.38f, 0.18f, 0.92f);
+    colors[ImGuiCol_HeaderHovered] = ImVec4(0.12f, 0.49f, 0.29f, 0.92f);
+    colors[ImGuiCol_HeaderActive] = ImVec4(0.12f, 0.49f, 0.29f, 1.00f);
+    colors[ImGuiCol_Separator] = ImVec4(0.49f, 0.29f, 0.23f, 0.61f);
+    colors[ImGuiCol_SeparatorHovered] = ImVec4(0.12f, 0.49f, 0.29f, 0.92f);
+    colors[ImGuiCol_SeparatorActive] = ImVec4(0.20f, 0.16f, 0.16f, 1.00f);
     colors[ImGuiCol_ResizeGrip] = ImVec4(0.26f, 0.59f, 0.98f, 0.20f);
     colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
     colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
-
-    colors[ImGuiCol_Tab] = ImLerp(colors[ImGuiCol_Header], colors[ImGuiCol_TitleBgActive], 0.80f);
-    colors[ImGuiCol_TabHovered] = colors[ImGuiCol_HeaderHovered];
-    colors[ImGuiCol_TabActive] = UC32ToIMVect4(BackRoundColorLiterActive);// ImLerp(colors[ImGuiCol_HeaderActive], colors[ImGuiCol_TitleBgActive], 0.60f);
-    colors[ImGuiCol_TabUnfocused] = ImLerp(colors[ImGuiCol_Tab], colors[ImGuiCol_TitleBg], 0.80f);
-    colors[ImGuiCol_TabUnfocusedActive] = ImLerp(colors[ImGuiCol_TabActive], colors[ImGuiCol_TitleBg], 0.40f);
-
+    colors[ImGuiCol_Tab] = ImVec4(0.09f, 0.47f, 0.27f, 0.98f);
+    colors[ImGuiCol_TabHovered] = ImVec4(0.12f, 0.49f, 0.29f, 0.92f);
+    colors[ImGuiCol_TabActive] = ImVec4(0.20f, 0.16f, 0.16f, 1.00f);
+    colors[ImGuiCol_TabUnfocused] = ImVec4(0.03f, 0.41f, 0.21f, 1.00f);
+    colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.13f, 0.25f, 0.17f, 1.00f);
+    colors[ImGuiCol_DockingPreview] = ImVec4(0.12f, 0.49f, 0.29f, 1.00f);
+    colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.07f, 0.03f, 0.03f, 1.00f);
     colors[ImGuiCol_PlotLines] = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
     colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
     colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
     colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
     colors[ImGuiCol_TableHeaderBg] = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
-    colors[ImGuiCol_TableBorderStrong] = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);   // Prefer using Alpha=1.0 here
-    colors[ImGuiCol_TableBorderLight] = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);   // Prefer using Alpha=1.0 here
+    colors[ImGuiCol_TableBorderStrong] = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);
+    colors[ImGuiCol_TableBorderLight] = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);
     colors[ImGuiCol_TableRowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
     colors[ImGuiCol_TableRowBgAlt] = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
     colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
@@ -347,9 +268,6 @@ void OpenGlRender::SetStyle_WoodLandDay(ImGuiStyle* dst)
     colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 
 
-    colors[ImGuiCol_DockingPreview] = UC32ToIMVect4(ComplimentaryColorliter);
-    colors[ImGuiCol_DockingEmptyBg] = UC32ToIMVect4(BackRoundColorColorDarker);
-    */
 }
 void OpenGlRender::SetStyle_WoodLandNight(ImGuiStyle* dst)
 {
