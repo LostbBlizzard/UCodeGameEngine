@@ -95,37 +95,7 @@ function includeUCode()
       
 end
       
-function linkUCode()
-    libdirs { 
-      "Output/UCode/" .. OutDirPath,
-      "Output/Imgui/" .. OutDirPath,
-      "Output/yaml-cpp/" .. OutDirPath,
-      "Output/glm/" .. OutDirPath,
-      "Output/stb_image/" .. OutDirPath,    
-      "Output/stb_image_write/" .. OutDirPath,    
-      "Dependencies/GLEW/Lib",
-      "Output/GLFW/" .. OutDirPath, 
-      "Output/UCodeLang/" .. OutDirPath, 
-      "Output/SPIRV-Cross/" .. OutDirPath, 
-      "Output/box2d/" .. OutDirPath, 
-      "Output/MinimalSocket/" .. OutDirPath, 
-    }
-        
-             
-          
-    links {
-      "UCode",
-      "Imgui",
-      "yaml-cpp",
-      "stb_image",
-      "stb_image_write",
-      "GLFW",
-      "UCodeLang",
-      "box2d",
-      "MinimalSocket"
-    }
-          
-           
+function linkUCode()       
     filter { "system:Windows" }
       links {"Ws2_32.lib"}
           
@@ -145,6 +115,37 @@ function linkUCode()
       links {"GL"}
       links {"GLEW"}
       
+    
+    libdirs { 
+        "Output/Imgui/" .. OutDirPath,
+        "Output/yaml-cpp/" .. OutDirPath,
+        "Output/glm/" .. OutDirPath,
+        "Output/stb_image/" .. OutDirPath,    
+        "Output/stb_image_write/" .. OutDirPath,    
+        "Dependencies/GLEW/Lib",
+        "Output/GLFW/" .. OutDirPath, 
+        "Output/UCodeLang/" .. OutDirPath, 
+        "Output/SPIRV-Cross/" .. OutDirPath, 
+        "Output/box2d/" .. OutDirPath, 
+        "Output/MinimalSocket/" .. OutDirPath, 
+        "Output/UCode/" .. OutDirPath,
+      }
+          
+               
+            
+    links {
+        "UCode",
+        "Imgui",
+        "yaml-cpp",
+        "stb_image",
+        "stb_image_write",
+        "GLFW",
+        "UCodeLang",
+        "box2d",
+        "MinimalSocket"
+      }
+
+
 end
    
       
@@ -194,25 +195,13 @@ project "UCodeApp"
    includedirs{"%{prj.name}/src"}
 
    includeUCode();
+
    linkUCode();
    
-   links {
-    "UCode",
-    "Imgui",
-    "yaml-cpp",
-    "stb_image",
-    "stb_image_write",
-    "GLFW",
-    "UCodeLang",
-    "box2d",
-    "MinimalSocket"
-  } 
-
-
-  filter { "system:Windows"}
+   filter { "system:Windows"}
     buildmessage "Copying Output"
 
-    filter { "architecture:x86_64" }
+   filter { "architecture:x86_64" }
       postbuildcommands {
          "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name}.exe %{wks.location}UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe"
       }
@@ -222,7 +211,7 @@ project "UCodeApp"
          "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name}.exe %{wks.location}UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe"
       }
 
-  filter { "system:linux"}
+   filter { "system:linux"}
     buildmessage "Copying Output"
     
     filter { "architecture:x86_64" }
@@ -260,9 +249,26 @@ project "UCodeEditor"
      "%{prj.name}/src/**.hpp", 
    }
    includedirs{"%{prj.name}/src"}
+   
+   
+   links {
+    "FileWatcher",
+    "glslang",
+    "SPIRV-Cross",
+    "zip",
+   }
+   libdirs { 
+      "Output/FileWatcher/" .. OutDirPath, 
+      "Output/glslang/" .. OutDirPath, 
+      "Output/SPIRV-Cross/" .. OutDirPath, 
+      "Output/zip/" .. OutDirPath, 
+   }
   
    includeUCode();
+
    linkUCode();
+
+   
    
 
    buildmessage "Copying UFilesAPI"
@@ -276,6 +282,8 @@ project "UCodeEditor"
     removefiles{"%{prj.name}/src/OtherLibrarys/Nativefiledialog/nfd_gtk.c"}
    filter {"system:linux"}
     removefiles{"%{prj.name}/src/OtherLibrarys/Nativefiledialog/nfd_win.cpp"}
+    linkoptions {"`pkg-config --libs gtk+-3.0`"}
+    buildoptions {"`pkg-config --cflags gtk+-3.0`"}
 
    filter { "configurations:Published" }
       kind ("WindowedApp")

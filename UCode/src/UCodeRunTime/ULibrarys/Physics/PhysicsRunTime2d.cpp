@@ -17,7 +17,7 @@ PhysicsRunTime::~PhysicsRunTime()
 	GetGameRunTime()->ReMoveStaticComponent((size_t)StaticRuntimeComponentsIndex::PhysicsRunTime);
 	Entity::Destroy(GetMyEntity());
 }
-inline PhysicsRunTime* PhysicsRunTime::GetPhysics(GameRunTime* e)
+PhysicsRunTime* PhysicsRunTime::GetPhysics(GameRunTime* e)
 {
 	const auto index = (size_t)StaticRuntimeComponentsIndex::PhysicsRunTime;
 	auto item = e->Get_StaticComponent(index);
