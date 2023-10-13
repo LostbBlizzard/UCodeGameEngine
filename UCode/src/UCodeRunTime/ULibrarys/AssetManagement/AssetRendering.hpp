@@ -46,7 +46,8 @@ public:
 
 	ManagedPtr<SharderAsset > GetManaged()
 	{
-		return *(ManagedPtr<SharderAsset>*) &this->Get_Managed();
+		auto V =this->Get_Managed();
+		return *(ManagedPtr<SharderAsset>*)&V;
 	}
 };
 using ShaderAssetPtr = ManagedPtr<SharderAsset>;

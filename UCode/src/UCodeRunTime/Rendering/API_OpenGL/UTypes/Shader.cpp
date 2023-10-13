@@ -144,7 +144,7 @@ Shader::Shader(const Span<u32> SPRVB_Vex, const Span<u32> SPRVB_Feg)
 
         auto Text = std::make_unique<char[]>(logSize);
         GlCall(glGetProgramInfoLog(program, logSize, &logSize, &Text[0]));
-        UCODE_ENGINE_LOG("program linking  failed:" << Text << std::endl);
+        UCODE_ENGINE_LOG("program linking  failed:" << StringView(Text.get(),logSize) << '\n');
     }
 
 
@@ -186,7 +186,7 @@ void Shader::InitShader(const String& Vex, const String& Feg)
 
         GlCall(glGetShaderInfoLog(vertex_shader, logSize, &logSize, &Text[0]));
 
-        UCODE_ENGINE_LOG("Vertex shader failed:" << Text<<std::endl);
+        UCODE_ENGINE_LOG("Vertex shader failed:" << StringView(Text.get(),logSize) << std::endl);
       
     }
     if (success2 == GL_FALSE)
@@ -197,7 +197,7 @@ void Shader::InitShader(const String& Vex, const String& Feg)
 
         GlCall(glGetShaderInfoLog(fragment_shader, logSize, &logSize, &Text[0]));
 
-        UCODE_ENGINE_LOG("Fragment shader failed:" << Text <<std::endl);
+        UCODE_ENGINE_LOG("Fragment shader failed:" << StringView(Text.get(),logSize) <<std::endl);
        
     }
     GLint program_linked; glGetProgramiv(program, GL_LINK_STATUS, &program_linked);
@@ -207,7 +207,7 @@ void Shader::InitShader(const String& Vex, const String& Feg)
 
         auto Text = std::make_unique<char[]>(logSize);
         GlCall(glGetProgramInfoLog(program, logSize, &logSize, &Text[0]));
-        UCODE_ENGINE_LOG("program linking  failed:" << Text << std::endl);
+        UCODE_ENGINE_LOG("program linking  failed:" << StringView(Text.get(),logSize) << std::endl);
     }
 
   

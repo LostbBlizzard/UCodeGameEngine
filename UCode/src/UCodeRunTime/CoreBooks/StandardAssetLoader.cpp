@@ -14,5 +14,6 @@ Optional<Unique_ptr<Asset>> StandardAssetLoader::LoadAsset(const Path& Path)
 		return Val->LoadAsset(V);
 	}
 	return {};
+	
 }
 CoreEnd
