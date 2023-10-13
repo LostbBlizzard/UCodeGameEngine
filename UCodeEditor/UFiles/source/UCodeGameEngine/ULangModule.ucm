@@ -3,6 +3,6 @@ ModuleName: "UCodeGameEngine"
 Version: 0:0:0
 ForceImport:false
 RemoveUnSafe:true
-NameSpace:"UCodeGameEngine"
+NameSpace:""
 
 //import LostbBlizzard::NWin32[0:0:0];
