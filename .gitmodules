@@ -28,3 +28,6 @@
 [submodule "Dependencies/MinimalSocket"]
 	path = Dependencies/MinimalSocket
 	url = https://github.com/LostbBlizzard/Minimal-Socket
+[submodule "UCodeGameEngineWebsite/Site/themes/ananke"]
+	path = UCodeGameEngineWebsite/Site/themes/ananke
+	url = https://github.com/theNewDynamic/gohugo-theme-ananke.git
