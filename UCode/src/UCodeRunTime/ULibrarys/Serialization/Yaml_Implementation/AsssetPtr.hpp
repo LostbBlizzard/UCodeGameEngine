@@ -48,7 +48,7 @@ namespace YAML
                 return false;
             }
 
-            auto State = (TypePtr::State)node[0].as<TypePtr::State_t>();
+            auto State = (typename TypePtr::State)node[0].as<typename TypePtr::State_t>();
 
             switch (State)
             {

@@ -28,7 +28,7 @@ public:
 	template<typename T>
 	void Push(u32 count)
 	{
-		S_ASSERT("VertexBufferLayout Has no implementation Push for Type 'T'");
+	 static_assert(true,"VertexBufferLayout Has no implementation Push for Type 'T'");
 	};
 	
 	void Push_float(u32 count);

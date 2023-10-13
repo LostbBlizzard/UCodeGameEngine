@@ -14,7 +14,7 @@ void TcpSever::StartSever(const Ip_t& IP, Port_t Port)
 {
 #if UCodeGameEngineDEBUG
 	if (IsSeverRuning()) {
-		throw std::exception("Sever Is Runing");
+		UCodeGameEngineThrowException("Sever Is Runing");
 	}
 #endif // DEBUG
 
@@ -28,7 +28,7 @@ void TcpSever::Step()
 {
 #if UCodeGameEngineDEBUG
 	if (!IsSeverRuning()) {
-		throw std::exception("Sever Is not Runing");
+		UCodeGameEngineThrowException("Sever Is not Runing");
 	}
 #endif // DEBUG
 
@@ -76,7 +76,7 @@ void TcpSever::CloseSever()
 {
 #if UCodeGameEngineDEBUG
 	if (!IsSeverRuning()) {
-		throw std::exception("sever Is not runing");
+		UCodeGameEngineThrowException("sever Is not runing");
 	}
 #endif // DEBUG
 	_Base = MinimalSocket::tcp::TcpServer();

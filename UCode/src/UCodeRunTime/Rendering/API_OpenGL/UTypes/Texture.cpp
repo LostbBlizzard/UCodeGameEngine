@@ -122,7 +122,7 @@ void Texture::UpdateDataToGPU()
 #if UCodeGameEngineDEBUG
 	if (_FilePath != MadewithColor)
 	{
-		throw std::exception("This texture is read only cannot be Updated");
+		UCodeGameEngineThrowException("This texture is read only cannot be Updated");
 	}
 #endif // DEBUG
 	GlCall(glBindTexture(GL_TEXTURE_2D, _RendererID));

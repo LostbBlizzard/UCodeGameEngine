@@ -54,12 +54,7 @@ int App::main(int argc, char* argv[])
     UCode::Loger::InitCheck();
     //try
     {
-        #ifdef UCode_Build_Windows_OS
-
-        
-
         UCode::Path GameDataPath = (UCode::Path)GameFilesData::FileDataName;
-        #endif
         GameFilesData GameData;
         FileBuffer Buffer;
         if (GameFilesData::ReadFileKeepOpen(GameDataPath, Buffer, GameData))

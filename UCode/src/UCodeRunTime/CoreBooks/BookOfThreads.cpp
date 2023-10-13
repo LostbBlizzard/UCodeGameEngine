@@ -328,7 +328,7 @@ void BookOfThreads::ThrowErrIfNotOnMainThread()
 {
 	if (!IsOnMainThread())
 	{
-		throw std::exception("Not on Main-Thread");
+		UCodeGameEngineThrowException("Not on Main-Thread");
 	}
 }
 

@@ -35,7 +35,7 @@ public:
 	};
 	Scene2dData();
 
-	void Scene2dData::PushData(USerializer& node);
+	void PushData(USerializer& node);
 	static bool FromString(Scene2dData& out, UDeserializer& text);
 
 	static bool FromFile(Scene2dData& out, const Path& Path);
