@@ -157,7 +157,7 @@ project "UCode"
    dependson {
     "GLEW","GLFW","glm", 
     "box2d","yaml-cpp","stb_image","stb_image_write","Imgui","UCodeLangCl",
-    "MinimalSocket",
+    "plog","MinimalSocket",
    }
    
    targetdir ("Output/%{prj.name}/" .. OutDirPath)
@@ -274,8 +274,8 @@ project "UCodeEditor"
    buildmessage "Copying UFilesAPI"
    postbuildcommands 
    {
-    "{COPYDIR} %{wks.location}UCodeAPI/GameEngine %{prj.location}/UFiles/source/UCodeGameEngine",
-    "{COPYDIR} %{wks.location}UCodeAPI/GameEngineEditor %{prj.location}/UFiles/source/UCodeGameEngineEditor",
+    "{COPYDIR} %{wks.location}/UCodeAPI/GameEngine %{prj.location}/UFiles/source/UCodeGameEngine",
+    "{COPYDIR} %{wks.location}/UCodeAPI/GameEngineEditor %{prj.location}/UFiles/source/UCodeGameEngineEditor",
 
    }
    filter {"system:Windows"}
@@ -493,7 +493,15 @@ group "Dependencies"
       "Dependencies/%{prj.name}",
       
     }
-
+    filter { "system:Windows" }
+      defines {"_GLFW_WIN32"}
+      
+    filter { "system:linux" }
+      defines {"_GLFW_X11","GLEW_NO_GLU"}
+        
+    filter { "system:MacOS" }
+      defines {"_GLFW_COCOA","GLEW_NO_GLU"}
+    
   
   project "UCodeLang"
     location "Dependencies/%{prj.name}"
