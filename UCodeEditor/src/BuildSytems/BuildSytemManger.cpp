@@ -174,7 +174,10 @@ void BuildSytemManger::BuildProjectGlobalWasGameData(const Path& GameFilesDataPa
 			fs::remove(GameFilesDataPath);
 		}
 		UCode::GameFilesData::MakeFile(GameData, GameFilesDataPath, SerializerMode);
-
+		
+		#if UCodeGameEngineDEBUG
+		fs::copy_file(GameFilesDataPath, "../UCodeApp" / Path(UCode::GameFilesData::FileDataName));
+		#endif
 	}
 }
 void BuildSytemManger::Build(const WebBuildSetings& setings)

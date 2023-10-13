@@ -1,6 +1,6 @@
 #include "UGlobalState.hpp"
 
-#if UCode_Build_Windows_OS
+#if UCodeGameEnginePlatformWindows
 #include <Windows.h>
 #include <shlobj.h>
 #endif // Windows
@@ -8,7 +8,7 @@
 EditorStart
 Path UGlobalState::GetGlobalDirectory()
 {
-    #if UCode_Build_Windows_OS
+    #if UCodeGameEnginePlatformWindows
 
     WCHAR my_documents[MAX_PATH];
     HRESULT result = SHGetFolderPathW(0, CSIDL_PROFILE, 0, 0, my_documents);

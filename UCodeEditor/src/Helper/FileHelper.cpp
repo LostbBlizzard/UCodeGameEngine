@@ -14,7 +14,7 @@
 
 #include <UCodeRunTime/CoreBooks/GameFiles.hpp>
 
-#ifdef UCode_Build_Windows_OS
+#if UCodeGameEnginePlatformWindows
 #include <Windows.h>
 #include <shellapi.h>
 #endif // DEBUG
@@ -226,7 +226,8 @@ FileHelper::OpenFileData FileHelper::SaveToFilePathFromUser(FileTypesOptions_t f
 
 void FileHelper::OpenPathinFiles(const Path&  Dir)
 {
-	#ifdef UCode_Build_Windows_OS
+	
+	#if UCodeGameEnginePlatformWindows
 	ShellExecuteA(NULL, "open", (LPSTR)Dir.generic_string().c_str(), NULL, NULL, SW_SHOWDEFAULT);
 	
 #else
@@ -241,7 +242,8 @@ Path FileHelper::Get_PersistentDataPath()
 	//Data.CompanyName = "Lost blizzard";
 	//Data.APPName = "UCodeEditor";
 	Path R;// = UCode::GameFiles::Get_PersistentDataPath(Data);
-	#ifdef DEBUG
+	
+	#if UCodeGameEngineDEBUG
 	R = UCode_VS_PROJECTPATH "PersistentData/";
 	#endif // DEBUG
 	if (!fs::exists(R))
@@ -256,7 +258,7 @@ Path FileHelper::Get_PersistentDataPath()
 bool FileHelper::TrashFile(const Path& File)
 {
 	return fs::remove(File);
-#ifdef UCode_Build_Windows_OS
+	#if UCodeGameEnginePlatformWindows
 
 	auto widestr = File.native();
 
