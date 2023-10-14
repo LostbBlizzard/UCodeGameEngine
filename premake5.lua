@@ -78,7 +78,7 @@ workspace "UCodeGameEngine"
     filter { "platforms:Web" }
       system "linux"
       toolset ("gcc")
-      gccprefix {"em"}
+      gccprefix ("em")
 
 
     filter { "platforms:Android" }
