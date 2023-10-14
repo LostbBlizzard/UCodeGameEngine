@@ -51,7 +51,45 @@ workspace "UCodeGameEngine"
       defines { "PUBLISHED" , "RELASE"}
       optimize "Speed"
       symbols "off"
-      
+    
+   
+    filter { "platforms:Win32" }
+      system "Windows"
+      architecture "x86"
+
+    filter { "platforms:Win64" }
+      system "Windows"
+      architecture "x86_64"
+
+    filter { "platforms:linux32" }
+      system "linux"
+      architecture "x86"
+      toolset ("gcc")
+
+    filter { "platforms:linux64" }
+      system "linux"
+      architecture "x86_64"
+      toolset ("gcc")
+
+    filter { "platforms:macosx" }
+      system "macosx"
+      architecture "universal"
+
+    filter { "platforms:Web" }
+      system "linux"
+      toolset ("gcc")
+      gccprefix {"em"}
+
+
+    filter { "platforms:Android" }
+      system "android"
+
+    filter { "platforms:IOS" }
+      system "ios"
+      architecture "universal"
+
+
+    filter {}
 
 function includeUCode()
 
@@ -95,6 +133,7 @@ function includeUCode()
         
     filter { "system:MacOS" }
       defines {"_GLFW_COCOA","GLEW_NO_GLU"}
+
 
     filter {}
       
