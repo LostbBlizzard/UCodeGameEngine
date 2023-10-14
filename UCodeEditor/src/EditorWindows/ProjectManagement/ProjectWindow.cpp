@@ -29,6 +29,7 @@ void ProjectWindow::UpdateWindow()
 	if (SaveCountDown < 0)
 	{
 		SaveProjectDatatFile();
+		SaveCountDown = 120;
 	}
 	else
 	{
@@ -41,7 +42,7 @@ void ProjectWindow::UpdateWindow()
 	auto& Item = ProjectData2._ProjectName;
 	 
 	
-	bool UpdateValue = 0;
+	bool UpdateValue = false;
 
 	if (ImGuIHelper::InputText("Project Name", Item))
 	{
@@ -74,7 +75,9 @@ void ProjectWindow::UpdateWindow()
 
 	if (UpdateValue)
 	{
-		SaveCountDown = 15;
+		if (SaveCountDown > 15) {
+			SaveCountDown = 15;
+		}
 	}
 }
 EditorWindowData ProjectWindow::GetEditorData()

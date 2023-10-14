@@ -1,2 +1,2 @@
-CodeEditorPath: C:/Windows/System32/notepad.exe
-OpenCodeEditorFileArg: /W {FilePath}
+CodeEditorPath: code
+OpenCodeEditorFileArg: "{ProjectDir} --goto {FilePath}:{LineNumber}:{Column} "

@@ -57,27 +57,7 @@ void ProjectFilesWindow::UpdateWindow()
 
     window->Flags |= ImGuiWindowFlags_::ImGuiWindowFlags_MenuBar;
 
-    {
-        float UpateDelta = Get_App()->GetGameRunTime()->Get_GameTime().UpateDelta;
-        for (auto i = _AssetFiles.size() - 1; i != (std::vector<AssetFile>::size_type) - 1; i--)
-        {
-            auto& Item = _AssetFiles[i];
-
-            if (Item.LastUsed < 0)
-            {
-                UEditorAssetFileSaveFileContext Context;
-                Item._File->SaveFile(Context);
-
-                _AssetFiles.erase(_AssetFiles.begin() + i);
-            }
-            else
-            {
-                Item.LastUsed -= UpateDelta;
-            }
-        }
-    }
-
-
+   
     if (_LookingAtDir.has_value())
     {
         {
@@ -362,18 +342,10 @@ void ProjectFilesWindow::ShowDirButtions()
     }
  
 }
-Optional<size_t> ProjectFilesWindow::FindAssetFile(const Path& path)
-{
-    for (size_t i = 0; i < _AssetFiles.size(); i++)
-    {
-        auto& Item = _AssetFiles[i];
 
-        if (Item._File->FileFullPath == path)
-        {
-            return i;
-        }
-    }
-    return {};
+ProjectFiles& ProjectFilesWindow::Get_ProjectFiles()
+{
+    return this->Get_App()->GetPrjectFiles();
 }
 bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData& Item, ImVec2& ButtionSize)
 {
@@ -406,13 +378,13 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
                 FoundIt = true;
                 if (Data->CanHaveLiveingAssets)
                 {
-                    auto B = FindAssetFile(Item.FullFileName);
+                    auto B =Get_ProjectFiles().FindAssetFile(Item.FullFileName);
                     
                     UEditorAssetDrawButtionContext Context;
                     Context.ButtionSize = *(Vec2*)&ButtionSize;
                     Context.ObjectPtr = &Item;
 
-                    AssetFile* File;
+                    ProjectFiles::AssetFile* File;
                     if (!B.has_value())
                     {
                         auto Ptr = Data->GetMakeNewAssetFile();
@@ -421,18 +393,18 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
                         Ptr->Init(InitContext);
 
 
-                        AssetFile tep1;
+                        ProjectFiles::AssetFile tep1;
                         tep1.Set(std::move(Ptr));
-                        tep1.LastUsed = AssetFileMaxLastUsed;
+                        tep1.LastUsed = ProjectFiles::AssetFileMaxLastUsed;
 
-                        _AssetFiles.push_back(std::move(tep1));
-                        File = &_AssetFiles.back();
+                        Get_ProjectFiles()._AssetFiles.push_back(std::move(tep1));
+                        File = &Get_ProjectFiles()._AssetFiles.back();
                     }
                     else
                     {
-                        auto& HG = _AssetFiles[B.value()];
+                        auto& HG = Get_ProjectFiles()._AssetFiles[B.value()];
                         File = &HG;
-                        HG.LastUsed = AssetFileMaxLastUsed;
+                        HG.LastUsed = Get_ProjectFiles().AssetFileMaxLastUsed;
                     }
                     
                     
@@ -611,7 +583,7 @@ void ProjectFilesWindow::OnSaveWindow(USerializer& SaveIn)
 
 
     //
-    for (auto& Item : _AssetFiles)
+    for (auto& Item : Get_ProjectFiles()._AssetFiles)
     {
         UEditorAssetFileSaveFileContext Context;
         Item._File->SaveFile(Context);

@@ -19,6 +19,7 @@
 #include "EditorWindows/EditorWindow.hpp"
 #include "Typedefs.hpp"
 #include "EditorAssetLoader.hpp"
+#include "ProjectManagement/ProjectFiles.hpp"
 EditorStart
 
 struct UndoData
@@ -89,7 +90,10 @@ public:
 		return _This;
 	}
 
-
+	ProjectFiles& GetPrjectFiles()
+	{
+		return _ProjectFiles;
+	}
 private:
 
 	//CompoentStuff
@@ -136,7 +140,7 @@ private:
 	float _AutoSaveTimer = 0;
 	Vector<UndoData> _Undos;
 	Vector<UndoData> _Redos;
-
+	ProjectFiles _ProjectFiles;
 	
 
 	void SaveApp();

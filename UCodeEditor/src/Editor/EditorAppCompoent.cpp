@@ -105,10 +105,10 @@ bool EditorAppCompoent::OpenProject(const Path& ProjectDir)
     auto ProjectDataPath = ProjectManger::GetProjectDataPath(ProjectDir);
     if (ProjectData::ReadFromFile(ProjectDataPath, Data))
     {
-        _RunTimeProjectData.SetProject(Data, ProjectDir);
+        _RunTimeProjectData.SetProject(Data, ProjectDir,_ProjectFiles);
 
         OnProjectLoadedPreWindows();
-
+       
         LoadWindowsPref();
 
         UCODE_ENGINE_LOG("Project Loaded");
@@ -551,6 +551,7 @@ void EditorAppCompoent::OnDraw()
     {
         _RunTimeProjectData.UpdateFileWatcher();
     }
+    _ProjectFiles.Update(GetGameRunTime()->Get_GameTime().UpateDelta);
 
     //
 

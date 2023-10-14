@@ -105,16 +105,15 @@ void UserSettingsWindow::UpdateWindow()
 			{
 				WoodLandDay,
 				WoodLandNight,
+				GrayMode,
 				DarkMode,
-				Wave,
 			};
 			static  EditorSyle syle;
 			static Vector<ImGuIHelper::EnumValue<EditorSyle>> SyleList =
 			{
-				{"WoodLandDay",EditorSyle::WoodLandDay},
-				//{"WoodLandNight",EditorSyle::WoodLandNight},
-				{"DarkMode",EditorSyle::DarkMode},
-				//{"Wave",EditorSyle::Wave},
+				{"Camo",EditorSyle::WoodLandDay},
+				{"Military",EditorSyle::GrayMode},
+				{"Army",EditorSyle::DarkMode},
 			};
 			if (ImGuIHelper::EnumField("Editor Built-In Syle", syle, SyleList))
 			{
@@ -126,11 +125,11 @@ void UserSettingsWindow::UpdateWindow()
 				case EditorSyle::WoodLandNight:
 					UCode::RenderAPI::OpenGlRender::SetStyle_WoodLandNight();
 					break;
+				case EditorSyle::GrayMode:
+					UCode::RenderAPI::OpenGlRender::SetStyle_Gray();
+					break;
 				case EditorSyle::DarkMode:
 					UCode::RenderAPI::OpenGlRender::SetStyle_Dark();
-					break;
-				case EditorSyle::Wave:
-					UCode::RenderAPI::OpenGlRender::SetStyle_Wave();
 					break;
 				default:
 					UCodeGameEngineUnreachable();

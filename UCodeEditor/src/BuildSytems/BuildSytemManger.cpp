@@ -94,6 +94,9 @@ void BuildSytemManger::BuildProjectGlobalWasGameData(const Path& GameFilesDataPa
 		ModulesRets.push_back(std::move(Item->ExportEditor(Export)));
 	}
 
+	ProjectData prj;
+	ProjectData::ReadFromFile(Path(Export.AssetPath).native() + Path("../").native() + Path(ProjectData::FileName).native(), prj);
+
 
 	auto Uidmappath = UCode::GameFilesData::GetUCodeDir() / UCode::StandardAssetLoader::UIdMap::FileWithDot;
 	UCode::StandardAssetLoader::UIdMap IDMap;
@@ -173,10 +176,16 @@ void BuildSytemManger::BuildProjectGlobalWasGameData(const Path& GameFilesDataPa
 		{
 			fs::remove(GameFilesDataPath);
 		}
+
+
+		GameData.APPName = prj._ProjectName;
+		GameData.CompanyName = prj._CompanyName;
+		GameData.SceneToLoadOnPlay = prj.StartScene;
+
 		UCode::GameFilesData::MakeFile(GameData, GameFilesDataPath, SerializerMode);
 		
 		#if UCodeGameEngineDEBUG
-		fs::copy_file(GameFilesDataPath, "../UCodeApp" / Path(UCode::GameFilesData::FileDataName));
+		fs::copy_file(GameFilesDataPath, "../UCodeApp" / Path(UCode::GameFilesData::FileDataName),fs::copy_options::overwrite_existing);
 		#endif
 	}
 }

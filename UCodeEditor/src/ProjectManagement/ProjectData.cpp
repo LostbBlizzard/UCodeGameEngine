@@ -25,9 +25,10 @@ bool ProjectData::WriteToFile(const Path& Path, const ProjectData& data, USerial
 
 void ProjectData::ToBits(USerializer& output, const ProjectData& data)
 {
-
 	output.Write("_ProjectName", data._ProjectName);
+	output.Write("_CompanyName", data._CompanyName);
 	output.Write("_SerializeType", *(USerializerType_t*)&data._SerializeType);
+	output.Write("_StartScene", data.StartScene);
 }
 
 bool ProjectData::ReadFromFile(const Path& Path, ProjectData& Out)
@@ -44,6 +45,8 @@ bool ProjectData::ReadFromFile(const Path& Path, ProjectData& Out)
 void ProjectData::FromBits(UDeserializer& input, ProjectData& Out)
 {
 	input.ReadType("_ProjectName", Out._ProjectName, Out._ProjectName);
+	input.ReadType("_CompanyName", Out._CompanyName, Out._CompanyName);
 	input.ReadType("_SerializeType", *(USerializerType_t*)&Out._SerializeType, *(USerializerType_t*)&Out._SerializeType);
+	input.ReadType("_StartScene",Out.StartScene, Out.StartScene);
 }
 EditorEnd

@@ -77,6 +77,9 @@ public:
 	{
 		return _State.Get_Allocator();
 	}
+
+
+	inline static const char* MainFile = "Bin/UCode.lib";
 private:
 	ULangRunTime(Gamelibrary* e);
 	~ULangRunTime();

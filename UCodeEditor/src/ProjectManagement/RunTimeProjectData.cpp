@@ -2,26 +2,32 @@
 #include "ProjectManagement/ProjectManger.hpp"
 #include "GameLibManger.hpp"
 #include <filesystem>
+#include <ProjectManagement/ProjectFiles.hpp>
 EditorStart
 namespace fs = std::filesystem;
 RunTimeProjectData::RunTimeProjectData():_UIDGenerator(UCode::Random::RandomSeed())
 {
 }
-void RunTimeProjectData::SetProject(const ProjectData& Data, const Path&  ProjDir)
+void RunTimeProjectData::SetProject(const ProjectData& Data, const Path&  ProjDir, ProjectFiles& files)
 {
 	_Data = Data;
 	_ProjDir = ProjDir;
-	_Watcher.init(ProjDir);
 
+	auto assetpath = GetAssetsDir();
+	
+	_Watcher.init(assetpath);
 
+	files.Set_ProjDir(assetpath);
 	{
 		auto Path = GetAssetIndexPath();
 
 		if (!fs::exists(Path)) 
 		{
 			_Index._Files.clear();
+			
+			files.ReIndex(_Index);
+
 			EditorIndex::ToFile(_Index, Path);
-			_Index.GetDataFromDir(GetAssetsDir());
 		}
 		else
 		{
@@ -37,7 +43,7 @@ void RunTimeProjectData::SetProjectToNull()
 	_Watcher.CloseWatcher();
 }
 
-Path RunTimeProjectData::GetAssetsDir()
+Path RunTimeProjectData::GetAssetsDir() const
 {
 	auto Path = ProjectManger::GetProjectAssetsDir(_ProjDir);
 
@@ -54,9 +60,9 @@ Path RunTimeProjectData::GetAssetsDir()
 
 	return Path;
 }
-Path RunTimeProjectData::GetSrcDir()
+Path RunTimeProjectData::GetSrcDir() const
 {
-	auto path = GetAssetsDir().native() + Path("src").native() + Path::preferred_separator;
+	auto path = GetAssetsDir().native() + Path("Source").native() + Path::preferred_separator;
 
 	Path Path_t = path;
 	if (!fs::exists(Path_t))
@@ -66,7 +72,7 @@ Path RunTimeProjectData::GetSrcDir()
 
 	return path;
 }
-Path RunTimeProjectData::GetSrcLibsDir()
+Path RunTimeProjectData::GetSrcLibsDir() const
 {
 	auto path = GetSrcDir().native() + Path("Libraries").native() + Path::preferred_separator;
 
@@ -78,7 +84,7 @@ Path RunTimeProjectData::GetSrcLibsDir()
 
 	return path;
 }
-Path RunTimeProjectData::GetCachedDir()
+Path RunTimeProjectData::GetCachedDir() const
 {
 	auto Path = ProjectManger::GetProjectCachedDir(_ProjDir);
 
@@ -94,9 +100,9 @@ Path RunTimeProjectData::GetCachedDir()
 	
 	return Path;
 }
-UCODE_EDITOR_NODISCARD Path RunTimeProjectData::GetOutDir()
+Path RunTimeProjectData::GetOutDir() const
 {
-	auto path = ProjectManger::GetProjectCachedDir(_ProjDir).native() + Path("OutPut").native() + Path::preferred_separator;;
+	auto path = ProjectManger::GetProjectCachedDir(_ProjDir).native() + Path("Output").native() + Path::preferred_separator;;
 	fs::path Path_t = path;
 
 	if (!fs::exists(Path_t))
@@ -108,7 +114,7 @@ UCODE_EDITOR_NODISCARD Path RunTimeProjectData::GetOutDir()
 	}
 	return path;
 }
-Path RunTimeProjectData::GetGameLibDir()
+Path RunTimeProjectData::GetGameLibDir() const
 {
 	auto path = GetCachedDir().native() + Path("GameLib/").native();
 
@@ -124,9 +130,9 @@ Path RunTimeProjectData::GetGameLibDir()
 	
 	return path;
 }
-Path RunTimeProjectData::GetULangIntDir()
+Path RunTimeProjectData::GetULangIntDir() const
 {
-	auto path = GetCachedDir().native() + Path("ULang/Int/").native();
+	auto path = GetCachedDir().native() + Path("Ulang/Int/").native();
 
 	Path Path_t = path;
 	if (!fs::exists(Path_t))
@@ -140,9 +146,9 @@ Path RunTimeProjectData::GetULangIntDir()
 
 	return path;
 }
-Path RunTimeProjectData::GetULangOutDir()
+Path RunTimeProjectData::GetULangOutDir() const
 {
-	auto path = GetGameLibDir().native() + Path("Lib/").native();
+	auto path = GetGameLibDir().native() + Path("Bin/").native();
 	Path Path_t = path;
 	if (!fs::exists(Path_t))
 	{
