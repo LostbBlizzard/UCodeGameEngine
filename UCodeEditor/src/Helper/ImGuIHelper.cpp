@@ -766,7 +766,9 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 
 	 }
 
+	
 	 ImGui::Text(label); ImGui::SameLine();
+
 	 ImGui::PushID(Value);
 	 if (ImGui::BeginCombo("", current_item->label, ImGuiComboFlags_NoArrowButton))
 	 {
@@ -788,7 +790,6 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 		 ImGui::EndCombo();
 	 }
 	 ImGui::PopID();
-
 
 	 return Updated;
  }
@@ -873,11 +874,63 @@ bool ImGuIHelper::Draw_Dictionary(const char* label, void* Dictionaryptr, size_t
 	}
 	return Value;
 }
-bool ImGuIHelper::DrawObjectField(void* object,
+bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 	const void* ObjectList, size_t ObjectListSize, size_t ItemObjectSize,
-	ObjectFieldFuncPtr DrawObject)
+	ObjectFieldFuncPtr DrawObject,const String& Name)
 {
-	return false;
+	ImGuIHelper::Image(Sprite, { 20,20 });
+	auto winwidth = ImGui::GetWindowWidth();
+
+	ImGui::SameLine();
+
+	ImGui::Text(Name.c_str());
+	
+	ImGui::SameLine();
+	
+	if (ImGui::Button("..."))
+	{
+		ImGui::OpenPopup("Object Finder");
+	}
+	
+	bool open = true;
+	bool ok = false;
+	if (ImGui::BeginPopupModal("Object Finder", &open))
+	{
+		static String V;
+		ImGuIHelper::InputText("Find", V);
+
+		
+		static bool ListMode = false;
+		ImGuIHelper::BoolEnumField("List Mode",ListMode);
+
+		ImGui::Separator();
+		ImGui::Columns(1, 0, false);
+
+		uintptr_t ptr = (uintptr_t)ObjectList;
+
+
+		for (size_t i = 0; i < ObjectListSize; i++)
+		{
+			//ImGui::PushID(ptr);
+			
+			ok = DrawObject(object,(void*)ptr, ListMode,V);
+
+			//ImGui::PopID();
+
+			ptr += (uintptr_t)ItemObjectSize;
+
+			if (ok)
+			{
+				break;
+			}
+		}
+
+
+		
+		ImGui::EndPopup();
+	}
+
+	return ok;
 }
 EditorEnd
 

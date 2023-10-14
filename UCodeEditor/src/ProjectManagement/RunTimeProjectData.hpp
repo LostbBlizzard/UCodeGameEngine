@@ -9,23 +9,25 @@
 #include <UCodeRunTime/ULibrarys/Others/Random.hpp>
 EditorStart
 
+class ProjectFiles;
+
 class RunTimeProjectData
 {
 public:
 	RunTimeProjectData();
 
-	void SetProject(const ProjectData& Data, const Path& ProjDir);
+	void SetProject(const ProjectData& Data, const Path& ProjDir, ProjectFiles& files);
 	void SetProjectToNull();
 
-	UCODE_EDITOR_NODISCARD Path GetAssetsDir();
-	UCODE_EDITOR_NODISCARD Path GetSrcDir();
-	UCODE_EDITOR_NODISCARD Path GetSrcLibsDir();
-	UCODE_EDITOR_NODISCARD Path GetCachedDir();
-	UCODE_EDITOR_NODISCARD Path GetOutDir();
-	UCODE_EDITOR_NODISCARD Path GetGameLibDir();
+	UCODE_EDITOR_NODISCARD Path GetAssetsDir() const;
+	UCODE_EDITOR_NODISCARD Path GetSrcDir() const;
+	UCODE_EDITOR_NODISCARD Path GetSrcLibsDir()const ;
+	UCODE_EDITOR_NODISCARD Path GetCachedDir() const;
+	UCODE_EDITOR_NODISCARD Path GetOutDir()const;
+	UCODE_EDITOR_NODISCARD Path GetGameLibDir()const;
 
-	UCODE_EDITOR_NODISCARD Path GetULangIntDir();
-	UCODE_EDITOR_NODISCARD Path GetULangOutDir();
+	UCODE_EDITOR_NODISCARD Path GetULangIntDir()const;
+	UCODE_EDITOR_NODISCARD Path GetULangOutDir()const;
 
 	UCODE_EDITOR_NODISCARD Path Get_ProjectPrefsDir();
 	UCODE_EDITOR_NODISCARD UCODE_EDITOR_FORCEINLINE Path Get_ProjectDir() { return _ProjDir; }

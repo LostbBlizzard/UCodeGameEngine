@@ -16,7 +16,7 @@ Path ProjectManger::GetProjectInitObjsDir(const Path&  ProjectDir)
 
 Path ProjectManger::GetProjectCachedDir(const Path&  ProjectDir)
 {
-	return  ProjectDir.native() + Path("CachedData").native() + Path::preferred_separator;
+	return  ProjectDir.native() + Path("Cacheddata").native() + Path::preferred_separator;
 }
 
 Path ProjectManger::GetProjectAssetsDir(const Path&  ProjectDir)
@@ -29,7 +29,7 @@ Path ProjectManger::GetProjectDataPath(const Path&  ProjectDir)
 	return ProjectDir.native() + Path(ProjectData::FileName).native();
 }
 
-UCODE_EDITOR_NODISCARD Path ProjectManger::GetAssetIndexPath(const Path& ProjectDir)
+Path ProjectManger::GetAssetIndexPath(const Path& ProjectDir)
 {
 	return GetProjectCachedDir(ProjectDir).native() + Path(EditorIndex::FileName).native();
 }
@@ -63,12 +63,19 @@ bool ProjectManger::MakeNewProject(const Path& Dir, const String& ProjectName)
 
 			//Just for Organization
 			fs::create_directory(AssetsDir / "Packages");
-			fs::create_directory(AssetsDir / "Scripts");
+			
+			fs::create_directory(AssetsDir / "Source");
+			fs::create_directory(AssetsDir / "Source" / "Libraries");
+
+
 			fs::create_directory(AssetsDir / "Audio");
 			fs::create_directory(AssetsDir / "Audio" / "Music");
 			fs::create_directory(AssetsDir / "Audio" / "Sounds");
+
 			fs::create_directory(AssetsDir / "Art");
 			fs::create_directory(AssetsDir / "Art" / "Fonts");
+			fs::create_directory(AssetsDir / "Art" / "Shaders");
+			
 			fs::create_directory(AssetsDir / "GameStorage");
 			fs::create_directory(AssetsDir / "GameData");
 

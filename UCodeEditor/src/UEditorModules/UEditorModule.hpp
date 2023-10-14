@@ -100,7 +100,8 @@ class UEditorAssetFile
 public:
 	Path FileFullPath;
 	Optional<Path> FileMetaFullPath;//if  UEditorAssetFileData::FileMetaExtWithDot HasValue
-	
+	Path TemporaryPath;
+
 	virtual ~UEditorAssetFile()
 	{
 
@@ -185,6 +186,11 @@ public:
 		return  ExportFileRet();
 	}
 
+	virtual Optional<UID> GetFileUID(const Path& path)
+	{
+		return {};
+	}
+
 	inline const static String DefaultMetaFileExtWithDot = ".meta";
 };
 
@@ -253,6 +259,11 @@ public:
 	virtual void FilesUpdated(const Vector<FileUpdateData>& paths)
 	{
 
+	}
+
+	virtual Vector<ExportEditorReturn> ExportSystems(ExportEditorContext& Context)
+	{
+		return {};
 	}
 
 	ExportEditorReturn ExportEditor(ExportEditorContext& Context);

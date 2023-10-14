@@ -56,11 +56,21 @@ public:
 		UCode::Scene2dData V;
 		UCode::Scene2dData::FromFile(V, path);
 
+		UCode::GameRunTime runtime;
+		auto scenc = UCode::Scene2dData::LoadScene(&runtime,V);
+		UCode::Scene2dData::SaveScene(scenc,V, USerializerType::Bytes);
+
 		UCode::Scene2dData::ToFile(Item.Output, V, USerializerType::Bytes);
 
 		ExportFileRet r;
 		r._UID = V._UID;
 		return r;
+	}
+	Optional<UID> GetFileUID(const Path& path) override
+	{
+		UCode::Scene2dData V;
+		UCode::Scene2dData::FromFile(V, path);
+		return V._UID;
 	}
 };
 

@@ -45,8 +45,8 @@ public:
 	
 	static void SetStyle_WoodLandDay(ImGuiStyle* dst = nullptr);
 	static void SetStyle_WoodLandNight(ImGuiStyle* dst = nullptr);
+	static void SetStyle_Gray(ImGuiStyle* dst = nullptr);
 	static void SetStyle_Dark(ImGuiStyle* dst = nullptr);
-	static void SetStyle_Wave(ImGuiStyle* dst = nullptr);
 private:
 	
 	static void glfwerror_callback(int error, const char* description);

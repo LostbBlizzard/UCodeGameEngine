@@ -33,7 +33,6 @@ public:
 		Path RelativePath;
 	};
 
-	void GetDataFromDir(const Path& path);
 
 	Vector<ChangedFile> GetDiffFromDir(const Path& path) const;
 

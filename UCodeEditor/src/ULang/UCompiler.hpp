@@ -15,7 +15,21 @@ public:
 	public:
 		UCodeLang::CompliationErrors* Error;
 		UCode::BookOfThreads* Threads;
-		RunTimeProjectData* RunTimeProject;
+
+		Path InPath;
+		Path IntPath;
+		Path OutPath;
+		void Set(const RunTimeProjectData* Data)
+		{
+			InPath = Data->GetAssetsDir();
+			IntPath = Data->GetULangIntDir();
+
+			const String LibName = "UCode" + (UCode::String)UCodeLang::FileExt::LibWithDot;
+
+			const Path& outDir = Data->GetULangOutDir();
+			const Path outlibPath = outDir.native() + Path(LibName).native();
+
+		}
 	};
     static UCode::AsynTask CompileFile(const CompileData& Data, const String&  Path);
 	static UCode::AsynTask CompileProject(const CompileData& Data);

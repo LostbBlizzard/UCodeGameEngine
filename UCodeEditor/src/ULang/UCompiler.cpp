@@ -12,18 +12,9 @@ UCode::AsynTask  UCompiler::CompileFile(const CompileData& Data, const String&  
 
 UCode::AsynTask UCompiler::CompileProject(const CompileData& Data)
 {
-	const Path&  InPath = Data.RunTimeProject->GetAssetsDir();
-	const Path&  intPath = Data.RunTimeProject->GetULangIntDir();
-	const String LibName = "UCode" + (UCode::String)UCodeLang::FileExt::LibWithDot;
-	const Path&  outDir = Data.RunTimeProject->GetULangOutDir();
-	const Path ULangExtPath = Path((UCode::String)UCodeLang::FileExt::SourceFileWithDot);
-	const auto& LibsPath = Data.RunTimeProject->GetSrcLibsDir();
-
-	
-	
-
-
-	const Path outlibPath = outDir.native() + Path(LibName).native();
+	const Path& InPath = Data.InPath;
+	const Path& intPath = Data.IntPath;
+	const Path& outlibPath = Data.OutPath;
 	
 	Data.Error->Remove_Errors();
 	

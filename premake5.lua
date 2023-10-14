@@ -1,3 +1,5 @@
+require "vslinux"
+
 workspace "UCodeGameEngine"
    configurations { "Debug", "Release","Published" }
    platforms { "Win32", "Win64","linux32","linux64","macosx","Web","Android","IOS"}
@@ -67,7 +69,7 @@ workspace "UCodeGameEngine"
       toolset ("gcc")
 
     filter { "platforms:linux64" }
-      system "linux"
+      system "Linux"
       architecture "x86_64"
       toolset ("gcc")
 
@@ -76,10 +78,8 @@ workspace "UCodeGameEngine"
       architecture "universal"
 
     filter { "platforms:Web" }
-      system "linux"
+      system "Linux"
       optimize "On"
-      
-
       toolset ("gcc")
 
 

@@ -314,7 +314,7 @@ void CodeModule::FilesUpdated(const Vector<FileUpdateData>& paths)
 				UCodeLang::CompliationErrors _Errs;
 
 				UCompiler::CompileData data;
-				data.RunTimeProject = app->Get_RunTimeProjectData();
+				data.Set(app->Get_RunTimeProjectData());
 				data.Error = &_Errs;
 				data.Threads = Threads;
 
@@ -340,6 +340,49 @@ void CodeModule::FilesUpdated(const Vector<FileUpdateData>& paths)
 			Threads->AddTask_t(UCode::TaskType::FileIO,std::move(OnOtherThread), {});
 		}
 	}
+}
+
+Vector<ExportEditorReturn> CodeModule::ExportSystems(ExportEditorContext& Context)
+{
+	namespace fs = std::filesystem;
+
+	UCodeLang::CompliationErrors errs;
+	UCompiler::CompileData data;
+	data.Error = &errs;
+	data.Threads = nullptr;
+
+	data.InPath = Context.AssetPath;
+	data.IntPath = Context.TemporaryGlobalPath / "Ulang" / "int";
+	data.OutPath = Context.TemporaryGlobalPath / "Ulang" / Path(Path("UCode").native() + Path(UCodeLang::FileExt::LibWithDot).native());
+
+	
+	Path modoutfile = Context.TemporaryGlobalPath / "Ulang.data";
+	ExportEditorReturn r;
+	r.OutputModuleFile = modoutfile;
+
+	UCompiler::CompileProject(data);
+
+	UCode::GameFileIndex ind;
+	ind.FileFullName = UCode::ULangRunTime::MainFile;
+	ind.FileOffset = 0;
+	ind.FileSize = fs::file_size(data.OutPath);
+
+	UCode::GameFilesData files;
+	files.Offsets.push_back(std::move(ind));
+
+
+	{
+		auto bytes = UCode::GameFiles::ReadFileAsBytes(data.OutPath);
+
+		for (size_t i = 0; i < bytes.Size(); i++)
+		{
+			files._Data.push_back(bytes[i]);
+		}
+	}
+	UCode::GameFilesData::MakeFile(files, r.OutputModuleFile, USerializerType::Bytes);
+
+	
+	return {r};
 }
 
 EditorEnd

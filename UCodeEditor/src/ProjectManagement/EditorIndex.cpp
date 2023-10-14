@@ -6,27 +6,6 @@
 EditorStart
 
 
-void EditorIndex::GetDataFromDir(const Path& path)
-{
-	using recursive_directory_iterator = std::filesystem::recursive_directory_iterator;
-
-	_Files.clear();
-	for (const auto& dirEntry : recursive_directory_iterator(path)) 
-	{
-		if (dirEntry.is_regular_file())
-		{
-			IndexFile Index;
-
-			auto tep =dirEntry.last_write_time();
-			Index.FileLastUpdatedTime = *(u64*)&tep;
-			Index.FileHash = 0;
-			Index.FileSize = (u64)dirEntry.file_size();
-			Index.RelativePath = dirEntry.path().generic_string().substr(path.native().size());
-		
-			_Files.push_back(std::move(Index));
-		}
-	}
-}
 Vector< EditorIndex::ChangedFile> EditorIndex::GetDiffFromDir(const Path& path) const
 {
 	Vector<ChangedFile> R;

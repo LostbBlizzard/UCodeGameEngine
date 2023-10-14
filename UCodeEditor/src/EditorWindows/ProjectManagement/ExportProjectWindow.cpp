@@ -153,20 +153,20 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 		auto Threads = UCode::BookOfThreads::Get(Get_GameLib());
 		buildSytem.Setings._OutDir = OutputPath;
 
-		String AddedOnOutDir = "windows";
+		String AddedOnOutDir = "Windows";
 	
 		{
 			if (Info.architecture == WindowsBuildSetings::Architecture::x86_64)
 			{
-				AddedOnOutDir += "-x86_64";
+				AddedOnOutDir += "-X86_64";
 			}
 			else
 			{
-				AddedOnOutDir += "-x86";
+				AddedOnOutDir += "-X86";
 			}
 			if (Info.DebugBuild)
 			{
-				AddedOnOutDir += "-debug";
+				AddedOnOutDir += "-Debug";
 			}
 		}
 		buildSytem.Setings._OutDir /= AddedOnOutDir;
@@ -240,8 +240,8 @@ void ExportProjectWindow::ShowWebExportSeting()
 void ExportProjectWindow::SetBuildData(UCodeEditor::Path& AssetsPath, UCodeEditor::RunTimeProjectData* ProjectInfo, UCodeEditor::String& AddedOnOutDir, BuildSetings::SettingsType Info)
 {
 	buildSytem.Setings._InputDir = AssetsPath;
-	buildSytem.Setings.TemporaryPlatfromPath = ProjectInfo->GetCachedDir().native() + Path(Path("build") / AddedOnOutDir).native();
-	buildSytem.Setings.TemporaryGlobalPath = ProjectInfo->GetCachedDir().native() + Path(Path("build") / Path("global")).native();
+	buildSytem.Setings.TemporaryPlatfromPath = ProjectInfo->GetCachedDir().native() + Path(Path("Build") / AddedOnOutDir).native();
+	buildSytem.Setings.TemporaryGlobalPath = ProjectInfo->GetCachedDir().native() + Path(Path("Build") / Path("Global")).native();
 	buildSytem.Setings._OutName = ProjectInfo->Get_ProjData()._ProjectName;
 	buildSytem.Setings.Settings = Info;
 }

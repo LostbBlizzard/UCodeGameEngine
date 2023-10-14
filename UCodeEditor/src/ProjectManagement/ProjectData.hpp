@@ -10,6 +10,7 @@ class ProjectData
 {
 public:
 	String _ProjectName;
+	String _CompanyName;
 	USerializerType _SerializeType= USerializerType::Default;
 	
 	UID StartScene;
