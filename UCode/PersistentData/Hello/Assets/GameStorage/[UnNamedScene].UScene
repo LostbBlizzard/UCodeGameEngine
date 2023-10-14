@@ -3,17 +3,17 @@ _UID:
   - 45838975
 _Entitys:
   - _LocalPosition:
-      - 0
-      - 0
+      - 26.3203888
+      - -9.82807064
       - 0
     _LocalRotation:
       - 0
-      - 0
+      - -0
       - 0
     _LocalScale:
       - 1
       - 1
-      - 1
+      - 1.14129269
     _Compoents:
       - _TypeID: SpriteRenderer
         _Data:
@@ -23,9 +23,9 @@ _Entitys:
           Sprite:
             - 0
           Color2:
-            - 0.0422654264
-            - 0.769230783
-            - 0.33784467
+            - 0.857170284
+            - 0.892156839
+            - 0.871395588
             - 1
           flipX: false
           flipY: false
@@ -35,38 +35,38 @@ _Entitys:
       []
     _Name: "[UnNamedEntity]"
   - _LocalPosition:
-      - 0
-      - 0
+      - 25.9113388
+      - -10.5172396
       - 0
     _LocalRotation:
-      - 0
-      - 0
-      - 0
+      - 18.4280071
+      - 19.8145084
+      - -131.97551
     _LocalScale:
-      - 1
-      - 1
-      - 1
+      - 0.999999106
+      - 0.999998808
+      - 0.999999702
     _Compoents:
       - _TypeID: Camera
         _Data:
           Type: 0
-          ortho_size: 5
+          ortho_size: 4
           Fov: 90
     _Entitys:
       []
     _Name: Cam
   - _LocalPosition:
-      - 3
-      - 0
+      - 27.1331959
+      - -7.98077869
       - 0
     _LocalRotation:
       - 0
-      - 0
+      - -0
       - 0
     _LocalScale:
       - 1
       - 1
-      - 1
+      - 1.14129269
     _Compoents:
       - _TypeID: SpriteRenderer
         _Data:
@@ -76,9 +76,9 @@ _Entitys:
           Sprite:
             - 0
           Color2:
-            - 0.956043959
-            - 0.738131464
-            - 0.162842676
+            - 0.583350241
+            - 0.705882311
+            - 0.110726632
             - 1
           flipX: false
           flipY: false

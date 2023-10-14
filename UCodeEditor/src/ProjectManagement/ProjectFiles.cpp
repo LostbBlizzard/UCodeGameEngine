@@ -37,7 +37,7 @@ void ProjectFiles::Update(float UpateDelta)
 	}
 }
 
-void ProjectFiles::ReIndex(EditorIndex& index)
+void ProjectFiles::ReIndex(EditorIndex& index, std::function<UID()> _newuid)
 {
 	using recursive_directory_iterator = std::filesystem::recursive_directory_iterator;
 
@@ -71,7 +71,11 @@ void ProjectFiles::ReIndex(EditorIndex& index)
 					auto Data = AssetDataList[Info.value()];
 					FoundIt = true;
 
-					auto op = Data->GetFileUID(dirEntry.path());
+					UEditorGetUIDContext context;
+					context.AssetPath = dirEntry.path();
+					context._newuid = _newuid;
+
+					auto op = Data->GetFileUID(context);
 
 					if (op.has_value())
 					{

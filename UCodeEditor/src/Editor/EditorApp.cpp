@@ -39,8 +39,6 @@ void EditorApp::Run(const String& ProjPath)
 
     APP->Init(ProjPath);
     
-
-    
     auto Lib = RunTime->Get_Library();
     auto Render = _App.Get_Render();
     auto Window = Render->Get_RenderAPI();
@@ -49,6 +47,7 @@ void EditorApp::Run(const String& ProjPath)
             [Window](UCode::Texture* Tex)
             {
                 Window->SetWindowIcon(*Tex);
+                Tex->FreeFromCPU();
             });
    
 

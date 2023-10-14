@@ -240,6 +240,12 @@ AsynTask_t<UCode::Texture*> AppFiles::AsynGetTexture(texture tex)
                 auto RVal = Val.get();
                 _textures[id] = Val.release();
                 _loadtextures[id] = true;
+
+
+                if (id != (texture_t)texture::AppIcon) {
+                    RVal->FreeFromCPU();
+                }
+                
                 return RVal;
             };
          

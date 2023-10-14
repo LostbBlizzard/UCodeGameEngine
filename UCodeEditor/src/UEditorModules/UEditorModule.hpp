@@ -51,6 +51,7 @@ struct UEditorAssetDataConext
 {
 	void* ObjectPtr = nullptr;
 	Vec2 ButtionSize;
+	std::function<UID()> _newuid;
 };
 
 struct ExportFileContext
@@ -82,13 +83,31 @@ struct UEditorAssetFileSaveFileContext
 struct UEditorAssetDrawInspectContext
 {
 	InspectWindow::InspectDrawer* Drawer;
+
+	std::function<UID()> _newuid;
+
+	UID GetNewUID()
+	{
+		return _newuid();
+	}
 };
 struct UEditorAssetDrawButtionContext
 {
 	void* ObjectPtr = nullptr;
 	Vec2 ButtionSize;
+	std::function<UID()> _newuid;
 };
+struct UEditorGetUIDContext
+{
+	Path AssetPath;
 
+	std::function<UID()> _newuid;
+
+	UID GetNewUID()
+	{
+		return _newuid();
+	}
+};
 
 struct ExportFileRet
 {
@@ -186,7 +205,7 @@ public:
 		return  ExportFileRet();
 	}
 
-	virtual Optional<UID> GetFileUID(const Path& path)
+	virtual Optional<UID> GetFileUID(UEditorGetUIDContext& context)
 	{
 		return {};
 	}

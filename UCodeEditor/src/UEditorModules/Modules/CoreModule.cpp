@@ -66,10 +66,10 @@ public:
 		r._UID = V._UID;
 		return r;
 	}
-	Optional<UID> GetFileUID(const Path& path) override
+	Optional<UID> GetFileUID(UEditorGetUIDContext& context) override
 	{
 		UCode::Scene2dData V;
-		UCode::Scene2dData::FromFile(V, path);
+		UCode::Scene2dData::FromFile(V, context.AssetPath);
 		return V._UID;
 	}
 };
@@ -208,7 +208,7 @@ public:
 		}
 	}
 };
-
+namespace fs = std::filesystem;
 
 class PNGAssetFile :public UEditorAssetFileData
 {
@@ -219,7 +219,29 @@ public:
 		FileMetaExtWithDot = UEditorAssetFileData::DefaultMetaFileExtWithDot;
 		CanHaveLiveingAssets = true;
 	}
+	using Compression_t = int;
+	enum class Compression :Compression_t
+	{
+		None,
+		LowQuality,
+		NormalQuality,
+		HighQuality,
+	};
 
+	using Filter_t = int;
+	enum class Filter :Filter_t
+	{
+		Point,
+		bilinear,
+		trilinear,
+	};
+	struct TextureSettings
+	{
+		UID uid;
+		bool ReadAndWrite = false;
+		Compression compression = Compression::None;
+		Filter filter = Filter::Point;
+	};
 	class LiveingPng :public UEditorAssetFile
 	{
 	public:
@@ -228,23 +250,10 @@ public:
 		{
 
 		}
-		enum class Compression
-		{
-			None,
-			LowQuality,
-			NormalQuality,
-			HighQuality,
-		};
-		enum class Filter
-		{
-			Point,
-			bilinear,
-			trilinear,
-		};
-		bool ReadAndWrite = false;
-		Compression compression = Compression::None;
-		Filter filter = Filter::Point;
-
+		
+		TextureSettings setting;
+		Optional<UCode::TextureAsset> asset;
+		
 
 		inline static const ImGuIHelper::EnumValue<Compression> CompressionEnumValues[] =
 		{
@@ -264,17 +273,75 @@ public:
 		};
 		static constexpr size_t FilterEnumValuesSize = sizeof(FilterEnumValues) / sizeof(FilterEnumValues[0]);
 
+	
 		void Init(const UEditorAssetFileInitContext& Context) override
 		{
+			this->FileMetaFullPath = this->FileFullPath.native() + Path(UEditorAssetFileData::DefaultMetaFileExtWithDot).native();
 
 		}
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override
 		{
+			tofile(this->FileMetaFullPath.value(), setting);
+		}
 
+		static  bool fromfile(const Path& settings, TextureSettings& Out)
+		{
+			UDeserializer serializer;
+			if (UDeserializer::FromFile(settings, serializer))
+			{
+				serializer.ReadType("_Uid", Out.uid);
+				serializer.ReadType("_ReadAndWrite", Out.ReadAndWrite);
+
+				serializer.ReadType("_Filter", *(Filter_t*)&Out.filter);
+
+				serializer.ReadType("_Compression", *(Compression_t*)&Out.compression);
+
+				return true;
+			}
+			return false;
+		}
+		static  bool tofile(const Path& settings,const TextureSettings& in)
+		{
+			USerializer serializer;
+
+			serializer.Write("_Uid", in.uid);
+			serializer.Write("_ReadAndWrite", in.ReadAndWrite);
+
+			serializer.Write("_Filter", *(Filter_t*)&in.filter);
+
+			serializer.Write("_Compression", *(Compression_t*)&in.compression);
+
+
+			return serializer.ToFile(settings);
 		}
 		bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override
 		{
-			return ImGuIHelper::ImageButton(Item.ObjectPtr, AppFiles::sprite::Entity, *(ImVec2*)&Item.ButtionSize);;
+
+			if (!asset.has_value())
+			{
+				if (fs::exists(this->FileMetaFullPath.value()))
+				{
+					fromfile(FileMetaFullPath.value(),setting);
+				}
+				else
+				{
+					setting.uid = Item._newuid();
+					tofile(FileMetaFullPath.value(), setting);
+				}
+
+		
+				
+				UCode::TextureAsset V;
+				V._Base = UCode::Texture(this->FileFullPath);
+				asset = std::move(V);
+
+				return ImGuIHelper::ImageButton(Item.ObjectPtr, AppFiles::sprite::Entity, *(ImVec2*)&Item.ButtionSize);
+			}
+			else
+			{
+				
+				return ImGuIHelper::ImageButton(Item.ObjectPtr, &asset.value()._Base, *(ImVec2*)&Item.ButtionSize);
+			}
 		}
 		void DrawInspect(const UEditorAssetDrawInspectContext& Item) override
 		{
@@ -298,18 +365,46 @@ public:
 
 			//
 
-			ImGuIHelper::BoolEnumField("ReadAndWrite", ReadAndWrite);
-			ImGuIHelper::EnumField("Compression", compression, CompressionEnumValues, CompressionEnumValuesSize);
-			ImGuIHelper::EnumField("Filter", filter, FilterEnumValues, FilterEnumValuesSize);
+			if (ImGuIHelper::BoolEnumField("ReadAndWrite", setting.ReadAndWrite))
+			{
+
+			}
+			if (ImGuIHelper::EnumField("Compression", setting.compression, CompressionEnumValues, CompressionEnumValuesSize))
+			{
+
+			}
+			if (ImGuIHelper::EnumField("Filter", setting.filter, FilterEnumValues, FilterEnumValuesSize))
+			{
+
+			}
 			//
 		}
+		
 	};
 
 	virtual Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
 	{
 		return Unique_ptr< UEditorAssetFile>(new LiveingPng());
 	}
+	Optional<UID> GetFileUID(UEditorGetUIDContext& context) override
+	{
+		TextureSettings setting;
+		Path metapath = context.AssetPath.native() + Path(UEditorAssetFileData::DefaultMetaFileExtWithDot).native();
+		
+		if (LiveingPng::fromfile(metapath, setting))
+		{
+			return setting.uid;
+		}
+		else
+		{
+			auto newid = context.GetNewUID();
+			setting.uid = newid;
 
+			LiveingPng::tofile(metapath, setting);
+			return newid;
+		}
+		return {};
+	}
 };
 
 

@@ -18,8 +18,9 @@ const static std::string MadewithColor = "C32";
 
 void Texture::InitTexture()
 {
-	GlCall(glGenTextures(1, &_RendererID));
-	GlCall(glBindTexture(GL_TEXTURE_2D, _RendererID));
+	u32 newid = 0;
+	GlCall(glGenTextures(1, &newid));
+	GlCall(glBindTexture(GL_TEXTURE_2D, newid));
 
 	GlCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 	GlCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
@@ -31,13 +32,15 @@ void Texture::InitTexture()
 
 	GlCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, _Width, _Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, _Buffer.get()));
 	_BufferIsInGPU = true;
+
+	_RendererID = newid;
 }
 
 void Texture::FreeFromGPU()
 {
 	_BufferIsInGPU = false;
-	GlCall(glDeleteTextures(1, &_RendererID));
-	_RendererID = 0;
+	GlCall(glDeleteTextures(1, &_RendererID.value()));
+	_RendererID = {};
 }
 
 Texture::Texture()
@@ -46,7 +49,7 @@ Texture::Texture()
 }
 
 Texture::Texture(const Path& filePath)
-	: _RendererID(0),_Width(0), _Height(0), _BPP(0), _Buffer(nullptr), _BufferIsInGPU(false),_FilePath(filePath)
+	: _RendererID(),_Width(0), _Height(0), _BPP(0), _Buffer(nullptr), _BufferIsInGPU(false),_FilePath(filePath)
 {
 	stbi_set_flip_vertically_on_load(0);
 	_Buffer = Unique_array<Byte>(stbi_load(filePath.generic_string().c_str(), &_Width, &_Height, &_BPP, 4));
@@ -55,7 +58,7 @@ Texture::Texture(const Path& filePath)
 }
 
 Texture::Texture(i32 width, i32 height, const Color32* color)
-	: _RendererID(0), _Width(width), _Height(height), _BPP(4), _Buffer(nullptr), _BufferIsInGPU(false), _FilePath(MadewithColor)
+	: _RendererID(), _Width(width), _Height(height), _BPP(4), _Buffer(nullptr), _BufferIsInGPU(false), _FilePath(MadewithColor)
 {
 	size_t DataSize = (size_t)width * (size_t)height* sizeof(Color32);
 	_Buffer = std::make_unique<Byte[]>(DataSize);
@@ -65,16 +68,15 @@ Texture::Texture(i32 width, i32 height, const Color32* color)
 }
 
 Texture::Texture(const BytesView PngData)
-	: _RendererID(0), _Width(0), _Height(0), _BPP(0), _Buffer(nullptr), _BufferIsInGPU(false), _FilePath(MadewithColor)
+	: _RendererID(), _Width(0), _Height(0), _BPP(0), _Buffer(nullptr), _BufferIsInGPU(false), _FilePath(MadewithColor)
 {
 	_Buffer = Unique_array<Byte>(stbi_load_from_memory(PngData.Data(), PngData.Size(), &_Width, &_Height, &_BPP, 4));
 
 	InitTexture();
 }
 
-Texture::~Texture()
-{	
-	
+void Texture::FreeFromCPU()
+{
 	if (_FilePath == MadewithColor)
 	{
 		free(_Buffer.release());
@@ -83,8 +85,16 @@ Texture::~Texture()
 	{
 		stbi_image_free(_Buffer.release());
 	}
-	
-	FreeFromGPU();
+}
+
+Texture::~Texture()
+{	
+	if (_Buffer.get()) {
+		FreeFromCPU();
+	}
+	if (_RendererID.has_value()) {
+		FreeFromGPU();
+	}
 }
 
 Unique_ptr<Texture> Texture::MakeNewNullTexture()
@@ -125,7 +135,7 @@ void Texture::UpdateDataToGPU()
 		UCodeGameEngineThrowException("This texture is read only cannot be Updated");
 	}
 #endif // DEBUG
-	GlCall(glBindTexture(GL_TEXTURE_2D, _RendererID));
+	GlCall(glBindTexture(GL_TEXTURE_2D, _RendererID.value()));
 	GlCall(glTexSubImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, _Width, _Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, _Buffer.get()))
 }
 
@@ -150,6 +160,31 @@ void Texture::TryUploadTexToGPU()
 		FreeFromGPU();
 		InitTexture();
 	}
+}
+
+Texture::Texture(Texture&& source)
+{
+	*this = Texture();
+	*this = std::move(source);
+}
+Texture& Texture::operator=(Texture&& source)
+{
+	_RendererID = source._RendererID;
+	_Width = source._Width;
+	_Height = source._Height;
+	_BPP = source._BPP;
+	_BufferIsInGPU  = std::move(source._BufferIsInGPU);
+	_FilePath = std::move(source._FilePath);
+	_Buffer = std::move(source._Buffer);
+
+
+	source._RendererID = {};
+	
+
+
+	new (&source) Texture;
+
+	return *this;
 }
 
 

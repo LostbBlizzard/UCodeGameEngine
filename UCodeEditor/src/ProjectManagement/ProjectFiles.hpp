@@ -48,7 +48,8 @@ public:
 		ProjDir = Proj;
 	}
 
-	void ReIndex(EditorIndex& index);
+	void ReIndex(EditorIndex& index, std::function<UID()> _newuid);
+	std::function<UID()> _newuid;
 private:
 	Path ProjDir;
 };
