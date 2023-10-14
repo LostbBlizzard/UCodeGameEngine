@@ -77,8 +77,10 @@ workspace "UCodeGameEngine"
 
     filter { "platforms:Web" }
       system "linux"
+      optimize "On"
+      
+
       toolset ("gcc")
-      gccprefix ("em")
 
 
     filter { "platforms:Android" }
@@ -127,6 +129,12 @@ function includeUCode()
     
     filter { "system:Windows" }
       defines {"_GLFW_WIN32"}
+      files {
+        "Dependencies/GLEW/GL/**.h", 
+       }
+      includedirs{
+        "Dependencies/GLEW/%{prj.name}",
+        }
       
     filter { "system:linux" }
       defines {"_GLFW_X11","GLEW_NO_GLU"}
@@ -141,9 +149,9 @@ end
       
 function linkUCode()    
 
-
     filter { "system:Windows" }
       links {"Ws2_32.lib"}
+      
               
     filter { "system:Windows","architecture:x86"}
       links {"glew32s.lib","Opengl32.lib"}
@@ -240,22 +248,22 @@ project "UCodeApp"
 
    filter { "system:Windows","architecture:x86_64" }
       postbuildcommands {
-         "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name}.exe %{wks.location}UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe"
+         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe"
       }
     
    filter { "system:Windows","architecture:x86" }
       postbuildcommands {
-         "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name}.exe %{wks.location}UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe"
+         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe"
       }
  
    filter { "system:linux","architecture:x86_64" }
       postbuildcommands {
-        "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name} %{wks.location}UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64"
+        "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64"
       }
     
    filter { "system:linux","architecture:x86" }
       postbuildcommands {
-        "{COPYFILE} %{prj.location}%{cfg.targetdir}/%{prj.name} %{wks.location}UCodeEditor/UFiles/bin/UCAppLinuxDebug86X32"
+        "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}UCodeEditor/UFiles/bin/UCAppLinuxDebug86X32"
       }
 
 
@@ -555,23 +563,6 @@ group "Dependencies"
         
     filter { "system:MacOS" }
       defines {"_GLFW_COCOA","GLEW_NO_GLU"}
-    
-  project "GLEW"
-    location "Dependencies/%{prj.name}"
-    kind "StaticLib"
-    language "C++" 
-
-    targetdir ("Output/%{prj.name}/" .. OutDirPath)
-    objdir ("Output/int/%{prj.name}/" .. OutDirPath)
-
-    filter { "system:Windows" }
-     files {
-       "Dependencies/%{prj.name}/GL/**.h", 
-     }
-
-    includedirs{
-      "Dependencies/%{prj.name}",
-    }
   
   project "UCodeLang"
     location "Dependencies/%{prj.name}"

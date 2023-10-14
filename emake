@@ -1,0 +1,1 @@
+emmake make config=debug_web -k
