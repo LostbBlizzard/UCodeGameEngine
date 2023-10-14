@@ -120,7 +120,8 @@ void OpenGlRender::Init(WindowData windowdata)
             io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
             //io.IniFilename = nullptr;
             
-            OpenGlRender::SetStyle_WoodLandDay();
+            //OpenGlRender::SetStyle_WoodLandDay();
+            SetStyle_Gray();
             //OpenGlRender::SetStyle_Dark();
 
             // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.

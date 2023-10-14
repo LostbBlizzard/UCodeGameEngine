@@ -14,6 +14,8 @@
 
 #include <EditorWindows/EditorStrings.hpp>
 #include <ULang/UCompiler.hpp>
+
+#include <OtherLibrarys/ImGuizmo/ImGuizmo.h>
 EditorStart
 
 EditorWindow* GameEditorWindow::MakeWin(const NewEditorWindowData& windowdata)
@@ -243,44 +245,72 @@ void GameEditorWindow::SceneEditorTab()
     UpdateRunTimeWindowSize(Viewportsize, _SceneCamera);
     runtime->UpdateDrawData();  
     
-    
+   
     
     {
         if (SelectedObject.Has_Value())
         {
+            auto Entity = SelectedObject.Get_Value();
 
-            if (_ToolBar == ToolBarType::Move)
+            auto pos = Entity->Get_WorldPosition();
+            auto rot = Entity->Get_WorldRotation();
+            auto scl = Entity->Get_WorldScale();
+
+
+            UCode::Mat4 matrix;
+
+            float* matrixfptr = (float*)&matrix;
+
+            ImGuizmo::RecomposeMatrixFromComponents(
+                &pos.X,
+                &rot.X,
+                &scl.X,matrixfptr);
+
+
+            ImGuizmo::OPERATION mode = ImGuizmo::OPERATION::BOUNDS;
+
+            switch (_ToolBar)
             {
-                Vec2 Item = SelectedObject.Get_Value()->Get_WorldPosition2D();
-
-                Vec2 ObjectSize = { 0.3f,0.3f };
-                Vec2 XLinePos = (Item) - (ObjectSize / 2);
-                UCode::RenderRunTime2d::DrawQuad2dData Data(XLinePos, ObjectSize, { 0,0 });
-
-
-                Data.SetColor({ 1,0.5,0.5 });
-                Data.draworder = 255;
-                runtime->DrawQuad2d(Data);
-
-                auto tep =ImGui::GetCursorPos();
-                Vec2 Cursor = *(Vec2*)&tep;
-                Vec2 ViewSize = *(Vec2*)&Viewportsize;
-
-
-                Vec2 MousePos = MousePosFromImage(Cursor, ViewSize);
-
-                Vec2 _3Dpos = UCode::Camera2d::ScreenToWorldPoint(_SceneCamera, MousePos);
-
-                UCode::Bounds2d B;
-                B.center = XLinePos;
-                B.extents = ObjectSize;
+            case UCodeEditor::GameEditorWindow::ToolBarType::Select:
+                mode = ImGuizmo::OPERATION::BOUNDS;
+                break;
+            case UCodeEditor::GameEditorWindow::ToolBarType::Move:
+                mode = ImGuizmo::OPERATION::TRANSLATE;
+                break;
+            case UCodeEditor::GameEditorWindow::ToolBarType::Scale:
+                mode = ImGuizmo::OPERATION::SCALE;
+                break;
+            case UCodeEditor::GameEditorWindow::ToolBarType::Rotate:
+                mode = ImGuizmo::OPERATION::ROTATE;
+                break;
+            default:
+                UCodeGameEngineUnreachable();
+                break;
+            }
 
 
-                bool IsOverLapingWithXLine = B.Contains(_3Dpos);
-                if (IsOverLapingWithXLine)
-                {
-                    std::cout << "IsOverLaping";
-                }
+            ImGuizmo::SetOrthographic(_SceneCamera->Get_CamType() ==UCode::Camera2d::CamType::Orthographic);
+            ImGuizmo::BeginFrame();
+
+
+            ImGuiIO& io = ImGui::GetIO();
+            auto tep = ImGui::GetCurrentWindow()->Rect().GetTL();
+            
+            
+
+            ImGuizmo::SetRect(tep.x, tep.y, Viewportsize.x, Viewportsize.y);
+            bool updated = ImGuizmo::Manipulate(
+             (float*)&_SceneCamera->Get_ViewMatrix(),
+             (float*)&_SceneCamera->Get_ProjectionMatrix()
+                , mode,ImGuizmo::MODE::WORLD, matrixfptr);
+
+
+            if (updated)
+            {
+                ImGuizmo::DecomposeMatrixToComponents(matrixfptr, &pos.X, &rot.X, &scl.X);
+                Entity->Get_LocalPosition() = pos;
+                Entity->Get_LocalRotation() = rot;
+                Entity->Get_LocalScale() = scl;
             }
         }
     }
@@ -289,8 +319,8 @@ void GameEditorWindow::SceneEditorTab()
     size_t SceneTex = _SceneCamera->Get_Buffer().Get_TextureId();
 
 
-   
-    auto tep =ImGui::GetCursorPos();
+    auto tep = ImGui::GetCursorPos();
+
     Vec2 V = *(Vec2*)&tep;
     ImGui::Image((ImTextureID)SceneTex, Viewportsize, { 0,0 }, { 1,-1 });
     bool IsOverImage = ImGui::IsItemHovered();
@@ -335,7 +365,8 @@ void GameEditorWindow::SceneEditorBar()
         if (ImGui::RadioButton("Scale", _ToolBar == ToolBarType::Scale))_ToolBar = ToolBarType::Scale;
 
 
-        //ImGui::Separator();
+       
+        ImGui::Separator();
     }
 }
 void GameEditorWindow::UpdateRunTimeWindowSize(ImVec2& Viewportsize, UCode::Camera2d* runtime)
@@ -1116,7 +1147,7 @@ void GameEditorWindow::GameTab()
     bool PausedButtionDown = false;
     bool WindowTypeButtionDown = false;
     auto winSize = ImGui::GetWindowSize();
-    ImGui::SetCursorPos({ (winSize.x) * 0.65f,ImGui::GetCursorPosY() });
+    //ImGui::SetCursorPos({ (winSize.x) * 0.5f,ImGui::GetCursorPosY() });
 
     const ImVec2 ButtionSize = { 15,15 };
     PlayButtionDown = ImGuIHelper::ImageButton(&PlayButtionDown,
@@ -1131,6 +1162,8 @@ void GameEditorWindow::GameTab()
     ImGui::SameLine();
     
     WindowTypeButtionDown = ImGui::Button(WindowTypeText, {0,Sizey });
+
+    ImGui::Separator();
    
     const char* CantPlayScenePopName = "Some Popup";
 
@@ -1345,9 +1378,9 @@ void GameEditorWindow::LoadRender(bool MakeWin)
 
         _GameRender->Init(Windata, _GameRunTime.get());
 
-        auto& Tex = *AppFiles::GetTexture(AppFiles::texture::AppIcon);//TODO add call backs
-        while (Tex.Get_ColorData() == nullptr) {}//wait for texture
-        _GameRender->Get_RenderAPI()->SetWindowIcon(Tex);
+       // auto& Tex = *AppFiles::GetTexture(AppFiles::texture::AppIcon);//TODO add call backs
+       // while (Tex.) {}//wait for texture
+       // _GameRender->Get_RenderAPI()->SetWindowIcon(Tex);
     }
 }
 void SetUCodeInput(ImGuiKey Item, UCode::InputManger* _Input)

@@ -18,6 +18,7 @@ void RunTimeProjectData::SetProject(const ProjectData& Data, const Path&  ProjDi
 	_Watcher.init(assetpath);
 
 	files.Set_ProjDir(assetpath);
+	files._newuid = [this] {return GetNewUID(); };
 	{
 		auto Path = GetAssetIndexPath();
 
@@ -25,7 +26,7 @@ void RunTimeProjectData::SetProject(const ProjectData& Data, const Path&  ProjDi
 		{
 			_Index._Files.clear();
 			
-			files.ReIndex(_Index);
+			files.ReIndex(_Index, [this] {return GetNewUID(); });
 
 			EditorIndex::ToFile(_Index, Path);
 		}

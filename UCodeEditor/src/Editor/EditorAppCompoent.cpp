@@ -516,14 +516,18 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
 }
 void EditorAppCompoent::Undo()
 {
-    auto Undo = _Undos.back(); _Undos.pop_back();
-    Undo._UndoCallBack(Undo);
-    _Redos.push_back(Undo);
+    if (_Undos.size()) {
+        auto Undo = _Undos.back(); _Undos.pop_back();
+        Undo._UndoCallBack(Undo);
+        _Redos.push_back(Undo);
+    }
 }
 void EditorAppCompoent::Redo()
 {
-    auto Undo = _Redos.back();  _Redos.pop_back();
-    Undo._RedoCallBack(Undo);
+    if (_Undos.size()) {
+        auto Undo = _Redos.back();  _Redos.pop_back();
+        Undo._RedoCallBack(Undo);
+    }
 }
 void  EditorAppCompoent::EndDockSpace()
 {

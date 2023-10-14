@@ -15,8 +15,8 @@ public:
 
 	static Unique_ptr<Texture> MakeNewNullTexture();
 
-	Texture(Texture&& source) = default;
-	Texture& operator=(Texture&& source) = default;
+	Texture(Texture&& source);
+	Texture& operator=(Texture&& source);
 
 	Texture(const Texture& source) = delete;
 	Texture& operator=(const Texture& source) = delete;
@@ -26,7 +26,7 @@ public:
 	void UpdateDataToGPU();
 
 
-	UCodeGameEngineForceinlne auto Get_RendererID() const {return _RendererID;}
+	UCodeGameEngineForceinlne auto Get_RendererID() const {return _RendererID.value();}
 	UCodeGameEngineForceinlne const Color32* Get_ColorData() const { return (const Color32*)_Buffer.get(); }
 	UCodeGameEngineForceinlne i32 Get_Width() const { return _Width; }
 	UCodeGameEngineForceinlne i32 Get_Height() const { return _Height; }
@@ -38,11 +38,13 @@ public:
 	void TryUploadTexToGPU();
 	UCodeGameEngineForceinlne void Set_FilePath(const Path& path) { _FilePath = path; }//This is used with MultThread_UpdateTextureFromPath;
 	UCodeGameEngineForceinlne bool IsUploadedToGPU() { return _BufferIsInGPU; }
+
+	void FreeFromCPU();
 private:
-	u32 _RendererID;
-	i32 _Width, _Height, _BPP;
+	Optional<u32> _RendererID;
+	i32 _Width = 0, _Height = 0, _BPP = 0;
 	Unique_array<Byte> _Buffer;
-	bool _BufferIsInGPU;
+	bool _BufferIsInGPU =false;
 	Path _FilePath;
 
 	

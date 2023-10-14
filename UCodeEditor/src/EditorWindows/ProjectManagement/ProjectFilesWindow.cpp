@@ -383,6 +383,7 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
                     UEditorAssetDrawButtionContext Context;
                     Context.ButtionSize = *(Vec2*)&ButtionSize;
                     Context.ObjectPtr = &Item;
+                    Context._newuid = Get_ProjectFiles()._newuid;
 
                     ProjectFiles::AssetFile* File;
                     if (!B.has_value())
@@ -412,10 +413,13 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
                     {
                         InspectWindow::InspectData V;
                         V._Data =AnyManagedPtr::As(File->_ManageFile);
+
+                        static auto Func = Get_ProjectFiles()._newuid;
                         V._Draw = [](InspectWindow::InspectDrawer& data)
                         {
                             UEditorAssetDrawInspectContext Data;
                             Data.Drawer = &data;
+                            Data._newuid =Func;
 
                             auto AssetFile = data.GetPtr().As_ptr<UEditorAssetFile>();
                             if (AssetFile.Has_Value())
@@ -427,6 +431,7 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
                                 data.SetPtrNull();
                             }
                         };
+                       
 
                         auto inpswin = Get_App()->Get_Window<InspectWindow>();
                         inpswin->Inspect(V);
@@ -437,6 +442,8 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
                     UEditorAssetDataConext Conext;
                     Conext.ButtionSize = *(Vec2*)&ButtionSize;
                     Conext.ObjectPtr = &Item;
+                    Conext._newuid = Get_ProjectFiles()._newuid;
+
                     ShowOthers = Data->Draw(Conext, Item.FullFileName);
                 }
 
