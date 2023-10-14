@@ -7,7 +7,7 @@
 
 <code>
 
-    git clone https://github.com/LostbBlizzard/UCodeLang.git
+    git clone --recurse-submodules https://github.com/LostbBlizzard/UCodeGameEngine.git
 
 </code>
 
