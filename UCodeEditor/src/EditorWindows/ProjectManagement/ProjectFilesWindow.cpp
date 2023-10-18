@@ -274,10 +274,13 @@ void ProjectFilesWindow::ShowFileCells()
 
     for (auto& Item : _Files)
     {
-        if (StringHelper::Fllter(_FindFileName, Item.FileName))
+        if (Item.FullFileName.extension() != Path(UEditorAssetFileData::DefaultMetaFileExtWithDot))
         {
-            if (DrawFileItem(Item, CeSize)) { break; }
-            ImGui::NextColumn();
+            if (StringHelper::Fllter(_FindFileName, Item.FileName))
+            {
+                if (DrawFileItem(Item, CeSize)) { break; }
+                ImGui::NextColumn();
+            }
         }
     }
 

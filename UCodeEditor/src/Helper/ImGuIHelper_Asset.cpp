@@ -58,6 +58,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 { 
 	struct ObjectSpriteAssetInfo
 	{
+		Path _RelativePath;
 		UID _UID;
 	};
 	Vector<ObjectSpriteAssetInfo> List;
@@ -68,6 +69,15 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 		List.push_back(std::move(P));
 	}
 
+	String MyName = "None";
+	for (auto& Item : List)
+	{
+		if (Item._UID == Value.Get_UID())
+		{
+			MyName = Item._RelativePath.generic_string();
+			break;
+		}
+	}
 
 
 	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSpriteAssetInfo),
@@ -91,6 +101,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpriteAssetPtr
 		List.push_back(std::move(P));
 	}
 
+	
 
 
 	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSpriteAssetInfo),
