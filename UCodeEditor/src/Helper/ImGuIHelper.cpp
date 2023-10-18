@@ -887,14 +887,27 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 	
 	ImGui::SameLine();
 	
-	if (ImGui::Button("..."))
+
+	ImGui::PushID((uintptr_t)object+1);
+
+	static void* ObjectFinderPtr = nullptr;
+	bool v = ImGui::Button("...");
+
+	ImGui::PopID();
+
+	String Pop = "Object Finder";
+	Pop += std::to_string((uintptr_t)object);
+	ImGuiID ObjID = ImGui::GetID(object);
+	if (v)
 	{
-		ImGui::OpenPopup("Object Finder");
+		ObjectFinderPtr = object;
+		ImGui::OpenPopup(ObjID);
 	}
 	
 	bool open = true;
 	bool ok = false;
-	if (ImGui::BeginPopupModal("Object Finder", &open))
+
+	if (ImGui::BeginPopupEx(ObjID, 0))
 	{
 		static String V;
 		ImGuIHelper::InputText("Find", V);
@@ -911,11 +924,11 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 
 		for (size_t i = 0; i < ObjectListSize; i++)
 		{
-			//ImGui::PushID(ptr);
+			ImGui::PushID(ptr);
 			
 			ok = DrawObject(object,(void*)ptr, ListMode,V);
 
-			//ImGui::PopID();
+			ImGui::PopID();
 
 			ptr += (uintptr_t)ItemObjectSize;
 
