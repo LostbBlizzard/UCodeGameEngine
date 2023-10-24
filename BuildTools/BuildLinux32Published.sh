@@ -1,1 +1,1 @@
-make confg=published_linux32
+make confg=published_linux32 -j
