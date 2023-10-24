@@ -1,1 +1,1 @@
-make confg=debug_linux64
+make confg=debug_linux64 -j
