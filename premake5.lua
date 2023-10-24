@@ -1,5 +1,3 @@
-require "vslinux"
-
 workspace "UCodeGameEngine"
    configurations { "Debug", "Release","Published" }
    platforms { "Win32", "Win64","linux32","linux64","macosx","Web","Android","IOS"}
@@ -91,7 +89,14 @@ workspace "UCodeGameEngine"
       architecture "universal"
 
 
+
+
     filter {}
+
+
+    if _ACTION == "vs2019" or _ACTION == "vs2022" then
+      flags { "MultiProcessorCompile" }
+    end 
 
 function includeUCode()
 
