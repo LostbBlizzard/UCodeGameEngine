@@ -13,7 +13,7 @@ UCodeGameEngine:
    Fatal,
    MinValues = 
 
-  $Debug extern "c" export:
+  $Debug export extern "c":
    export extern dynamic |Log[imut String& Msg] -> void;
    export |Log[imut StringSpan Msg] => Internal::Debug__Log0(Msg);
    export extern dynamic |LogWarning[imut String& Msg] -> void;
@@ -87,7 +87,7 @@ UCodeGameEngine:
    ScrollDown,
    MaxSize
 
-  $Input extern "c" export:
+  $Input export extern "c":
 
 
 UCodeGameEngine::Internal:

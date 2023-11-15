@@ -30,7 +30,7 @@ void UCodeAPI::MakeNewLib()
 		using Debug__LogError0_ptr = void(*UCodeLangAPI)(const StringView); 
 		using Debug__LogFatalError_ptr = void(*UCodeLangAPI)(const String&); 
 		using Debug__LogFatalError0_ptr = void(*UCodeLangAPI)(const StringView); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Debug:Log",[](UCodeLang::InterpreterCPPinterface& Input) 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Debug:Log",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				const String* Par0 = Input.GetParameter<const String*>();
@@ -40,7 +40,7 @@ void UCodeAPI::MakeNewLib()
 				Input.Set_Return();
 			
 			},(Debug__Log_ptr)ULangAPI::Debug::Log); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Debug__Log0",[](UCodeLang::InterpreterCPPinterface& Input) 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Debug__Log0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				const StringView Par0 = Input.GetParameter<const StringView>();
@@ -50,7 +50,7 @@ void UCodeAPI::MakeNewLib()
 				Input.Set_Return();
 			
 			},(Debug__Log0_ptr)ULangAPI::Debug::Log); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Debug:LogWarning",[](UCodeLang::InterpreterCPPinterface& Input) 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Debug:LogWarning",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				const String* Par0 = Input.GetParameter<const String*>();
@@ -60,7 +60,7 @@ void UCodeAPI::MakeNewLib()
 				Input.Set_Return();
 			
 			},(Debug__LogWarning_ptr)ULangAPI::Debug::LogWarning); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Debug__LogWarning0",[](UCodeLang::InterpreterCPPinterface& Input) 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Debug__LogWarning0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				const StringView Par0 = Input.GetParameter<const StringView>();
@@ -70,7 +70,7 @@ void UCodeAPI::MakeNewLib()
 				Input.Set_Return();
 			
 			},(Debug__LogWarning0_ptr)ULangAPI::Debug::LogWarning); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Debug:LogError",[](UCodeLang::InterpreterCPPinterface& Input) 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Debug:LogError",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				const String* Par0 = Input.GetParameter<const String*>();
@@ -80,7 +80,7 @@ void UCodeAPI::MakeNewLib()
 				Input.Set_Return();
 			
 			},(Debug__LogError_ptr)ULangAPI::Debug::LogError); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Debug__LogError0",[](UCodeLang::InterpreterCPPinterface& Input) 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Debug__LogError0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				const StringView Par0 = Input.GetParameter<const StringView>();
@@ -90,7 +90,7 @@ void UCodeAPI::MakeNewLib()
 				Input.Set_Return();
 			
 			},(Debug__LogError0_ptr)ULangAPI::Debug::LogError); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Debug:LogFatalError",[](UCodeLang::InterpreterCPPinterface& Input) 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Debug:LogFatalError",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				const String* Par0 = Input.GetParameter<const String*>();
@@ -100,7 +100,7 @@ void UCodeAPI::MakeNewLib()
 				Input.Set_Return();
 			
 			},(Debug__LogFatalError_ptr)ULangAPI::Debug::LogFatalError); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Debug__LogFatalError0",[](UCodeLang::InterpreterCPPinterface& Input) 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Debug__LogFatalError0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				const StringView Par0 = Input.GetParameter<const StringView>();
