@@ -77,8 +77,9 @@ workspace "UCodeGameEngine"
 
     filter { "platforms:Web" }
       system "Linux"
-      optimize "On"
-      toolset ("gcc")
+      architecture "x86"
+      defines { "ZYAN_POSIX" }
+      targetextension (".html")
 
 
     filter { "platforms:Android" }
@@ -98,7 +99,7 @@ workspace "UCodeGameEngine"
       flags { "MultiProcessorCompile" }
     end 
 
-function includeUCode()
+function includeUCode(HasULangCompiler)
 
 
     filter {}  
@@ -125,12 +126,10 @@ function includeUCode()
     filter { "platforms:Win32" }
       system "Windows"
       architecture "x86"
-      defines { "UCode_Build_32Bit"}
     
     filter { "platforms:Win64" }
       system "Windows"
       architecture "x86_64"
-      defines { "UCode_Build_64Bit"}
     
     filter { "system:Windows" }
       defines {"_GLFW_WIN32"}
@@ -149,10 +148,13 @@ function includeUCode()
 
 
     filter {}
-      
+
+    if not HasULangCompiler then
+    defines {"UCodeLangNoCompiler"}
+    end 
 end
       
-function linkUCode()    
+function linkUCode(HasULangCompiler)    
 
     filter { "system:Windows" }
       links {"Ws2_32.lib"}
@@ -177,8 +179,7 @@ function linkUCode()
       "Output/stb_image/" .. OutDirPath,    
       "Output/stb_image_write/" .. OutDirPath,    
       "Dependencies/GLEW/Lib",
-      "Output/GLFW/" .. OutDirPath, 
-      "Output/UCodeLang/" .. OutDirPath, 
+      "Output/GLFW/" .. OutDirPath,
       "Output/SPIRV-Cross/" .. OutDirPath, 
       "Output/box2d/" .. OutDirPath, 
       "Output/MinimalSocket/" .. OutDirPath, 
@@ -191,10 +192,17 @@ function linkUCode()
       "stb_image",
       "stb_image_write",
       "GLFW",
-      "UCodeLang",
       "box2d",
       "MinimalSocket"
      }
+
+     if HasULangCompiler then
+      libdirs { "Output/UCodeLang/" .. OutDirPath}
+      links { "UCodeLang" }
+     else
+      libdirs { "Output/UCodeLangNoCompiler/" .. OutDirPath}
+      links { "UCodeLangNoCompiler" }
+     end
 end
    
       
@@ -205,7 +213,7 @@ project "UCode"
 
    dependson {
     "GLEW","GLFW","glm", 
-    "box2d","yaml-cpp","stb_image","stb_image_write","Imgui","UCodeLangCl",
+    "box2d","yaml-cpp","stb_image","stb_image_write","Imgui","UCodeLangCl","UCodeLangNoCompiler",
     "plog","MinimalSocket",
    }
    
@@ -243,9 +251,9 @@ project "UCodeApp"
    }
    includedirs{"%{prj.name}/src"}
 
-   includeUCode()
+   includeUCode(false)
 
-   linkUCode()
+   linkUCode(false)
    
 
   
@@ -311,9 +319,9 @@ project "UCodeEditor"
       "Output/zip/" .. OutDirPath, 
    }
   
-   includeUCode()
+   includeUCode(true)
 
-   linkUCode()
+   linkUCode(true)
    
    
 
@@ -573,6 +581,50 @@ group "Dependencies"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"
     language "C++" 
+
+    targetdir ("Output/%{prj.name}/" .. OutDirPath)
+    objdir ("Output/int/%{prj.name}/" .. OutDirPath)
+
+    files {
+      "Dependencies/%{prj.name}/UCodeLang/**.hpp",
+      "Dependencies/%{prj.name}/UCodeLang/**.cpp",
+      "Dependencies/%{prj.name}/UCodeLang/**.h", 
+      "Dependencies/%{prj.name}/UCodeLang/**.c",
+    }
+
+    includedirs{
+      "Dependencies/%{prj.name}",
+      "Dependencies/%{prj.name}/UCodeLang",
+      "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/include",
+      "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/include",
+      "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/src",
+      }
+    removefiles{
+     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/**.c",
+     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/**.c",
+
+     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/**.cpp",
+     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/**.cpp",
+
+     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/**.h",
+     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/**.h",
+     }
+    files { 
+    "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/src/**.c",
+    "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/src/**.c",
+
+    "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/src/**.inc",
+    "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/src/**.inc",
+
+    "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/include/**.h",
+    "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/include/**.h",
+    }
+  project "UCodeLangNoCompiler"
+    location "Dependencies/%{prj.name}"
+    kind "StaticLib"
+    language "C++" 
+
+    defines {"UCodeLangNoCompiler"}
 
     targetdir ("Output/%{prj.name}/" .. OutDirPath)
     objdir ("Output/int/%{prj.name}/" .. OutDirPath)
