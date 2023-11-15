@@ -1,7 +1,7 @@
 #pragma once
 #include "UCodeRunTime/BasicTypes.hpp"
 #include <Editor/EditorNamespace.hpp>
-#include "UCodeLang/Compliation/Compiler.hpp"
+#include "UCodeLang/Compilation/Compiler.hpp"
 #include "UCodeRunTime/CoreBooks/BookOfThreads.hpp"
 #include "ProjectManagement/RunTimeProjectData.hpp"
 #include "UCodeLang/LangCore/UClib.hpp"
@@ -13,7 +13,7 @@ public:
 	class CompileData
 	{
 	public:
-		UCodeLang::CompliationErrors* Error;
+		UCodeLang::CompilationErrors* Error;
 		UCode::BookOfThreads* Threads;
 
 		Path InPath;

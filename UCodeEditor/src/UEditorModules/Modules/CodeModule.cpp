@@ -247,18 +247,18 @@ void CodeModule::Init()
 }
 
 
-void LogErrors(ConsoleWindow* win,const UCodeLang::CompliationErrors& Error)
+void LogErrors(ConsoleWindow* win,const UCodeLang::CompilationErrors& Error)
 {
 	auto Err = Error;//Get_Errors has not const type update this when it does
 	for (const auto& Item : Err.Get_Errors())
 	{
 		ConsoleWindow::LogType T = ConsoleWindow::LogType::Log;
 
-		if (UCodeLang::CompliationErrors::IsError(Item._Code))
+		if (UCodeLang::CompilationErrors::IsError(Item._Code))
 		{
 			T = ConsoleWindow::LogType::Error;
 		}
-		else if (UCodeLang::CompliationErrors::IsWarning(Item._Code))
+		else if (UCodeLang::CompilationErrors::IsWarning(Item._Code))
 		{
 			T = ConsoleWindow::LogType::Warning;
 		}
@@ -311,7 +311,7 @@ void CodeModule::FilesUpdated(const Vector<FileUpdateData>& paths)
 			std::function<void()> OnOtherThread = [Threads]()
 			{
 				EditorAppCompoent* app = EditorAppCompoent::GetCurrentEditorAppCompoent();
-				UCodeLang::CompliationErrors _Errs;
+				UCodeLang::CompilationErrors _Errs;
 
 				UCompiler::CompileData data;
 				data.Set(app->Get_RunTimeProjectData());
@@ -346,7 +346,7 @@ Vector<ExportEditorReturn> CodeModule::ExportSystems(ExportEditorContext& Contex
 {
 	namespace fs = std::filesystem;
 
-	UCodeLang::CompliationErrors errs;
+	UCodeLang::CompilationErrors errs;
 	UCompiler::CompileData data;
 	data.Error = &errs;
 	data.Threads = nullptr;

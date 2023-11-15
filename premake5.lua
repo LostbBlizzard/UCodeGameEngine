@@ -304,7 +304,7 @@ project "UCodeEditor"
      "%{prj.name}/src/**.hpp", 
    }
    includedirs{"%{prj.name}/src"}
-   
+   removefiles{"%{prj.name}/src/OtherLibrarys/ImGuizmo/example/**"}
    
    links {
     "FileWatcher",
@@ -620,7 +620,7 @@ group "Dependencies"
     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/include/**.h",
     }
   project "UCodeLangNoCompiler"
-    location "Dependencies/%{prj.name}"
+    location "Dependencies/UCodeLang"
     kind "StaticLib"
     language "C++" 
 
@@ -630,38 +630,38 @@ group "Dependencies"
     objdir ("Output/int/%{prj.name}/" .. OutDirPath)
 
     files {
-      "Dependencies/%{prj.name}/UCodeLang/**.hpp",
-      "Dependencies/%{prj.name}/UCodeLang/**.cpp",
-      "Dependencies/%{prj.name}/UCodeLang/**.h", 
-      "Dependencies/%{prj.name}/UCodeLang/**.c",
+      "Dependencies/UCodeLang/UCodeLang/**.hpp",
+      "Dependencies/UCodeLang/UCodeLang/**.cpp",
+      "Dependencies/UCodeLang/UCodeLang/**.h", 
+      "Dependencies/UCodeLang/UCodeLang/**.c",
     }
 
     includedirs{
-      "Dependencies/%{prj.name}",
-      "Dependencies/%{prj.name}/UCodeLang",
-      "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/include",
-      "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/include",
-      "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/src",
+      "Dependencies/UCodeLang",
+      "Dependencies/UCodeLang/UCodeLang",
+      "Dependencies/UCodeLang/UCodeLang/Dependencies/zycore/include",
+      "Dependencies/UCodeLang/UCodeLang/Dependencies/zydis/include",
+      "Dependencies/UCodeLang/UCodeLang/Dependencies/zydis/src",
       }
     removefiles{
-     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/**.c",
-     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/**.c",
+     "Dependencies/UCodeLang/UCodeLang/Dependencies/zydis/**.c",
+     "Dependencies/UCodeLang/UCodeLang/Dependencies/zycore/**.c",
 
-     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/**.cpp",
-     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/**.cpp",
+     "Dependencies/UCodeLang/Dependencies/zydis/**.cpp",
+     "Dependencies/UCodeLang/UCodeLang/Dependencies/zycore/**.cpp",
 
-     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/**.h",
-     "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/**.h",
+     "Dependencies/UCodeLang/UCodeLang/Dependencies/zydis/**.h",
+     "Dependencies/UCodeLang/UCodeLang/Dependencies/zycore/**.h",
      }
     files { 
-    "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/src/**.c",
-    "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/src/**.c",
+    "Dependencies/UCodeLang/UCodeLang/Dependencies/zydis/src/**.c",
+    "Dependencies/UCodeLang/UCodeLang/Dependencies/zycore/src/**.c",
 
-    "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/src/**.inc",
-    "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/src/**.inc",
+    "Dependencies/UCodeLang/UCodeLang/Dependencies/zydis/src/**.inc",
+    "Dependencies/UCodeLang/UCodeLang/Dependencies/zycore/src/**.inc",
 
-    "Dependencies/%{prj.name}/UCodeLang/Dependencies/zydis/include/**.h",
-    "Dependencies/%{prj.name}/UCodeLang/Dependencies/zycore/include/**.h",
+    "Dependencies/UCodeLang/UCodeLang/Dependencies/zydis/include/**.h",
+    "Dependencies/UCodeLang/UCodeLang/Dependencies/zycore/include/**.h",
     }
 
   project "UCodeLangCl"

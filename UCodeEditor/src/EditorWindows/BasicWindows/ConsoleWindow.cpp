@@ -1,7 +1,7 @@
 #include "ImGui.hpp"
 #include "ConsoleWindow.hpp"
 #include "Helper/ImGuIHelper.hpp"
-#include <UCodeLang/Compliation/Helpers/CompilerTypes.hpp>
+#include <UCodeLang/Compilation/Helpers/CompilerTypes.hpp>
 #include "Helper/StringHelper.hpp"
 EditorStart
 
