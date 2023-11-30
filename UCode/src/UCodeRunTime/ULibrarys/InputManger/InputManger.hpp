@@ -2,9 +2,11 @@
 #include <UCodeRunTime/includeULibrayCompoent.hpp>
 #include "InputNamespace.hpp"
 #include <UCodeRunTime/BasicTypes.hpp>
+
+#include "UCodeLang/LangCore/LangDef.hpp"
 InputStart
 
-enum class InputKey : Byte
+UCodeLangExportSymbol("UCodeGameEngine") enum class InputKey : Byte
 {
 	Null,
 
@@ -105,4 +107,12 @@ private:
 	Vector<CallBackData> _CallBacks;
 	static UComponentData type_Data;
 };
+
+
+UCodeLangExportSymbol("UCodeGameEngine") struct Input
+{
+	static bool IsKeyDown(InputKey Key);
+	static Vec2 GetMousePosition();
+};
+
 InputEnd

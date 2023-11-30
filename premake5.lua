@@ -261,7 +261,9 @@ project "UCodeApp"
 
    linkUCode(false)
    
-
+   prebuildcommands{
+       UCPathExe.." cppdirtoulangvm %{wks.location}UCode/src %{wks.location}UCode/src/UCodeRunTime/ULibrarys/UCodeLang/UCodeAPI.cpp %{prj.location}src/API.uc",
+   }
   
    buildmessage "Copying Output"
 
@@ -419,14 +421,6 @@ group "UCodeAPIs"
   "%{prj.location}/ULangModule.ucm",
   "%{prj.location}/LICENSE.txt", 
   }
-  
-  prebuildcommands
-  {
-     UCPathExe.." cpptoulangvm %{wks.location}UCode/src/UCodeRunTime/ULibrarys/UCodeLang/API/API.hpp %{wks.location}UCode/src/UCodeRunTime/ULibrarys/UCodeLang/UCodeAPI.cpp %{prj.location}src/API.uc",
-  }
-  postbuildcommands {
-    --"uclang build %{prj.location}ULangModule.ucm"
-   }
 
  project "UCodeGameEngineEditor"
   location "UCodeAPI/GameEngineEditor"

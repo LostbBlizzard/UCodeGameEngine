@@ -3,6 +3,9 @@
 
 #include <plog/Log.h>
 #include "UCodeRunTime/BasicTypes.hpp"
+
+
+#include "UCodeLang/LangCore/LangDef.hpp"
 CoreStart
 
 
@@ -19,7 +22,7 @@ enum class LogType : Byte
 	Warning,
 	Info,
 
-	Default = LogType::Info,
+	Default = (Byte)LogType::Info,
 }; 
 class Loger
 {
@@ -68,5 +71,36 @@ private:
 	
 	inline static bool IsInit = false;
 };
+
+/// <summary>
+///	This is a Class for Debuging.
+/// </summary>
+UCodeLangExportSymbol("UCodeGameEngine") struct Debug
+{
+	///Makes a Log to the Console
+	UCodeLangExport inline static void Log(const String& Msg) { return LogEx(StringView(Msg), LogType::Log); }
+	//Makes a Log to the Console
+	UCodeLangExport inline static void Log(const StringView Msg) { return LogEx(Msg, LogType::Log); }
+
+
+	///Makes a Warning to the Console
+	UCodeLangExport inline static void LogWarning(const String& Msg) { return LogEx(StringView(Msg), LogType::Warning); }
+	//Makes a Warning to the Console
+	UCodeLangExport inline static void LogWarning(const StringView Msg) { return LogEx(Msg, LogType::Warning); }
+
+	///Makes a Fatal Error to the Console
+	UCodeLangExport inline static void LogError(const String& Msg) { return LogEx(StringView(Msg), LogType::Error); }
+	//Makes a Fatal Error to the Console
+	UCodeLangExport inline static void LogError(const StringView Msg) { return LogEx(Msg, LogType::Error); }
+
+	///Makes a Fatal Error to the Console
+	UCodeLangExport inline static void LogFatalError(const String& Msg) { return LogEx(StringView(Msg), LogType::Fatal); }
+	//Makes a Fatal Error to the Console
+	UCodeLangExport inline static void LogFatalError(const StringView Msg) { return LogEx(Msg, LogType::Fatal); }
+
+	//Makes a Log to the Console
+	static void LogEx(const StringView Msg, LogType logType);
+};
+
 
 CoreEnd
