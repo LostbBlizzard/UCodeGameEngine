@@ -84,6 +84,10 @@ workspace "UCodeGameEngine"
 
     filter { "platforms:Android" }
       system "android"
+      architecture "ARM"
+      androidapilevel (22)
+      exceptionhandling ("On")
+      rtti ("On")
 
     filter { "platforms:IOS" }
       system "ios"
@@ -146,6 +150,8 @@ function includeUCode(HasULangCompiler)
     filter { "system:MacOS" }
       defines {"_GLFW_COCOA","GLEW_NO_GLU"}
 
+    filter { "system:Android" }
+     defines {"GLEW_NO_GLU"}
 
     filter {}
 
@@ -477,6 +483,8 @@ group "Dependencies"
       "Dependencies/GLFW/include",
       "Dependencies/GLFW/deps",
     }
+    filter {  "system:android" }
+      defines {"GLFW_INCLUDE_ES32"}
 
   project "yaml-cpp"
     location "Dependencies/%{prj.name}"
@@ -571,12 +579,15 @@ group "Dependencies"
     filter { "system:Windows" }
       defines {"_GLFW_WIN32"}
       
+    
+    filter { "system:linux" }
+
     filter { "system:linux" }
       defines {"_GLFW_X11","GLEW_NO_GLU"}
         
     filter { "system:MacOS" }
       defines {"_GLFW_COCOA","GLEW_NO_GLU"}
-  
+    
   project "UCodeLang"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"

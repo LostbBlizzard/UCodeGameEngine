@@ -70,12 +70,14 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 	}
 
 	String MyName = "None";
-	for (auto& Item : List)
-	{
-		if (Item._UID == Value.Get_UID())
+	if (Value.Has_UID()) {
+		for (auto& Item : List)
 		{
-			MyName = Item._RelativePath.generic_string();
-			break;
+			if (Item._UID == Value.Get_UID())
+			{
+				MyName = Item._RelativePath.generic_string();
+				break;
+			}
 		}
 	}
 
@@ -188,12 +190,15 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 	}
 
 	String MyName = "None";
-	for (auto& Item : List)
-	{
-		if (Item._UID == Value.Get_UID())
+
+	if (Value.Has_UID()) {
+		for (auto& Item : List)
 		{
-			MyName = Item._RelativePath.generic_string();
-			break;
+			if (Item._UID == Value.Get_UID())
+			{
+				MyName = Item._RelativePath.generic_string();
+				break;
+			}
 		}
 	}
 
