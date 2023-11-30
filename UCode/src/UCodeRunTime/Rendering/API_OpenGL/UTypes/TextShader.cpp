@@ -1,10 +1,10 @@
 #include "TextShader.hpp"
 #include <sstream>
 #include <fstream>
-#include "../../../CoreBooks/GameFiles.hpp"
+#include <UCodeRunTime/CoreSystems/GameFiles.hpp>
 
 RenderingStart
-TextShader TextShader::Get_ShaderFromPath(const std::string& ShaderPath)
+TextShader TextShader::Get_ShaderFromPath(const String& ShaderPath)
 {
     enum class Type
     {
@@ -14,7 +14,7 @@ TextShader TextShader::Get_ShaderFromPath(const std::string& ShaderPath)
     };
     Type Type_ = Type::Null;
     std::ifstream stream(ShaderPath);
-    std::string Line;
+    String Line;
     std::stringstream ss[2];
     while (getline(stream,Line))
     {

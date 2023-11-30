@@ -1,5 +1,5 @@
 #include "AssetRendering.hpp"
-#include <UCodeRunTime/CoreBooks/BookOfThreads.hpp>
+#include "UCodeRunTime/CoreSystems/Threads.hpp"
 
 #include <stb_image/stb_image.h>
 CoreStart
@@ -64,7 +64,7 @@ void AssetRendering::DrawQuad2d(RenderRunTime2d* runtime, const DrawQuad2dData& 
 }
 AsynTask_t<Unique_ptr<Texture>> AssetRendering::LoadTextureAsync(Gamelibrary* lib, const Path& path)
 {
-	BookOfThreads* threads = BookOfThreads::Get(lib);
+	Threads* threads = Threads::Get(lib);
 	
 
 	Delegate<Unique_ptr<Texture>> Func = [path = path,lib]()
@@ -82,7 +82,7 @@ AsynTask_t<Unique_ptr<Texture>> AssetRendering::LoadTextureAsync(Gamelibrary* li
 }
 AsynTask_t<Unique_ptr<Texture>> AssetRendering::LoadTextureAsync(Gamelibrary* lib, const BytesView bits)
 {
-	BookOfThreads* threads = BookOfThreads::Get(lib);
+	Threads* threads = Threads::Get(lib);
 
 	Unique_Bytes NewBits;
 	NewBits.Copyfrom(bits);

@@ -19,7 +19,7 @@ struct MemData
 };
 
 class ULangScript;
-class ULangRunTime  final :private libraryBook
+class ULangRunTime  final :private System
 {
 	
 	friend ULangScript;

@@ -1,7 +1,7 @@
 #include "AssetManager.hpp"
 #include <UCodeRunTime/StaticComponentsIndex.hpp>
 CoreStart
-AssetManager::AssetManager(Gamelibrary* lib) : libraryBook(lib)
+AssetManager::AssetManager(Gamelibrary* lib) : System(lib)
 {
 }
 
@@ -127,7 +127,7 @@ AssetManager* AssetManager::Get(Gamelibrary* lib)
 
 	AssetManager* r = new AssetManager(lib);;
 
-	lib->MoveBook(r);
+	lib->MoveSystem(r);
 	lib->SetStaticComponent(KeyIdex, r);
 	return r;
 }

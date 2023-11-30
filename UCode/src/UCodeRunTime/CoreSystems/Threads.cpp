@@ -1,4 +1,4 @@
-#include "BookOfThreads.hpp"
+#include "Threads.hpp"
 #include <UCodeRunTime/StaticComponentsIndex.hpp>
 CoreStart
 
@@ -12,13 +12,13 @@ thread_local ThreadToRunID CurrentThreadInfo::CurrentThread = NullThread;
 static u32 threads_count=0;
 
 //To Do set threads on static
-BookOfThreads::BookOfThreads(Gamelibrary* lib) :libraryBook(lib), 
+Threads::Threads(Gamelibrary* lib) :System(lib),
 _EndThreads(false), 
 _NextLockKey(1),
  _TaskID(0)
 {
 	_TaskID =TaskID(0);
-	Threads = this;
+	_GlobalThreads = this;
 	ThreadCount = ThreadToRunID(0);
 
 	MainThreadID = std::this_thread::get_id();
@@ -42,10 +42,10 @@ _NextLockKey(1),
 	
 }
 
-BookOfThreads::~BookOfThreads()
+Threads::~Threads()
 {
 	_EndThreads = true;
-	Threads = nullptr;
+	_GlobalThreads = nullptr;
 	
 	//
 	for (auto& Item : _MainThreadData._TaskToDo)
@@ -71,7 +71,7 @@ BookOfThreads::~BookOfThreads()
 
 	
 }
-void BookOfThreads::ThreadLoop(BookOfThreads* _This,ThreadInfo* Info)
+void Threads::ThreadLoop(Threads* _This,ThreadInfo* Info)
 {
 	CurrentThreadInfo::CurrentThread = Info->_ThreadID;
 
@@ -145,7 +145,7 @@ void BookOfThreads::ThreadLoop(BookOfThreads* _This,ThreadInfo* Info)
 	Info->_Data._TaskToDo.clear();
 }
 
-BookOfThreads::ThreadData& BookOfThreads::GetThreadInfo(ThreadToRunID ID)
+Threads::ThreadData& Threads::GetThreadInfo(ThreadToRunID ID)
 {
 	if (ID == MainThread)
 	{
@@ -161,11 +161,11 @@ BookOfThreads::ThreadData& BookOfThreads::GetThreadInfo(ThreadToRunID ID)
 	}
 }
 
-BookOfThreads::ThreadData& BookOfThreads::GetThreadNoneWorkingThread()
+Threads::ThreadData& Threads::GetThreadNoneWorkingThread()
 {
 	_TaskLock.lock();
 	size_t BestPixk = SIZE_MAX;
-	BookOfThreads::ThreadData* Best = nullptr;
+	Threads::ThreadData* Best = nullptr;
 	for (auto& Item : _Threads)
 	{
 		if (Item._Data._TaskToDo.size() < BestPixk)
@@ -178,7 +178,7 @@ BookOfThreads::ThreadData& BookOfThreads::GetThreadNoneWorkingThread()
 	return *Best;
 }
 
-void BookOfThreads::CallTaskToDoOnMainThread()
+void Threads::CallTaskToDoOnMainThread()
 {
 	if (_OnMainThreadLock.try_lock())
 	{
@@ -223,12 +223,12 @@ void BookOfThreads::CallTaskToDoOnMainThread()
 	}
 }
 
-void BookOfThreads::Update()
+void Threads::Update()
 {
 	CallTaskToDoOnMainThread();
 }
 
-AsynTask BookOfThreads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vector<TaskID>& TaskDependencies)
+AsynTask Threads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vector<TaskID>& TaskDependencies)
 {
 	RunOnOnMainThread(std::move(Func), TaskDependencies);
 	return  AsynTask();
@@ -278,24 +278,24 @@ AsynTask BookOfThreads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vect
 
 	return AsynTask();
 }
-BookOfThreads* BookOfThreads::Get(Gamelibrary* lib)
+Threads* Threads::Get(Gamelibrary* lib)
 {
 	auto V = lib->Get_StaticComponent(KeyIdex);
-	if (V) { return (BookOfThreads*)V; }
+	if (V) { return (Threads*)V; }
 
-	BookOfThreads* r = new BookOfThreads(lib);;
+	Threads* r = new Threads(lib);;
 
-	lib->MoveBook(r);
+	lib->MoveSystem(r);
 	lib->SetStaticComponent(KeyIdex, r);
 	return r;
 }
-BookOfThreads* BookOfThreads::Find(const Gamelibrary* lib)
+Threads* Threads::Find(const Gamelibrary* lib)
 {
 	auto V = lib->Get_StaticComponent(KeyIdex);
-	return (BookOfThreads*)V;
+	return (Threads*)V;
 }
 
-ThreadToRunID BookOfThreads::GetNewThreadLockKey()
+ThreadToRunID Threads::GetNewThreadLockKey()
 {
 	_TaskLock.lock();
 
@@ -307,10 +307,10 @@ ThreadToRunID BookOfThreads::GetNewThreadLockKey()
 	return R;
 }
 
-void BookOfThreads::FreeThreadLock(ThreadToRunID key)
+void Threads::FreeThreadLock(ThreadToRunID key)
 {
 }
-void BookOfThreads::RunOnOnMainThread(FuncPtr&& Func, const Vector<TaskID>& TaskDependencies)
+void Threads::RunOnOnMainThread(FuncPtr&& Func, const Vector<TaskID>& TaskDependencies)
 {
 	_OnMainThreadLock.lock();
 
@@ -319,12 +319,12 @@ void BookOfThreads::RunOnOnMainThread(FuncPtr&& Func, const Vector<TaskID>& Task
 	_OnMainThreadLock.unlock();
 }
  
-bool BookOfThreads::IsOnMainThread()
+bool Threads::IsOnMainThread()
 {
 	return MainThreadID == std::this_thread::get_id();
 }
 
-void BookOfThreads::ThrowErrIfNotOnMainThread()
+void Threads::ThrowErrIfNotOnMainThread()
 {
 	if (!IsOnMainThread())
 	{
@@ -332,7 +332,7 @@ void BookOfThreads::ThrowErrIfNotOnMainThread()
 	}
 }
 
-bool BookOfThreads::IsTasksDone(const Vector<TaskID>& Tasks)
+bool Threads::IsTasksDone(const Vector<TaskID>& Tasks)
 {
 	for (auto& Item : Tasks)
 	{
@@ -344,7 +344,7 @@ bool BookOfThreads::IsTasksDone(const Vector<TaskID>& Tasks)
 	return true;
 }
 
-bool BookOfThreads::IsTasksDone(TaskID Task)
+bool Threads::IsTasksDone(TaskID Task)
 {
 	Vector <TaskID> list; list.push_back(Task);
 	return IsTasksDone(list);

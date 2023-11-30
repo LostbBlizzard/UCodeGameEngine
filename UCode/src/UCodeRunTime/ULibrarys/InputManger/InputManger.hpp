@@ -111,8 +111,8 @@ private:
 
 UCodeLangExportSymbol("UCodeGameEngine") struct Input
 {
-	static bool IsKeyDown(InputKey Key);
-	static Vec2 GetMousePosition();
+	UCodeLangExport static bool IsKeyDown(InputKey Key);
+	UCodeLangExport static Vec2 GetMousePosition();
 };
 
 InputEnd

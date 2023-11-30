@@ -14,7 +14,7 @@ public:
 	{
 	public:
 		UCodeLang::CompilationErrors* Error;
-		UCode::BookOfThreads* Threads;
+		UCode::Threads* Threads;
 
 		Path InPath;
 		Path IntPath;

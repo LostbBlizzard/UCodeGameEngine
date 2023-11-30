@@ -1,32 +1,32 @@
-#include "BookDictionary.hpp"
+#include "SystemList.hpp"
 #include <UCodeRunTime/StaticComponentsIndex.hpp>
 CoreStart
 
 constexpr StaticBooksIndex_t KeyIdex = (StaticBooksIndex_t)StaticBooksIndex::Dictionary;
 
-BockDictionary::BockDictionary(Gamelibrary* lib) :libraryBook(lib)
+SystemList::SystemList(Gamelibrary* lib) :System(lib)
 {
 	if (lib->Get_StaticComponent(KeyIdex)) { Destroy(this); return; }
 	lib->SetStaticComponent(KeyIdex, this);
 }
-BockDictionary::~BockDictionary()
+SystemList::~SystemList()
 {
 }
 
-BockDictionary* BockDictionary::Get(Gamelibrary* lib)
+SystemList* SystemList::Get(Gamelibrary* lib)
 {
 	auto V = lib->Get_StaticComponent(KeyIdex);
-	if (V) { return (BockDictionary*)V; }
+	if (V) { return (SystemList*)V; }
 	
-	BockDictionary* r = new BockDictionary(lib);;
+	SystemList* r = new SystemList(lib);;
 
-	lib->MoveBook(r);
+	lib->MoveSystem(r);
 	lib->SetStaticComponent(KeyIdex, r);
 	return r;
 }
-BockDictionary* BockDictionary::Find(const Gamelibrary* lib)
+SystemList* SystemList::Find(const Gamelibrary* lib)
 {
 	auto V = lib->Get_StaticComponent(KeyIdex);
-	return (BockDictionary*)V; 
+	return (SystemList*)V; 
 }
 CoreEnd

@@ -295,7 +295,7 @@ inline Path GameFiles::GetMovedFilesPathAndMake()
 	}
 	return p;
 }
-GameFiles::GameFiles(Gamelibrary* lib, const GameFilesData& Data) :libraryBook(lib),_Data(Data), _DefaultShader(nullptr)
+GameFiles::GameFiles(Gamelibrary* lib, const GameFilesData& Data) :System(lib),_Data(Data), _DefaultShader(nullptr)
 {
 	if (lib->Get_StaticComponent(KeyIdex)) { Destroy(this); return; }
 	lib->SetStaticComponent(KeyIdex, this);
@@ -311,7 +311,7 @@ GameFiles* GameFiles::Get(Gamelibrary* lib)
 	GameFilesData Data = GameFilesData();
 	GameFiles* r = new GameFiles(lib, Data);;
 
-	lib->MoveBook(r);
+	lib->MoveSystem(r);
 	return r;
 
 }
@@ -332,7 +332,7 @@ GameFiles* GameFiles::Init(Gamelibrary* lib,const GameFilesData& Data)
 	GameFiles* newGameFiles =new GameFiles(lib,Data);
 
 
-	lib->MoveBook(newGameFiles);
+	lib->MoveSystem(newGameFiles);
 	return newGameFiles;
 }
 
@@ -437,7 +437,7 @@ void GameFiles::SetFileBuffer(FileBuffer&& Buffer)
 }
 AsynTask_t<Unique_Bytes> GameFiles::AsynReadGameFileFullBytes(const Path& path)
 {
-	auto threads = UCode::BookOfThreads::Get(Getlibrary());
+	auto threads = UCode::Threads::Get(Getlibrary());
 
 	Path p = path;
 	auto Func = [this,p]()
@@ -449,7 +449,7 @@ AsynTask_t<Unique_Bytes> GameFiles::AsynReadGameFileFullBytes(const Path& path)
 }
 AsynTask_t<Unique_Bytes> GameFiles::AsynReadGameFileBytes(const Path& path, size_t Offset, size_t Bytes)
 {
-	auto threads = UCode::BookOfThreads::Get(Getlibrary());
+	auto threads = UCode::Threads::Get(Getlibrary());
 
 	Path p = path;
 	auto Func = [this,p, Offset, Bytes]()
@@ -461,7 +461,7 @@ AsynTask_t<Unique_Bytes> GameFiles::AsynReadGameFileBytes(const Path& path, size
 }
 AsynTask_t<Unique_Bytes> GameFiles::AsynReadFileFullBytes(const Path& path)
 {
-	auto threads = UCode::BookOfThreads::Get(Getlibrary());
+	auto threads = UCode::Threads::Get(Getlibrary());
 
 	Path p = path;
 	auto Func = [p]()
@@ -473,7 +473,7 @@ AsynTask_t<Unique_Bytes> GameFiles::AsynReadFileFullBytes(const Path& path)
 }
 AsynTask_t<Unique_Bytes> GameFiles::AsynReadFileBytes(const Path& path, size_t Offset, size_t Bytes)
 {
-	auto threads = UCode::BookOfThreads::Get(Getlibrary());
+	auto threads = UCode::Threads::Get(Getlibrary());
 
 	Path p = path;
 	auto Func = [p, Offset, Bytes]()
@@ -485,7 +485,7 @@ AsynTask_t<Unique_Bytes> GameFiles::AsynReadFileBytes(const Path& path, size_t O
 }
 AsynTask_t<String> GameFiles::AsynReadGameFileString(const Path& path)
 {
-	auto threads = UCode::BookOfThreads::Get(Getlibrary());
+	auto threads = UCode::Threads::Get(Getlibrary());
 
 	Path p = path;
 	auto Func = [this,p]()
@@ -497,7 +497,7 @@ AsynTask_t<String> GameFiles::AsynReadGameFileString(const Path& path)
 }
 AsynTask_t<String> GameFiles::AsynReadFileString(const Path& path)
 {
-	auto threads = UCode::BookOfThreads::Get(Getlibrary());
+	auto threads = UCode::Threads::Get(Getlibrary());
 
 	Path p = path;
 	auto Func = [p]()
@@ -529,7 +529,7 @@ Path GameFiles::GetGameFilePathByMove(const Path& path)
 }
 AsynTask_t<Path> GameFiles::AsynGetGameFilePathByMove(const Path& path)
 {
-	auto threads = UCode::BookOfThreads::Get(Getlibrary());
+	auto threads = UCode::Threads::Get(Getlibrary());
 
 	Path p = path;
 	auto Func = [this,p]()
