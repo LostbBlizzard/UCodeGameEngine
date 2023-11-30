@@ -7,20 +7,20 @@ InputKey ImguiKeyToUCodeKey(ImGuiKey key)
 {
 	switch (key)
 	{
-	case ImGuiKey::ImGuiKey_MouseLeft: return InputKey::MOUSE_BUTTON_LEFT;
-	case ImGuiKey::ImGuiKey_MouseRight: return InputKey::MOUSE_BUTTON_RIGHT;
-	case ImGuiKey::ImGuiKey_MouseMiddle: return InputKey::MOUSE_BUTTON_MIDDLE;
+	case ImGuiKey::ImGuiKey_MouseLeft: return InputKey::LeftMouseButtion;
+	case ImGuiKey::ImGuiKey_MouseRight: return InputKey::RightMouseButtion;
+	case ImGuiKey::ImGuiKey_MouseMiddle: return InputKey::MiddleMouseButtion;
 
 	case ImGuiKey::ImGuiKey_Space: return InputKey::Space;
 	case ImGuiKey::ImGuiKey_Tab: return InputKey::Tab;
-	case ImGuiKey::ImGuiKey_Escape: return InputKey::ESCAPE;
-	case ImGuiKey::ImGuiKey_Enter: return InputKey::ENTER;
-	case ImGuiKey::ImGuiKey_Backspace: return InputKey::BACKSPACE;
-	case ImGuiKey::ImGuiKey_Delete: return InputKey::DELETE;
+	case ImGuiKey::ImGuiKey_Escape: return InputKey::Escape;
+	case ImGuiKey::ImGuiKey_Enter: return InputKey::Enter;
+	case ImGuiKey::ImGuiKey_Backspace: return InputKey::BackSpace;
+	case ImGuiKey::ImGuiKey_Delete: return InputKey::Delete;
 
-	case ImGuiKey::ImGuiKey_LeftArrow: return InputKey::LEFTArrow;
-	case ImGuiKey::ImGuiKey_RightArrow: return InputKey::RIGHTArrow;
-	case ImGuiKey::ImGuiKey_DownArrow: return InputKey::DOWNArrow;
+	case ImGuiKey::ImGuiKey_LeftArrow: return InputKey::LeftArrow;
+	case ImGuiKey::ImGuiKey_RightArrow: return InputKey::RightArrow;
+	case ImGuiKey::ImGuiKey_DownArrow: return InputKey::DownArrow;
 	case ImGuiKey::ImGuiKey_UpArrow:return InputKey::UpArrow;
 
 	case ImGuiKey::ImGuiKey_0:return InputKey::Key_0;

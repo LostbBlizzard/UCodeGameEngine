@@ -49,8 +49,8 @@ f32 InputManger::GetInputKey_Float(InputKey input) const
 {
 	switch (input)
 	{
-	case InputKey::MOUSE_SCROLL_UP:return _ScrollPosition.Y;
-	case InputKey::MOUSE_SCROLL_Down:return _ScrollPosition.Y;
+	case InputKey::MouseScrollUp:return _ScrollPosition.Y;
+	case InputKey::MouseScrollDown:return _ScrollPosition.Y;
 
 	default:return 0.0f;
 	}
@@ -107,26 +107,26 @@ void InputManger::Input_API_Set_Scroll(f32 x, f32 y)
 	{
 		bool Upbool = x > 0;
 
-		Input_API_SetInput(Upbool, InputKey::MOUSE_SCROLL_UP);
-		Input_API_SetInput(!Upbool, InputKey::MOUSE_SCROLL_Down);
+		Input_API_SetInput(Upbool, InputKey::MouseScrollUp);
+		Input_API_SetInput(!Upbool, InputKey::MouseScrollDown);
 
 
 		if (Upbool) {
-			Input_API_CallInputCallBack(InputKey::MOUSE_SCROLL_UP, CallBackType::Press);
+			Input_API_CallInputCallBack(InputKey::MouseScrollUp, CallBackType::Press);
 		}
 		else
 		{
-			Input_API_CallInputCallBack(InputKey::MOUSE_SCROLL_Down, CallBackType::Press);
+			Input_API_CallInputCallBack(InputKey::MouseScrollDown, CallBackType::Press);
 		}
 	}
 	else
 	{
-		Input_API_SetInput(false, InputKey::MOUSE_SCROLL_UP);
-		Input_API_SetInput(false, InputKey::MOUSE_SCROLL_Down);
+		Input_API_SetInput(false, InputKey::MouseScrollUp);
+		Input_API_SetInput(false, InputKey::MouseScrollDown);
 
 
-		Input_API_CallInputCallBack(InputKey::MOUSE_SCROLL_UP, CallBackType::Release);
-		Input_API_CallInputCallBack(InputKey::MOUSE_SCROLL_Down, CallBackType::Release);
+		Input_API_CallInputCallBack(InputKey::MouseScrollUp, CallBackType::Release);
+		Input_API_CallInputCallBack(InputKey::MouseScrollDown, CallBackType::Release);
 	}
 }
 inline UCodeLangExport bool Input::IsKeyDown(InputKey Key)

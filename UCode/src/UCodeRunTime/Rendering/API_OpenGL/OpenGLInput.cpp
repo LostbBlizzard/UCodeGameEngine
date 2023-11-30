@@ -54,14 +54,14 @@ InputKey GLFWToUCodeKey(int key)
         //Others
     case GLFW_KEY_SPACE:return InputKey::Space;
     case GLFW_KEY_TAB:return InputKey::Tab;
-    case GLFW_KEY_ESCAPE:return InputKey::ESCAPE;
-    case GLFW_KEY_ENTER:return InputKey::ENTER;
-    case GLFW_KEY_BACKSPACE:return InputKey::BACKSPACE;
-    case GLFW_KEY_DELETE:return InputKey::DELETE;
+    case GLFW_KEY_ESCAPE:return InputKey::Escape;
+    case GLFW_KEY_ENTER:return InputKey::Enter;
+    case GLFW_KEY_BACKSPACE:return InputKey::BackSpace;
+    case GLFW_KEY_DELETE:return InputKey::Delete;
 
     case GLFW_KEY_RIGHT:return InputKey::R;
-    case GLFW_KEY_LEFT:return InputKey::LEFTArrow;
-    case GLFW_KEY_DOWN:return InputKey::DOWNArrow;
+    case GLFW_KEY_LEFT:return InputKey::LeftArrow;
+    case GLFW_KEY_DOWN:return InputKey::DownArrow;
     case GLFW_KEY_UP:return InputKey::UpArrow;
 
     case GLFW_KEY_0:return InputKey::Key_0;
@@ -82,9 +82,9 @@ InputKey GLFWMosuseToUCodeKey(int button)
 {
     switch (button)
     {
-    case GLFW_MOUSE_BUTTON_LEFT:return InputKey::MOUSE_BUTTON_LEFT;  
-    case GLFW_MOUSE_BUTTON_RIGHT:return InputKey::MOUSE_BUTTON_RIGHT;
-    case GLFW_MOUSE_BUTTON_MIDDLE:return InputKey::MOUSE_BUTTON_MIDDLE;
+    case GLFW_MOUSE_BUTTON_LEFT:return InputKey::LeftMouseButtion;  
+    case GLFW_MOUSE_BUTTON_RIGHT:return InputKey::RightMouseButtion;
+    case GLFW_MOUSE_BUTTON_MIDDLE:return InputKey::MiddleMouseButtion;
     default:return InputKey::Null;
     }
 }
