@@ -2,7 +2,7 @@
 RenderingStart
 UComponentData TileMapRenderer::type_Data = { "TileMapRenderer",nullptr};
 TileMapRenderer::TileMapRenderer(Entity* entity, IndexType MapX, IndexType MapY) : Renderer2d(entity,&type_Data)
-, shader(Shader::Default_Shader(entity->GetGameRunTime()->Get_Library_Edit()))
+, shader(Shader::Default_Shader(entity->NativeGameRunTime()->Get_Library_Edit()))
 , DrawOrder(RenderRunTime2d::DrawOrderType_Min)
 , _TileMapSizeX(MapX),_TileMapSizeY(MapY), TilesData(Get_MaxTiles())
 {
@@ -58,9 +58,9 @@ void TileMapRenderer::OnDraw()
 Bounds2d TileMapRenderer::Get_Bounds() const
 {
 	Bounds2d r;
-	r.center = GetMyEntity()->Get_WorldPosition2D();
+	r.center = NativeEntity()->WorldPosition2D();
 
-	const Vec2 tilemapsize = GetMyEntity()->Get_WorldScale2D();
+	const Vec2 tilemapsize = NativeEntity()->WorldScale2D();
 	r.extents =
 	{
 		tilemapsize.X * (f32)Get_TileMapSizeX() ,

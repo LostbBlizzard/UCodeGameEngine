@@ -13,7 +13,7 @@ UComponentsID SpriteRenderer::Get_TypeID()
 }
 UComponentData SpriteRenderer::type_Data = { Get_TypeID(),[](Entity* E) {return (Compoent*)new SpriteRenderer(E); }};
 SpriteRenderer::SpriteRenderer(Entity* entity) : Renderer2d(entity,&type_Data),
-shader(Shader::Default_Shader(entity->GetGameRunTime()->Get_Library_Edit())),
+shader(Shader::Default_Shader(entity->NativeGameRunTime()->Get_Library_Edit())),
 sprite(nullptr),
 flipX(false),
 flipY(false),
@@ -64,9 +64,9 @@ void SpriteRenderer::Start()
 
 void SpriteRenderer::OnDraw()
 {
-	auto Entity = GetMyEntity();
+	auto Entity = NativeEntity();
 	auto Render = GetRenderRunTime();
-	auto Scale =Entity->Get_WorldScale2D();
+	auto Scale =Entity->WorldScale2D();
 	if (flipX) {Scale.X = -Scale.X;}
 	if (flipY) { Scale.Y = -Scale.Y; }
 
@@ -74,9 +74,9 @@ void SpriteRenderer::OnDraw()
 
 	AssetRendering::UpdatePtr(AssetManager,sprite);
 
-	Vec2 pos = Entity->Get_WorldPosition2D();
+	Vec2 pos = Entity->WorldPosition2D();
 	Vec2 size = Scale;
-	Vec2 Rotation = Entity->Get_WorldRotation2D();
+	Vec2 Rotation = Entity->WorldRotation2D();
 	
 	AssetRendering::DrawQuad2dData Data(pos - Vec2(size.X/2, size.Y/2), size, Rotation);
 	
@@ -93,10 +93,10 @@ void SpriteRenderer::OnDraw()
 }
 Bounds2d SpriteRenderer::Get_Bounds() const
 {
-	auto Entity = GetMyEntity();
+	auto Entity = NativeEntity();
 	Bounds2d r;
-	r.center = Entity->Get_WorldPosition2D();
-	const Vec2 size = Entity->Get_WorldScale2D();
+	r.center = Entity->WorldPosition2D();
+	const Vec2 size = Entity->WorldScale2D();
 	r.extents = size - Vec2(size.X / 2, size.Y / 2);
 	return r;
 }

@@ -5,12 +5,15 @@
 #include <type_traits>
 
 #include "UCodeRunTime/BasicTypes/ManagedPtr.hpp"
+
+
+#include "UCodeLang/LangCore/LangDef.hpp"
 CoreStart
 class RunTimeScene;
 class Entity;
 class GameRunTime;
 class GameTime;
-class Compoent;
+struct Compoent;
 class USerializer;
 class UDeserializer;
 
@@ -29,7 +32,7 @@ public:
 	
 };
 
-class Compoent
+UCodeLangExportSymbol("UCodeGameEngine") UCodeLangExportTrait Compoent
 {
 	friend Entity;
 private:
@@ -48,22 +51,23 @@ public:
 	virtual void Serialize(USerializer& Serializer) const {}
 	virtual void Deserialize(UDeserializer& Serializer) {}
 
-	UCodeGameEngineForceinlne Entity* GetMyEntity() const { return _Entity; }
+	Entity* NativeEntity() const { return _Entity; }
 
 
-	UCodeGameEngineForceinlne void Set_CompoentActive(bool V) { _IsActive = V; }
-	UCodeGameEngineForceinlne void Enable_Compoent() { _IsActive = true; }
-	UCodeGameEngineForceinlne void Disable_Compoent() { _IsActive = false; }
-	UCodeGameEngineForceinlne bool Get_IsActive() const { return _IsActive; }
+	void Set_CompoentActive(bool V) { _IsActive = V; }
+	void Enable_Compoent() { _IsActive = true; }
+	void Disable_Compoent() { _IsActive = false; }
+	bool Get_IsActive() const { return _IsActive; }
 
 	
-	UCodeGameEngineForceinlne static void Destroy(Compoent* compoent) { compoent->_IsDestroyed = true; }
-	UCodeGameEngineForceinlne bool Get_IsDestroyed() const { return _IsDestroyed; }
-	UCodeGameEngineForceinlne UComponentData* Get_CompoentTypeData() const { return _TypeData; }
 
-	inline bool Get_IsActive_InRunTime() const;
-	inline GameRunTime* GetGameRunTime() const;
-	inline RunTimeScene* Get_Scene() const;
+	static void Destroy(Compoent* compoent) { compoent->_IsDestroyed = true; }
+	bool Get_IsDestroyed() const { return _IsDestroyed; }
+	UComponentData* Get_CompoentTypeData() const { return _TypeData; }
+
+	bool Get_IsActive_InRunTime() const;
+	GameRunTime* GetGameRunTime() const;
+	RunTimeScene* Get_Scene() const;
 
 	
 	template<class T, typename... Pars> UCodeGameEngineForceinlne T* AddCompoent(Pars... parameters);
@@ -91,7 +95,7 @@ public:
 	}
 };
 
-class Entity
+UCodeLangExportSymbol("UCodeGameEngine") class Entity
 {
 	friend GameRunTime;
 	friend RunTimeScene;
@@ -103,11 +107,11 @@ public:
 	
 	
 
-	UCodeGameEngineForceinlne const auto& Get_Compoents() const
+	UCodeGameEngineForceinlne const auto& NativeCompoents() const
 	{
 		return _Compoents;
 	}
-	UCodeGameEngineForceinlne auto& Get_Compoents()
+	UCodeGameEngineForceinlne auto& NativeCompoents()
 	{
 		return _Compoents;
 	}
@@ -126,7 +130,7 @@ public:
 	{
 
 		#if UCodeGameEngineDEBUG
-		if (t->GetMyEntity() != this)
+		if (t->NativeEntity() != this)
 		{
 			throw std::runtime_error("Cant Move Compoent ,Compoent was made with Entity a different Entity");
 		}
@@ -179,15 +183,30 @@ public:
 		return nullptr;
 	}
 
-	UCodeGameEngineForceinlne RunTimeScene* Get_Scene() const { return _Scene; }
-	GameRunTime* GetGameRunTime();
+	UCodeGameEngineForceinlne RunTimeScene* NativeScene() const { return _Scene; }
+	GameRunTime* NativeGameRunTime();
 
-	UCodeGameEngineForceinlne void Set_Active(bool V) { _IsActive = V; }
-	UCodeGameEngineForceinlne void Enable_Entity() { _IsActive = true; }
-	UCodeGameEngineForceinlne void Disable_Entity() { _IsActive = false; }
-	UCodeGameEngineForceinlne bool Get_IsActive() const { return _IsActive; }
+	UCodeGameEngineForceinlne void SetActive(bool V) { _IsActive = V; }
+
+	UCodeGameEngineForceinlne bool GetActive() const { return _IsActive; }
+	
+	UCodeLangExport void Enable() { _IsActive = true; }
+	UCodeLangExport void Disable() { _IsActive = false; }
+	UCodeLangExport bool& Active()
+	{
+		return _IsActive;
+	}
+	UCodeLangExport const bool& Active() const
+	{
+		return _IsActive;
+	}
 
 	//
+
+	UCodeLangExport void Destroy()
+	{
+		Destroy(this);
+	}
 	UCodeGameEngineForceinlne static void Destroy(Entity* compoent) { compoent->_IsDestroyed = true; }
 	UCodeGameEngineForceinlne bool Get_IsDestroyed() const { return _IsDestroyed; }
 
@@ -197,117 +216,115 @@ public:
 	//Dont use me unless you know what you're doing
 	UCodeGameEngineForceinlne void EditorAPI_Set_ParentEntity(Entity* S) { _ParentEntity = S; }
 	
-	EntityPtr Get_ManagedPtr()
+	EntityPtr NativeManagedPtr()
 	{
 		return _Managed;
 	}
-	const EntityPtr Get_ManagedPtr() const
+	const EntityPtr NativeManagedPtr() const
 	{
 		return _Managed;
 	}
 
-	UCodeGameEngineForceinlne auto& Get_Entitys()
+	UCodeGameEngineForceinlne auto& NativeGetEntitys()
 	{
 		return _Entitys;
 	}
-	UCodeGameEngineForceinlne auto& Get_Entitys() const
+	UCodeGameEngineForceinlne auto& NativeGetEntitys() const
 	{
 		return _Entitys;
 	}
 
-	Entity* Add_Entity();
+	Entity* NativeAddEntity();
 
 
-
-	UCodeGameEngineForceinlne auto& Get_Name()
-	{
-		return _Name;
-	}
-	UCodeGameEngineForceinlne auto& Get_Name() const
-	{
-		return _Name;
-	}
+	String& NativeName() { return _Name; }
+	const String& NativeName() const { return _Name; }
 
 
-	UCodeGameEngineForceinlne auto& Get_LocalPosition()
+	UCodeLangExport const StringView Name() const {return _Name;}
+	UCodeLangExport void Name(StringView Value){_Name = Value;}
+
+
+	UCodeLangExport Vec3& LocalPosition()
 	{
 		return  _LocalPosition;
 	}
-	UCodeGameEngineForceinlne auto& Get_LocalPosition() const
+	UCodeLangExport const Vec3& LocalPosition() const
 	{
 		return  _LocalPosition;
 	}
 
-	UCodeGameEngineForceinlne auto& Get_LocalPosition2D()
+	UCodeLangExport Vec2& LocalPosition2D()
 	{
 		return  *(Vec2*)&_LocalPosition;
 	}
-	UCodeGameEngineForceinlne auto& Get_LocalPosition2D() const
+	UCodeLangExport const Vec2& LocalPosition2D() const
 	{
 		return  *(Vec2*)&_LocalPosition;
 	}
 
-	UCodeGameEngineForceinlne auto& Get_LocalRotation()
+	UCodeLangExport Vec3& LocalRotation()
 	{
 		return  _LocalRotation;
 	}
-	UCodeGameEngineForceinlne auto& Get_LocalRotation() const
+	UCodeLangExport const Vec3& LocalRotation() const
 	{
 		return  _LocalRotation;
 	}
 
-	UCodeGameEngineForceinlne auto& Get_LocalRotation2D()
+	UCodeLangExport Vec2& LocalRotation2D()
 	{
 		return  *(Vec2*)&_LocalRotation;
 	}
-	UCodeGameEngineForceinlne auto& Get_LocalRotation2D() const
+	UCodeLangExport Vec2& LocalRotation2D() const
 	{
 		return  *(Vec2*)&_LocalRotation;
 	}
 
-	UCodeGameEngineForceinlne auto& Get_LocalScale()
+	UCodeLangExport Vec3& LocalScale()
 	{
 		return  _LocalScale;
 	}
-	UCodeGameEngineForceinlne auto& Get_LocalScale() const
+	UCodeLangExport const Vec3& LocalScale() const
 	{
 		return  _LocalScale;
 	}
 
-	UCodeGameEngineForceinlne auto& Get_LocalScale2D()
+	UCodeLangExport Vec2& LocalScale2D()
 	{
 		return  *(Vec2*)&_LocalScale;
 	}
-	UCodeGameEngineForceinlne auto& Get_LocalScale2D() const
+	UCodeLangExport Vec2& LocalScale2D() const
 	{
 		return  *(Vec2*)&_LocalScale;
 	}
 
 
 
-	Vec3 Get_WorldPosition() const;
-	Vec2 Get_WorldPosition2D() const;
-	Vec3 Get_WorldRotation() const;
+	Vec3 WorldPosition() const;
+	Vec2 WorldPosition2D() const;
 
-	Vec2 Get_WorldRotation2D() const;
+	Vec3 WorldRotation() const;
+	Vec2 WorldRotation2D() const;
 
-	Vec3 Get_WorldScale() const;
+	Vec3 WorldScale() const;
+	Vec2 WorldScale2D() const;
 
-	Vec2 Get_WorldScale2D() const;
+	void WorldPosition(const Vec3& Value);
+	void WorldPosition(const Vec2& Value);
 
-	void Set_WorldPosition(const Vec3& Value);
-	void Set_WorldPosition(const Vec2& Value);
-	void Set_WorldRotation(const Vec3& Value);
-	void Set_WorldRotation(const Vec2& Value);
-	void Set_WorldScale(const Vec3& Value);
-	void Set_WorldScale(const Vec2& Value);
+	void WorldRotation(const Vec3& Value);
+	void WorldRotation(const Vec2& Value);
+	
+	void WorldScale(const Vec3& Value);
+	void WorldScale(const Vec2& Value);
 
-	UCodeGameEngineForceinlne const auto Get_Parent() const
+	UCodeGameEngineForceinlne const auto NativeParent() const
 	{
 		return   _ParentEntity;
 	}
 
-	UCodeGameEngineForceinlne auto Get_Parent() 
+	UCodeGameEngineForceinlne auto NativeParent() 
 	{
 		return   _ParentEntity;
 	}
@@ -331,22 +348,6 @@ private:
 	void DestroyCompoents();
 
 };
-
-	 
-
- 
-
-//Helpers
-UCodeGameEngineForceinlne bool Compoent::Get_IsActive_InRunTime() const
-{
-	return _IsActive && _Entity->Get_IsActive();
-}
-UCodeGameEngineForceinlne GameRunTime* Compoent::GetGameRunTime() const { return _Entity->GetGameRunTime(); }
-UCodeGameEngineForceinlne RunTimeScene* Compoent::Get_Scene() const{ return _Entity->Get_Scene();}
-	
-
-
-
 
 
 template<class T, typename ...Pars> UCodeGameEngineForceinlne T* Compoent::AddCompoent(Pars... parameters)

@@ -9,32 +9,7 @@ UCodeGameEngine:
    Warning,
    /*A Recoverable Error may be cause by an exception or a painc.*/
    Error,
-   /*Very bad Errors that may cause put the GameRunTime to be an unstable state or cause a crash. */
-   Fatal,
-   MinValues = 
-
-  $Debug export extern "c":
-   export extern dynamic |Log[imut String& Msg] -> void;
-   export |Log[imut StringSpan Msg] => Internal::Debug__Log0(Msg);
-   export extern dynamic |LogWarning[imut String& Msg] -> void;
-   export |LogWarning[imut StringSpan Msg] => Internal::Debug__LogWarning0(Msg);
-   export extern dynamic |LogError[imut String& Msg] -> void;
-   export |LogError[imut StringSpan Msg] => Internal::Debug__LogError0(Msg);
-   export extern dynamic |LogFatalError[imut String& Msg] -> void;
-   export |LogFatalError[imut StringSpan Msg] => Internal::Debug__LogFatalError0(Msg);
-
-
-  $InputKey[byte] enum export:
-   Null,
-   /*Or*/
-   Space,
-   Tab,
-   Escapw,
-   Enter,
-   Backspace,
-   Delete,
-   /*Other*/
-   RightArrow,
+   /*Very bad 
    LeftArrow,
    DownArrow,
    UpArrow,

@@ -21,7 +21,7 @@ UIRunTIme::UIRunTIme(Entity* e) : Compoent(e,&type_Data)
 UIRunTIme::~UIRunTIme()
 {
 	GetGameRunTime()->ReMoveStaticComponent((size_t)StaticRuntimeComponentsIndex::UIRunTIme);
-	Entity::Destroy(GetMyEntity());
+	Entity::Destroy(NativeEntity());
 }
 
 void UIRunTIme::Start()

@@ -129,12 +129,11 @@ void InputManger::Input_API_Set_Scroll(f32 x, f32 y)
 		Input_API_CallInputCallBack(InputKey::MouseScrollDown, CallBackType::Release);
 	}
 }
-inline UCodeLangExport bool Input::IsKeyDown(InputKey Key)
+bool Input::IsKeyDown(InputKey Key)
 {
 	return false;
 }
-
-UCodeLangExport Vec2 Input::GetMousePosition()
+Vec2 Input::GetMousePosition()
 {
 	return {};
 }

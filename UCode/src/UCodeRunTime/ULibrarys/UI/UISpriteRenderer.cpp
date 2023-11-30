@@ -4,7 +4,7 @@ UIStart
 
 UComponentData UISpriteRenderer::type_Data = { "UISpriteRenderer",nullptr};
 UISpriteRenderer::UISpriteRenderer(Entity* e) :Renderer2d(e,&type_Data),
-shader(Shader::Default_Shader(e->GetGameRunTime()->Get_Library_Edit())),
+shader(Shader::Default_Shader(e->NativeGameRunTime()->Get_Library_Edit())),
 texture(nullptr),
 flipX(false),
 flipY(false),

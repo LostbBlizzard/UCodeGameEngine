@@ -34,7 +34,7 @@ RenderRunTime2d::RenderRunTime2d(Entity* entity) : Compoent(entity,&type_Data)
 RenderRunTime2d::~RenderRunTime2d()
 {
 	GetGameRunTime()->ReMoveStaticComponent((size_t)StaticRuntimeComponentsIndex::RenderRunTime);
-	Entity::Destroy(GetMyEntity());
+	Entity::Destroy(NativeEntity());
 }
 RenderRunTime2d* RenderRunTime2d::FindRenderRunTime(const GameRunTime* e)
 {
@@ -66,7 +66,7 @@ void RenderRunTime2d::UpdateDrawData()
 	for (size_t i = 0; i < All_Renderers.size(); i++)
 	{
 		auto Item = All_Renderers[i];
-		if (Item->Get_IsDestroyed() || Item->GetMyEntity()->Get_IsDestroyed()) 
+		if (Item->Get_IsDestroyed() || Item->NativeEntity()->Get_IsDestroyed()) 
 		{
 			continue;
 		}

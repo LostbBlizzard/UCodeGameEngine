@@ -211,7 +211,7 @@ void GameEditorWindow::SceneCameraGetInputs()
 
     //
 
-    auto& Pos = _SceneCamera->GetMyEntity()->Get_LocalPosition();
+    auto& Pos = _SceneCamera->NativeEntity()->LocalPosition();
     Pos = CamPos;
 
 
@@ -252,9 +252,9 @@ void GameEditorWindow::SceneEditorTab()
         {
             auto Entity = SelectedObject.Get_Value();
 
-            auto pos = Entity->Get_WorldPosition();
-            auto rot = Entity->Get_WorldRotation();
-            auto scl = Entity->Get_WorldScale();
+            auto pos = Entity->WorldPosition();
+            auto rot = Entity->WorldRotation();
+            auto scl = Entity->WorldScale();
 
 
             UCode::Mat4 matrix;
@@ -308,9 +308,9 @@ void GameEditorWindow::SceneEditorTab()
             if (updated)
             {
                 ImGuizmo::DecomposeMatrixToComponents(matrixfptr, &pos.X, &rot.X, &scl.X);
-                Entity->Get_LocalPosition() = pos;
-                Entity->Get_LocalRotation() = rot;
-                Entity->Get_LocalScale() = scl;
+                Entity->LocalPosition() = pos;
+                Entity->LocalRotation() = rot;
+                Entity->LocalScale() = scl;
             }
         }
     }
@@ -379,7 +379,7 @@ void GameEditorWindow::UnLoadSceneCamera()
 {
     if (_SceneCamera)
     {
-        UCode::Entity::Destroy(_SceneCamera->GetMyEntity()); 
+        UCode::Entity::Destroy(_SceneCamera->NativeEntity()); 
         _SceneCamera->UnSetAsMainCam();
         _SceneCamera = nullptr;
        
@@ -537,8 +537,8 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
         if (ImGui::MenuItem("Add Entity"))
         {
             UCode::Entity* e = Item->NewEntity();
-            e->Get_Name() = UnNamedEntity;
-            e->Set_WorldPosition(_SceneCameraData._Pos);
+            e->NativeName() = UnNamedEntity;
+            e->WorldPosition(_SceneCameraData._Pos);
         }
         if (ImGui::MenuItem("Paste-Entity","Ctrl+V",nullptr, _HasCopy))
         {
@@ -550,7 +550,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
                 UndoData undo;
 
                 auto _CopyedEntitytep = _CopyedEntity;
-                auto ePtr = pastedentity->Get_ManagedPtr();
+                auto ePtr = pastedentity->NativeManagedPtr();
                 
                 undo._UndoCallBack = [_CopyedEntitytep, ePtr](UndoData& This)
                 {
@@ -558,7 +558,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
                     {
                         UCode::Entity::Destroy(ePtr.Get_Value());
 
-                        auto ScenePtr = ePtr.Get_Value()->Get_Scene()->Get_ManagedPtr();
+                        auto ScenePtr = ePtr.Get_Value()->NativeScene()->Get_ManagedPtr();
 
                         This._RedoCallBack = [ePtr, ScenePtr, _CopyedEntitytep](UndoData& This)
                         {
@@ -683,12 +683,12 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
  
     //
     AppFiles::sprite _SprToShow = AppFiles::sprite::Entity;
-    auto& Co = Item->Get_Compoents();
+    auto& Co = Item->NativeCompoents();
    //
     auto& g = *GImGui;
        
     //
-    String& EntityName =Item->Get_Name();
+    String& EntityName =Item->NativeName();
     auto style = ImGui::GetStyleColorVec4(ImGuiCol_::ImGuiCol_WindowBg);
   //  ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_FrameBg, style);
     bool node_open;
@@ -703,14 +703,14 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
         if (IsRenameing && IsSelectedEntity)
         {
             node_open = WasSelectedObjectOpened;
-            ImGuIHelper::DrawRenameTree(Item->Get_Name(), node_open, IsRenameing);
+            ImGuIHelper::DrawRenameTree(Item->NativeName(), node_open, IsRenameing);
         }
         else
         {
             ImGuiTreeNodeFlags TreeFlags = IsSelectedEntity ? ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_Selected : 0;
             TreeFlags |= ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_OpenOnArrow;
             TreeFlags |= ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_SpanAvailWidth;
-            node_open = ImGuIHelper::TreeNode(Item, Item->Get_Name().c_str(), AppFiles::sprite::Entity); 
+            node_open = ImGuIHelper::TreeNode(Item, Item->NativeName().c_str(), AppFiles::sprite::Entity); 
             ShowingTree = true;
         }
         
@@ -748,7 +748,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
                 RawEntityData Data;//should get from Asset DataBasce
                 if (RawEntityData::ReadFromFile( Path, Data)) 
                 {
-                    UCode::RunTimeScene* runtime = Item->Get_Scene();
+                    UCode::RunTimeScene* runtime = Item->NativeScene();
                     UCode::Entity* e = runtime->NewEntity();
                     UCode::Scene2dData::LoadEntity(e, Data.Get_Value());
                     UCode::RunTimeScene::MoveEntity(e, Item, node_open);
@@ -934,12 +934,12 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
                 UCode::Scene2dData::SaveEntityData(Item, V, USerializerType::Fastest);
 
 
-                auto ScencPtr = Item->Get_Scene()->Get_ManagedPtr();
+                auto ScencPtr = Item->NativeScene()->Get_ManagedPtr();
                 undo._UndoCallBack = [ScencPtr, V](UndoData& This)
                 {
                     if (ScencPtr.Has_Value())
                     {
-                        auto newentity = ScencPtr.Get_Value()->NewEntity()->Get_ManagedPtr();
+                        auto newentity = ScencPtr.Get_Value()->NewEntity()->NativeManagedPtr();
                         UCode::Scene2dData::LoadEntity(newentity.Get_Value(), V);
 
 
@@ -960,7 +960,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
 
         if (ImGui::MenuItem("Set Scenc Cam To "))
         {
-            _SceneCameraData._Pos = Item->Get_WorldPosition();
+            _SceneCameraData._Pos = Item->WorldPosition();
         }
 
 
@@ -973,8 +973,8 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
 
         if (ImGui::MenuItem("Add Entity"))
         {
-            auto E = Item->Add_Entity();
-            E->Get_Name() = UnNamedEntity;
+            auto E = Item->NativeAddEntity();
+            E->NativeName() = UnNamedEntity;
             SetScelected(E);
         }
 
@@ -987,7 +987,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
         
 
         {
-            auto& Entitys =Item->Get_Entitys();
+            auto& Entitys =Item->NativeGetEntitys();
             for (size_t i = 0; i < Entitys.size(); i++)
             {
                 auto& Item2 = Entitys[i];
@@ -1001,7 +1001,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
         ImGui::AlignTextToFramePadding();
 
         {
-            auto& Compoents = Item->Get_Compoents();
+            auto& Compoents = Item->NativeCompoents();
 
             for (size_t i = 0; i < Compoents.size(); i++)
             {
