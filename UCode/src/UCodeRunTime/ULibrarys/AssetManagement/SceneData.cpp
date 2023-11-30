@@ -47,13 +47,13 @@ void Scene2dData::SaveScene(const RunTimeScene* Scene, Scene2dData& Out, USerial
 }
 void Scene2dData::SaveEntityData(const Entity* Item,Scene2dData::Entity_Data& Entity, USerializerType type)
 {
-    Entity._LocalPosition = Item->Get_LocalPosition();
-    Entity._LocalRotation = Item->Get_LocalRotation();
-    Entity._LocalScale = Item->Get_LocalScale();
+    Entity._LocalPosition = Item->LocalPosition();
+    Entity._LocalRotation = Item->LocalRotation();
+    Entity._LocalScale = Item->LocalScale();
 
-    Entity._Name = Item->Get_Name();
+    Entity._Name = Item->Name();
 
-    const auto& Compoents = Item->Get_Compoents();
+    const auto& Compoents = Item->NativeCompoents();
     Entity._Compoents.reserve(Compoents.size());
     for (const auto& Item : Compoents)
     {
@@ -65,7 +65,7 @@ void Scene2dData::SaveEntityData(const Entity* Item,Scene2dData::Entity_Data& En
 
     }
 
-    const auto& Entitys = Item->Get_Entitys();
+    const auto& Entitys = Item->NativeGetEntitys();
     Entity._Entitys.reserve(Entitys.size());
 
     for (const auto& Item : Entitys)
@@ -116,10 +116,10 @@ RunTimeScene* Scene2dData::AsyncLoadScene(GameRunTime* runtime, const Scene2dDat
 }
 void Scene2dData::LoadEntity(Entity* entity, const Entity_Data& Item)
 {
-    entity->Get_LocalPosition() = Item._LocalPosition;
-    entity->Get_LocalRotation() = Item._LocalRotation;
-    entity->Get_LocalScale() = Item._LocalScale;
-    entity->Get_Name() = Item._Name;
+    entity->LocalPosition() = Item._LocalPosition;
+    entity->LocalRotation() = Item._LocalRotation;
+    entity->LocalScale() = Item._LocalScale;
+    entity->NativeName() = Item._Name;
 
     for (const auto& C : Item._Compoents)
     {
@@ -128,7 +128,7 @@ void Scene2dData::LoadEntity(Entity* entity, const Entity_Data& Item)
 
     for (const auto& C : Item._Entitys)
     {
-        Entity* Ptr = entity->Add_Entity();
+        Entity* Ptr = entity->NativeAddEntity();
         LoadEntity(Ptr, C);
     }
 

@@ -126,7 +126,7 @@ void ProjectFilesWindow::UpdateWindow()
                     {
                         RawEntityData Data(DropItem);
 
-                        const String EntityName = DropItem->Get_Name().size() ? DropItem->Get_Name() : UnNamedEntity;
+                        const String EntityName = DropItem->NativeName().size() ? DropItem->NativeName() : UnNamedEntity;
 
                         Path path = FileHelper::GetNewFileName(Path(_LookingAtDir.value().native() + Path(EntityName).native()),Path(RawEntityData::FileExtDot));
 

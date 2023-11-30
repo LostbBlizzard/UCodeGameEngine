@@ -239,7 +239,7 @@ project "UCode"
    includeUCode();
 
    prebuildcommands{
-       UCPathExe.." cppdirtoulangvm %{wks.location}UCode/src %{wks.location}UCode/src/UCodeRunTime/ULibrarys/UCodeLang/UCodeAPI.cpp %{prj.location}src/API.uc",
+       UCPathExe.." cppdirtoulangvm %{wks.location}UCode/src %{wks.location}UCode/src/UCodeRunTime/ULibrarys/UCodeLang/UCodeAPI.cpp %{wks.location}UCodeAPI/UCodeGameEngine/src/API.uc",
    }
 
 

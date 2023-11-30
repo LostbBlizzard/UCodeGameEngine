@@ -42,7 +42,7 @@ public:
 	static bool ToFile(const Path& path, Scene2dData& data, USerializerType Type);
 	inline static Entity* CloneEntity(Entity* entity)
 	{
-		return CloneEntity(entity, entity->Get_Scene());
+		return CloneEntity(entity, entity->NativeScene());
 	}
 	static Entity* CloneEntity(Entity* entity, RunTimeScene* Scene);
 	static void SaveScene(const RunTimeScene* Scene,Scene2dData& Out, USerializerType type = USerializerType::Default);

@@ -95,7 +95,7 @@ private:
 
 	void SetScelected(UCode::Entity* Object)
 	{
-		SelectedObject = Object->Get_ManagedPtr();
+		SelectedObject = Object->NativeManagedPtr();
 		SelectedScene = nullptr;
 		
 		IsRenameing = false;

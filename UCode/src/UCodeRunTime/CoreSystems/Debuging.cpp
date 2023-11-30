@@ -71,6 +71,7 @@ bool DebugingClient::IsConneted()
 	{
 		return Val->Connection.IsConneted();
 	}
+	UCodeGameEngineUnreachable();
 }
 void DebugingClient::UpdateReadData()
 {

@@ -15,7 +15,7 @@ PhysicsRunTime::~PhysicsRunTime()
 
 
 	GetGameRunTime()->ReMoveStaticComponent((size_t)StaticRuntimeComponentsIndex::PhysicsRunTime);
-	Entity::Destroy(GetMyEntity());
+	Entity::Destroy(NativeEntity());
 }
 PhysicsRunTime* PhysicsRunTime::GetPhysics(GameRunTime* e)
 {

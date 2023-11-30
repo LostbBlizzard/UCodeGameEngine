@@ -182,7 +182,7 @@ void RunTimeScene::UpdateEntitys()
 	for (size_t i = 0; i < _Entitys.size(); i++)
 	{
 		auto& Item = _Entitys[i];
-		if (Item->Get_IsActive()) { Item->RunTimeUpdate(); }
+		if (Item->GetActive()) { Item->RunTimeUpdate(); }
 	}
 }
 void RunTimeScene::FixedUpdateEntitys()
@@ -233,10 +233,10 @@ void RunTimeScene::DestroyNullEntityAndCompoents()
 }
 void RunTimeScene::MoveEntity(UCode::Entity* EntityToMove, UCode::RunTimeScene* MoveNextTo)
 {
-	UCode::RunTimeScene* Scene = EntityToMove->Get_Scene();
+	UCode::RunTimeScene* Scene = EntityToMove->NativeScene();
 
 	auto& SceneEntitys = Scene->Get_Entitys();
-	auto& ThisEntitylist = EntityToMove->Get_Parent() ? EntityToMove->Get_Parent()->Get_Entitys() : SceneEntitys;
+	auto& ThisEntitylist = EntityToMove->NativeParent() ? EntityToMove->NativeParent()->NativeGetEntitys() : SceneEntitys;
 	
 	
 	Unique_ptr<Entity> EntityAsPtr;
@@ -247,7 +247,7 @@ void RunTimeScene::MoveEntity(UCode::Entity* EntityToMove, UCode::RunTimeScene* 
 		{
 			EntityAsPtr = std::move(Item);
 			ThisEntitylist.erase(it);
-			if (EntityToMove->Get_Parent())
+			if (EntityToMove->NativeParent())
 			{
 				EntityToMove->EditorAPI_Set_ParentEntity(nullptr);
 			}

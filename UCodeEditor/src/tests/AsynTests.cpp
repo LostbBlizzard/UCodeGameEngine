@@ -1,6 +1,6 @@
 #include "AsynTests.hpp"
 
-#include "UCodeRunTime/CoreBooks/BookOfThreads.hpp"
+#include "UCodeRunTime/CoreSystems/Threads.hpp"
 
 EditorTestStart
 

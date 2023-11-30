@@ -25,7 +25,7 @@ InspectWindow::InspectData Inspect_Entity2d::Get(UCode::EntityPtr Item)
 }
 InspectWindow::InspectData Inspect_Entity2d::Get(UCode::Entity* Item)
 {
-    return Get(Item->Get_ManagedPtr());
+    return Get(Item->NativeManagedPtr());
 }
 void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
 {
@@ -51,100 +51,100 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
 
         ImGui::SameLine();
 
-        bool V = item->Get_IsActive();
+        bool V = item->GetActive();
         ImGuIHelper::ToggleField("Active", V);
-        item->Set_Active(V);
+        item->SetActive(V);
 
 
-        ImGuIHelper::InputText("Name", item->Get_Name());
+        ImGuIHelper::InputText("Name", item->NativeName());
     }
    
     bool Is2D = true;
-    auto Cam = UCode::Camera2d::FindMainCam(item->GetGameRunTime());
+    auto Cam = UCode::Camera2d::FindMainCam(item->NativeGameRunTime());
     if (Cam)
     {
         Is2D = Cam->Get_CamType() == UCode::Camera2d::CamType::Orthographic;
     }
-    if (!item->Get_Parent())
+    if (!item->NativeParent())
     {
         if (Is2D)
         {
-            Draw.Vec2Field("Position", item->Get_LocalPosition2D());
-            Draw.Vec2Field("Rotation", item->Get_LocalRotation2D());
-            Draw.Vec2Field("Scale", item->Get_LocalScale2D());
+            Draw.Vec2Field("Position", item->LocalPosition2D());
+            Draw.Vec2Field("Rotation", item->LocalRotation2D());
+            Draw.Vec2Field("Scale", item->LocalScale2D());
         }
         else 
         {
-            Draw.Vec3Field("Position", item->Get_LocalPosition());
-            Draw.Vec3Field("Rotation", item->Get_LocalRotation());
-            Draw.Vec3Field("Scale", item->Get_LocalScale());
+            Draw.Vec3Field("Position", item->LocalPosition());
+            Draw.Vec3Field("Rotation", item->LocalRotation());
+            Draw.Vec3Field("Scale", item->LocalScale());
         }
     }
     else
     {
         if (Is2D)
         {
-            Draw.Vec2Field("Local Position", item->Get_LocalPosition2D());
-            Draw.Vec2Field("Local Rotation", item->Get_LocalRotation2D());
-            Draw.Vec2Field("Local Scale", item->Get_LocalScale2D());
+            Draw.Vec2Field("Local Position", item->LocalPosition2D());
+            Draw.Vec2Field("Local Rotation", item->LocalRotation2D());
+            Draw.Vec2Field("Local Scale", item->LocalScale2D());
 
             ImGui::Separator();
 
 
-            Vec2 Tep = item->Get_WorldPosition2D();
+            Vec2 Tep = item->WorldPosition2D();
 
             if (Draw.Vec2Field("World Position", Tep))
             {
-                item->Set_WorldPosition(Tep);
+                item->WorldPosition(Tep);
             }
 
-            Tep = item->Get_WorldRotation2D();
+            Tep = item->WorldRotation2D();
 
             if (Draw.Vec2Field("World Rotation", Tep))
             {
-                item->Set_WorldRotation(Tep);
+                item->WorldRotation(Tep);
             }
 
-            Tep = item->Get_WorldScale2D();
+            Tep = item->WorldScale2D();
             if (Draw.Vec2Field("World Scale", Tep))
             {
-                item->Set_WorldScale(Tep);
+                item->WorldScale(Tep);
             }
         }
         else
         {
-            Draw.Vec3Field("Local Position", item->Get_LocalPosition());
-            Draw.Vec3Field("Local Rotation", item->Get_LocalRotation());
-            Draw.Vec3Field("Local Scale", item->Get_LocalScale());
+            Draw.Vec3Field("Local Position", item->LocalPosition());
+            Draw.Vec3Field("Local Rotation", item->LocalRotation());
+            Draw.Vec3Field("Local Scale", item->LocalScale());
 
             ImGui::Separator();
 
 
-            Vec3 Tep = item->Get_WorldPosition();
+            Vec3 Tep = item->WorldPosition();
 
             if (Draw.Vec3Field("World Position", Tep))
             {
-                item->Set_WorldPosition(Tep);
+                item->WorldPosition(Tep);
             }
 
-            Tep = item->Get_WorldRotation();
+            Tep = item->WorldRotation();
 
             if (Draw.Vec3Field("World Rotation", Tep))
             {
-                item->Set_WorldRotation(Tep);
+                item->WorldRotation(Tep);
             }
 
-            Tep = item->Get_WorldScale();
+            Tep = item->WorldScale();
 
             if (Draw.Vec3Field("World Scale",Tep))
             {
-                item->Set_WorldScale(Tep);
+                item->WorldScale(Tep);
             }
         }
     }
     ImGui::Separator();
 
-    for (auto& Item : item->Get_Compoents())
+    for (auto& Item : item->NativeCompoents())
     {
         Inspect_Compoent2d::Insp_(Item.get(), Draw);
         ImGui::Separator();
@@ -334,7 +334,7 @@ void Inspect_Compoent2d::ShowAddCompoenList(UCode::Entity* item)
                 {
                     ImGui::Separator();
 
-                    auto ULang = UCode::ULangRunTime::Get(item->GetGameRunTime()->Get_Library_Edit());
+                    auto ULang = UCode::ULangRunTime::Get(item->NativeGameRunTime()->Get_Library_Edit());
                     auto& Assembly = ULang->Get_Assembly();
 
 
