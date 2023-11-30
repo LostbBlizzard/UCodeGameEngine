@@ -6,3 +6,5 @@ Output
 *.user
 .vscode/
 Makefile
+/UCodeEditor/UFiles/source/NStandardLibrary
+/UCodeEditor/UFiles/source/StandardLibrary
