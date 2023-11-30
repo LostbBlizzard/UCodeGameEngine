@@ -11,16 +11,16 @@ UCodeLangExportSymbol("UCodeGameEngine") enum class InputKey : Byte
 	Null,
 
 	//Mouse
-	MOUSE_BUTTON_LEFT,
-	MOUSE_BUTTON_RIGHT,
-	MOUSE_BUTTON_MIDDLE,
-	MOUSE_SCROLL_UP,
-	MOUSE_SCROLL_Down,
+	LeftMouseButtion,
+	RightMouseButtion,
+	MiddleMouseButtion,
+	MouseScrollUp,
+	MouseScrollDown,
 
 	//Other
-	Space,Tab,ESCAPE,ENTER,BACKSPACE,DELETE,
+	Space,Tab,Escape,Enter,BackSpace,Delete,
 	//Other
-	RIGHTArrow,LEFTArrow,DOWNArrow,UpArrow,
+	RightArrow,LeftArrow,DownArrow,UpArrow,
 	//Numbers
 	Key_0,Key_1, Key_2, Key_3, Key_4, Key_5, Key_6, Key_7, Key_8,Key_9,
 	//Leters
@@ -28,13 +28,13 @@ UCodeLangExportSymbol("UCodeGameEngine") enum class InputKey : Byte
 	
 	MaxSize,
 };
-enum class CallBackType : unsigned char
+enum class CallBackType : Byte
 {
 	Press,
 	Release,
 	Repeat,
 };
-using InputCallBackKey = unsigned char;
+using InputCallBackKey = Byte;
 constexpr InputCallBackKey NullCallBackKey = 0;
 class InputManger final :private Compoent
 {
