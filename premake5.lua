@@ -336,6 +336,8 @@ project "UCodeEditor"
    {
     "{COPYDIR} %{wks.location}/UCodeAPI/GameEngine %{prj.location}/UFiles/source/UCodeGameEngine",
     "{COPYDIR} %{wks.location}/UCodeAPI/GameEngineEditor %{prj.location}/UFiles/source/UCodeGameEngineEditor",
+    "{COPYDIR} %{wks.location}/Dependencies/UCodeLang/UCodeAPI/StandardLibrary %{prj.location}/UFiles/source/StandardLibrary",
+    "{COPYDIR} %{wks.location}/Dependencies/UCodeLang/UCodeAPI/NStandardLibrary %{prj.location}/UFiles/source/NStandardLibrary",
 
    }
    filter {"system:Windows"}
