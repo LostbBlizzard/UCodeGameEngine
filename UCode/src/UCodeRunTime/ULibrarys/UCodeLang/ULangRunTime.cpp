@@ -11,7 +11,7 @@ ULangRunTime* ULangRunTime::Get(Gamelibrary* e)
 	if (item == nullptr)
 	{
 		auto r = new ULangRunTime(e);
-		e->MoveBook(r);
+		e->MoveSystem(r);
 		e->SetStaticComponent(index, r);
 		return r;
 	}
@@ -76,7 +76,7 @@ void ULangRunTime::OpenLibs(const Path& PathDir)
 	}
 }
 
-ULangRunTime::ULangRunTime(Gamelibrary* e) :libraryBook(e), _State()
+ULangRunTime::ULangRunTime(Gamelibrary* e) :System(e), _State()
 {
 	_Interpreter.Init(&_State);
 }

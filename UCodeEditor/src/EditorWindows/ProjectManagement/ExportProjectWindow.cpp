@@ -150,7 +150,7 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 		auto ProjectInfo = Get_ProjectData();
 		auto AssetsPath = ProjectInfo->GetAssetsDir();
 		auto OutputPath = ProjectInfo->GetOutDir();
-		auto Threads = UCode::BookOfThreads::Get(Get_GameLib());
+		auto Threads = UCode::Threads::Get(Get_GameLib());
 		buildSytem.Setings._OutDir = OutputPath;
 
 		String AddedOnOutDir = "Windows";
@@ -206,7 +206,7 @@ void ExportProjectWindow::ShowWebExportSeting()
 		auto ProjectInfo = Get_ProjectData();
 		auto AssetsPath = ProjectInfo->GetAssetsDir();
 		auto OutputPath = ProjectInfo->GetOutDir();
-		auto Threads = UCode::BookOfThreads::Get(Get_GameLib());
+		auto Threads = UCode::Threads::Get(Get_GameLib());
 		buildSytem.Setings._OutDir = OutputPath;
 
 		String AddedOnOutDir = "Web";
@@ -261,7 +261,7 @@ void ExportProjectWindow::ShowAndroidExportSeting()
 		auto ProjectInfo = Get_ProjectData();
 		auto AssetsPath = ProjectInfo->GetAssetsDir();
 		auto OutputPath = ProjectInfo->GetOutDir();
-		auto Threads = UCode::BookOfThreads::Get(Get_GameLib());
+		auto Threads = UCode::Threads::Get(Get_GameLib());
 		buildSytem.Setings._OutDir = OutputPath;
 
 		String AddedOnOutDir = "Android";

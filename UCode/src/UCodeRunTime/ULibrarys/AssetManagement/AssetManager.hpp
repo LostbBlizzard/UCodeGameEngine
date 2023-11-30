@@ -1,11 +1,11 @@
 #pragma once
 
-#include <UCodeRunTime/Core/libraryBook.hpp>
+#include <UCodeRunTime/Core/System.hpp>
 #include <UCodeRunTime/BasicTypes.hpp>
 #include <UCodeRunTime/ULibrarys/AssetManagement/UID.hpp>
 #include <UCodeRunTime/BasicTypes/ManagedPtr.hpp>
 #include <UCodeRunTime/Core/GameTime.hpp>
-#include <UCodeRunTime/CoreBooks/GameFiles.hpp>
+#include <UCodeRunTime/CoreSystems/GameFiles.hpp>
 #include <type_traits>
 CoreStart
 
@@ -111,7 +111,7 @@ public:
 	}
 };
 
-class AssetManager :private libraryBook
+class AssetManager :private System
 {
 public:
 	

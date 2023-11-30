@@ -305,7 +305,7 @@ void CodeModule::FilesUpdated(const Vector<FileUpdateData>& paths)
 		{
 
 			EditorAppCompoent* app = EditorAppCompoent::GetCurrentEditorAppCompoent();
-			auto Threads = UCode::BookOfThreads::Get(app->GetGameRunTime()->Get_Library_Edit());
+			auto Threads = UCode::Threads::Get(app->GetGameRunTime()->Get_Library_Edit());
 
 
 			std::function<void()> OnOtherThread = [Threads]()

@@ -6,20 +6,20 @@ constexpr StaticBooksIndex_t StaticBookSize = (StaticBooksIndex_t)StaticBooksInd
 constexpr StaticRunTimeComponentsIndex_t StaticRunTimeComponentsSize = (StaticRunTimeComponentsIndex_t)StaticRuntimeComponentsIndex::MaxValue;
 constexpr StaticSceneComponentsIndex_t StaticSceneComponentsSize = (StaticSceneComponentsIndex_t)StaticSceneComponentsIndex::MaxValue;
 
-Gamelibrary::Gamelibrary() : _StaticBooks()
+Gamelibrary::Gamelibrary() : _StaticSystems()
 {
 
-	_StaticBooks.resize(StaticBookSize);
-	for (size_t i = 0; i < StaticBookSize; i++){_StaticBooks[i] = nullptr;}
+	_StaticSystems.resize(StaticBookSize);
+	for (size_t i = 0; i < StaticBookSize; i++){_StaticSystems[i] = nullptr;}
 }
 Gamelibrary::~Gamelibrary()
 {
 }
 void Gamelibrary::libraryUpdate()
 {
-	for (size_t i = 0; i < _Books.size(); i++)
+	for (size_t i = 0; i < _Systems.size(); i++)
 	{
-		auto& Item = _Books[i];
+		auto& Item = _Systems[i];
 		Item->Update();
 	}
 
@@ -28,13 +28,13 @@ void Gamelibrary::libraryUpdate()
 }
 void Gamelibrary::DestroyNullBook()
 {
-	for (auto it = _Books.begin(); it != _Books.end();)
+	for (auto it = _Systems.begin(); it != _Systems.end();)
 	{
 		auto& Item = *it;
 
 		if (Item->Get_IsDestroyed())
 		{
-			it = _Books.erase(it);
+			it = _Systems.erase(it);
 			continue;
 		}
 		++it;

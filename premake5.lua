@@ -238,6 +238,10 @@ project "UCode"
    
    includeUCode();
 
+   prebuildcommands{
+       UCPathExe.." cppdirtoulangvm %{wks.location}UCode/src %{wks.location}UCode/src/UCodeRunTime/ULibrarys/UCodeLang/UCodeAPI.cpp %{prj.location}src/API.uc",
+   }
+
 
 project "UCodeApp"
    location "UCodeApp"
@@ -261,9 +265,7 @@ project "UCodeApp"
 
    linkUCode(false)
    
-   prebuildcommands{
-       UCPathExe.." cppdirtoulangvm %{wks.location}UCode/src %{wks.location}UCode/src/UCodeRunTime/ULibrarys/UCodeLang/UCodeAPI.cpp %{prj.location}src/API.uc",
-   }
+  
   
    buildmessage "Copying Output"
 

@@ -8,11 +8,11 @@ EditorTestStart
 struct AsynTestContext
 {
 	UCode::Unique_ptr<UCode::Gamelibrary> Lib = nullptr;
-	UCode::BookOfThreads* Threads = nullptr;
+	UCode::Threads* Threads = nullptr;
 	void SetUp()
 	{
 		Lib  = UCode::Unique_ptr<UCode::Gamelibrary>(new UCode::Gamelibrary());
-		Threads = UCode::BookOfThreads::Get(Lib.get());
+		Threads = UCode::Threads::Get(Lib.get());
 	}
 	~AsynTestContext()
 	{

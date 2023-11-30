@@ -5,7 +5,7 @@
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 #include <UCodeRunTime/BasicTypes.hpp>
 
-#include "libraryBook.hpp"
+#include "System.hpp"
 #include "Entity.hpp"
 #include "GameTime.hpp"
 CoreStart
@@ -20,7 +20,7 @@ public:
 	Gamelibrary& operator=(Gamelibrary&& Other) = default;
 
 	
-	UCodeGameEngineForceinlne void MoveBook(libraryBook* book)
+	UCodeGameEngineForceinlne void MoveSystem(System* book)
 	{
 #if UCodeGameEngineDEBUG
 		if (book->Getlibrary() != this)
@@ -28,7 +28,7 @@ public:
 			throw std::runtime_error("Cant Move Compoent ,Compoent was made with Entity a different Entity");
 		}
 
-		for (auto& Item : _Books)
+		for (auto& Item : _Systems)
 		{
 			if (Item.get() == book)
 			{
@@ -37,7 +37,7 @@ public:
 		}
 #endif // DEBUG
 
-		_Books.push_back(Unique_ptr<libraryBook>(book));
+		_Systems.push_back(Unique_ptr<System>(book));
 	}
 	UCodeGameEngineForceinlne void* Get_LibraryOwner() { return LibraryOwner; }
 	UCodeGameEngineForceinlne void Set_LibraryOwner(void* NewOwner) { LibraryOwner = NewOwner; }
@@ -45,19 +45,19 @@ public:
 	UCodeGameEngineForceinlne bool HasNoLibraryOwner() { return LibraryOwner==nullptr; }
 	void libraryUpdate();//LibraryOwner is responsible for call this.
 	
-	UCodeGameEngineForceinlne void SetStaticComponent(size_t key, libraryBook* Value) { _StaticBooks[key] = Value; }
-	UCodeGameEngineForceinlne void ReMoveStaticComponent(size_t key) { _StaticBooks[key] = nullptr; }
-	UCodeGameEngineForceinlne libraryBook* Get_StaticComponent(size_t key) const { return _StaticBooks[key]; }
+	UCodeGameEngineForceinlne void SetStaticComponent(size_t key, System* Value) { _StaticSystems[key] = Value; }
+	UCodeGameEngineForceinlne void ReMoveStaticComponent(size_t key) { _StaticSystems[key] = nullptr; }
+	UCodeGameEngineForceinlne System* Get_StaticComponent(size_t key) const { return _StaticSystems[key]; }
 
-	UCodeGameEngineForceinlne auto& Get_Books() { return _Books; }
-	UCodeGameEngineForceinlne const auto& Get_Books() const { return _Books; }
+	UCodeGameEngineForceinlne auto& Get_Books() { return _Systems; }
+	UCodeGameEngineForceinlne const auto& Get_Books() const { return _Systems; }
 
-	UCodeGameEngineForceinlne auto& Get_StaticBooks() { return _StaticBooks; }
-	UCodeGameEngineForceinlne const auto& Get_StaticBooks() const { return _StaticBooks; }
+	UCodeGameEngineForceinlne auto& Get_StaticBooks() { return _StaticSystems; }
+	UCodeGameEngineForceinlne const auto& Get_StaticBooks() const { return _StaticSystems; }
 
 private:
-	Vector<Unique_ptr<libraryBook>> _Books;
-	Vector<libraryBook*> _StaticBooks;
+	Vector<Unique_ptr<System>> _Systems;
+	Vector<System*> _StaticSystems;
 	void* LibraryOwner = nullptr;
 	void DestroyNullBook();
 };

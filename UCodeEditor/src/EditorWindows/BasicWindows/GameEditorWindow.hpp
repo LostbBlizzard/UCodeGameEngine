@@ -119,7 +119,7 @@ private:
 	void DropSceneFromPath();
 	void ShowScene(UCode::RunTimeScene* Item);
 	void ShowEntityData(UCode::Entity* Item);
-	void ShowlibraryBookData(UCode::libraryBook* Item);
+	void ShowlibraryBookData(UCode::System* Item);
 	void Scenehierarchy();
 	void InputEmuation();
 	void LoadRunTime();

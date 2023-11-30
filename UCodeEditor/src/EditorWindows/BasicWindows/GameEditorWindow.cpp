@@ -1020,7 +1020,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
    
     ImGui::PopID();
 }
-void GameEditorWindow::ShowlibraryBookData(UCode::libraryBook* Item)
+void GameEditorWindow::ShowlibraryBookData(UCode::System* Item)
 {
     // Use object uid as identifier. Most commonly you could also use the object pointer as a base ID.
     ImGui::PushID(Item);

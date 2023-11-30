@@ -3,14 +3,14 @@
 #include <UCodeRunTime/BasicTypes.hpp>
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 CoreStart
-class BockDictionary :private libraryBook
+class SystemList :private System
 {
 public:
 	using CompoentKey_t = size_t;
-	static BockDictionary* Get(Gamelibrary* lib);
-	static BockDictionary* Find(const Gamelibrary* lib);
+	static SystemList* Get(Gamelibrary* lib);
+	static SystemList* Find(const Gamelibrary* lib);
  	
-	template<typename T> void _AddCompoent(libraryBook* Value)
+	template<typename T> void _AddCompoent(System* Value)
 	{
 		const std::type_info& info = typeid(T);
 		const CompoentKey_t key = info.hash_code();
@@ -51,8 +51,8 @@ public:
 		_Books.erase(key);
 	}
 private:
-	BockDictionary(Gamelibrary* lib);
-	~BockDictionary();
-	UnorderedMap<CompoentKey_t, libraryBook*> _Books;
+	SystemList(Gamelibrary* lib);
+	~SystemList();
+	UnorderedMap<CompoentKey_t, System*> _Books;
 };
 CoreEnd

@@ -180,7 +180,7 @@ struct RuningTaskData
 private:
 };
 
-class BookOfThreads;
+class Threads;
 
 struct TaskProgress
 {
@@ -229,7 +229,7 @@ AsynTask_t<T2> Asyn_AddTask_t(ThreadToRunID Thread,Delegate<T2>&& Func,const Vec
 template<typename T>
 struct AsynTask_t
 {
-	friend BookOfThreads;
+	friend Threads;
 	using ThisType = AsynTask_t<T>;
 	using OnDoneFuncPtr = Delegate<void,T>;
 	using Future = std::future<T>;
@@ -577,7 +577,7 @@ private:
 };
 using AsynTask = AsynTask_t<AsynNonVoidType>;
 
-class BookOfThreads :private libraryBook
+class Threads :private System
 {
 public:
 	
@@ -601,8 +601,8 @@ public:
 		TaskID taskID = NullTaskID;
 	};
 
-	static BookOfThreads* Get(Gamelibrary* lib);
-	static BookOfThreads* Find(const Gamelibrary* lib);
+	static Threads* Get(Gamelibrary* lib);
+	static Threads* Find(const Gamelibrary* lib);
 	
 	ThreadToRunID GetNewThreadLockKey();
 	void FreeThreadLock(ThreadToRunID key);
@@ -699,9 +699,9 @@ public:
 		return AddTask_t<AsynNonVoidType, Pars...>(TaskType,std::move(Func), TaskDependencies, MoveParPack(Pars,pars));
 	}
 
-	inline static BookOfThreads* Get_Threads()
+	inline static Threads* Get_Threads()
 	{
-		return Threads;
+		return _GlobalThreads;
 	}
 
 	
@@ -722,7 +722,7 @@ public:
 
 	static bool IsOnMainThread();
 	static void ThrowErrIfNotOnMainThread();
-	inline static BookOfThreads* Threads = nullptr;
+	inline static Threads* _GlobalThreads = nullptr;
 
 	static bool IsTasksDone(const Vector<TaskID>& Tasks);
 	static bool IsTasksDone(TaskID Task);
@@ -823,7 +823,7 @@ public:
 
 					_Map.erase(ID);
 
-					BookOfThreads::Threads->AddTask_t(
+					Threads::_GlobalThreads->AddTask_t(
 						V.ThreadToRun,
 						std::move(Func),
 						{}
@@ -866,7 +866,7 @@ public:
 						LockDoneUnLock();
 					};
 
-					BookOfThreads::Threads->AddTask_t(
+					Threads::Get_Threads()->AddTask_t(
 						V.ThreadToRun,
 						std::move(Func),
 						{}
@@ -893,7 +893,7 @@ public:
 			Get_Threads()->_TaskLock.lock();
 		}
 
-		if (BookOfThreads::_Map.count(ID))
+		if (Threads::_Map.count(ID))
 		{
 			TaskInfo* V = Get_Threads()->GetTaskInfo(ID);
 			R.DoneTasks = 0;
@@ -964,9 +964,9 @@ private:
 	void CallTaskToDoOnMainThread();
 	void Update() override;
 
-	BookOfThreads(Gamelibrary* lib);
-	~BookOfThreads();
-	static void ThreadLoop(BookOfThreads* _This, ThreadInfo* Info);
+	Threads(Gamelibrary* lib);
+	~Threads();
+	static void ThreadLoop(Threads* _This, ThreadInfo* Info);
 
 
 
@@ -1003,77 +1003,77 @@ private:
 template<typename T2>
 AsynTask_t<T2> Asyn_AddTask_t(ThreadToRunID Thread,Delegate<T2>&& Func,const Vector<TaskID>& Deps)
 {
-	return BookOfThreads::Threads->AddTask_t<T2>(Thread,std::move(Func),Deps);
+	return Threads::Get_Threads()->AddTask_t<T2>(Thread,std::move(Func),Deps);
 }
 
 inline void Asyn_RunOnOnMainThread(Delegate<void>&& Func)
 {
-	BookOfThreads::Threads->RunOnOnMainThread(std::move(Func));
+	Threads::Get_Threads()->RunOnOnMainThread(std::move(Func));
 }
 
 template<typename T>
 bool Asyn_TryCallOnDone(TaskID id, T&& Move)
 {
-	return BookOfThreads::TryCallOnDone<T>(id, std::move(Move));
+	return Threads::TryCallOnDone<T>(id, std::move(Move));
 }
 
 inline void Asyn_TryCallCancel(TaskID id)
 {
-	BookOfThreads::TryCallCancel(id);
+	Threads::TryCallCancel(id);
 }
 inline void Asyn_SetTaskData_Done(TaskID id,AnyDoneFuncPtr&& done,ThreadToRunID Thread)
 {
-	BookOfThreads::SetTaskData_Done(id,std::move(done),Thread);
+	Threads::SetTaskData_Done(id,std::move(done),Thread);
 }
 
 inline void SetTaskData_Cancel(TaskID id,Delegate<void>&& Value, ThreadToRunID Thread)
 {
-	BookOfThreads::SetTaskData_Cancel(id, std::move(Value), Thread);
+	Threads::SetTaskData_Cancel(id, std::move(Value), Thread);
 }
 
 template<typename T>
 void Asyn_SetFuture(TaskID id,std::future<T>&& val)
 {
-	BookOfThreads::_Map[id].SetFuture(std::move(val));
+	Threads::_Map[id].SetFuture(std::move(val));
 }
 
 template<typename T>
 std::future<T>& Asyn_GetFuture(TaskID id)
 {
-	return BookOfThreads::_Map[id].GetFuture<T>();
+	return Threads::_Map[id].GetFuture<T>();
 }
 inline bool Asyn_IsDoneLocked()
 {
-	return BookOfThreads::IsDoneLocked();
+	return Threads::IsDoneLocked();
 }
 inline bool Asyn_HasOnDone(TaskID id)
 {
-	return BookOfThreads::HasOnDone(id);
+	return Threads::HasOnDone(id);
 }
 inline size_t Asyn_Map_Count(TaskID id)
 {
-	return BookOfThreads::_Map.count(id);
+	return Threads::_Map.count(id);
 }
 
 inline void Asyn_Map_Erase(TaskID id)
 {
-	BookOfThreads::_Map.erase(id);
+	Threads::_Map.erase(id);
 }
 inline void Asyn_LockDoneLock()
 {
-	BookOfThreads::LockDoneLock();
+	Threads::LockDoneLock();
 }
 inline void Asyn_LockDoneUnlock()
 {
-	BookOfThreads::LockDoneUnLock();
+	Threads::LockDoneUnLock();
 }
 inline TaskProgress Asyn_GetProgress(TaskID id)
 {
-	return BookOfThreads::GetProgress(id);
+	return Threads::GetProgress(id);
 }
 inline void Asyn_SetTaskData_Cancel(TaskID id,Delegate<void>&& Value, ThreadToRunID Thread)
 {
-	BookOfThreads::SetTaskData_Cancel(id, std::move(Value), Thread);
+	Threads::SetTaskData_Cancel(id, std::move(Value), Thread);
 }
 CoreEnd
 

@@ -11,7 +11,7 @@
 #include "UCodeRunTime/ULibrarys/Serialization/USerializer.hpp"
 #include "UCodeRunTime/ULibrarys/Serialization/FileBuffer.hpp"
 #include <fstream>
-#include "BookOfThreads.hpp"
+#include "Threads.hpp"
 CoreStart
 
 struct GameFileIndex
@@ -106,7 +106,7 @@ public:
 private:
 };
 
-class GameFiles :private libraryBook
+class GameFiles :private System
 {
 public:
 	typedef unsigned char Byte;

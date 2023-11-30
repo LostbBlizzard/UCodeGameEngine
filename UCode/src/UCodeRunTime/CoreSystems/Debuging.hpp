@@ -124,15 +124,15 @@ private:
 };
 
 
-class BookOfDebuging :private libraryBook
+class Debuging :private System
 {
 public:
 	DebugingSever debugsever;
 	
-	static BookOfDebuging* Get(Gamelibrary* lib);
-	static BookOfDebuging* Find(const Gamelibrary* lib);
+	static Debuging* Get(Gamelibrary* lib);
+	static Debuging* Find(const Gamelibrary* lib);
 private:
-	BookOfDebuging(Gamelibrary* lib);
+	Debuging(Gamelibrary* lib);
 };
 
 CoreEnd

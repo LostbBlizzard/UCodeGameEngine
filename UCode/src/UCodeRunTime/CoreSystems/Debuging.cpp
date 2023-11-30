@@ -1,4 +1,4 @@
-#include "BookOfDebuging.hpp"
+#include "Debuging.hpp"
 
 #include <UCodeRunTime/StaticComponentsIndex.hpp>
 CoreStart
@@ -239,25 +239,24 @@ void DebugingSever::FromClient(DebugingClient* client, DebugingClientPacket&& Pa
 
 
 constexpr StaticBooksIndex_t KeyIdex = (StaticBooksIndex_t)StaticBooksIndex::BookOfDebuging;
-BookOfDebuging* BookOfDebuging::Get(Gamelibrary* lib)
+Debuging* Debuging::Get(Gamelibrary* lib)
 {
 	auto V = lib->Get_StaticComponent(KeyIdex);
-	if (V) { return (BookOfDebuging*)V; }
+	if (V) { return (Debuging*)V; }
 
-	BookOfDebuging* r = new BookOfDebuging(lib);;
+	Debuging* r = new Debuging(lib);;
 
-	lib->MoveBook(r);
+	lib->MoveSystem(r);
 	lib->SetStaticComponent(KeyIdex, r);
 	return r;
 }
-
-BookOfDebuging* BookOfDebuging::Find(const Gamelibrary* lib)
+Debuging* Debuging::Find(const Gamelibrary* lib)
 {
 	auto V = lib->Get_StaticComponent(KeyIdex);
-	return (BookOfDebuging*)V;
+	return (Debuging*)V;
 }
-BookOfDebuging::BookOfDebuging(Gamelibrary* lib) :libraryBook(lib)
+Debuging::Debuging(Gamelibrary* lib) :System(lib)
 {
-
+	
 }
 CoreEnd

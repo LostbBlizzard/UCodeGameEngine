@@ -78,9 +78,9 @@ private:
 UCodeLangExportSymbol("UCodeGameEngine") struct Debug
 {
 	///Makes a Log to the Console
-	UCodeLangExport inline static void Log(const String& Msg) { return LogEx(StringView(Msg), LogType::Log); }
+	UCodeLangExport inline static void Log(const String& Msg) { return LogEx(StringView(Msg), LogType::Info); }
 	//Makes a Log to the Console
-	UCodeLangExport inline static void Log(const StringView Msg) { return LogEx(Msg, LogType::Log); }
+	UCodeLangExport inline static void Log(const StringView Msg) { return LogEx(Msg, LogType::Info); }
 
 
 	///Makes a Warning to the Console
@@ -99,7 +99,10 @@ UCodeLangExportSymbol("UCodeGameEngine") struct Debug
 	UCodeLangExport inline static void LogFatalError(const StringView Msg) { return LogEx(Msg, LogType::Fatal); }
 
 	//Makes a Log to the Console
-	static void LogEx(const StringView Msg, LogType logType);
+	static void LogEx(const StringView Msg, LogType logType)
+	{
+		return Loger::Log(Msg, logType);
+	}
 };
 
 
