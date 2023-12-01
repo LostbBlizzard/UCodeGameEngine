@@ -123,7 +123,7 @@ template<> struct BitData<GameFileIndex>
 
 void GameFilesData::Serialize(const GameFilesData& data, USerializer& Out)
 {
-	const char* FileSignature = UCodeGameEngineFileSignature;//T=char [30]
+	const char* FileSignature = UCodeGameEngineFileSignature;
 	Out.Write("Signature", (String)FileSignature);
 
 	Out.Write("version", UCodeGameEngineVersionNumber);
@@ -162,6 +162,134 @@ bool GameFilesData::Deserializ(UDeserializer& In, GameFilesData& Out)
 
 
 	return false;
+}
+std::ofstream GameFilesData::StartWritingBytes(const GameFilesData& data, const Path& path, size_t BufferSize)
+{
+	const char* FileSignature = UCodeGameEngineFileSignature;
+	USerializer Out = USerializer(USerializerType::Bytes);
+
+	Out.Write("Signature", (String)FileSignature);
+
+	Out.Write("version", UCodeGameEngineVersionNumber);
+	Out.Write("Company", data.CompanyName);
+	Out.Write("GameName", data.APPName);
+
+	Out.Write("AssetDataType", (Type_t)data._Type);
+	Out.Write("SceneToLoadOnPlay", data.SceneToLoadOnPlay);
+
+	Out.Write("AssetsOffsets", data.Offsets);
+
+	Out.Get_BitMaker().WriteType((BitMaker::SizeAsBits)BufferSize);
+
+	std::ofstream myfile(path, std::ios::out | std::ios::binary);
+	if (myfile.is_open())
+	{
+		auto& Bytes = Out.Get_BitMaker().Get_Bytes();
+		myfile.write((char*)Bytes.data(), Bytes.size());
+	}
+	return myfile;
+}
+
+const char* metafile = "Index.LB.data";
+
+size_t GetPageSize()
+{
+	return 4096;
+}
+
+bool GameFilesData::PackDir(const Path& dirpath, const Path& outfile)
+{
+	using recursive_directory_iterator = std::filesystem::recursive_directory_iterator;
+	struct FileInfo
+	{
+		Path path;
+		size_t Size;
+	};
+	Vector<FileInfo> files;
+	for (const auto& dirEntry : recursive_directory_iterator(dirpath))
+	{
+		if (dirEntry.is_regular_file()) 
+		{
+			files.push_back({ dirEntry.path(),dirEntry.file_size() });
+		}
+	}
+
+	GameFilesData f;
+	size_t offset = 0;
+	for (auto& Item : files)
+	{
+		GameFileIndex f;
+		f.FileFullName = Path(Item.path.native().substr(dirpath.native().size()));
+		f.FileOffset = offset;
+		f.FileSize - Item.Size;
+
+		offset += Item.Size;
+	}
+	auto ofile = StartWritingBytes(f, outfile, offset);
+	//TODO pre allocate space for ofile
+
+	const size_t BufferSize = GetPageSize();
+	Vector<Byte> Buffer;
+	Buffer.resize(BufferSize);
+	
+	for (auto& Item : files)
+	{
+		std::ifstream file(Item.path);
+		size_t fileleft = Item.Size;
+		
+		while (fileleft != 0)
+		{
+			size_t MaxToRead = std::min(BufferSize, fileleft);
+
+			file.read((char*)Buffer.data(), MaxToRead);
+			ofile.write((char*)Buffer.data(), MaxToRead);
+			
+			fileleft -= MaxToRead;
+		}
+		file.close();
+	}
+	ofile.close();
+
+	return true;
+}
+bool GameFilesData::UnPackToDir(const Path& datafile, const Path& dirpath)
+{
+	FileBuffer buf;
+	GameFilesData tep;
+	if (ReadFileKeepOpen(datafile, buf, tep))
+	{
+		const size_t BufferSize = GetPageSize();
+		Vector<Byte> Buffer;
+		Buffer.resize(BufferSize);
+
+		for (auto& Item : tep.Offsets)
+		{
+			buf.Set_FileReadIndex(Item.FileOffset);
+
+			Path outpath = dirpath / Path(Item.FileFullName);
+			std::ofstream ofile(outpath, std::ios::out | std::ios::binary);
+			//TODO pre allocate space for ofile
+
+			size_t fileleft = Item.FileSize;
+		
+			while (fileleft != 0)
+			{
+				size_t MaxToRead = std::min(BufferSize, fileleft);
+
+				buf.ReadBytes(Buffer.data(), MaxToRead);
+				ofile.write((char*)Buffer.data(), MaxToRead);
+
+				fileleft -= MaxToRead;
+			}
+		
+			ofile.close();
+		}
+
+	}
+	else
+	{
+		return false;
+	}
 }
 
 constexpr StaticBooksIndex_t KeyIdex = (StaticBooksIndex_t)StaticBooksIndex::GameFiles;

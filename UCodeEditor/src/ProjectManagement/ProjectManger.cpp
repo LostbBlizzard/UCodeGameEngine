@@ -16,7 +16,7 @@ Path ProjectManger::GetProjectInitObjsDir(const Path&  ProjectDir)
 
 Path ProjectManger::GetProjectCachedDir(const Path&  ProjectDir)
 {
-	return  ProjectDir.native() + Path("Cacheddata").native() + Path::preferred_separator;
+	return  ProjectDir.native() + Path("Cache").native() + Path::preferred_separator;
 }
 
 Path ProjectManger::GetProjectAssetsDir(const Path&  ProjectDir)
@@ -81,6 +81,16 @@ bool ProjectManger::MakeNewProject(const Path& Dir, const String& ProjectName)
 
 
 			fs::create_directory(AssetsDir / "EditorTools");
+		}
+
+		{
+			String gitnore;
+
+			gitnore += "Cache \n";
+			gitnore += "Prefs \n";
+			std::ofstream out(Path(ProjectDir_s.native() + Path(".gitignore").native()));
+			out << gitnore;
+			out.close();
 		}
 	}
 	return true;

@@ -333,6 +333,9 @@ project "UCodeEditor"
 
    linkUCode(true)
    
+
+   UEditorPathExe = "%{wks.location}Output/UCodeEditor/" .. OutDirPath .. "/UCodeEditor"
+
    
 
    buildmessage "Copying UFilesAPI"
@@ -359,10 +362,10 @@ project "UCodeEditor"
     kind ("WindowedApp")
 
    filter { "configurations:Published" }
-      buildmessage "Copying UFilesDir"
+      buildmessage "Packing UFilesDir"
       postbuildcommands 
       {
-      "{COPYDIR} %{prj.location}/UFiles %{prj.location}%{cfg.targetdir}/UFiles"
+       UEditorPathExe.." pack %{prj.location}/UFiles %{prj.location}%{cfg.targetdir}/UFiles.data"
       }--Make into GameFile.data file.
 
    filter { "configurations:Release" }
