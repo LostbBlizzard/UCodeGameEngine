@@ -168,6 +168,8 @@ std::ofstream GameFilesData::StartWritingBytes(const GameFilesData& data, const 
 	const char* FileSignature = UCodeGameEngineFileSignature;
 	USerializer Out = USerializer(USerializerType::Bytes);
 
+	Out.Get_BitMaker().WriteType((USerializerType_t)USerializerType::Bytes);
+
 	Out.Write("Signature", (String)FileSignature);
 
 	Out.Write("version", UCodeGameEngineVersionNumber);
