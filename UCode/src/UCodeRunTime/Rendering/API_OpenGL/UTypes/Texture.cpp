@@ -112,8 +112,8 @@ Unique_ptr<Texture> Texture::MakeNewNullTexture()
 	const Color32 NullTexureColorData[]
 	{
 		Color32(0,0,0,0),
-	};
-	Texture* tex = std::make_unique<Texture>(1, 1, NullTexureColorData);
+	}; 
+	auto tex = std::make_unique<Texture>(1, 1,NullTexureColorData);
 	#endif // DEBUG
 
 	free(tex->_Buffer.release());

@@ -89,6 +89,9 @@ public:
 	static void Serialize(const GameFilesData& data, USerializer& Out);
 	static bool Deserializ(UDeserializer& In, GameFilesData& Out);
 
+
+	static std::ofstream StartWritingBytes(const GameFilesData& data,const Path& path,size_t BufferSize);
+
 	void SetRedirectDir(const Path& path)
 	{
 		_Type = Type::Redirect;
@@ -103,6 +106,9 @@ public:
 	{
 		return ".UCode";
 	}
+
+	static bool PackDir(const Path& dirpath, const Path& outfile);
+	static bool UnPackToDir(const Path& datafile,const Path& dirpath);
 private:
 };
 
