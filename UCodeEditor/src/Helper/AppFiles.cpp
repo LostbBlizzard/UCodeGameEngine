@@ -80,7 +80,7 @@ const SpriteInfo SpriteInfos[]
 constexpr size_t TexturePaths_Size = sizeof(TexturePaths) / sizeof(TexturePaths[0]);
 constexpr size_t SpriteInfos_Size = sizeof(SpriteInfos) / sizeof(SpriteInfos[0]);
 
-#ifdef PUBLISHED
+#if PUBLISHED || RELASE
 const char* AppFilesPath = "UFiles.data";
 const char* AppFilesPathDir = "UFiles//";
 #else

@@ -288,6 +288,13 @@ project "UCodeApp"
       postbuildcommands {
         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}UCodeEditor/UFiles/bin/UCAppLinuxDebug86X32"
       }
+   
+   filter { "configurations:Published","system:Windows"}
+    kind ("WindowedApp")
+   
+   filter { "configurations:Release","system:Windows"}
+    kind ("WindowedApp")
+
 
 
 project "UCodeEditor"
@@ -365,14 +372,15 @@ project "UCodeEditor"
       buildmessage "Packing UFilesDir"
       postbuildcommands 
       {
-       UEditorPathExe.." pack %{prj.location}/UFiles %{prj.location}%{cfg.targetdir}/UFiles.data"
-      }--Make into GameFile.data file.
+       UEditorPathExe.." pack %{prj.location}UFiles %{cfg.targetdir}/UFiles.data"
+      }
 
    filter { "configurations:Release" }
       buildmessage "Copying UFilesDir"
       postbuildcommands 
       {
-      "{COPYDIR} %{prj.location}/UFiles %{prj.location}%{cfg.targetdir}/UFiles"
+       --"{COPYDIR} %{prj.location}/UFiles %{prj.location}%{cfg.targetdir}/UFiles"
+       UEditorPathExe.." pack %{prj.location}UFiles %{cfg.targetdir}/UFiles.data"
       }
 
 project "UCodeGameEngineDoc"
