@@ -2,20 +2,20 @@
 
 EditorStart
 
-bool  StringHelper::StartsWith(StringView Val,StringView Match)
+bool  StringHelper::StartsWith(StringView Val, StringView Match)
 {
-		if (Val.size() >= Match.size())
+	if (Val.size() < Match.size())
+	{
+		return false;
+	}
+	for (size_t i = 0; i < Match.size(); i++)
+	{
+		if (Match[i] != Val[i])
 		{
 			return false;
 		}
-		for (size_t i = 0; i < Match.size(); i++)
-		{
-			if (Match[i] != Val[i])
-			{
-				return false;
-			}
-		}
-		return true;	
+	}
+	return true;
 }
 bool StringHelper::Fllter(const String& filter, const String& ToCheck)
 {

@@ -90,46 +90,56 @@ String_view GetPath(String_view& Line)
 int App::main(int argc, char* argv[])
 {
 	int a = 0;
-
 	#ifndef UCodeGameEngineDEBUG
 	try
-	#endif // DEBUG
+#endif // DEBUG
 
 	{
-		for (size_t i = 0; i < argc; i++)
+		
+		//while (true);
+		UCode::String StrV;
+		for (size_t i = 1; i < argc; i++)
 		{
-			UCode::StringView Str = argv[i];
-
-			#if UCodeGameEngineDEBUG
-			if (Str == "--RunTests")
+			char v;
+			std::cin >> v;
+			StrV += String_view(argv[i]);
+			if (i + 1 < argc)
 			{
-				return UCodeEditor::Tests::RunTests();
-			}
-			#endif // DEBUG
-			if (StringHelper::StartsWith(Str,"pack"))
-			{
-				Str.substr(sizeof("pack"));
-				Path pin = GetPath(Str);
-				Path pout = GetPath(Str);
-
-				return UCode::GameFilesData::PackDir(pin, pout);
-			}
-			else if (StringHelper::StartsWith(Str, "unpack"))
-			{
-				Str.substr(sizeof("unpack"));
-				Path pin = GetPath(Str);
-				Path pout = GetPath(Str);
-
-				return UCode::GameFilesData::UnPackToDir(pin, pout);
+				StrV += ' ';
 			}
 		}
+		UCode::StringView Str = StrV;
+
+		#if UCodeGameEngineDEBUG
+		if (Str == "--RunTests")
+		{
+			return UCodeEditor::Tests::RunTests();
+		}
+		#endif // DEBUG
+		if (StringHelper::StartsWith(Str, "pack"))
+		{
+			Str = Str.substr(sizeof("pack"));
+			Path pin = GetPath(Str);
+			Path pout = GetPath(Str);
+
+			return UCode::GameFilesData::PackDir(pin, pout) == true ? EXIT_SUCCESS : EXIT_FAILURE;
+		}
+		else if (StringHelper::StartsWith(Str, "unpack"))
+		{
+			Str = Str.substr(sizeof("unpack"));
+			Path pin = GetPath(Str);
+			Path pout = GetPath(Str);
+
+			return UCode::GameFilesData::UnPackToDir(pin, pout) == true ? EXIT_SUCCESS : EXIT_FAILURE;
+		}
+
 
 
 		UCode::String ProPath = "";
 		if (argc > 1) { ProPath = argv[1]; }
 
-		UCodeEditor::EditorApp app = UCodeEditor::EditorApp();
-		app.Run(ProPath);
+		//UCodeEditor::EditorApp app = UCodeEditor::EditorApp();
+		//app.Run(ProPath);
 		return EXIT_SUCCESS;
 	}
 
