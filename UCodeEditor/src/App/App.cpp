@@ -138,8 +138,8 @@ int App::main(int argc, char* argv[])
 		UCode::String ProPath = "";
 		if (argc > 1) { ProPath = argv[1]; }
 
-		//UCodeEditor::EditorApp app = UCodeEditor::EditorApp();
-		//app.Run(ProPath);
+		UCodeEditor::EditorApp app = UCodeEditor::EditorApp();
+		app.Run(ProPath);
 		return EXIT_SUCCESS;
 	}
 
