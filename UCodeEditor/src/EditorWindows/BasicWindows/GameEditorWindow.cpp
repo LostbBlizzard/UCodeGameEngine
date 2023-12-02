@@ -211,7 +211,7 @@ void GameEditorWindow::SceneCameraGetInputs()
 
     //
 
-    auto& Pos = _SceneCamera->NativeEntity()->LocalPosition();
+    auto& Pos = _SceneCamera->NativeEntity()->localposition();
     Pos = CamPos;
 
 
@@ -252,9 +252,9 @@ void GameEditorWindow::SceneEditorTab()
         {
             auto Entity = SelectedObject.Get_Value();
 
-            auto pos = Entity->WorldPosition();
-            auto rot = Entity->WorldRotation();
-            auto scl = Entity->WorldScale();
+            auto pos = Entity->worldposition();
+            auto rot = Entity->worldrotation();
+            auto scl = Entity->worldscale();
 
 
             UCode::Mat4 matrix;
@@ -308,9 +308,9 @@ void GameEditorWindow::SceneEditorTab()
             if (updated)
             {
                 ImGuizmo::DecomposeMatrixToComponents(matrixfptr, &pos.X, &rot.X, &scl.X);
-                Entity->LocalPosition() = pos;
-                Entity->LocalRotation() = rot;
-                Entity->LocalScale() = scl;
+                Entity->localposition() = pos;
+                Entity->localrotation() = rot;
+                Entity->localscale() = scl;
             }
         }
     }
@@ -538,7 +538,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
         {
             UCode::Entity* e = Item->NewEntity();
             e->NativeName() = UnNamedEntity;
-            e->WorldPosition(_SceneCameraData._Pos);
+            e->worldposition(_SceneCameraData._Pos);
         }
         if (ImGui::MenuItem("Paste-Entity","Ctrl+V",nullptr, _HasCopy))
         {
@@ -960,7 +960,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
 
         if (ImGui::MenuItem("Set Scenc Cam To "))
         {
-            _SceneCameraData._Pos = Item->WorldPosition();
+            _SceneCameraData._Pos = Item->worldposition();
         }
 
 

@@ -28,12 +28,12 @@ Rigidbody2d::~Rigidbody2d()
 void Rigidbody2d::FixedUpdate()
 {
 
-	if (LastPhysicPos != NativeEntity()->WorldPosition2D())
+	if (LastPhysicPos != NativeEntity()->worldposition2d())
 	{
-		_body->SetTransform(To(NativeEntity()->WorldPosition2D()), _body->GetAngle());
+		_body->SetTransform(To(NativeEntity()->worldposition2d()), _body->GetAngle());
 	}
 
-	NativeEntity()->WorldPosition(To(_body->GetPosition()));
+	NativeEntity()->worldposition(To(_body->GetPosition()));
 	LastPhysicPos = To(_body->GetPosition());
 }
 PhysicsEnd
