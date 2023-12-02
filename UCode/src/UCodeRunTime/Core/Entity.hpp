@@ -305,7 +305,7 @@ public:
 	{
 		return  *(Vec2*)&_LocalRotation;
 	}
-	UCodeLangExport const Vec2& localrotation2d() const
+	UCodeLangExport const Vec2& ilocalrotation2d() const
 	{
 		return  *(Vec2*)&_LocalRotation;
 	}
@@ -323,30 +323,30 @@ public:
 	{
 		return  *(Vec2*)&_LocalScale;
 	}
-	UCodeLangExport const Vec2& localscale2d() const
+	UCodeLangExport const Vec2& ilocalscale2d() const
 	{
 		return  *(Vec2*)&_LocalScale;
 	}
 
 
 
-	Vec3 worldposition() const;
-	Vec2 worldposition2d() const;
+	UCodeLangExport Vec3 worldposition() const;
+	UCodeLangExport Vec2 worldposition2d() const;
 
-	Vec3 worldrotation() const;
-	Vec2 worldrotation2d() const;
+	UCodeLangExport Vec3 worldrotation() const;
+	UCodeLangExport Vec2 worldrotation2d() const;
 
-	Vec3 worldscale() const;
-	Vec2 worldscale2d() const;
+	UCodeLangExport Vec3 worldscale() const;
+	UCodeLangExport Vec2 worldscale2d() const;
 
-	void worldposition(const Vec3& Value);
-	void worldposition(const Vec2& Value);
+	UCodeLangExport void worldposition(const Vec3& Value);
+	UCodeLangExport void worldposition(const Vec2& Value);
 
-	void worldrotation(const Vec3& Value);
-	void worldrotation(const Vec2& Value);
+	UCodeLangExport void worldrotation(const Vec3& Value);
+	UCodeLangExport void worldrotation(const Vec2& Value);
 	
-	void worldscale(const Vec3& Value);
-	void worldscale(const Vec2& Value);
+	UCodeLangExport void worldscale(const Vec3& Value);
+	UCodeLangExport void worldscale(const Vec2& Value);
 
 	UCodeGameEngineForceinlne const auto NativeParent() const
 	{
