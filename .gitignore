@@ -13,3 +13,4 @@ Makefile
 /UCodeApp/GameFiles.data
 /UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe
 /UCodeEditor/UFiles.data
+/UCodeAPI/GameEngine/src/API.uc
