@@ -42,11 +42,23 @@ void UCodeAPI::MakeNewLib()
 		using Entity__localrotation_ptr = Vec3*(*UCodeLangAPI)(UCode::Entity*); 
 		using Entity__ilocalrotation_ptr = const Vec3*(*UCodeLangAPI)(UCode::Entity*); 
 		using Entity__localrotation2d_ptr = Vec2*(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__localrotation2d0_ptr = const Vec2*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__ilocalrotation2d_ptr = const Vec2*(*UCodeLangAPI)(UCode::Entity*); 
 		using Entity__localscale_ptr = Vec3*(*UCodeLangAPI)(UCode::Entity*); 
 		using Entity__ilocalscale_ptr = const Vec3*(*UCodeLangAPI)(UCode::Entity*); 
 		using Entity__localscale2d_ptr = Vec2*(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__localscale2d0_ptr = const Vec2*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__ilocalscale2d_ptr = const Vec2*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__worldposition_ptr = Vec3(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__worldposition2d_ptr = Vec2(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__worldrotation_ptr = Vec3(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__worldrotation2d_ptr = Vec2(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__worldscale_ptr = Vec3(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__worldscale2d_ptr = Vec2(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__worldposition0_ptr = void(*UCodeLangAPI)(UCode::Entity*,const Vec3&); 
+		using Entity__worldposition1_ptr = void(*UCodeLangAPI)(UCode::Entity*,const Vec2&); 
+		using Entity__worldrotation0_ptr = void(*UCodeLangAPI)(UCode::Entity*,const Vec3&); 
+		using Entity__worldrotation1_ptr = void(*UCodeLangAPI)(UCode::Entity*,const Vec2&); 
+		using Entity__worldscale0_ptr = void(*UCodeLangAPI)(UCode::Entity*,const Vec3&); 
+		using Entity__worldscale1_ptr = void(*UCodeLangAPI)(UCode::Entity*,const Vec2&); 
 		using Input__IsKeyDown_ptr = bool(*UCodeLangAPI)(InputKey); 
 		using Input__GetMousePosition_ptr = Vec2(*UCodeLangAPI)(); 
 		using Debug__Log_ptr = void(*UCodeLangAPI)(const String&); 
@@ -261,18 +273,18 @@ void UCodeAPI::MakeNewLib()
 			{
 				return &thisPar->localrotation2d();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__localrotation2d0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:ilocalrotation2d",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				const Vec2* Ret =&thisPar->localrotation2d();
+				const Vec2* Ret =&thisPar->ilocalrotation2d();
 				
 				Input.Set_Return<const Vec2*>(Ret);
 			
-			},(Entity__localrotation2d0_ptr)[](UCode::Entity* thisPar) ->const Vec2*
+			},(Entity__ilocalrotation2d_ptr)[](UCode::Entity* thisPar) ->const Vec2*
 			{
-				return &thisPar->localrotation2d();
+				return &thisPar->ilocalrotation2d();
 			}); 
 		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:localscale",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
@@ -313,18 +325,186 @@ void UCodeAPI::MakeNewLib()
 			{
 				return &thisPar->localscale2d();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__localscale2d0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:ilocalscale2d",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				const Vec2* Ret =&thisPar->localscale2d();
+				const Vec2* Ret =&thisPar->ilocalscale2d();
 				
 				Input.Set_Return<const Vec2*>(Ret);
 			
-			},(Entity__localscale2d0_ptr)[](UCode::Entity* thisPar) ->const Vec2*
+			},(Entity__ilocalscale2d_ptr)[](UCode::Entity* thisPar) ->const Vec2*
 			{
-				return &thisPar->localscale2d();
+				return &thisPar->ilocalscale2d();
+			}); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:worldposition",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
+				
+				Vec3 Ret =thisPar->worldposition();
+				
+				Input.Set_Return<Vec3>(Ret);
+			
+			},(Entity__worldposition_ptr)[](UCode::Entity* thisPar) ->Vec3
+			{
+				return thisPar->worldposition();
+			}); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:worldposition2d",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
+				
+				Vec2 Ret =thisPar->worldposition2d();
+				
+				Input.Set_Return<Vec2>(Ret);
+			
+			},(Entity__worldposition2d_ptr)[](UCode::Entity* thisPar) ->Vec2
+			{
+				return thisPar->worldposition2d();
+			}); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:worldrotation",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
+				
+				Vec3 Ret =thisPar->worldrotation();
+				
+				Input.Set_Return<Vec3>(Ret);
+			
+			},(Entity__worldrotation_ptr)[](UCode::Entity* thisPar) ->Vec3
+			{
+				return thisPar->worldrotation();
+			}); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:worldrotation2d",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
+				
+				Vec2 Ret =thisPar->worldrotation2d();
+				
+				Input.Set_Return<Vec2>(Ret);
+			
+			},(Entity__worldrotation2d_ptr)[](UCode::Entity* thisPar) ->Vec2
+			{
+				return thisPar->worldrotation2d();
+			}); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:worldscale",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
+				
+				Vec3 Ret =thisPar->worldscale();
+				
+				Input.Set_Return<Vec3>(Ret);
+			
+			},(Entity__worldscale_ptr)[](UCode::Entity* thisPar) ->Vec3
+			{
+				return thisPar->worldscale();
+			}); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:worldscale2d",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
+				
+				Vec2 Ret =thisPar->worldscale2d();
+				
+				Input.Set_Return<Vec2>(Ret);
+			
+			},(Entity__worldscale2d_ptr)[](UCode::Entity* thisPar) ->Vec2
+			{
+				return thisPar->worldscale2d();
+			}); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__worldposition0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
+				
+				const Vec3* Par0 = Input.GetParameter<const Vec3*>();
+				
+				thisPar->worldposition(*Par0);
+				
+				Input.Set_Return();
+			
+			},(Entity__worldposition0_ptr)[](UCode::Entity* thisPar,const Vec3& Par0) ->void
+			{
+				thisPar->worldposition(Par0);
+			}); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__worldposition1",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
+				
+				const Vec2* Par0 = Input.GetParameter<const Vec2*>();
+				
+				thisPar->worldposition(*Par0);
+				
+				Input.Set_Return();
+			
+			},(Entity__worldposition1_ptr)[](UCode::Entity* thisPar,const Vec2& Par0) ->void
+			{
+				thisPar->worldposition(Par0);
+			}); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__worldrotation0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
+				
+				const Vec3* Par0 = Input.GetParameter<const Vec3*>();
+				
+				thisPar->worldrotation(*Par0);
+				
+				Input.Set_Return();
+			
+			},(Entity__worldrotation0_ptr)[](UCode::Entity* thisPar,const Vec3& Par0) ->void
+			{
+				thisPar->worldrotation(Par0);
+			}); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__worldrotation1",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
+				
+				const Vec2* Par0 = Input.GetParameter<const Vec2*>();
+				
+				thisPar->worldrotation(*Par0);
+				
+				Input.Set_Return();
+			
+			},(Entity__worldrotation1_ptr)[](UCode::Entity* thisPar,const Vec2& Par0) ->void
+			{
+				thisPar->worldrotation(Par0);
+			}); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__worldscale0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
+				
+				const Vec3* Par0 = Input.GetParameter<const Vec3*>();
+				
+				thisPar->worldscale(*Par0);
+				
+				Input.Set_Return();
+			
+			},(Entity__worldscale0_ptr)[](UCode::Entity* thisPar,const Vec3& Par0) ->void
+			{
+				thisPar->worldscale(Par0);
+			}); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__worldscale1",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
+				
+				const Vec2* Par0 = Input.GetParameter<const Vec2*>();
+				
+				thisPar->worldscale(*Par0);
+				
+				Input.Set_Return();
+			
+			},(Entity__worldscale1_ptr)[](UCode::Entity* thisPar,const Vec2& Par0) ->void
+			{
+				thisPar->worldscale(Par0);
 			}); 
 		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Input:IsKeyDown",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{

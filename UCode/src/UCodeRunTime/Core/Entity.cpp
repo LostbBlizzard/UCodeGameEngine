@@ -156,7 +156,7 @@ Vec2 Entity::worldrotation2d() const
 	const Entity* Ptr = this;
 	while (Ptr)
 	{
-		R += Ptr->localrotation2d();
+		R += Ptr->ilocalrotation2d();
 		Ptr = Ptr->NativeParent();
 	}
 	return  R;
@@ -180,7 +180,7 @@ Vec2 Entity::worldscale2d() const
 	const Entity* Ptr = this;
 	while (Ptr)
 	{
-		R += Ptr->localscale2d();
+		R += Ptr->ilocalscale2d();
 		Ptr = Ptr->NativeParent();
 	}
 	return  R;
