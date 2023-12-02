@@ -58,9 +58,9 @@ void TileMapRenderer::OnDraw()
 Bounds2d TileMapRenderer::Get_Bounds() const
 {
 	Bounds2d r;
-	r.center = NativeEntity()->WorldPosition2D();
+	r.center = NativeEntity()->worldposition2d();
 
-	const Vec2 tilemapsize = NativeEntity()->WorldScale2D();
+	const Vec2 tilemapsize = NativeEntity()->worldscale2d();
 	r.extents =
 	{
 		tilemapsize.X * (f32)Get_TileMapSizeX() ,

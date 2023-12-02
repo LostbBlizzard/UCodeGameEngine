@@ -26,25 +26,27 @@ void UCodeAPI::MakeNewLib()
 	UCodeLangAutoLink(_UCodeAPILib, UCode)
 
 	{//Made by UCodeAutoLink 
+		using ComponentAPI__entity_ptr = Entity*(*UCodeLangAPI)(uintptr_t); 
+		using ComponentAPI__ientity_ptr = const Entity*(*UCodeLangAPI)(uintptr_t); 
 		using Entity__Enable_ptr = void(*UCodeLangAPI)(UCode::Entity*); 
 		using Entity__Disable_ptr = void(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__Active_ptr = bool*(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__Active0_ptr = const bool*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__active_ptr = bool*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__active0_ptr = const bool*(*UCodeLangAPI)(UCode::Entity*); 
 		using Entity__Destroy_ptr = void(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__Name_ptr = const StringView(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__Name0_ptr = void(*UCodeLangAPI)(UCode::Entity*,StringView); 
-		using Entity__LocalPosition_ptr = Vec3*(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__LocalPosition0_ptr = const Vec3*(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__LocalPosition2D_ptr = Vec2*(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__LocalPosition2D0_ptr = const Vec2*(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__LocalRotation_ptr = Vec3*(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__LocalRotation0_ptr = const Vec3*(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__LocalRotation2D_ptr = Vec2*(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__LocalRotation2D0_ptr = Vec2*(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__LocalScale_ptr = Vec3*(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__LocalScale0_ptr = const Vec3*(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__LocalScale2D_ptr = Vec2*(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__LocalScale2D0_ptr = Vec2*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__name_ptr = const StringView(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__name0_ptr = void(*UCodeLangAPI)(UCode::Entity*,StringView); 
+		using Entity__localposition_ptr = Vec3*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__ilocalposition_ptr = const Vec3*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__localposition2d_ptr = Vec2*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__ilocalposition2d_ptr = const Vec2*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__localrotation_ptr = Vec3*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__ilocalrotation_ptr = const Vec3*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__localrotation2d_ptr = Vec2*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__localrotation2d0_ptr = const Vec2*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__localscale_ptr = Vec3*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__ilocalscale_ptr = const Vec3*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__localscale2d_ptr = Vec2*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__localscale2d0_ptr = const Vec2*(*UCodeLangAPI)(UCode::Entity*); 
 		using Input__IsKeyDown_ptr = bool(*UCodeLangAPI)(InputKey); 
 		using Input__GetMousePosition_ptr = Vec2(*UCodeLangAPI)(); 
 		using Debug__Log_ptr = void(*UCodeLangAPI)(const String&); 
@@ -55,6 +57,26 @@ void UCodeAPI::MakeNewLib()
 		using Debug__LogError0_ptr = void(*UCodeLangAPI)(const StringView); 
 		using Debug__LogFatalError_ptr = void(*UCodeLangAPI)(const String&); 
 		using Debug__LogFatalError0_ptr = void(*UCodeLangAPI)(const StringView); 
+		_UCodeAPILib.Add_CPPCall("ECS:ComponentAPI:entity",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				uintptr_t Par0 = Input.GetParameter<uintptr_t>();
+				
+				Entity* Ret =&UCode::ComponentAPI::entity(Par0);
+				
+				Input.Set_Return<Entity*>(Ret);
+			
+			},(ComponentAPI__entity_ptr)UCode::ComponentAPI::entity); 
+		_UCodeAPILib.Add_CPPCall("ECS:ComponentAPI:ientity",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				uintptr_t Par0 = Input.GetParameter<uintptr_t>();
+				
+				const Entity* Ret =&UCode::ComponentAPI::ientity(Par0);
+				
+				Input.Set_Return<const Entity*>(Ret);
+			
+			},(ComponentAPI__ientity_ptr)UCode::ComponentAPI::ientity); 
 		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:Enable",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
@@ -81,31 +103,31 @@ void UCodeAPI::MakeNewLib()
 			{
 				thisPar->Disable();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:Active",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:active",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				bool* Ret =&thisPar->Active();
+				bool* Ret =&thisPar->active();
 				
 				Input.Set_Return<bool*>(Ret);
 			
-			},(Entity__Active_ptr)[](UCode::Entity* thisPar) ->bool*
+			},(Entity__active_ptr)[](UCode::Entity* thisPar) ->bool*
 			{
-				return &thisPar->Active();
+				return &thisPar->active();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__Active0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__active0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				const bool* Ret =&thisPar->Active();
+				const bool* Ret =&thisPar->active();
 				
 				Input.Set_Return<const bool*>(Ret);
 			
-			},(Entity__Active0_ptr)[](UCode::Entity* thisPar) ->const bool*
+			},(Entity__active0_ptr)[](UCode::Entity* thisPar) ->const bool*
 			{
-				return &thisPar->Active();
+				return &thisPar->active();
 			}); 
 		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:Destroy",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
@@ -120,189 +142,189 @@ void UCodeAPI::MakeNewLib()
 			{
 				thisPar->Destroy();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:Name",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:name",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				const StringView Ret =thisPar->Name();
+				const StringView Ret =thisPar->name();
 				
 				Input.Set_Return<const StringView>(Ret);
 			
-			},(Entity__Name_ptr)[](UCode::Entity* thisPar) ->const StringView
+			},(Entity__name_ptr)[](UCode::Entity* thisPar) ->const StringView
 			{
-				return thisPar->Name();
+				return thisPar->name();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__Name0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__name0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
 				StringView Par0 = Input.GetParameter<StringView>();
 				
-				thisPar->Name(Par0);
+				thisPar->name(Par0);
 				
 				Input.Set_Return();
 			
-			},(Entity__Name0_ptr)[](UCode::Entity* thisPar,StringView Par0) ->void
+			},(Entity__name0_ptr)[](UCode::Entity* thisPar,StringView Par0) ->void
 			{
-				thisPar->Name(Par0);
+				thisPar->name(Par0);
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:LocalPosition",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:localposition",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				Vec3* Ret =&thisPar->LocalPosition();
+				Vec3* Ret =&thisPar->localposition();
 				
 				Input.Set_Return<Vec3*>(Ret);
 			
-			},(Entity__LocalPosition_ptr)[](UCode::Entity* thisPar) ->Vec3*
+			},(Entity__localposition_ptr)[](UCode::Entity* thisPar) ->Vec3*
 			{
-				return &thisPar->LocalPosition();
+				return &thisPar->localposition();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__LocalPosition0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:ilocalposition",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				const Vec3* Ret =&thisPar->LocalPosition();
+				const Vec3* Ret =&thisPar->ilocalposition();
 				
 				Input.Set_Return<const Vec3*>(Ret);
 			
-			},(Entity__LocalPosition0_ptr)[](UCode::Entity* thisPar) ->const Vec3*
+			},(Entity__ilocalposition_ptr)[](UCode::Entity* thisPar) ->const Vec3*
 			{
-				return &thisPar->LocalPosition();
+				return &thisPar->ilocalposition();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:LocalPosition2D",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:localposition2d",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				Vec2* Ret =&thisPar->LocalPosition2D();
+				Vec2* Ret =&thisPar->localposition2d();
 				
 				Input.Set_Return<Vec2*>(Ret);
 			
-			},(Entity__LocalPosition2D_ptr)[](UCode::Entity* thisPar) ->Vec2*
+			},(Entity__localposition2d_ptr)[](UCode::Entity* thisPar) ->Vec2*
 			{
-				return &thisPar->LocalPosition2D();
+				return &thisPar->localposition2d();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__LocalPosition2D0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:ilocalposition2d",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				const Vec2* Ret =&thisPar->LocalPosition2D();
+				const Vec2* Ret =&thisPar->ilocalposition2d();
 				
 				Input.Set_Return<const Vec2*>(Ret);
 			
-			},(Entity__LocalPosition2D0_ptr)[](UCode::Entity* thisPar) ->const Vec2*
+			},(Entity__ilocalposition2d_ptr)[](UCode::Entity* thisPar) ->const Vec2*
 			{
-				return &thisPar->LocalPosition2D();
+				return &thisPar->ilocalposition2d();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:LocalRotation",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:localrotation",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				Vec3* Ret =&thisPar->LocalRotation();
+				Vec3* Ret =&thisPar->localrotation();
 				
 				Input.Set_Return<Vec3*>(Ret);
 			
-			},(Entity__LocalRotation_ptr)[](UCode::Entity* thisPar) ->Vec3*
+			},(Entity__localrotation_ptr)[](UCode::Entity* thisPar) ->Vec3*
 			{
-				return &thisPar->LocalRotation();
+				return &thisPar->localrotation();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__LocalRotation0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:ilocalrotation",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				const Vec3* Ret =&thisPar->LocalRotation();
+				const Vec3* Ret =&thisPar->ilocalrotation();
 				
 				Input.Set_Return<const Vec3*>(Ret);
 			
-			},(Entity__LocalRotation0_ptr)[](UCode::Entity* thisPar) ->const Vec3*
+			},(Entity__ilocalrotation_ptr)[](UCode::Entity* thisPar) ->const Vec3*
 			{
-				return &thisPar->LocalRotation();
+				return &thisPar->ilocalrotation();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:LocalRotation2D",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:localrotation2d",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				Vec2* Ret =&thisPar->LocalRotation2D();
+				Vec2* Ret =&thisPar->localrotation2d();
 				
 				Input.Set_Return<Vec2*>(Ret);
 			
-			},(Entity__LocalRotation2D_ptr)[](UCode::Entity* thisPar) ->Vec2*
+			},(Entity__localrotation2d_ptr)[](UCode::Entity* thisPar) ->Vec2*
 			{
-				return &thisPar->LocalRotation2D();
+				return &thisPar->localrotation2d();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__LocalRotation2D0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__localrotation2d0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				Vec2* Ret =&thisPar->LocalRotation2D();
+				const Vec2* Ret =&thisPar->localrotation2d();
 				
-				Input.Set_Return<Vec2*>(Ret);
+				Input.Set_Return<const Vec2*>(Ret);
 			
-			},(Entity__LocalRotation2D0_ptr)[](UCode::Entity* thisPar) ->Vec2*
+			},(Entity__localrotation2d0_ptr)[](UCode::Entity* thisPar) ->const Vec2*
 			{
-				return &thisPar->LocalRotation2D();
+				return &thisPar->localrotation2d();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:LocalScale",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:localscale",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				Vec3* Ret =&thisPar->LocalScale();
+				Vec3* Ret =&thisPar->localscale();
 				
 				Input.Set_Return<Vec3*>(Ret);
 			
-			},(Entity__LocalScale_ptr)[](UCode::Entity* thisPar) ->Vec3*
+			},(Entity__localscale_ptr)[](UCode::Entity* thisPar) ->Vec3*
 			{
-				return &thisPar->LocalScale();
+				return &thisPar->localscale();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__LocalScale0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:ilocalscale",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				const Vec3* Ret =&thisPar->LocalScale();
+				const Vec3* Ret =&thisPar->ilocalscale();
 				
 				Input.Set_Return<const Vec3*>(Ret);
 			
-			},(Entity__LocalScale0_ptr)[](UCode::Entity* thisPar) ->const Vec3*
+			},(Entity__ilocalscale_ptr)[](UCode::Entity* thisPar) ->const Vec3*
 			{
-				return &thisPar->LocalScale();
+				return &thisPar->ilocalscale();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:LocalScale2D",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:localscale2d",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				Vec2* Ret =&thisPar->LocalScale2D();
+				Vec2* Ret =&thisPar->localscale2d();
 				
 				Input.Set_Return<Vec2*>(Ret);
 			
-			},(Entity__LocalScale2D_ptr)[](UCode::Entity* thisPar) ->Vec2*
+			},(Entity__localscale2d_ptr)[](UCode::Entity* thisPar) ->Vec2*
 			{
-				return &thisPar->LocalScale2D();
+				return &thisPar->localscale2d();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__LocalScale2D0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__localscale2d0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				Vec2* Ret =&thisPar->LocalScale2D();
+				const Vec2* Ret =&thisPar->localscale2d();
 				
-				Input.Set_Return<Vec2*>(Ret);
+				Input.Set_Return<const Vec2*>(Ret);
 			
-			},(Entity__LocalScale2D0_ptr)[](UCode::Entity* thisPar) ->Vec2*
+			},(Entity__localscale2d0_ptr)[](UCode::Entity* thisPar) ->const Vec2*
 			{
-				return &thisPar->LocalScale2D();
+				return &thisPar->localscale2d();
 			}); 
 		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Input:IsKeyDown",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{

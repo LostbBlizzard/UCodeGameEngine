@@ -83,7 +83,7 @@ void Camera2d::UpdateCamData()
 	}
 
 
-	const auto MyPOs = NativeEntity()->WorldPosition();
+	const auto MyPOs = NativeEntity()->worldposition();
 	glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(MyPOs.X, MyPOs.Y, 0));
 
 	ViewMatrix = glm::inverse(transform);
@@ -130,7 +130,7 @@ Bounds2d Camera2d::GetCam_Bounds() const
 	f32 screenAspect = Get_windowAspect();
 	f32 cameraHeight = ortho_size * 2.0f;
 
-	Vec2 CamPos = NativeEntity()->WorldPosition2D();
+	Vec2 CamPos = NativeEntity()->worldposition2d();
 	Vec2 CamSize = { cameraHeight * screenAspect, cameraHeight };
 	
 	

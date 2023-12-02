@@ -13,7 +13,7 @@ class RunTimeScene;
 class Entity;
 class GameRunTime;
 class GameTime;
-struct Compoent;
+class Compoent;
 class USerializer;
 class UDeserializer;
 
@@ -32,7 +32,15 @@ public:
 	
 };
 
-UCodeLangExportSymbol("UCodeGameEngine") UCodeLangExportTrait Compoent
+UCodeLangExportSymbol("UCodeGameEngine") UCodeLangEmbed(
+	R"(
+    $Component trait:
+	  uintptr _Handle = 0;
+	  |entity[this&]  => ComponentAPI::entity(_Handle);
+	  |ientity[this&] => ComponentAPI::ientity(_Handle);
+    ")");
+
+class Compoent
 {
 	friend Entity;
 private:
@@ -92,6 +100,27 @@ public:
 	Compoent_Ptr Get_ManagedPtr()
 	{
 		return _Managed;
+	}
+};
+
+UCodeLangExportSymbol("ECS") struct ComponentAPI
+{
+	static Compoent& Cast(uintptr_t _Handle)
+	{
+		return *(Compoent*)_Handle;
+	}
+	static const Compoent& iCast(uintptr_t _Handle)
+	{
+		return *(const Compoent*)_Handle;
+	}
+
+	UCodeLangExport static Entity& entity(uintptr_t _Handle)
+	{
+		return *Cast(_Handle).NativeEntity();
+	}
+	UCodeLangExport static const Entity& ientity(uintptr_t _Handle)
+	{
+		return *iCast(_Handle).NativeEntity();
 	}
 };
 
@@ -192,11 +221,11 @@ public:
 	
 	UCodeLangExport void Enable() { _IsActive = true; }
 	UCodeLangExport void Disable() { _IsActive = false; }
-	UCodeLangExport bool& Active()
+	UCodeLangExport bool& active()
 	{
 		return _IsActive;
 	}
-	UCodeLangExport const bool& Active() const
+	UCodeLangExport const bool& active() const
 	{
 		return _IsActive;
 	}
@@ -241,83 +270,83 @@ public:
 	const String& NativeName() const { return _Name; }
 
 
-	UCodeLangExport const StringView Name() const {return _Name;}
-	UCodeLangExport void Name(StringView Value){_Name = Value;}
+	UCodeLangExport const StringView name() const {return _Name;}
+	UCodeLangExport void name(StringView Value){_Name = Value;}
 
 
-	UCodeLangExport Vec3& LocalPosition()
+	UCodeLangExport Vec3& localposition()
 	{
 		return  _LocalPosition;
 	}
-	UCodeLangExport const Vec3& LocalPosition() const
+	UCodeLangExport const Vec3& ilocalposition() const
 	{
 		return  _LocalPosition;
 	}
 
-	UCodeLangExport Vec2& LocalPosition2D()
+	UCodeLangExport Vec2& localposition2d()
 	{
 		return  *(Vec2*)&_LocalPosition;
 	}
-	UCodeLangExport const Vec2& LocalPosition2D() const
+	UCodeLangExport const Vec2& ilocalposition2d() const
 	{
 		return  *(Vec2*)&_LocalPosition;
 	}
 
-	UCodeLangExport Vec3& LocalRotation()
+	UCodeLangExport Vec3& localrotation()
 	{
 		return  _LocalRotation;
 	}
-	UCodeLangExport const Vec3& LocalRotation() const
+	UCodeLangExport const Vec3& ilocalrotation() const
 	{
 		return  _LocalRotation;
 	}
 
-	UCodeLangExport Vec2& LocalRotation2D()
+	UCodeLangExport Vec2& localrotation2d()
 	{
 		return  *(Vec2*)&_LocalRotation;
 	}
-	UCodeLangExport Vec2& LocalRotation2D() const
+	UCodeLangExport const Vec2& localrotation2d() const
 	{
 		return  *(Vec2*)&_LocalRotation;
 	}
 
-	UCodeLangExport Vec3& LocalScale()
+	UCodeLangExport Vec3& localscale()
 	{
 		return  _LocalScale;
 	}
-	UCodeLangExport const Vec3& LocalScale() const
+	UCodeLangExport const Vec3& ilocalscale() const
 	{
 		return  _LocalScale;
 	}
 
-	UCodeLangExport Vec2& LocalScale2D()
+	UCodeLangExport Vec2& localscale2d()
 	{
 		return  *(Vec2*)&_LocalScale;
 	}
-	UCodeLangExport Vec2& LocalScale2D() const
+	UCodeLangExport const Vec2& localscale2d() const
 	{
 		return  *(Vec2*)&_LocalScale;
 	}
 
 
 
-	Vec3 WorldPosition() const;
-	Vec2 WorldPosition2D() const;
+	Vec3 worldposition() const;
+	Vec2 worldposition2d() const;
 
-	Vec3 WorldRotation() const;
-	Vec2 WorldRotation2D() const;
+	Vec3 worldrotation() const;
+	Vec2 worldrotation2d() const;
 
-	Vec3 WorldScale() const;
-	Vec2 WorldScale2D() const;
+	Vec3 worldscale() const;
+	Vec2 worldscale2d() const;
 
-	void WorldPosition(const Vec3& Value);
-	void WorldPosition(const Vec2& Value);
+	void worldposition(const Vec3& Value);
+	void worldposition(const Vec2& Value);
 
-	void WorldRotation(const Vec3& Value);
-	void WorldRotation(const Vec2& Value);
+	void worldrotation(const Vec3& Value);
+	void worldrotation(const Vec2& Value);
 	
-	void WorldScale(const Vec3& Value);
-	void WorldScale(const Vec2& Value);
+	void worldscale(const Vec3& Value);
+	void worldscale(const Vec2& Value);
 
 	UCodeGameEngineForceinlne const auto NativeParent() const
 	{

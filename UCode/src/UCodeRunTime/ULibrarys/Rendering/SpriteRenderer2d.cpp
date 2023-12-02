@@ -66,7 +66,7 @@ void SpriteRenderer::OnDraw()
 {
 	auto Entity = NativeEntity();
 	auto Render = GetRenderRunTime();
-	auto Scale =Entity->WorldScale2D();
+	auto Scale =Entity->worldscale2d();
 	if (flipX) {Scale.X = -Scale.X;}
 	if (flipY) { Scale.Y = -Scale.Y; }
 
@@ -74,9 +74,9 @@ void SpriteRenderer::OnDraw()
 
 	AssetRendering::UpdatePtr(AssetManager,sprite);
 
-	Vec2 pos = Entity->WorldPosition2D();
+	Vec2 pos = Entity->worldposition2d();
 	Vec2 size = Scale;
-	Vec2 Rotation = Entity->WorldRotation2D();
+	Vec2 Rotation = Entity->worldrotation2d();
 	
 	AssetRendering::DrawQuad2dData Data(pos - Vec2(size.X/2, size.Y/2), size, Rotation);
 	
@@ -95,8 +95,8 @@ Bounds2d SpriteRenderer::Get_Bounds() const
 {
 	auto Entity = NativeEntity();
 	Bounds2d r;
-	r.center = Entity->WorldPosition2D();
-	const Vec2 size = Entity->WorldScale2D();
+	r.center = Entity->worldposition2d();
+	const Vec2 size = Entity->worldscale2d();
 	r.extents = size - Vec2(size.X / 2, size.Y / 2);
 	return r;
 }
