@@ -2,21 +2,29 @@
  A GameEngine that specializes big sandbox like games with low level Control.
 
 
-# Download
+# Build
 
 
-<code>
+```
+git clone --recurse-submodules https://github.com/LostbBlizzard/UCodeGameEngine.git
+```
 
-    git clone --recurse-submodules https://github.com/LostbBlizzard/UCodeGameEngine.git
+```
+cd ./UCodeGameEngine
+```
 
-</code>
+After geting the Project Files Run to Install the Compiler Tools/SDK and Librarys
 
+- The InstallTools.bat file (If your on windows)
 
-<code>
+```
+InstallTools.bat
+```
 
-    cd ./UCodeGameEngine
-
-</code>
+- The InstallTools.sh file (If your on linux or MacOS) 
+```
+./InstallTools.sh
+```
 
 After geting the Project Files Run.
 
@@ -28,25 +36,11 @@ After geting the Project Files Run.
 
 - The GNU_Make.sh file(If you use GCC on linux or Mac) and run "make" to build it. or run
 
+```
+./GNU_Make.sh
+```
 
-<code>
-
-    ./GNU_Make.sh
-
-</code>
-
-
-<code>
-
-    make
-
-</code>
-
-you may need to get the X11 Packages to build on linux.
-
-<code>
-
-    sudo apt-get install libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev
-
-</code>
+```
+make -j4
+```
 
