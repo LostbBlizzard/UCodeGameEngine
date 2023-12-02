@@ -31,7 +31,7 @@ workspace "UCodeGameEngine"
    end
 
    OutDirPath ="%{cfg.platform}/%{cfg.buildcfg}"
-   UCPathExe = "%{wks.location}Output/UCodelangCL/" .. OutDirPath .. "/uclang"
+   UCPathExe = "%{wks.location}/Output/UCodeLangCl/" .. OutDirPath .. "/uclang"
 
    
 
@@ -271,22 +271,22 @@ project "UCodeApp"
 
    filter { "system:Windows","architecture:x86_64" }
       postbuildcommands {
-         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe"
+         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe"
       }
     
    filter { "system:Windows","architecture:x86" }
       postbuildcommands {
-         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe"
+         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe"
       }
  
    filter { "system:linux","architecture:x86_64" }
       postbuildcommands {
-        "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64"
+        "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64"
       }
     
    filter { "system:linux","architecture:x86" }
       postbuildcommands {
-        "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}UCodeEditor/UFiles/bin/UCAppLinuxDebug86X32"
+        "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppLinuxDebug86X32"
       }
    
    filter { "configurations:Published","system:Windows"}
@@ -880,3 +880,54 @@ group "Dependencies"
     }
 
 
+newaction {
+    trigger = "install",
+    description = "installs compiler tool/librarys",
+    execute = function ()
+        print("----installing tools for " .. os.target())
+        
+        if os.istarget("linux") then
+
+          os.execute("sudo apt-get update")
+
+          print("----downloading libx11 Packages")
+          os.execute("sudo apt-get install libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev")
+
+          print("----downloading glfw Packages")
+          os.execute("sudo apt-get install libglfw3")
+          os.execute("sudo apt-get install libglfw3-dev")
+
+          print("----downloading glfw libgtk-3-dev")
+          os.execute("sudo apt-get install libgtk-3-dev")
+          
+          print("----installing tools completed");
+        end
+
+        if os.istarget("windows") then
+
+        end
+        
+        if os.istarget("macosx") then
+
+        end
+    end
+}
+newaction {
+    trigger = "installwasm",
+    description = "installs compiler tool/librarys for wasm",
+    execute = function ()
+        print("installing wasm tools for " .. os.target())
+        
+        if os.istarget("linux") then
+          
+        end
+
+        if os.istarget("windows") then
+
+        end
+        
+        if os.istarget("macosx") then
+
+        end
+    end
+}
