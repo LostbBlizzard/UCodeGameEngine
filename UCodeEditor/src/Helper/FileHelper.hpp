@@ -67,6 +67,7 @@ public:
 	static FileType GetFileType(const String& Ext);
 
 	static void OpenExe(const Path& path,const String& Args);
+	static void OpenExeSubProcess(const Path& path, const String& Args);
 private:
 	static void Setfilters(const FileTypesOptions_t& filetypes, String&  filterList);
 };

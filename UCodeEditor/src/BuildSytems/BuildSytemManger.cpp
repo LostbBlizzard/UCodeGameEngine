@@ -24,19 +24,31 @@ void RemoveFileInPath(const Path& dir_path)
 		}
 	}
 }
-void BuildSytemManger::BuildProject()
+bool BuildSytemManger::BuildProject()
 {
 	if (auto Val = Setings.Settings.IfType<WindowsBuildSetings>())
 	{
-		Build(*Val);
+		return Build(*Val);
+	}
+	else if (auto Val = Setings.Settings.IfType<LinuxBuildSetings>())
+	{
+		return Build(*Val);
+	}
+	else if (auto Val = Setings.Settings.IfType<MacOsBuildSetings>())
+	{
+		return Build(*Val);
 	}
 	else if (auto Val = Setings.Settings.IfType<WebBuildSetings>())
 	{
-		Build(*Val);
+		return Build(*Val);
 	}
 	else if (auto Val = Setings.Settings.IfType<AndroidBuildSetings>())
 	{
-		Build(*Val);
+		return Build(*Val);
+	}
+	else if (auto Val = Setings.Settings.IfType<IOSBuildSetings>())
+	{
+		return Build(*Val);
 	}
 	else
 	{
@@ -47,7 +59,7 @@ void BuildSytemManger::Reset()
 {
 
 }
-void BuildSytemManger::Build(const WindowsBuildSetings& setings)
+bool BuildSytemManger::Build(const WindowsBuildSetings& setings)
 {
 	const Path ExePath = Setings._OutDir / Path(Setings._OutName).concat(".exe").native();
 	const Path GameFilesDataPath = Setings._OutDir / Path(UCode::GameFilesData::FileDataName).native();
@@ -69,8 +81,18 @@ void BuildSytemManger::Build(const WindowsBuildSetings& setings)
 	const auto SerializerMode = UCode::USerializerType::Bytes;
 	BuildProjectGlobalWasGameData(GameFilesDataPath, SerializerMode);
 
+
+	return true;
 }
-void BuildSytemManger::BuildProjectGlobalWasGameData(const Path& GameFilesDataPath,USerializerType SerializerMode)
+bool BuildSytemManger::Build(const LinuxBuildSetings& setings)
+{
+	return false;
+}
+bool BuildSytemManger::Build(const MacOsBuildSetings& setings)
+{
+	return false;
+}
+bool BuildSytemManger::BuildProjectGlobalWasGameData(const Path& GameFilesDataPath,USerializerType SerializerMode)
 {
 	const Path ChachPath = Setings.TemporaryGlobalPath.native() + Path("Chache.data").native();
 	ExportChacheFile Chache;
@@ -188,8 +210,9 @@ void BuildSytemManger::BuildProjectGlobalWasGameData(const Path& GameFilesDataPa
 		fs::copy_file(GameFilesDataPath, "../UCodeApp" / Path(UCode::GameFilesData::FileDataName),fs::copy_options::overwrite_existing);
 		#endif
 	}
+	return true;
 }
-void BuildSytemManger::Build(const WebBuildSetings& setings)
+bool BuildSytemManger::Build(const WebBuildSetings& setings)
 {
 	const Path GameFilesDataPath = Setings.TemporaryPlatfromPath / Path(UCode::GameFilesData::FileDataName).native();
 
@@ -213,8 +236,10 @@ void BuildSytemManger::Build(const WebBuildSetings& setings)
 	{
 		fs::create_directory(Setings._OutDir / "data");
 	}
+
+	return false;
 }
-void BuildSytemManger::Build(const AndroidBuildSetings& setings)
+bool BuildSytemManger::Build(const AndroidBuildSetings& setings)
 {
 	const Path ApkPath = Setings._OutDir / Path(Setings._OutName).concat(".apk").native();
 
@@ -299,5 +324,15 @@ void BuildSytemManger::Build(const AndroidBuildSetings& setings)
 		}
 	}
 	zip_close(zip);
+
+	return false;
+}
+bool BuildSytemManger::Build(const IOSBuildSetings& setings)
+{
+	return false;
+}
+bool BuildSytemManger::Build(const CustomBuildSetings& setings)
+{
+	return false;
 }
 EditorEnd

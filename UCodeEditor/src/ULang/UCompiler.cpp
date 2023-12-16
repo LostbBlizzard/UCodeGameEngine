@@ -1,16 +1,26 @@
 #include "UCompiler.hpp"
 #include "Helper/AppFiles.hpp"
 #include <filesystem>
+#include "UCodeLang/Compilation/ModuleFile.hpp"
 EditorStart
 
 namespace fs = std::filesystem;
-UCode::AsynTask  UCompiler::CompileFile(const CompileData& Data, const String&  Path)
+
+
+
+bool HasModule(const UCodeLang::ModuleIndex& index,const String& name)
 {
-	return UCode::AsynTask();
+	for (auto& Item : index._IndexedFiles)
+	{
+		if (Item._ModuleData.ModuleName == name)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
-
-UCode::AsynTask UCompiler::CompileProject(const CompileData& Data)
+bool UCompiler::CompileProject(const CompileData& Data)
 {
 	const Path& InPath = Data.InPath;
 	const Path& intPath = Data.IntPath;
@@ -24,15 +34,74 @@ UCode::AsynTask UCompiler::CompileProject(const CompileData& Data)
 	pathData.IntDir = intPath.generic_string();
 	pathData.OutFile = outlibPath.generic_string();
 
-	Compiler.CompileFiles_UseIntDir(pathData);
+	UCodeLang::Compiler::ExternalFiles External;
+
+
+	UCodeLang::ModuleIndex index = UCodeLang::ModuleIndex::GetModuleIndex();
+	
+	bool update = false;
+	if (!HasModule(index, "StandardLibrary")) {
+		index.AddModueToList(AppFiles::GetFilePathByMove("source") / "StandardLibrary" / UCodeLang::ModuleFile::FileNameWithExt);
+		update = true;
+	}
+	if (!HasModule(index, "NStandardLibrary")) {
+		index.AddModueToList(AppFiles::GetFilePathByMove("source") / "NStandardLibrary" / UCodeLang::ModuleFile::FileNameWithExt);
+		update = true;
+	}
+
+	if (update) {
+		UCodeLang::ModuleIndex::SaveModuleIndex(index);
+	}
+
+	{
+		UCodeLang::ModuleFile f;
+		Path modpath = AppFiles::GetFilePathByMove("source");
+		modpath /= "UCodeGameEngine";
+		modpath /= UCodeLang::ModuleFile::FileNameWithExt;
+
+		f.FromFile(&f, modpath);
+
+
+		auto v = f.BuildModule(Compiler, index, true);
+		if (v.CompilerRet.IsError())
+		{
+			return false;
+		}
+		else 
+		{
+			External.Files.push_back(v.OutputItemPath);
+		}
+	}
+
+	if (Data.Editor)
+	{
+		UCodeLang::ModuleFile f;
+		Path modpath = AppFiles::GetFilePathByMove("source");
+		modpath /= "UCodeGameEngineEditor";
+		modpath /= UCodeLang::ModuleFile::FileNameWithExt;
+
+		f.FromFile(&f, modpath);
+
+
+		auto v = f.BuildModule(Compiler, index, true);
+		if (v.CompilerRet.IsError())
+		{
+			return false;
+		}
+		else
+		{
+			External.Files.push_back(v.OutputItemPath);
+		}
+	}
+
+	auto r = Compiler.CompileFiles_UseIntDir(pathData, External);
 
 	auto& Errors = Compiler.Get_Errors();
 	for (auto item : Errors.Get_Errors())
 	{
 		Data.Error->AddError(item);
 	}
-
-	return UCode::AsynTask();
+	return !r.IsError();
 }
 Optional<Path> UCompiler::GetIntermediate(const Path& FullFilePath, RunTimeProjectData* RunTimeProject)
 {

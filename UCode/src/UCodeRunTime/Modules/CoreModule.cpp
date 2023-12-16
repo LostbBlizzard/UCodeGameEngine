@@ -27,7 +27,7 @@ CoreModule::CoreModule()
 			}
 
 			return r;
-	});
+	}); 
 }
 CoreModule::~CoreModule()
 {

@@ -6,102 +6,103 @@
 EditorStart
 
 
+namespace UC = UCode;
 
-using Path = UCode::Path;
-using PathSpan = UCode::PathSpan;
-using PathChar = UCode::PathChar;
-using PathString = UCode::PathString;
-
-
-using String = UCode::String;
-using StringView = UCode::StringView;
-
-using String8 = UCode::String8;
-using String8View = UCode::String8View;
-
-using String16 = UCode::String16;
-using String16View = UCode::String16View;
-
-using String32 = UCode::String32;
-using String32View = UCode::String32View;
+using Path = UC::Path;
+using PathSpan = UC::PathSpan;
+using PathChar = UC::PathChar;
+using PathString = UC::PathString;
 
 
-template<typename T>
-using Vector = UCode::Vector<T>;
+using String = UC::String;
+using StringView = UC::StringView;
+
+using String8 = UC::String8;
+using String8View = UC::String8View;
+
+using String16 = UC::String16;
+using String16View = UC::String16View;
+
+using String32 = UC::String32;
+using String32View = UC::String32View;
+
 
 template<typename T>
-using Span = UCode::Span<T>;
+using Vector = UC::Vector<T>;
+
+template<typename T>
+using Span = UC::Span<T>;
 
 template<typename T, size_t Size>
-using Array = UCode::Array<T, Size>;
+using Array = UC::Array<T, Size>;
 
 template<typename T>
-using Ref = UCode::Ref<T>;
+using Ref = UC::Ref<T>;
 
 
 template<typename T>
-using Unique_ptr = UCode::Unique_ptr<T>;
+using Unique_ptr = UC::Unique_ptr<T>;
 
 template<typename T>
-using Unique_array = UCode::Unique_array<T>;
+using Unique_array = UC::Unique_array<T>;
 
 
-template<typename T> using Weak_ptr = UCode::Weak_ptr<T>;
+template<typename T> using Weak_ptr = UC::Weak_ptr<T>;
 
 template<typename Key,typename U>
-using Unordered_map = UCode::UnorderedMap<Key,U>;
+using Unordered_map = UC::UnorderedMap<Key,U>;
 
-template<typename T> using Optional = UCode::Optional<T>;
+template<typename T> using Optional = UC::Optional<T>;
 
-template<typename T> using Span = UCode::Span<T>;
+template<typename T> using Span = UC::Span<T>;
 
-template<typename T> using Unique_Span = UCode::Unique_Span<T>;
+template<typename T> using Unique_Span = UC::Unique_Span<T>;
 
-using BytesView = UCode::BytesView;
-using Unique_Bytes = UCode::Unique_Bytes;
+using BytesView = UC::BytesView;
+using Unique_Bytes = UC::Unique_Bytes;
 
 template<typename R, typename... Pars>
-using Delegate = UCode::Delegate<R, Pars...>;
+using Delegate = UC::Delegate<R, Pars...>;
 
-using UID  = UCode::UID;
+using UID  = UC::UID;
 
-using u8 = UCode::u8;
-using u16 = UCode::u16;
-using u32 = UCode::u32;
-using u64 = UCode::u64;
+using u8 = UC::u8;
+using u16 = UC::u16;
+using u32 = UC::u32;
+using u64 = UC::u64;
 
-using i8 = UCode::i8;
-using i16 = UCode::i16;
-using i32 = UCode::i32;
-using i64 = UCode::i64;
+using i8 = UC::i8;
+using i16 = UC::i16;
+using i32 = UC::i32;
+using i64 = UC::i64;
 
 //For Clarity reasons;
 
-using Byte = UCode::Byte;
+using Byte = UC::Byte;
 
-using f32 = UCode::f32;
-using f64 = UCode::f64;
+using f32 = UC::f32;
+using f64 = UC::f64;
 
-using Vec2 = UCode::Vec2;
-using Vec2i = UCode::Vec2i;
-using Vec3 = UCode::Vec3;
-using Vec3i = UCode::Vec3i;
-using Version = UCode::Version;
+using Vec2 = UC::Vec2;
+using Vec2i = UC::Vec2i;
+using Vec3 = UC::Vec3;
+using Vec3i = UC::Vec3i;
+using Version = UC::Version;
 
 template<typename T>
-using Optional = UCode::Optional<T>;
+using Optional = UC::Optional<T>;
 
 template<typename T, typename E>
-using Result = UCode::Result<T,E>;
+using Result = UC::Result<T,E>;
 
-template<typename T> using ManagedPtr = UCode::ManagedPtr<T>;
+template<typename T> using ManagedPtr = UC::ManagedPtr<T>;
 
-using AnyManagedPtr = UCode::AnyManagedPtr;
+using AnyManagedPtr = UC::AnyManagedPtr;
 
 
 
 template<typename... T>
-using Variant = UCode::Variant<T...>;
+using Variant = UC::Variant<T...>;
 
 
 

@@ -185,7 +185,16 @@ FileHelper::FileType FileHelper::GetFileType(const String& Ext)
 
 void FileHelper::OpenExe(const Path& path, const String& Args)
 {
-	String SysCall = "" + path.generic_string() + " " + Args;
+#if UCodeGameEnginePlatformWindows
+	Path t = "open";
+	Path args =Path(Args.c_str());
+	ShellExecute(NULL, t.c_str(), path.c_str(), args.c_str(), NULL, SW_SHOWDEFAULT);
+#endif 
+}
+
+void FileHelper::OpenExeSubProcess(const Path& path, const String& Args)
+{
+	String SysCall = path.generic_string() + " " + Args;
 	system(SysCall.c_str());
 }
 

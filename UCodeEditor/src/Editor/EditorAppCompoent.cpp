@@ -15,6 +15,7 @@
 
 #include "UEditorModules/UEditorModule.hpp"
 #include "Helper/Tasks.hpp"
+#include "UEditorModules/Modules/CodeModule.hpp"
 EditorStart
 
 
@@ -173,6 +174,7 @@ void EditorAppCompoent::OnProjectLoaded()
             Info.Ptr->FilesUpdated(ListToPush);
         }
     }
+    CodeModule::BuildUCode(true);
 
 
 

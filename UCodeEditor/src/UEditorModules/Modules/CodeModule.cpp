@@ -250,6 +250,7 @@ void CodeModule::Init()
 void LogErrors(ConsoleWindow* win,const UCodeLang::CompilationErrors& Error)
 {
 	auto Err = Error;//Get_Errors has not const type update this when it does
+
 	for (const auto& Item : Err.Get_Errors())
 	{
 		ConsoleWindow::LogType T = ConsoleWindow::LogType::Log;
@@ -276,7 +277,9 @@ void LogErrors(ConsoleWindow* win,const UCodeLang::CompilationErrors& Error)
 		Log._OnOpen = [FullPath = std::move(FullPath),ItemToKeep](ConsoleWindow& Win, ConsoleWindow::Log& log)
 		{
 			const auto& Settings = UserSettings::GetSettings();
-			String Args = UserSettings::GetOpenFileStringAsArgs(Settings, FullPath, ImGuIHelper_Asset::ProjectData->Get_ProjectDir(), ItemToKeep.Line, 0);
+			size_t Column = 0;
+			
+			String Args = UserSettings::GetOpenFileStringAsArgs(Settings, FullPath, ImGuIHelper_Asset::ProjectData->Get_ProjectDir(), ItemToKeep.Line, Column);
 			String Exe = Settings.CodeEditorPath;
 			FileHelper::OpenExe(Exe, Args);
 		};
@@ -301,14 +304,19 @@ void CodeModule::FilesUpdated(const Vector<FileUpdateData>& paths)
 
 	if (IsUCodeFileUpdated) 
 	{
-		if (!RuningTasksInfo::HasTaskRuning(RuningTask::Type::BuildingUCodeFiles))
-		{
+		BuildUCode(true);
+	}
+}
+void CodeModule::BuildUCode(bool IsInEditor)
+{
+	if (!RuningTasksInfo::HasTaskRuning(RuningTask::Type::BuildingUCodeFiles))
+	{
 
-			EditorAppCompoent* app = EditorAppCompoent::GetCurrentEditorAppCompoent();
-			auto Threads = UCode::Threads::Get(app->GetGameRunTime()->Get_Library_Edit());
+		EditorAppCompoent* app = EditorAppCompoent::GetCurrentEditorAppCompoent();
+		auto Threads = UCode::Threads::Get(app->GetGameRunTime()->Get_Library_Edit());
 
 
-			std::function<void()> OnOtherThread = [Threads]()
+		std::function<void()> OnOtherThread = [Threads]()
 			{
 				EditorAppCompoent* app = EditorAppCompoent::GetCurrentEditorAppCompoent();
 				UCodeLang::CompilationErrors _Errs;
@@ -317,31 +325,29 @@ void CodeModule::FilesUpdated(const Vector<FileUpdateData>& paths)
 				data.Set(app->Get_RunTimeProjectData());
 				data.Error = &_Errs;
 				data.Threads = Threads;
-
+				data.Editor = true;
 
 
 
 				UCompiler::CompileProject(data);
 
-				
-				Threads->RunOnOnMainThread([app,MovedErrs = std::move(_Errs)]()
-				{
-					auto Win = app->Get_Window<ConsoleWindow>();
-					LogErrors(Win, MovedErrs);
-					Win->FocusWindow();
-					RuningTasksInfo::ReMoveTask(RuningTask::Type::BuildingUCodeFiles);
-				});
+
+				Threads->RunOnOnMainThread([app, MovedErrs = std::move(_Errs)]()
+					{
+						auto Win = app->Get_Window<ConsoleWindow>();
+						LogErrors(Win, MovedErrs);
+						Win->FocusWindow();
+						RuningTasksInfo::ReMoveTask(RuningTask::Type::BuildingUCodeFiles);
+					});
 
 			};
-			RuningTask task;
-			task.TaskType = RuningTask::Type::BuildingUCodeFiles;
-			RuningTasksInfo::AddTask(task);
+		RuningTask task;
+		task.TaskType = RuningTask::Type::BuildingUCodeFiles;
+		RuningTasksInfo::AddTask(task);
 
-			Threads->AddTask_t(UCode::TaskType::FileIO,std::move(OnOtherThread), {});
-		}
+		Threads->AddTask_t(UCode::TaskType::FileIO, std::move(OnOtherThread), {});
 	}
 }
-
 Vector<ExportEditorReturn> CodeModule::ExportSystems(ExportEditorContext& Context)
 {
 	namespace fs = std::filesystem;

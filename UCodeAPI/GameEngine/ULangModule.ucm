@@ -5,4 +5,4 @@ ForceImport:false
 RemoveUnSafe:true
 NameSpace:""
 
-//import LostbBlizzard::NWin32[0:0:0];
+import UCodeLang::StandardLibarary[0:0:0];
