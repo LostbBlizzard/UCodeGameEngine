@@ -4,6 +4,8 @@
 
 #include "UCodeRunTime/CoreSystems/GameFiles.hpp"
 
+#include "../BuildSytems/BuildSytemManger.hpp"
+
 #if UCodeGameEngineDEBUG
 #include "tests/tests.hpp"
 #endif // DEBUG
@@ -89,6 +91,8 @@ String_view GetPath(String_view& Line)
 
 int App::main(int argc, char* argv[])
 {
+	namespace UC = UCode;
+	namespace UE = UCodeEditor;
 	int a = 0;
 	#ifndef UCodeGameEngineDEBUG
 	try
@@ -97,7 +101,7 @@ int App::main(int argc, char* argv[])
 	{
 		
 		//while (true);
-		UCode::String StrV;
+		UC::String StrV;
 		for (size_t i = 1; i < argc; i++)
 		{
 			char v;
@@ -108,7 +112,7 @@ int App::main(int argc, char* argv[])
 				StrV += ' ';
 			}
 		}
-		UCode::StringView Str = StrV;
+		UC::StringView Str = StrV;
 
 		#if UCodeGameEngineDEBUG
 		if (Str == "--RunTests")
@@ -122,7 +126,7 @@ int App::main(int argc, char* argv[])
 			Path pin = GetPath(Str);
 			Path pout = GetPath(Str);
 
-			return UCode::GameFilesData::PackDir(pin, pout) == true ? EXIT_SUCCESS : EXIT_FAILURE;
+			return UC::GameFilesData::PackDir(pin, pout) == true ? EXIT_SUCCESS : EXIT_FAILURE;
 		}
 		else if (StringHelper::StartsWith(Str, "unpack"))
 		{
@@ -130,15 +134,108 @@ int App::main(int argc, char* argv[])
 			Path pin = GetPath(Str);
 			Path pout = GetPath(Str);
 
-			return UCode::GameFilesData::UnPackToDir(pin, pout) == true ? EXIT_SUCCESS : EXIT_FAILURE;
+			return UC::GameFilesData::UnPackToDir(pin, pout) == true ? EXIT_SUCCESS : EXIT_FAILURE;
+		}
+		else if (StringHelper::StartsWith(Str, "build"))
+		{
+			Str = Str.substr(sizeof("build"));
+			Path project = GetPath(Str);
+
+			Path target = GetPath(Str);
+			
+			UE::BuildSytemManger build;
+
+
+			if (!target.empty())
+			{
+				if (target == "windows")
+				{
+					UE::WindowsBuildSetings settings;
+
+
+					build.Setings.Settings = std::move(settings);
+				}
+				else if (target == "linux")
+				{
+					UE::LinuxBuildSetings settings;
+
+
+					build.Setings.Settings = std::move(settings);
+				}
+				else if (target == "maxos")
+				{
+					UE::MacOsBuildSetings settings;
+
+
+					build.Setings.Settings = std::move(settings);
+				}
+				else if (target == "web")
+				{
+					UE::WebBuildSetings settings;
+
+
+					build.Setings.Settings = std::move(settings);
+				}
+				else if (target == "android")
+				{
+					UE::AndroidBuildSetings settings;
+
+
+					build.Setings.Settings = std::move(settings);
+				}
+				else if (target == "ios")
+				{
+					UE::IOSBuildSetings settings;
+
+
+					build.Setings.Settings = std::move(settings);
+				}
+				else if (target == "custom")
+				{
+					UE::CustomBuildSetings settings;
+
+
+					build.Setings.Settings = std::move(settings);
+				}
+				else
+				{
+					return EXIT_FAILURE;
+				}
+			}
+			else
+			{
+				#if UCodeGameEnginePlatformWindows
+				UE::WindowsBuildSetings settings;
+
+
+				build.Setings.Settings = std::move(settings);
+				#elif UCodeGameEnginePlatformLinux
+				UE::LinuxBuildSetings settings;
+
+
+				build.Setings.Settings = std::move(settings);
+				#elif UCodeGameEnginePlatformMacOS
+				UE::MacOsBuildSetings settings;
+
+
+				build.Setings.Settings = std::move(settings);
+				#elif UCodeLangPlatformWasm
+				UE::WebBuildSetings settings;
+
+
+				build.Setings.Settings = std::move(settings);
+				#endif
+			}
+			
+			
+			return build.BuildProject() ? EXIT_SUCCESS : EXIT_FAILURE;
 		}
 
 
-
-		UCode::String ProPath = "";
+		UC::String ProPath = "";
 		if (argc > 1) { ProPath = argv[1]; }
 
-		UCodeEditor::EditorApp app = UCodeEditor::EditorApp();
+		UE::EditorApp app = UE::EditorApp();
 		app.Run(ProPath);
 		return EXIT_SUCCESS;
 	}
@@ -146,7 +243,7 @@ int App::main(int argc, char* argv[])
 	#ifndef UCodeGameEngineDEBUG
 	catch (const std::exception& ex)
 	{
-		UCode::Loger::Log( (UCode::String)"App crashed :" + (UCode::String)ex.what(), UCode::LogType::Fatal);
+		UC::Loger::Log( (UC::String)"App crashed :" + (UC::String)ex.what(), UC::LogType::Fatal);
 
 		while (true)
 		{

@@ -28,6 +28,7 @@ enum class ConfigurationType :u16
 	Published,
 };
 
+//Main
 struct WindowsBuildSetings
 {
 	enum class Architecture
@@ -51,6 +52,16 @@ struct WindowsBuildSetings
 	bool DebugBuild = true;
 	Architecture architecture = Architecture::Default;
 };
+struct LinuxBuildSetings
+{
+
+};
+struct MacOsBuildSetings
+{
+
+};
+
+//Secondary platform
 struct WebBuildSetings
 {
 
@@ -59,11 +70,22 @@ struct AndroidBuildSetings
 {
 
 };
+struct IOSBuildSetings
+{
 
+};
+
+//Consoles will use the CustomBuildSetings
+
+struct CustomBuildSetings
+{
+	String BuildSystemName;
+	String Settings;
+};
 
 struct BuildSetings
 {
-	using SettingsType = Variant<WindowsBuildSetings, WebBuildSetings, AndroidBuildSetings>;
+	using SettingsType = Variant<WindowsBuildSetings, LinuxBuildSetings, MacOsBuildSetings, WebBuildSetings, AndroidBuildSetings, IOSBuildSetings, CustomBuildSetings>;
 	SettingsType Settings;
 
 	String _OutName;

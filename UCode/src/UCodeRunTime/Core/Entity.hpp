@@ -103,7 +103,7 @@ public:
 	}
 };
 
-UCodeLangExportSymbol("ECS") struct ComponentAPI
+UCodeLangExportSymbol("UCodeGameEngine") struct ComponentAPI
 {
 	static Compoent& Cast(uintptr_t _Handle)
 	{

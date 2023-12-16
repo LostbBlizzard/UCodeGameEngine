@@ -4,7 +4,7 @@
 
 EditorStart
 
-#define UPluginSIGNATURE "LostBlizzardUPlugin"
+#define UPluginSIGNATURE "LBPlugin"
 const char* FileSignature = UCodeGameEngineFileSignature;//T=char [30]
 UCODE_EDITOR_NODISCARD bool UPlugin::WriteToFile(const Path& path, const UPlugin& Data)
 {

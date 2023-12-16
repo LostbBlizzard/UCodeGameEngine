@@ -69,7 +69,7 @@ void UCodeAPI::MakeNewLib()
 		using Debug__LogError0_ptr = void(*UCodeLangAPI)(const StringView); 
 		using Debug__LogFatalError_ptr = void(*UCodeLangAPI)(const String&); 
 		using Debug__LogFatalError0_ptr = void(*UCodeLangAPI)(const StringView); 
-		_UCodeAPILib.Add_CPPCall("ECS:ComponentAPI:entity",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:ComponentAPI:entity",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				uintptr_t Par0 = Input.GetParameter<uintptr_t>();
@@ -79,7 +79,7 @@ void UCodeAPI::MakeNewLib()
 				Input.Set_Return<Entity*>(Ret);
 			
 			},(ComponentAPI__entity_ptr)UCode::ComponentAPI::entity); 
-		_UCodeAPILib.Add_CPPCall("ECS:ComponentAPI:ientity",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:ComponentAPI:ientity",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				uintptr_t Par0 = Input.GetParameter<uintptr_t>();

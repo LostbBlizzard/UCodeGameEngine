@@ -23,6 +23,8 @@ public:
 		return { (UEditorComponentData**)Components.data(),Components.size() };
 	}
 
+	static void BuildUCode(bool IsInEditor);
+
 
 	void FilesUpdated(const Vector<FileUpdateData>& paths) override;
 	Vector<ExportEditorReturn> ExportSystems(ExportEditorContext& Context) override;

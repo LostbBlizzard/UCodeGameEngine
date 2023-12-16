@@ -2,7 +2,6 @@
 #include "UCodeRunTime/BasicTypes.hpp"
 #include <Editor/EditorNamespace.hpp>
 #include "UCodeLang/Compilation/Compiler.hpp"
-#include "UCodeRunTime/CoreSystems/Threads.hpp"
 #include "ProjectManagement/RunTimeProjectData.hpp"
 #include "UCodeLang/LangCore/UClib.hpp"
 EditorStart
@@ -19,6 +18,7 @@ public:
 		Path InPath;
 		Path IntPath;
 		Path OutPath;
+		bool Editor = false;
 		void Set(const RunTimeProjectData* Data)
 		{
 			InPath = Data->GetAssetsDir();
@@ -31,8 +31,7 @@ public:
 
 		}
 	};
-    static UCode::AsynTask CompileFile(const CompileData& Data, const String&  Path);
-	static UCode::AsynTask CompileProject(const CompileData& Data);
+	static bool CompileProject(const CompileData& Data);
 
 	static Optional<Path> GetIntermediate(const Path& FullFilePath, RunTimeProjectData* RunTimeProject);
 	static Optional<Path> GetRelativeIntermediate(const Path& RelativeFilePath, RunTimeProjectData* RunTimeProject);
