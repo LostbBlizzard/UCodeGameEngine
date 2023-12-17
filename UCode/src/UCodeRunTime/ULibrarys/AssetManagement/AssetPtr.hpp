@@ -68,17 +68,17 @@ public:
 			_Managed = ToCopy._Managed;
 			break;
 		default:
-			UCodeGameEngineUnreachable();
+			UCodeGEUnreachable();
 			break;
 		}
 		return *this;
 	}
 
-	UCodeGameEngineForceinlne AssetPtr& operator=(AssetType* ToCopy) { return *this = AssetPtr(ToCopy); }
-	UCodeGameEngineForceinlne AssetPtr& operator=(const UID& ToCopy) { return *this = AssetPtr(ToCopy); }
-	UCodeGameEngineForceinlne AssetPtr& operator=(const ManagedAssetPtr& ToCopy) { return *this = AssetPtr(ToCopy); }
+	UCodeGEForceinlne AssetPtr& operator=(AssetType* ToCopy) { return *this = AssetPtr(ToCopy); }
+	UCodeGEForceinlne AssetPtr& operator=(const UID& ToCopy) { return *this = AssetPtr(ToCopy); }
+	UCodeGEForceinlne AssetPtr& operator=(const ManagedAssetPtr& ToCopy) { return *this = AssetPtr(ToCopy); }
 
-	UCodeGameEngineForceinlne State Get_State() const { return _State; }
+	UCodeGEForceinlne State Get_State() const { return _State; }
 
 	
 	UID Get_UID() const
@@ -89,7 +89,7 @@ public:
 		}
 		else
 		{
-			UCodeGameEngineThrowException("Cant Return A UID");
+			UCodeGEThrow("Cant Return A UID");
 			return {};
 		}
 	}
@@ -101,7 +101,7 @@ public:
 		}
 		else
 		{
-			UCodeGameEngineThrowException("Cant Return ManagedAssetPtr");
+			UCodeGEThrow("Cant Return ManagedAssetPtr");
 			return {};
 		}
 	}

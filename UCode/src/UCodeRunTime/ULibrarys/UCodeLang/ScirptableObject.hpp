@@ -17,28 +17,28 @@ public:
 		return _Managed;
 	}
 
-	UCodeGameEngineForceinlne ULangRunTime* GetULang() const
+	UCodeGEForceinlne ULangRunTime* GetULang() const
 	{
 		return UCodeRunTimeState::Get_Current();
 	}
 
-	UCodeGameEngineForceinlne void SetClassName(const String& Name)
+	UCodeGEForceinlne void SetClassName(const String& Name)
 	{
 		_ClassName = Name;
 	}
-	UCodeGameEngineForceinlne bool HasScript()const
+	UCodeGEForceinlne bool HasScript()const
 	{
 		return _UObj;
 	}
-	UCodeGameEngineForceinlne bool HasClass()const
+	UCodeGEForceinlne bool HasClass()const
 	{
 		return _ClassData;
 	}
-	UCodeGameEngineForceinlne const UCodeLang::Class_Data* Get_ClassData() const
+	UCodeGEForceinlne const UCodeLang::Class_Data* Get_ClassData() const
 	{
 		return  _ClassData;
 	}
-	UCodeGameEngineForceinlne void* Get_UObj() const
+	UCodeGEForceinlne void* Get_UObj() const
 	{
 		return _UObj;
 	}

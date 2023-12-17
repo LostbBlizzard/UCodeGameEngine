@@ -28,28 +28,28 @@ public:
 	static Camera2d* FindMainCam(const GameRunTime* runtime);
 	
 
-	UCodeGameEngineForceinlne Mat4 Get_ProjectionMatrix() const
+	UCodeGEForceinlne Mat4 Get_ProjectionMatrix() const
 	{
 		return ProjectionMatrix;
 	}
-	UCodeGameEngineForceinlne Mat4 Get_ViewMatrix() const
+	UCodeGEForceinlne Mat4 Get_ViewMatrix() const
 	{
 		return ViewMatrix;
 	}
-	UCodeGameEngineForceinlne Mat4 Get_ViewProjectionMatrix() const
+	UCodeGEForceinlne Mat4 Get_ViewProjectionMatrix() const
 	{
 		return ViewProjectionMatrix;
 	}
 
-	UCodeGameEngineForceinlne const Mat4 Get_ProjectionMatrixRead() const
+	UCodeGEForceinlne const Mat4 Get_ProjectionMatrixRead() const
 	{
 		return ProjectionMatrix;
 	}
-	UCodeGameEngineForceinlne const Mat4 Get_ViewMatrixRead() const
+	UCodeGEForceinlne const Mat4 Get_ViewMatrixRead() const
 	{
 		return ViewMatrix;
 	}
-	UCodeGameEngineForceinlne const Mat4 Get_ViewProjectionMatrixRead() const
+	UCodeGEForceinlne const Mat4 Get_ViewProjectionMatrixRead() const
 	{
 		return ViewProjectionMatrix;
 	}
@@ -61,40 +61,40 @@ public:
 
 	void UpdateCamData();
 
-	UCodeGameEngineForceinlne FrameBuffer& Get_Buffer()
+	UCodeGEForceinlne FrameBuffer& Get_Buffer()
 	{
 		return _Buffer;
 	}
-	UCodeGameEngineForceinlne f32 Get_windowAspect() const
+	UCodeGEForceinlne f32 Get_windowAspect() const
 	{
 		return (f32)Width / (f32)Height;
 	}
-	UCodeGameEngineForceinlne void API_Set_WindowSize(i32 X, i32 Y)
+	UCodeGEForceinlne void API_Set_WindowSize(i32 X, i32 Y)
 	{
 		Width = X;
 		Height = Y;
 	}
-	UCodeGameEngineForceinlne i32 Get_WindowWidth() const
+	UCodeGEForceinlne i32 Get_WindowWidth() const
 	{
 		return Width;
 	}
-	UCodeGameEngineForceinlne i32 Get_WindowHeight()const
+	UCodeGEForceinlne i32 Get_WindowHeight()const
 	{
 		return Height;
 	}
-	UCodeGameEngineForceinlne CamType Get_CamType()const
+	UCodeGEForceinlne CamType Get_CamType()const
 	{
 		return Type;
 	}
-	UCodeGameEngineForceinlne void Set_CamType(CamType Value)
+	UCodeGEForceinlne void Set_CamType(CamType Value)
 	{
 		Type = Value;
 	}
-	UCodeGameEngineForceinlne f32 Get_Ortho_size() const { return ortho_size; }
-	UCodeGameEngineForceinlne void Set_Ortho_size(f32 Value) { ortho_size = Value; }
+	UCodeGEForceinlne f32 Get_Ortho_size() const { return ortho_size; }
+	UCodeGEForceinlne void Set_Ortho_size(f32 Value) { ortho_size = Value; }
 
-	UCodeGameEngineForceinlne f32 Get_Fov() const { return Fov; }
-	UCodeGameEngineForceinlne void Set_Fov(f32 Value) { Fov = Value; }
+	UCodeGEForceinlne f32 Get_Fov() const { return Fov; }
+	UCodeGEForceinlne void Set_Fov(f32 Value) { Fov = Value; }
 
 
 	static UComponentsID Get_TypeID();

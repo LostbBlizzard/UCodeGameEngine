@@ -36,9 +36,9 @@ public:
 	void SetUniformMat4f(const String& name,const Mat4& V) const;
 
 
-	
-	static const char* dafalult_Vertex_shader_text;
-	static const char* dafalult_fragment_shader_text;
+	static const char* GetDefaultVertexShader();
+	static const char* GetDefaultFragmentShader();
+
 private:
 	u32 ShaderId;
 	void InitShader(const String& Vex, const String& Feg);

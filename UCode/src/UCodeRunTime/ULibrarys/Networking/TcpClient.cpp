@@ -13,10 +13,10 @@ TcpClient::~TcpClient()
 
 void TcpClient::Connet(const Ip_t& IP, Port_t Port)
 {
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 	if (IsConneted())
 	{
-		UCodeGameEngineThrowException("Client Is Runing");
+		UCodeGEThrow("Client Is Runing");
 	}
 #endif // DEBUG
 	
@@ -35,10 +35,10 @@ void TcpClient::Connet(const Ip_t& IP, Port_t Port)
 
 void TcpClient::Disconnet()
 {
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 	if (!IsConneted())
 	{
-		UCodeGameEngineThrowException("Client Is not Runing");
+		UCodeGEThrow("Client Is not Runing");
 	}
 #endif // DEBUG
 	_Base.reset();
@@ -46,10 +46,10 @@ void TcpClient::Disconnet()
 
 void TcpClient::Step()
 {
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 	if (IsConneted())
 	{
-		UCodeGameEngineThrowException("Client Is Runing");
+		UCodeGEThrow("Client Is Runing");
 	}
 #endif // DEBUG
 
@@ -74,10 +74,10 @@ bool TcpClient::IsConneted()
 
 void TcpClient::SendBytes(const BytesView Bytes)
 {
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 	if (!IsConneted())
 	{
-		UCodeGameEngineThrowException("Client Is not Runing");
+		UCodeGEThrow("Client Is not Runing");
 	}
 #endif // DEBUG
 	_Base->send(MinimalSocket::ConstBuffer{ (const char*)Bytes.Data(),Bytes.Size() });

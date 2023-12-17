@@ -63,7 +63,7 @@ P_Color = texturerColor * F_Color;
 */
 
 
-const char* Shader::dafalult_Vertex_shader_text = R"(
+const char* Default_Vertex_shader_v330 = R"(
 #version 330 core
 
 
@@ -89,7 +89,7 @@ gl_Position = (_ViewProj * _Transfrom) * vec4(V_Pos, 1.0);
 
 )";
 
-const char* Shader::dafalult_fragment_shader_text = R"(
+const char* Default_fragment_shader_v330 = R"(
 #version 330 core
 layout(location = 0) in vec4 F_Color;
 layout(location = 1) in vec2 F_texCord;
@@ -145,7 +145,7 @@ Shader::Shader(const Span<u32> SPRVB_Vex, const Span<u32> SPRVB_Feg)
 
         auto Text = std::make_unique<char[]>(logSize);
         GlCall(glGetProgramInfoLog(program, logSize, &logSize, &Text[0]));
-        UCODE_ENGINE_LOG("program linking  failed:" << StringView(Text.get(),logSize) << '\n');
+        UCodeGELog("program linking  failed:" << StringView(Text.get(),logSize) << '\n');
     }
 
 
@@ -187,7 +187,7 @@ void Shader::InitShader(const String& Vex, const String& Feg)
 
         GlCall(glGetShaderInfoLog(vertex_shader, logSize, &logSize, &Text[0]));
 
-        UCODE_ENGINE_LOG("Vertex shader failed:" << StringView(Text.get(),logSize) << std::endl);
+        UCodeGELog("Vertex shader failed:" << StringView(Text.get(),logSize) << std::endl);
       
     }
     if (success2 == GL_FALSE)
@@ -198,7 +198,7 @@ void Shader::InitShader(const String& Vex, const String& Feg)
 
         GlCall(glGetShaderInfoLog(fragment_shader, logSize, &logSize, &Text[0]));
 
-        UCODE_ENGINE_LOG("Fragment shader failed:" << StringView(Text.get(),logSize) <<std::endl);
+        UCodeGELog("Fragment shader failed:" << StringView(Text.get(),logSize) <<std::endl);
        
     }
     GLint program_linked; glGetProgramiv(program, GL_LINK_STATUS, &program_linked);
@@ -208,7 +208,7 @@ void Shader::InitShader(const String& Vex, const String& Feg)
 
         auto Text = std::make_unique<char[]>(logSize);
         GlCall(glGetProgramInfoLog(program, logSize, &logSize, &Text[0]));
-        UCODE_ENGINE_LOG("program linking  failed:" << StringView(Text.get(),logSize) << std::endl);
+        UCodeGELog("program linking  failed:" << StringView(Text.get(),logSize) << std::endl);
     }
 
   
@@ -259,13 +259,49 @@ void Shader::SetUniformMat4f(const String& name, const Mat4& V) const
     auto Location = GetUniformLocation(name);
     GlCall(glUniformMatrix4fv(Location,1,GL_FALSE,&V[0][0]))
 }
+
+GLuint GLVersion()
+{
+    GLint major = 0;
+    GLint minor = 0;
+    glGetIntegerv(GL_MAJOR_VERSION, &major);
+    glGetIntegerv(GL_MINOR_VERSION, &minor);
+    if (major == 0 && minor == 0)
+    {
+        // Query GL_VERSION in desktop GL 2.x, the string will start with "<major>.<minor>"
+        const char* gl_version = (const char*)glGetString(GL_VERSION);
+        sscanf(gl_version, "%d.%d", &major, &minor);
+    }
+    return (GLuint)(major * 100 + minor * 10);
+}
+
+const char* Shader::GetDefaultVertexShader()
+{
+    auto v = GLVersion();
+    if (v == 330)
+    {
+        return Default_Vertex_shader_v330;
+    }
+    UCodeGameEngineUnreachable();
+    return nullptr;
+}
+const char* Shader::GetDefaultFragmentShader()
+{
+    auto v = GLVersion();
+    UCodeGEThrow
+    if (v == 330)
+    {
+        return Default_fragment_shader_v330;
+    }
+    return nullptr;
+}
 i32 Shader::GetUniformLocation(const String& Name) const
 {
     //
     GlCall(auto r = glGetUniformLocation(ShaderId, Name.c_str()));
     if (r == -1) 
     {
-        UCodeGameEngineThrowException("Uniform does not exist");
+        UCodeGEThrow("Uniform does not exist");
     }
     return r;
 }

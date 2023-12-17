@@ -22,7 +22,7 @@ public:
 	}
 	Endian InputOutEndian = Endian::little;
 	inline static Endian _CPUEndian = BitConverter::Endian::NaN;
-	UCodeGameEngineForceinlne static Endian Get_CPU_Endian()
+	UCodeGEForceinlne static Endian Get_CPU_Endian()
 	{
 		if (_CPUEndian == Endian::NaN)
 		{
@@ -31,7 +31,7 @@ public:
 
 		return _CPUEndian;
 	}
-	UCodeGameEngineForceinlne static Endian _GetEndian()
+	UCodeGEForceinlne static Endian _GetEndian()
 	{
 		union
 		{
@@ -116,38 +116,38 @@ public:
 
 
 
-	UCodeGameEngineForceinlne Byte GetBytes(bool Value)
+	UCodeGEForceinlne Byte GetBytes(bool Value)
 	{
 		return (Byte)Value;
 	}
-	UCodeGameEngineForceinlne bool BytesToBool(const void* DataBytes, size_t Index)
+	UCodeGEForceinlne bool BytesToBool(const void* DataBytes, size_t Index)
 	{
 		Byte B = ((Byte*)DataBytes)[Index];
 		return B;
 	}
-	UCodeGameEngineForceinlne Byte GetBytes(signed char Value)
+	UCodeGEForceinlne Byte GetBytes(signed char Value)
 	{
 		return GetBytes((unsigned char)Value);
 	}
-	UCodeGameEngineForceinlne signed char BytesToSChar(const void* DataBytes, size_t Index)
+	UCodeGEForceinlne signed char BytesToSChar(const void* DataBytes, size_t Index)
 	{
 		return BytesToUChar(DataBytes, Index);
 	}
 
-	UCodeGameEngineForceinlne Byte GetBytes(char Value)
+	UCodeGEForceinlne Byte GetBytes(char Value)
 	{
 		return GetBytes((unsigned char)Value);
 	}
-	UCodeGameEngineForceinlne char BytesToChar(const void* DataBytes, size_t Index)
+	UCodeGEForceinlne char BytesToChar(const void* DataBytes, size_t Index)
 	{
 		return BytesToUChar(DataBytes, Index);
 	}
 
-	UCodeGameEngineForceinlne Byte GetBytes(unsigned char Value)
+	UCodeGEForceinlne Byte GetBytes(unsigned char Value)
 	{
 		return Value;
 	}
-	UCodeGameEngineForceinlne unsigned char BytesToUChar(const void* DataBytes, size_t Index)
+	UCodeGEForceinlne unsigned char BytesToUChar(const void* DataBytes, size_t Index)
 	{
 		Byte B = ((const Byte*)DataBytes)[Index];
 		return B;
@@ -156,8 +156,8 @@ public:
 	Byte16 GetBytes(i16 Value);
 	i16 BytesToInt16(const void* DataBytes, size_t Index);
 
-	UCodeGameEngineForceinlne Byte16 GetBytes(u16 Value) { return GetBytes(*(i16*)&Value); }
-	UCodeGameEngineForceinlne u16 BytesToUInt16(const void* DataBytes, size_t Index)
+	UCodeGEForceinlne Byte16 GetBytes(u16 Value) { return GetBytes(*(i16*)&Value); }
+	UCodeGEForceinlne u16 BytesToUInt16(const void* DataBytes, size_t Index)
 	{
 		auto V = BytesToInt16(DataBytes, Index);
 		return *(u16*)&V;
@@ -166,14 +166,14 @@ public:
 	Byte32 GetBytes(i32 Value);
 	i32 BytesToInt(const void* DataBytes, size_t Index);
 
-	UCodeGameEngineForceinlne Byte32 GetBytes(u32 Value) { return GetBytes(*(int*)&Value); }
-	UCodeGameEngineForceinlne u32 BytesToUInt(const void* DataBytes, size_t Index) {
+	UCodeGEForceinlne Byte32 GetBytes(u32 Value) { return GetBytes(*(int*)&Value); }
+	UCodeGEForceinlne u32 BytesToUInt(const void* DataBytes, size_t Index) {
 		auto V = BytesToInt(DataBytes, Index);
 		return *(unsigned int*)&V;
 	}
 
-	UCodeGameEngineForceinlne Byte32 GetBytes(f32 Value) { return GetBytes(*(int*)&Value); }
-	UCodeGameEngineForceinlne f32 BytesTofloat(const void* DataBytes, size_t Index)
+	UCodeGEForceinlne Byte32 GetBytes(f32 Value) { return GetBytes(*(int*)&Value); }
+	UCodeGEForceinlne f32 BytesTofloat(const void* DataBytes, size_t Index)
 	{
 		auto V = BytesToInt(DataBytes, Index);
 		return *(f32*)&V;
@@ -184,122 +184,122 @@ public:
 	Byte64 GetBytes(i64 Value);
 	i64 BytesToInt64(const void* DataBytes, size_t Index);
 
-	UCodeGameEngineForceinlne Byte64 GetBytes(u64 Value) { return GetBytes(*(i64*)&Value); }
-	UCodeGameEngineForceinlne u64 BytesToUInt64(const void* DataBytes, size_t Index) {
+	UCodeGEForceinlne Byte64 GetBytes(u64 Value) { return GetBytes(*(i64*)&Value); }
+	UCodeGEForceinlne u64 BytesToUInt64(const void* DataBytes, size_t Index) {
 		auto V = BytesToInt64(DataBytes, Index);
 		return *(u64*)&V;
 	}
 
-	UCodeGameEngineForceinlne Byte64 GetBytes(f64 Value) { return GetBytes(*(i64*)&Value); }
-	UCodeGameEngineForceinlne f64 BytesTofloat64(const void* DataBytes, size_t Index)
+	UCodeGEForceinlne Byte64 GetBytes(f64 Value) { return GetBytes(*(i64*)&Value); }
+	UCodeGEForceinlne f64 BytesTofloat64(const void* DataBytes, size_t Index)
 	{
 		auto V = BytesToInt64(DataBytes, Index);
 		return *(f64*)&V;
 	}
 	//Helpers
-	UCodeGameEngineForceinlne void BytesToBool(const void* DataBytes, size_t Index, bool* OutPut)
+	UCodeGEForceinlne void BytesToBool(const void* DataBytes, size_t Index, bool* OutPut)
 	{
 		*OutPut = BytesToBool(DataBytes, Index);
 	}
-	UCodeGameEngineForceinlne void BytesToChar(const void* DataBytes, size_t Index, signed char* OutPut)
+	UCodeGEForceinlne void BytesToChar(const void* DataBytes, size_t Index, signed char* OutPut)
 	{
 		*OutPut = BytesToSChar(DataBytes, Index);
 	}
-	UCodeGameEngineForceinlne void BytesToChar(const void* DataBytes, size_t Index, char* OutPut)
+	UCodeGEForceinlne void BytesToChar(const void* DataBytes, size_t Index, char* OutPut)
 	{
 		*OutPut = BytesToChar(DataBytes, Index);
 	}
-	UCodeGameEngineForceinlne void BytesToChar(const void* DataBytes, size_t Index, unsigned char* OutPut)
+	UCodeGEForceinlne void BytesToChar(const void* DataBytes, size_t Index, unsigned char* OutPut)
 	{
 		*OutPut = BytesToChar(DataBytes, Index);
 	}
 
-	UCodeGameEngineForceinlne void BytesToInt16(const void* DataBytes, size_t Index, i16* OutPut)
+	UCodeGEForceinlne void BytesToInt16(const void* DataBytes, size_t Index, i16* OutPut)
 	{
 		*OutPut = BytesToInt16(DataBytes, Index);
 	}
-	UCodeGameEngineForceinlne void BytesToInt16(const void* DataBytes, size_t Index, u16* OutPut)
+	UCodeGEForceinlne void BytesToInt16(const void* DataBytes, size_t Index, u16* OutPut)
 	{
 		*OutPut = BytesToInt16(DataBytes, Index);
 	}
 
-	UCodeGameEngineForceinlne void BytesToInt(const void* DataBytes, size_t Index, int* OutPut)
+	UCodeGEForceinlne void BytesToInt(const void* DataBytes, size_t Index, int* OutPut)
 	{
 		*OutPut = BytesToInt(DataBytes, Index);
 	}
-	UCodeGameEngineForceinlne void BytesToInt(const void* DataBytes, size_t Index, unsigned int* OutPut)
+	UCodeGEForceinlne void BytesToInt(const void* DataBytes, size_t Index, unsigned int* OutPut)
 	{
 		*OutPut = BytesToInt(DataBytes, Index);
 	}
 
-	UCodeGameEngineForceinlne void BytesTofloat(const void* DataBytes, size_t Index, f32* OutPut)
+	UCodeGEForceinlne void BytesTofloat(const void* DataBytes, size_t Index, f32* OutPut)
 	{
 		*OutPut = BytesTofloat(DataBytes, Index);
 	}
 
-	UCodeGameEngineForceinlne void BytesToInt64(const void* DataBytes, size_t Index, i64* OutPut)
+	UCodeGEForceinlne void BytesToInt64(const void* DataBytes, size_t Index, i64* OutPut)
 	{
 		*OutPut = BytesToInt64(DataBytes, Index);
 	}
-	UCodeGameEngineForceinlne void BytesToInt64(const void* DataBytes, size_t Index, u64* OutPut)
+	UCodeGEForceinlne void BytesToInt64(const void* DataBytes, size_t Index, u64* OutPut)
 	{
 		*OutPut = BytesToUInt64(DataBytes, Index);
 	}
 
-	UCodeGameEngineForceinlne void BytesTofloat64(const void* DataBytes, size_t Index, f64* OutPut)
+	UCodeGEForceinlne void BytesTofloat64(const void* DataBytes, size_t Index, f64* OutPut)
 	{
 		*OutPut = BytesTofloat64(DataBytes, Index);
 	}
 
-	UCodeGameEngineForceinlne void MoveBytes(const bool Value, void* DataBytes, size_t Index)
+	UCodeGEForceinlne void MoveBytes(const bool Value, void* DataBytes, size_t Index)
 	{
 		((Byte*)DataBytes)[Index] = GetBytes(Value);
 	}
-	UCodeGameEngineForceinlne void MoveBytes(const signed char Value, void* DataBytes, size_t Index)
+	UCodeGEForceinlne void MoveBytes(const signed char Value, void* DataBytes, size_t Index)
 	{
 		((Byte*)DataBytes)[Index] = GetBytes(Value);
 	}
-	UCodeGameEngineForceinlne void MoveBytes(const char Value, void* DataBytes, size_t Index)
+	UCodeGEForceinlne void MoveBytes(const char Value, void* DataBytes, size_t Index)
 	{
 		((Byte*)DataBytes)[Index] = GetBytes(Value);
 	}
-	UCodeGameEngineForceinlne void MoveBytes(const unsigned char Value, void* DataBytes, size_t Index)
+	UCodeGEForceinlne void MoveBytes(const unsigned char Value, void* DataBytes, size_t Index)
 	{
 		((Byte*)DataBytes)[Index] = GetBytes(Value);
 	}
 
-	UCodeGameEngineForceinlne void MoveBytes(const i16 Value, void* DataBytes, size_t Index)
+	UCodeGEForceinlne void MoveBytes(const i16 Value, void* DataBytes, size_t Index)
 	{
 		GetBytes(Value).MoveValues((Byte*)DataBytes, Index);
 	}
-	UCodeGameEngineForceinlne void MoveBytes(const u16 Value, void* DataBytes, size_t Index)
-	{
-		GetBytes(Value).MoveValues((Byte*)DataBytes, Index);
-	}
-
-	UCodeGameEngineForceinlne void MoveBytes(const u32 Value, void* DataBytes, size_t Index)
-	{
-		GetBytes(Value).MoveValues((Byte*)DataBytes, Index);
-	}
-	UCodeGameEngineForceinlne void MoveBytes(const i32 Value, void* DataBytes, size_t Index)
-	{
-		GetBytes(Value).MoveValues((Byte*)DataBytes, Index);
-	}
-	UCodeGameEngineForceinlne void MoveBytes(const f32 Value, void* DataBytes, size_t Index)
+	UCodeGEForceinlne void MoveBytes(const u16 Value, void* DataBytes, size_t Index)
 	{
 		GetBytes(Value).MoveValues((Byte*)DataBytes, Index);
 	}
 
-	UCodeGameEngineForceinlne void MoveBytes(const i64 Value, void* DataBytes, size_t Index)
+	UCodeGEForceinlne void MoveBytes(const u32 Value, void* DataBytes, size_t Index)
 	{
 		GetBytes(Value).MoveValues((Byte*)DataBytes, Index);
 	}
-	UCodeGameEngineForceinlne void MoveBytes(const u64 Value, void* DataBytes, size_t Index)
+	UCodeGEForceinlne void MoveBytes(const i32 Value, void* DataBytes, size_t Index)
+	{
+		GetBytes(Value).MoveValues((Byte*)DataBytes, Index);
+	}
+	UCodeGEForceinlne void MoveBytes(const f32 Value, void* DataBytes, size_t Index)
 	{
 		GetBytes(Value).MoveValues((Byte*)DataBytes, Index);
 	}
 
-	UCodeGameEngineForceinlne void MoveBytes(const f64 Value, void* DataBytes, size_t Index)
+	UCodeGEForceinlne void MoveBytes(const i64 Value, void* DataBytes, size_t Index)
+	{
+		GetBytes(Value).MoveValues((Byte*)DataBytes, Index);
+	}
+	UCodeGEForceinlne void MoveBytes(const u64 Value, void* DataBytes, size_t Index)
+	{
+		GetBytes(Value).MoveValues((Byte*)DataBytes, Index);
+	}
+
+	UCodeGEForceinlne void MoveBytes(const f64 Value, void* DataBytes, size_t Index)
 	{
 		GetBytes(Value).MoveValues((Byte*)DataBytes, Index);
 	}

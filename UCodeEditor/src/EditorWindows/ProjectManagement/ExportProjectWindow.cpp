@@ -132,7 +132,7 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 
 	static const Vector<ImGuIHelper::EnumValue<WindowsBuildSetings::Architecture>> ArchitectureValues
 	{ 
-		#if UCodeGameEnginePlatformWindows
+		#if UCodeGEWindows
 		{"current cpu",WindowsBuildSetings::Architecture::Native},
 		#endif
 		{"x86_64",WindowsBuildSetings::Architecture::x86_64},

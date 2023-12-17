@@ -112,7 +112,7 @@ bool EditorAppCompoent::OpenProject(const Path& ProjectDir)
        
         LoadWindowsPref();
 
-        UCODE_ENGINE_LOG("Project Loaded");
+        UCodeGELog("Project Loaded");
         //
         OnProjectLoaded();
         //
@@ -241,7 +241,7 @@ void  EditorAppCompoent::ShowMainMenuBar()
                     std::string ProjectPath = DirInfo.Path + '/';
                     if (!OpenProject(ProjectPath))
                     {
-                        UCODE_ENGINE_LOG("Failed To Open Project at " + ProjectPath);
+                        UCodeGELog("Failed To Open Project at " + ProjectPath);
 
                     }
                 }
@@ -451,7 +451,7 @@ void  EditorAppCompoent::LoadWindowsPref()
                 Data.SetYAMLString(StringView((char*)Item._WindowData.data() + 1, Item._WindowData.size()-1));
                 break;
             default:
-                UCodeGameEngineUnreachable();
+                UCodeGEUnreachable();
                 break;
             }
             
@@ -494,7 +494,7 @@ void  EditorAppCompoent::SaveWindowsPref()
     //ImGui::SaveIniSettingsToDisk(IniPrePath.c_str());
     if (!WindowPrefData::WriteToFile(WinPrePath, data, TypeSerializer))
     {
-        UCODE_ENGINE_LOG("Could not Save WindowPrefs");
+        UCodeGELog("Could not Save WindowPrefs");
     }
     
 }
@@ -545,7 +545,7 @@ void EditorAppCompoent::OnDraw()
         {
             _AutoSaveTimer = MaxAutoTimer;
             SaveApp();
-            UCODE_ENGINE_LOG("Auto Saved");
+            UCodeGELog("Auto Saved");
         }
         else
         {

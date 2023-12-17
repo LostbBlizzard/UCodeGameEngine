@@ -106,7 +106,7 @@ using Variant = UC::Variant<T...>;
 
 
 
-#define UCODE_EDITOR_FORCEINLINE UCodeGameEngineForceinlne
+#define UCODE_EDITOR_FORCEINLINE UCodeGEForceinlne
 #define UCODE_EDITOR_NODISCARD UCodeGameEngineNoDiscard
 
 

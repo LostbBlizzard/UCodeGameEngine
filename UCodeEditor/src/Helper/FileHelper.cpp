@@ -14,7 +14,7 @@
 
 #include <UCodeRunTime/CoreSystems/Threads.hpp>
 
-#if UCodeGameEnginePlatformWindows
+#if UCodeGEWindows
 #include <Windows.h>
 #include <shellapi.h>
 #endif // DEBUG
@@ -185,7 +185,7 @@ FileHelper::FileType FileHelper::GetFileType(const String& Ext)
 
 void FileHelper::OpenExe(const Path& path, const String& Args)
 {
-#if UCodeGameEnginePlatformWindows
+#if UCodeGEWindows
 	Path t = "open";
 	Path args =Path(Args.c_str());
 	ShellExecute(NULL, t.c_str(), path.c_str(), args.c_str(), NULL, SW_SHOWDEFAULT);
@@ -236,11 +236,11 @@ FileHelper::OpenFileData FileHelper::SaveToFilePathFromUser(FileTypesOptions_t f
 void FileHelper::OpenPathinFiles(const Path&  Dir)
 {
 	
-	#if UCodeGameEnginePlatformWindows
+	#if UCodeGEWindows
 	ShellExecuteA(NULL, "open", (LPSTR)Dir.generic_string().c_str(), NULL, NULL, SW_SHOWDEFAULT);
 	
 #else
-	UCodeGameEngineThrowException("OpenPathinFiles");
+	UCodeGEThrow("OpenPathinFiles");
 #endif
 	
 }
@@ -252,7 +252,7 @@ Path FileHelper::Get_PersistentDataPath()
 	//Data.APPName = "UCodeEditor";
 	Path R;// = UCode::GameFiles::Get_PersistentDataPath(Data);
 	
-	#if UCodeGameEngineDEBUG
+	#if UCodeGEDebug
 	R = UCode_VS_PROJECTPATH "PersistentData/";
 	#endif // DEBUG
 	if (!fs::exists(R))
@@ -267,7 +267,7 @@ Path FileHelper::Get_PersistentDataPath()
 bool FileHelper::TrashFile(const Path& File)
 {
 	return fs::remove(File);
-	#if UCodeGameEnginePlatformWindows
+	#if UCodeGEWindows
 
 	auto widestr = File.native();
 
@@ -287,7 +287,7 @@ bool FileHelper::TrashFile(const Path& File)
 	}
 	return false;
 #else
-	UCodeGameEngineThrowException("TrashFile")
+	UCodeGEThrow("TrashFile")
 #endif
 
 }

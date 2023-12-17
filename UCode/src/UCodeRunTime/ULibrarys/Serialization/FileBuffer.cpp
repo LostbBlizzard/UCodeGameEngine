@@ -2,7 +2,7 @@
 #include <filesystem>
 #include <UCodeRunTime/CoreSystems/GameFiles.hpp>
 
-#if UCodeGameEnginePlatformWindows
+#if UCodeGEWindows
 #include <Windows.h>
 #include <shlobj.h>
 #endif // UCode_Build_Windows_OS
@@ -34,7 +34,7 @@ void FileBuffer::Close()
 size_t FileBuffer::Get_BufferSize()
 {
 	size_t BufferSize =0;
-	#if UCodeGameEnginePlatformWindows
+	#if UCodeGEWindows
 	SYSTEM_INFO sysInfo;
 
 	GetSystemInfo(&sysInfo);

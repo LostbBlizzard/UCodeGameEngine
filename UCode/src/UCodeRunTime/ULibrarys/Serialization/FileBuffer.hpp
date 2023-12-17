@@ -22,11 +22,11 @@ struct FileBuffer
 		return _File.is_open();
 	}
 
-	UCodeGameEngineForceinlne auto Get_FileSize()
+	UCodeGEForceinlne auto Get_FileSize()
 	{
 		return _FileSize;
 	}
-	UCodeGameEngineForceinlne size_t Get_FileReadIndex()
+	UCodeGEForceinlne size_t Get_FileReadIndex()
 	{
 		if (_FullFileInMem)
 		{

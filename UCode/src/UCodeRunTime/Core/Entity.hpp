@@ -78,19 +78,19 @@ public:
 	RunTimeScene* Get_Scene() const;
 
 	
-	template<class T, typename... Pars> UCodeGameEngineForceinlne T* AddCompoent(Pars... parameters);
-	template<class T> UCodeGameEngineForceinlne T* GetCompent();
+	template<class T, typename... Pars> UCodeGEForceinlne T* AddCompoent(Pars... parameters);
+	template<class T> UCodeGEForceinlne T* GetCompent();
 
 	template<class T> CompoentPtr<T> Get_ManagedPtr()
 	{
 		constexpr bool IsCompoent = std::is_base_of<Compoent, T>();
 		static_assert(IsCompoent, " 'T' is not a Compoent");
-		#if UCodeGameEngineDEBUG
+		#if UCodeGEDebug
 
 		T* cast = dynamic_cast<T*>(_Managed.Get_Value());
 		if (cast == nullptr)
 		{
-			UCODE_ENGINE_ERROR("bad type");
+			UCodeGEError("bad type");
 		}
 
 		#endif // DEBUG
@@ -136,11 +136,11 @@ public:
 	
 	
 
-	UCodeGameEngineForceinlne const auto& NativeCompoents() const
+	UCodeGEForceinlne const auto& NativeCompoents() const
 	{
 		return _Compoents;
 	}
-	UCodeGameEngineForceinlne auto& NativeCompoents()
+	UCodeGEForceinlne auto& NativeCompoents()
 	{
 		return _Compoents;
 	}
@@ -158,7 +158,7 @@ public:
 	inline void MoveCompoent(Compoent* t)
 	{
 
-		#if UCodeGameEngineDEBUG
+		#if UCodeGEDebug
 		if (t->NativeEntity() != this)
 		{
 			throw std::runtime_error("Cant Move Compoent ,Compoent was made with Entity a different Entity");
@@ -212,12 +212,12 @@ public:
 		return nullptr;
 	}
 
-	UCodeGameEngineForceinlne RunTimeScene* NativeScene() const { return _Scene; }
+	UCodeGEForceinlne RunTimeScene* NativeScene() const { return _Scene; }
 	GameRunTime* NativeGameRunTime();
 
-	UCodeGameEngineForceinlne void SetActive(bool V) { _IsActive = V; }
+	UCodeGEForceinlne void SetActive(bool V) { _IsActive = V; }
 
-	UCodeGameEngineForceinlne bool GetActive() const { return _IsActive; }
+	UCodeGEForceinlne bool GetActive() const { return _IsActive; }
 	
 	UCodeLangExport void Enable() { _IsActive = true; }
 	UCodeLangExport void Disable() { _IsActive = false; }
@@ -236,14 +236,14 @@ public:
 	{
 		Destroy(this);
 	}
-	UCodeGameEngineForceinlne static void Destroy(Entity* compoent) { compoent->_IsDestroyed = true; }
-	UCodeGameEngineForceinlne bool Get_IsDestroyed() const { return _IsDestroyed; }
+	UCodeGEForceinlne static void Destroy(Entity* compoent) { compoent->_IsDestroyed = true; }
+	UCodeGEForceinlne bool Get_IsDestroyed() const { return _IsDestroyed; }
 
 	//Dont use me unless you know what you're doing
-	UCodeGameEngineForceinlne void EditorAPI_Set_Scene(RunTimeScene* S) { _Scene = S; }
+	UCodeGEForceinlne void EditorAPI_Set_Scene(RunTimeScene* S) { _Scene = S; }
 	
 	//Dont use me unless you know what you're doing
-	UCodeGameEngineForceinlne void EditorAPI_Set_ParentEntity(Entity* S) { _ParentEntity = S; }
+	UCodeGEForceinlne void EditorAPI_Set_ParentEntity(Entity* S) { _ParentEntity = S; }
 	
 	EntityPtr NativeManagedPtr()
 	{
@@ -254,11 +254,11 @@ public:
 		return _Managed;
 	}
 
-	UCodeGameEngineForceinlne auto& NativeGetEntitys()
+	UCodeGEForceinlne auto& NativeGetEntitys()
 	{
 		return _Entitys;
 	}
-	UCodeGameEngineForceinlne auto& NativeGetEntitys() const
+	UCodeGEForceinlne auto& NativeGetEntitys() const
 	{
 		return _Entitys;
 	}
@@ -348,12 +348,12 @@ public:
 	UCodeLangExport void worldscale(const Vec3& Value);
 	UCodeLangExport void worldscale(const Vec2& Value);
 
-	UCodeGameEngineForceinlne const auto NativeParent() const
+	UCodeGEForceinlne const auto NativeParent() const
 	{
 		return   _ParentEntity;
 	}
 
-	UCodeGameEngineForceinlne auto NativeParent() 
+	UCodeGEForceinlne auto NativeParent() 
 	{
 		return   _ParentEntity;
 	}
@@ -379,11 +379,11 @@ private:
 };
 
 
-template<class T, typename ...Pars> UCodeGameEngineForceinlne T* Compoent::AddCompoent(Pars... parameters)
+template<class T, typename ...Pars> UCodeGEForceinlne T* Compoent::AddCompoent(Pars... parameters)
 {
 		return _Entity->AddCompoent<T>(parameters...);
 }
-template<class T> UCodeGameEngineForceinlne T* Compoent::GetCompent()
+template<class T> UCodeGEForceinlne T* Compoent::GetCompent()
 {
 	return _Entity->GetCompent<T>();
 }

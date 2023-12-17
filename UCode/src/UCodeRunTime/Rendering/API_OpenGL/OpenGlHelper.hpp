@@ -10,7 +10,7 @@
 #include "../RenderAPINamespace.h"
 
 
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 #define GlCall(x) _RenderAPI::GLClearError();x;UCodeGameEngineAssert(!_RenderAPI::GLCheckError(#x,__FILE__,__LINE__));
 #else
 #define GlCall(x) x;
@@ -62,10 +62,10 @@ static bool GLCheckError(const char* funk, const char* file,i32 line)
 			break;
 		default:
 			errortypeName = nullptr;
-			UCodeGameEngineUnreachable();
+			UCodeGEUnreachable();
 			break;
 		}
-		UCODE_ENGINE_LOG(RenderAPIErrorStartTag "(" << errorcode << ")" << errortypeName <<'\n'
+		UCodeGELog(RenderAPIErrorStartTag "(" << errorcode << ")" << errortypeName <<'\n'
 			<< " On Line:" << line << " At file " << file
 			<< '\n' << " Called:" << funk);
 		return true;

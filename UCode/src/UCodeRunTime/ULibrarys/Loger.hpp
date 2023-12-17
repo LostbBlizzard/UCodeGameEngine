@@ -9,11 +9,11 @@
 CoreStart
 
 
-#define UCODE_ENGINE_LOG_t(type,x) Core::Loger::InitCheck(); PLOG(Core::Loger::GetPlogType(type)) << x;
-#define UCODE_ENGINE_LOG(x)  UCODE_ENGINE_LOG_t(Core::LogType::Default,x)
-#define UCODE_ENGINE_ERROR(x)  UCODE_ENGINE_LOG_t(Core::LogType::Error,x)
-#define UCODE_ENGINE_FATAL(x)  UCODE_ENGINE_LOG_t(Core::LogType::Fatal,x)
-#define UCODE_ENGINE_Warning(x)  UCODE_ENGINE_LOG_t(Core::LogType::Warning,x)
+#define UCodeGELog_t(type,x) Core::Loger::InitCheck(); PLOG(Core::Loger::GetPlogType(type)) << x;
+#define UCodeGELog(x)  UCodeGELog_t(Core::LogType::Default,x)
+#define UCodeGEError(x)  UCodeGELog_t(Core::LogType::Error,x)
+#define UCodeGEFatal(x)  UCodeGELog_t(Core::LogType::Fatal,x)
+#define UCodeGEWarning(x)  UCodeGELog_t(Core::LogType::Warning,x)
 
 enum class LogType : Byte
 {

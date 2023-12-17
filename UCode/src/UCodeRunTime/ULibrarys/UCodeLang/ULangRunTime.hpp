@@ -30,19 +30,19 @@ public:
 	void HotReLoadScripts();
 	void ReLoadScripts();
 
-	UCodeGameEngineForceinlne void* Lang_Malloc(size_t Size)
+	UCodeGEForceinlne void* Lang_Malloc(size_t Size)
 	{
 		return (void*)_State.Malloc((UCodeLang::NSize_t)Size);
 	}
-	UCodeGameEngineForceinlne void* Lang_Realloc(void* oldPtr,size_t Size)
+	UCodeGEForceinlne void* Lang_Realloc(void* oldPtr,size_t Size)
 	{
 		return (void*)_State.Realloc((UCodeLang::PtrType)oldPtr,(UCodeLang::NSize_t)Size);
 	}
-	UCodeGameEngineForceinlne void* Lang_Calloc(size_t Size)
+	UCodeGEForceinlne void* Lang_Calloc(size_t Size)
 	{
 		return (void*)_Interpreter.Calloc((UCodeLang::NSize_t)Size);
 	}
-	UCodeGameEngineForceinlne void Lang_Free(void* Ptr)
+	UCodeGEForceinlne void Lang_Free(void* Ptr)
 	{
 		_State.Free((UCodeLang::PtrType)Ptr);
 	}
@@ -67,13 +67,13 @@ public:
 	}
 
 
-	UCodeGameEngineForceinlne const UCodeLang::ClassAssembly& Get_Assembly()
+	UCodeGEForceinlne const UCodeLang::ClassAssembly& Get_Assembly()
 	{
 		return _State.Get_Assembly();
 	}
 	void OpenLibs(const Path& PathDir);
 
-	UCodeGameEngineForceinlne UCodeLang::Allocator& Get_Allocator()
+	UCodeGEForceinlne UCodeLang::Allocator& Get_Allocator()
 	{
 		return _State.Get_Allocator();
 	}
@@ -125,12 +125,12 @@ public:
 
 	void CallAwake();
 
-	UCodeGameEngineForceinlne ULangRunTime* GetULang() const
+	UCodeGEForceinlne ULangRunTime* GetULang() const
 	{
 		return ULangRunTime::Get(Get_Scene()->Get_RunTime()->Get_Library_Edit());
 	}
 
-	UCodeGameEngineForceinlne String GetClassName() const
+	UCodeGEForceinlne String GetClassName() const
 	{
 		if (_ClassData)
 		{
@@ -141,24 +141,24 @@ public:
 			return NoClassScript;
 		}
 	}
-	UCodeGameEngineForceinlne void SetClassName(const String& Name)
+	UCodeGEForceinlne void SetClassName(const String& Name)
 	{
 		_ClassName = Name;
 	}
 
-	UCodeGameEngineForceinlne bool HasScript()const
+	UCodeGEForceinlne bool HasScript()const
 	{ 
 		return _UObj;
 	}
-	UCodeGameEngineForceinlne bool HasClass()const
+	UCodeGEForceinlne bool HasClass()const
 	{
 		return _ClassData;
 	}
-	UCodeGameEngineForceinlne const UCodeLang::Class_Data* Get_ClassData() const
+	UCodeGEForceinlne const UCodeLang::Class_Data* Get_ClassData() const
 	{
 		return  _ClassData;
 	}
-	UCodeGameEngineForceinlne void* Get_UObj() const
+	UCodeGEForceinlne void* Get_UObj() const
 	{
 		return _UObj;
 	}
@@ -225,9 +225,9 @@ public:
 		return {};
 	}
 
-	static UCodeGameEngineForceinlne void Set_Current(ULangRunTime* Value){Current = Value;}
-	static UCodeGameEngineForceinlne ULangRunTime* Get_Current() { return Current; }
-	static UCodeGameEngineForceinlne bool Has_Current(){return  Get_Current();}
+	static UCodeGEForceinlne void Set_Current(ULangRunTime* Value){Current = Value;}
+	static UCodeGEForceinlne ULangRunTime* Get_Current() { return Current; }
+	static UCodeGEForceinlne bool Has_Current(){return  Get_Current();}
 private:
 	inline static thread_local ULangRunTime* Current = nullptr;
 };

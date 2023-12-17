@@ -1,6 +1,6 @@
 #include "UGlobalState.hpp"
 
-#if UCodeGameEnginePlatformWindows
+#if UCodeGEWindows
 #include <Windows.h>
 #include <shlobj.h>
 #endif // Windows
@@ -8,7 +8,7 @@
 EditorStart
 Path UGlobalState::GetGlobalDirectory()
 {
-    #if UCodeGameEnginePlatformWindows
+    #if UCodeGEWindows
 
     WCHAR my_documents[MAX_PATH];
     HRESULT result = SHGetFolderPathW(0, CSIDL_PROFILE, 0, 0, my_documents);
@@ -31,7 +31,7 @@ Path UGlobalState::GetGlobalDirectory()
     }
 
 	#else
-    UCodeGameEngineThrowException("GetGlobalDirectory Has no Body");
+    UCodeGEThrow("GetGlobalDirectory Has no Body");
 	#endif // Windows
 }
 Path UGlobalState::GetPluginDirectory()

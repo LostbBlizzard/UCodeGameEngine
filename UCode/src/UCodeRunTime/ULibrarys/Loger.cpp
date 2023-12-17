@@ -54,7 +54,7 @@ public:
 	void write(const plog::Record& record) override
 	{
 		std::wostream& Output = std::wcout;
-		#if UCodeGameEngineDEBUG
+		#if UCodeGEDebug
 		PushToStream(Output, record);
 		#endif // DEBUG
 		if (!LogerFileOutInfo.Loger_FileOutput.empty())

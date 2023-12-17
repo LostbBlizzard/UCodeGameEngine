@@ -199,7 +199,7 @@ public:
 	struct EnumVariant_helper<T2, Types2...>
 	{
 		
-		UCodeGameEngineForceinlne static const char* GetName(const UCode::VariantTagType type_index)
+		UCodeGEForceinlne static const char* GetName(const UCode::VariantTagType type_index)
 		{
 			if (type_index == sizeof...(Types2))
 			{
@@ -210,7 +210,7 @@ public:
 				return EnumVariant_helper<Types2...>::GetName(type_index);
 			}
 		}
-		UCodeGameEngineForceinlne static bool DrawItem(const UCode::VariantTagType type_index,void* Object)
+		UCodeGEForceinlne static bool DrawItem(const UCode::VariantTagType type_index,void* Object)
 		{
 			if (type_index == sizeof...(Types2))
 			{
@@ -477,7 +477,7 @@ public:
 			OptionalMembers<T>& AsMembers = *(OptionalMembers<T>*) & ObjectAsType;
 			if (Value != AsMembers.Value)
 			{
-				UCODE_ENGINE_FATAL("Member Miss-Match");
+				UCodeGEFatal("Member Miss-Match");
 				
 
 			}
