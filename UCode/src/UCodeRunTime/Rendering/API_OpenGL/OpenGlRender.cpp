@@ -487,8 +487,31 @@ void OpenGlRender::glfwerror_callback(int error, const char* description)
 static const size_t MaxQuadCount = 1000;
 static const size_t MaxVertexCount = MaxQuadCount * 4;
 static const size_t MaxIndexCount = MaxQuadCount * 6;
+
+GLuint GLVersionV()
+{
+    GLint major = 0;
+    GLint minor = 0;
+    glGetIntegerv(GL_MAJOR_VERSION, &major);
+    glGetIntegerv(GL_MINOR_VERSION, &minor);
+    if (major == 0 && minor == 0)
+    {
+        // Query GL_VERSION in desktop GL 2.x, the string will start with "<major>.<minor>"
+        const char* gl_version = (const char*)glGetString(GL_VERSION);
+        sscanf(gl_version, "%d.%d", &major, &minor);
+    }
+    return (GLuint)(major * 100 + minor * 10);
+}
+
+
 void OpenGlRender::Init()
 {
+    {
+        auto v = GLVersionV();
+    
+        UCodeGELog("initializing OpenGl:" << v);
+    }
+
     i32 Maxtexureslots;
     GlCall(glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &Maxtexureslots));
     TextureSlots.resize(Maxtexureslots);
