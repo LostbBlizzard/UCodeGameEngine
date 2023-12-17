@@ -91,7 +91,7 @@ public:
 
 
 	static Path GetFilePathByMove(const Path& Path);
-
+	static bool CopyFile(const Path& path, const Path& outpath);
 
 
 	static AppFiles::sprite GetSprite(FileHelper::FileType type);

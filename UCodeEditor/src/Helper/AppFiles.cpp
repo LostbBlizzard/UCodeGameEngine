@@ -393,6 +393,11 @@ Path AppFiles::GetFilePathByMove(const Path &path)
     return GetGameFiles()->GetGameFilePathByMove(path);
 }
 
+bool AppFiles::CopyFile(const Path& path, const Path& outpath)
+{
+    return GetGameFiles()->CopyGameFileTo(path,outpath);
+}
+
 AsynTask_t<String> AppFiles::AsynReadFileString(const Path &path)
 {
     return GetGameFiles()->AsynReadFileString(path);
