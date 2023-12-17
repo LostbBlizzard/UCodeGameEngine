@@ -73,7 +73,11 @@ void OpenProjectWindow::UpdateWindow()
 
                 ImGui::Separator();
                 ImGui::Text(Item._Name.c_str()); ImGui::SameLine();
-                if (ImGui::Button("OpenProject", ButtonSize))
+                
+                ImGui::PushID(&Item);
+                bool a = ImGui::Button("OpenProject", ButtonSize);
+                ImGui::PopID();
+                if (a)
                 {
                     if (Get_App()->OpenProject(Item._Path / ""))
                     {
@@ -84,7 +88,12 @@ void OpenProjectWindow::UpdateWindow()
                         //ShowPopUp
                     }
                 }ImGui::SameLine();
-                if (ImGui::Button("Remove from Project List", ButtonSize))
+
+
+                ImGui::PushID((uintptr_t(&Item)+1));
+                bool c = ImGui::Button("Remove from Project List", ButtonSize);
+                ImGui::PopID();
+                if (c)
                 {
                     GetProjects()->_Projects.erase(it);
                     SaveProjects();

@@ -28,15 +28,7 @@ EditorAppCompoent::EditorAppCompoent(UCode::Entity* entity) :
 {
     AppFiles::Init(GetGameRunTime()->Get_Library_Edit());
     
-    AppFiles::AsynReadFileAsBytes("art/OpenSans-VariableFont_wdth,wght.ttf")
-        .OnCompletedOnMainThread([this](Unique_Bytes FontBytes)
-    {
-                /*
-    auto& io = ImGui::GetIO();
-    io.Fonts->AddFontFromMemoryTTF(FontBytes.Release(), FontBytes.Size(), 16.0f);
-    io.FontDefault = io.Fonts->Fonts.back();
-    */
-    });
+   
 
 
     _This = this;
@@ -48,6 +40,7 @@ EditorAppCompoent::~EditorAppCompoent()
     _This = nullptr;
 }
 
+Optional< Unique_Bytes> bytes;
 
 void EditorAppCompoent::Init(const Path& projDir)
 {
@@ -58,7 +51,14 @@ void EditorAppCompoent::Init(const Path& projDir)
     AssetS->Set_AssetLoader(_Loader.get());
 
     _Loader->Init(&_RunTimeProjectData, AssetS);
-
+    
+    {
+        auto FontBytes = AppFiles::ReadFileAsBytes("art/OpenSans-VariableFont_wdth,wght.ttf");
+        auto& io = ImGui::GetIO();
+        io.Fonts->AddFontFromMemoryTTF(FontBytes.Release(), FontBytes.Size(), 16.0f);
+        io.FontDefault = io.Fonts->Fonts.back();
+        io.Fonts->Build();
+    }
 
     ImGuIHelper_Asset::AssetManager = AssetS;
     ImGuIHelper_Asset::ProjectData = Get_RunTimeProjectData();
@@ -68,6 +68,12 @@ void EditorAppCompoent::Init(const Path& projDir)
         _AllWindowsData.push_back(Item);
     }
    
+    if (!std::filesystem::exists("imgui.ini"))
+    {
+        AppFiles::CopyFile("presets/imgui.ini", "imgui.ini");
+        ImGui::LoadIniSettingsFromDisk("imgui.ini");
+    }
+
     if (!OpenProject(projDir))
     {
         NewEditorWindowData DataForWindow(this);
@@ -417,52 +423,65 @@ void  EditorAppCompoent::OnAppEnded()
 void  EditorAppCompoent::LoadWindowsPref()
 {
     const Path WinPrePath = _RunTimeProjectData.Get_ProjectPrefsDir().concat(WindowPrefData::FileName);
-    const Path IniPrePath = _RunTimeProjectData.Get_ProjectPrefsDir().concat("Ini").concat( WindowPrefData::FileName);
-    
-   
-    //Do Cool Stuff
+    const Path IniPrePath = _RunTimeProjectData.Get_ProjectPrefsDir().concat("Ini").concat(WindowPrefData::FileName);
+
+
+
     WindowPrefData data;
-    if (WindowPrefData::ReadFromFile(WinPrePath, data))
+    if (!WindowPrefData::ReadFromFile(WinPrePath, data))
     {
-        for (size_t i = 0; i < data._Windows.size(); i++)
+        if (!AppFiles::CopyFile("presets/WindowPrefData.Pref", WinPrePath))
         {
-            const auto& Item = data._Windows[i];
-            EditorWindowData* window = nullptr;
-
-
-            for (auto& WItem : _AllWindowsData)
-            {
-                if (WItem.GetName() == Item._Windowid)
-                {
-                    window = &WItem;
-                    break;
-                }
-            }
-            if (window == nullptr) { continue; }
-
-            UDeserializer Data;
-
-            switch ((USerializerType)Item._WindowData[0])
-            {
-            case USerializerType::Bytes:
-                Data.SetBytes(BytesView((Byte*)Item._WindowData.data() + 1,Item._WindowData.size()-1));
-                break;
-            case USerializerType::YAML:
-                Data.SetYAMLString(StringView((char*)Item._WindowData.data() + 1, Item._WindowData.size()-1));
-                break;
-            default:
-                UCodeGEUnreachable();
-                break;
-            }
-            
-
-            NewEditorWindowData NEData(this);
-            auto* newwin = MakeNewWindow(*window, NEData);
-            newwin->_ImGuiName = Item._ImguiName;
-            newwin->OnLoadWindow(Data);
+            UCodeGEError("fail to copying default window presets");
         }
-    } 
-   // ImGui::LoadIniSettingsFromDisk(IniPrePath.c_str());
+        else
+        {
+            if (!WindowPrefData::ReadFromFile(WinPrePath, data))
+            {
+                UCodeGEError("default window presets is unable to be read from UFiles may be corrupted");
+            }
+        }
+
+    }
+    for (size_t i = 0; i < data._Windows.size(); i++)
+    {
+        const auto& Item = data._Windows[i];
+        EditorWindowData* window = nullptr;
+
+
+        for (auto& WItem : _AllWindowsData)
+        {
+            if (WItem.GetName() == Item._Windowid)
+            {
+                window = &WItem;
+                break;
+            }
+        }
+        if (window == nullptr) { continue; }
+
+        UDeserializer Data;
+
+        switch ((USerializerType)Item._WindowData[0])
+        {
+        case USerializerType::Bytes:
+            Data.SetBytes(BytesView((Byte*)Item._WindowData.data() + 1, Item._WindowData.size() - 1));
+            break;
+        case USerializerType::YAML:
+            Data.SetYAMLString(StringView((char*)Item._WindowData.data() + 1, Item._WindowData.size() - 1));
+            break;
+        default:
+            UCodeGEUnreachable();
+            break;
+        }
+
+
+        NewEditorWindowData NEData(this);
+        auto* newwin = MakeNewWindow(*window, NEData);
+        newwin->_ImGuiName = Item._ImguiName;
+        newwin->OnLoadWindow(Data);
+    }
+
+    //ImGui::LoadIniSettingsFromDisk(IniPrePath);
 }
 void  EditorAppCompoent::SaveWindowsPref()
 {

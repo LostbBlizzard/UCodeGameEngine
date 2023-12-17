@@ -408,6 +408,22 @@ Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& Path, size_t Offset, siz
 	return {};
 }
 
+bool GameFiles::CopyGameFileTo(const Path& path, const Path& outpath)
+{
+	if (_Data._Type == GameFilesData::Type::Redirect)
+	{
+		return fs::copy_file(_Data._RedirectDir.native() + path.native(),outpath);
+	}
+	else if (_Data._Type == GameFilesData::Type::ThisFile)
+	{
+		UCodeGEToDo();
+	}
+	else
+	{
+		UCodeGEUnreachable();
+	}
+}
+
 bool GameFiles::MakeDir(const String& text)
 {
 	return fs::create_directory(text);

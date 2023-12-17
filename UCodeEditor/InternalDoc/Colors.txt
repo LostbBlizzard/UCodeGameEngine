@@ -1,5 +1,0 @@
-Primary Color/Main:#653221
-
-Secondary/Complimentary:#053221
-
-Accent/Complementary 2 :#59297F

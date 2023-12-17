@@ -145,7 +145,7 @@ FileHelper::OpenFileData FileHelper::OpenDirFromUser(const Path&  defaultPath)
 
 	String TepString;
 	const char* FilePath = nullptr;
-	if (defaultPath.native().size() != 0) 
+
 	{
 		TepString = defaultPath.generic_string();
 		FilePath = TepString.c_str();

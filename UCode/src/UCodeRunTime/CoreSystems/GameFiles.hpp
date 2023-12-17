@@ -138,6 +138,7 @@ public:
 	String ReadGameFileAsString(const Path& Path);
 	Unique_Bytes ReadGameFileAsBytes(const Path& Path);
 	Unique_Bytes ReadGameFileAsBytes(const Path& Path, size_t Offset, size_t Size);
+	bool CopyGameFileTo(const Path& path, const Path& outpath);
 
 	Path GetGameFilePathByMove(const Path& path);
 	Path GetFileFullName(const Path& FilePath) const;
