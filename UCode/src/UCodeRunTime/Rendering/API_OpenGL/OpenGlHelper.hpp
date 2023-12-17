@@ -11,7 +11,7 @@
 
 
 #if UCodeGEDebug
-#define GlCall(x) _RenderAPI::GLClearError();x;UCodeGameEngineAssert(!_RenderAPI::GLCheckError(#x,__FILE__,__LINE__));
+#define GlCall(x) _RenderAPI::GLClearError();x;UCodeGEAssert(!_RenderAPI::GLCheckError(#x,__FILE__,__LINE__));
 #else
 #define GlCall(x) x;
 #endif // DEBUG
