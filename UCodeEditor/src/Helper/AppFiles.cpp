@@ -1,57 +1,50 @@
 #include "AppFiles.hpp"
 EditorStart
 
-
 #if UCodeGEDebug
-const char* nullTexPath = "_NullTex";
+    const char *nullTexPath = "_NullTex";
 #else
-const char* nullTexPath = "";
+    const char *nullTexPath = "";
 #endif // DEBUG
 constexpr i32 SetTodefault = UC::Sprite::GetTexureSize;
 struct SpriteInfo
-{   
+{
     AppFiles::texture tex;
-    
-    i32 X, Y, SizeX, SizeY;
-    constexpr SpriteInfo(AppFiles::texture texure) : tex(texure)
-        , X(SetTodefault), Y(SetTodefault), SizeX(SetTodefault), SizeY(SetTodefault)
-    {
 
+    i32 X, Y, SizeX, SizeY;
+    constexpr SpriteInfo(AppFiles::texture texure) : tex(texure), X(SetTodefault), Y(SetTodefault), SizeX(SetTodefault), SizeY(SetTodefault)
+    {
     }
     constexpr SpriteInfo(AppFiles::texture texure, i32 x, i32 y, i32 sizeX, i32 sizey)
-        : tex(texure)
-        , X(x), Y(y), SizeX(sizeX), SizeY(sizey)
+        : tex(texure), X(x), Y(y), SizeX(sizeX), SizeY(sizey)
     {
-
     }
 };
-const String TexturePaths[]
-{
+const String TexturePaths[]{
     nullTexPath,
-    "art/folder-outline.png",//folder
-    "art/reader-outline.png",//file
-    "art/build-outline.png",//Uility_image
-    "art/cog-outline.png",//DLL_image
-    "art/UCodeLangIcon.png", //ULangScript
-    "art/cog-outline.png",//ULangLib
-    "art/cube-outline.png",//Entity
-    "art/prism-outline.png",//Scene
-    "art/cube-outline.png",//RawEntityData 10
-    "art/camera-outline.png",//Cam
-    "art/image-outline.png",//SpriteRenderer
-    "art/caret-forward-outline.png",//Play_NotPlaying
-    "art/caret-forward-circle-outline.png",//Play_Play
+    "art/folder-outline.png",               // folder
+    "art/reader-outline.png",               // file
+    "art/build-outline.png",                // Uility_image
+    "art/cog-outline.png",                  // DLL_image
+    "art/UCodeLangIcon.png",                // ULangScript
+    "art/cog-outline.png",                  // ULangLib
+    "art/cube-outline.png",                 // Entity
+    "art/prism-outline.png",                // Scene
+    "art/cube-outline.png",                 // RawEntityData 10
+    "art/camera-outline.png",               // Cam
+    "art/image-outline.png",                // SpriteRenderer
+    "art/caret-forward-outline.png",        // Play_NotPlaying
+    "art/caret-forward-circle-outline.png", // Play_Play
 
-    "art/caret-forward-outline.png",//Paused_Blue
-    "art/caret-forward-circle-outline.png",//Paused_Green
-    "art/UCodeEngineLogo.png",//AppIcon
+    "art/caret-forward-outline.png",        // Paused_Blue
+    "art/caret-forward-circle-outline.png", // Paused_Green
+    "art/UCodeEngineLogo.png",              // AppIcon
     "art/windows-icon.png",
     "art/web-icon.png",
-    "art/android-icon.png" //20
+    "art/android-icon.png" // 20
 };
 
-const SpriteInfo SpriteInfos[]
-{
+const SpriteInfo SpriteInfos[]{
     SpriteInfo(AppFiles::texture::Null),
     SpriteInfo(AppFiles::texture::folder),
     SpriteInfo(AppFiles::texture::file),
@@ -62,7 +55,7 @@ const SpriteInfo SpriteInfos[]
     SpriteInfo(AppFiles::texture::Entity),
     SpriteInfo(AppFiles::texture::Scene),
     SpriteInfo(AppFiles::texture::RawEntityData),
-    SpriteInfo(AppFiles::texture::Cam),//10
+    SpriteInfo(AppFiles::texture::Cam), // 10
     SpriteInfo(AppFiles::texture::SpriteRenderer),
 
     SpriteInfo(AppFiles::texture::Play_NotPlaying),
@@ -74,22 +67,21 @@ const SpriteInfo SpriteInfos[]
 
     SpriteInfo(AppFiles::texture::Windows_Platform),
     SpriteInfo(AppFiles::texture::Web_Platform),
-    SpriteInfo(AppFiles::texture::Android_Platform),//20
+    SpriteInfo(AppFiles::texture::Android_Platform), // 20
 };
 
 constexpr size_t TexturePaths_Size = sizeof(TexturePaths) / sizeof(TexturePaths[0]);
 constexpr size_t SpriteInfos_Size = sizeof(SpriteInfos) / sizeof(SpriteInfos[0]);
 
 #if PUBLISHED || RELASE
-const char* AppFilesPath = "UFiles.data";
-const char* AppFilesPathDir = "UFiles//";
+const char *AppFilesPath = "UFiles.data";
+const char *AppFilesPathDir = "UFiles/";
 #else
-const char* AppFilesPath = UCodeEditor_VS_PROJECTPATH  "UFiles.data";
-const char* AppFilesPathDir = UCodeEditor_VS_PROJECTPATH "UFiles//";
+const char *AppFilesPath = UCodeEditor_VS_PROJECTPATH "UFiles.data";
+const char *AppFilesPathDir = UCodeEditor_VS_PROJECTPATH "UFiles/";
 #endif
 
-
-void AppFiles::Init(UC::Gamelibrary* lib)
+void AppFiles::Init(UC::Gamelibrary *lib)
 {
     Path path;
     if (std::filesystem::exists(AppFilesPath))
@@ -114,9 +106,8 @@ void AppFiles::Init(UC::Gamelibrary* lib)
         UC::FileBuffer Buffer;
         if (UC::GameFilesData::ReadFileKeepOpen(path, Buffer, f))
         {
-            UC::GameFiles* gamefiles = UC::GameFiles::Init(lib, f);
+            UC::GameFiles *gamefiles = UC::GameFiles::Init(lib, f);
             gamefiles->SetFileBuffer(std::move(Buffer));
-
         }
     }
 }
@@ -125,10 +116,13 @@ bool AppFiles::IsLoaded(texture tex)
 {
     return _loadtextures[(texture_t)tex];
 }
-UC::Texture* AppFiles::GetTexture(texture tex)
+UC::Texture *AppFiles::GetTexture(texture tex)
 {
     texture_t id = (texture_t)tex;
-    if (id > TexturePaths_Size) {id = (texture_t)texture::Null;}
+    if (id > TexturePaths_Size)
+    {
+        id = (texture_t)texture::Null;
+    }
     if (_textures.count(id))
     {
         return _textures[id];
@@ -136,10 +130,7 @@ UC::Texture* AppFiles::GetTexture(texture tex)
     else
     {
 
-
-        const String& Path = TexturePaths[id];
-
-
+        const String &Path = TexturePaths[id];
 
         Unique_ptr<UC::Texture> newtext;
 
@@ -150,7 +141,7 @@ UC::Texture* AppFiles::GetTexture(texture tex)
         else
         {
             newtext = std::move(UC::Texture::MakeNewNullTexture());
-            UC::GameFiles* gamefiles = UC::GameFiles::Get(_GameLib);
+            UC::GameFiles *gamefiles = UC::GameFiles::Get(_GameLib);
 
             UCodeGameEngineAssert(std::filesystem::exists(AppFilesPathDir + Path));
 
@@ -158,7 +149,7 @@ UC::Texture* AppFiles::GetTexture(texture tex)
             {
                 return UC::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView())
                     .ContinueOnMainThread(
-                        [id](Unique_ptr<UC::Texture>&& Val)
+                        [id](Unique_ptr<UC::Texture> &&Val)
                         {
                             _textures[id] = Val.release();
                             _loadtextures[id] = true;
@@ -169,55 +160,53 @@ UC::Texture* AppFiles::GetTexture(texture tex)
 
             gamefiles->AsynReadGameFileFullBytes(Path)
                 .ContinueOnAnyThread(
-                    [id](Unique_Bytes&& Bytes)
+                    [id](Unique_Bytes &&Bytes)
                     {
                         return UC::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView())
                             .ContinueOnMainThread(
-                                [id](Unique_ptr<UC::Texture>&& Val)
+                                [id](Unique_ptr<UC::Texture> &&Val)
                                 {
                                     _textures[id] = Val.release();
                                     _loadtextures[id] = true;
 
                                     return std::move(Val);
-                                }
-                        );
-                    }
-            );
+                                });
+                    });
         }
-        
+
         auto Tex = newtext.get();
 
         _textures[id] = Tex;
 
         _LoadedTextures.push_back(std::move(newtext));
-        return  Tex;
+        return Tex;
     }
 }
 
-AsynTask_t<UC::Texture*> AppFiles::AsynGetTexture(texture tex)
+AsynTask_t<UC::Texture *> AppFiles::AsynGetTexture(texture tex)
 {
     texture_t id = (texture_t)tex;
-    if (id > TexturePaths_Size) { id = (texture_t)texture::Null; }
+    if (id > TexturePaths_Size)
+    {
+        id = (texture_t)texture::Null;
+    }
     if (_textures.count(id))
     {
-        AsynTask_t<UC::Texture*> R;
+        AsynTask_t<UC::Texture *> R;
         R.SetValue(std::move(_textures[id]));
         return R;
     }
     else
     {
 
-
-        const String& Path = TexturePaths[id];
-
-
+        const String &Path = TexturePaths[id];
 
         Unique_ptr<UC::Texture> newtext;
 
         if (Path == nullTexPath)
         {
-            auto Tex =UC::Texture::MakeNewNullTexture();
-            AsynTask_t<UC::Texture*> R;
+            auto Tex = UC::Texture::MakeNewNullTexture();
+            AsynTask_t<UC::Texture *> R;
             R.SetValue(Tex.get());
             _LoadedTextures.push_back(std::move(Tex));
             return R;
@@ -226,29 +215,26 @@ AsynTask_t<UC::Texture*> AppFiles::AsynGetTexture(texture tex)
         {
             UCodeGameEngineAssert(std::filesystem::exists(AppFilesPathDir + Path));
 
-            UC::GameFiles* gamefiles = UC::GameFiles::Get(_GameLib);
-            
+            UC::GameFiles *gamefiles = UC::GameFiles::Get(_GameLib);
 
-            Delegate<AsynTask_t<Unique_ptr<UC::Texture>>,Unique_Bytes&&> Func = [](Unique_Bytes&& Bytes)
+            Delegate<AsynTask_t<Unique_ptr<UC::Texture>>, Unique_Bytes &&> Func = [](Unique_Bytes &&Bytes)
             {
                 return UC::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView());
             };
 
-
-            Delegate<UC::Texture*,Unique_ptr<UC::Texture>&&> Func2 = [id](Unique_ptr<UC::Texture>&& Val)
+            Delegate<UC::Texture *, Unique_ptr<UC::Texture> &&> Func2 = [id](Unique_ptr<UC::Texture> &&Val)
             {
                 auto RVal = Val.get();
                 _textures[id] = Val.release();
                 _loadtextures[id] = true;
 
-
-                if (id != (texture_t)texture::AppIcon) {
+                if (id != (texture_t)texture::AppIcon)
+                {
                     RVal->FreeFromCPU();
                 }
-                
+
                 return RVal;
             };
-         
 
             /*
             auto Task = gamefiles->AsynReadGameFileFullBytes(Path)
@@ -256,42 +242,66 @@ AsynTask_t<UC::Texture*> AppFiles::AsynGetTexture(texture tex)
                 .ContinueOnMainThread(std::move(Func2));
             */
             auto Task = UC::AssetRendering::LoadTextureAsync(_GameLib, Path)
-                .ContinueOnMainThread(std::move(Func2));
+                            .ContinueOnMainThread(std::move(Func2));
 
             return Task;
         }
     }
 }
-UC::Sprite* AppFiles::GetSprite(sprite tex)
+UC::Sprite *AppFiles::GetSprite(sprite tex)
 {
     Sprite_t id = (Sprite_t)tex;
-    if (id > SpriteInfos_Size) { id = (Sprite_t)sprite::Null; }
-    
+    if (id > SpriteInfos_Size)
+    {
+        id = (Sprite_t)sprite::Null;
+    }
+
     if (_sprites.count(id))
     {
-        const SpriteInfo& info = SpriteInfos[id];
-        if (_loadtextures[(texture_t)info.tex]) 
+        const SpriteInfo &info = SpriteInfos[id];
+        if (_loadtextures[(texture_t)info.tex])
         {
             auto tex = GetTexture(info.tex);
 
             i32 _X, _Y, _SizeX, _SizeY;
 
-            if (info.X == SetTodefault) { _X = 0; }
-            else { _X = info.X; }
+            if (info.X == SetTodefault)
+            {
+                _X = 0;
+            }
+            else
+            {
+                _X = info.X;
+            }
 
-            if (info.Y == SetTodefault) { _Y = 0; }
-            else { _Y = info.Y; }
+            if (info.Y == SetTodefault)
+            {
+                _Y = 0;
+            }
+            else
+            {
+                _Y = info.Y;
+            }
 
-            if (info.SizeX == SetTodefault) { _SizeX = tex->Get_Width(); }
-            else { _SizeX = info.SizeX; }
+            if (info.SizeX == SetTodefault)
+            {
+                _SizeX = tex->Get_Width();
+            }
+            else
+            {
+                _SizeX = info.SizeX;
+            }
 
             if (info.SizeY == SetTodefault)
             {
                 _SizeY = tex->Get_Height();
             }
-            else { _SizeY = info.SizeY; }
+            else
+            {
+                _SizeY = info.SizeY;
+            }
 
-            auto& R = _sprites[id];
+            auto &R = _sprites[id];
             R->Set_Xoffset(_X);
             R->Set_Yoffset(_Y);
 
@@ -303,31 +313,54 @@ UC::Sprite* AppFiles::GetSprite(sprite tex)
         }
         else
         {
-            return  _sprites[id];
+            return _sprites[id];
         }
     }
     else
     {
-        const SpriteInfo& info = SpriteInfos[id];
+        const SpriteInfo &info = SpriteInfos[id];
 
         auto tex = GetTexture(info.tex);
         i32 _X, _Y, _SizeX, _SizeY;
 
-        if (info.X == SetTodefault) { _X = 0; }
-        else { _X = info.X; }
+        if (info.X == SetTodefault)
+        {
+            _X = 0;
+        }
+        else
+        {
+            _X = info.X;
+        }
 
-        if (info.Y == SetTodefault) { _Y = 0; }
-        else { _Y = info.Y; }
+        if (info.Y == SetTodefault)
+        {
+            _Y = 0;
+        }
+        else
+        {
+            _Y = info.Y;
+        }
 
-        if (info.SizeX == SetTodefault) { _SizeX = UC::Sprite::GetTexureSize; }
-        else { _SizeX = info.SizeX; }
+        if (info.SizeX == SetTodefault)
+        {
+            _SizeX = UC::Sprite::GetTexureSize;
+        }
+        else
+        {
+            _SizeX = info.SizeX;
+        }
 
-        if (info.SizeY == SetTodefault) 
-        { _SizeY = UC::Sprite::GetTexureSize; }
-        else { _SizeY = info.SizeY; }
+        if (info.SizeY == SetTodefault)
+        {
+            _SizeY = UC::Sprite::GetTexureSize;
+        }
+        else
+        {
+            _SizeY = info.SizeY;
+        }
 
         Unique_ptr<UC::Sprite> newSpr = std::make_unique<UC::Sprite>(tex, _X, _Y, _SizeX, _SizeY);
-        UC::Sprite* newSprite = newSpr.get();
+        UC::Sprite *newSprite = newSpr.get();
         _sprites[id] = newSprite;
 
         _LoadedSprite.push_back(std::move(newSpr));
@@ -335,67 +368,80 @@ UC::Sprite* AppFiles::GetSprite(sprite tex)
     }
 }
 
-String AppFiles::ReadFileAsString(const Path& path)
+String AppFiles::ReadFileAsString(const Path &path)
 {
     return GetGameFiles()->ReadFileAsString(path);
 }
 
-Unique_Bytes AppFiles::ReadFileAsBytes(const Path& path)
+Unique_Bytes AppFiles::ReadFileAsBytes(const Path &path)
 {
-    return  GetGameFiles()->ReadGameFileAsBytes(path);
+    return GetGameFiles()->ReadGameFileAsBytes(path);
 }
 
-Unique_Bytes AppFiles::ReadFileAsBytes(const Path& path, size_t Offset, size_t Size)
+Unique_Bytes AppFiles::ReadFileAsBytes(const Path &path, size_t Offset, size_t Size)
 {
-    return  GetGameFiles()->ReadFileAsBytes(path,Offset,Size);
+    return GetGameFiles()->ReadFileAsBytes(path, Offset, Size);
 }
 
-
-
-AsynTask_t<Path> AppFiles::AsynGetFilePathByMove(const Path& path)
+AsynTask_t<Path> AppFiles::AsynGetFilePathByMove(const Path &path)
 {
     return GetGameFiles()->AsynGetGameFilePathByMove(path);
 }
 
-Path AppFiles::GetFilePathByMove(const Path& path)
+Path AppFiles::GetFilePathByMove(const Path &path)
 {
-    return  GetGameFiles()->GetGameFilePathByMove(path);
+    return GetGameFiles()->GetGameFilePathByMove(path);
 }
 
-AsynTask_t<String> AppFiles::AsynReadFileString(const Path& path)
+AsynTask_t<String> AppFiles::AsynReadFileString(const Path &path)
 {
     return GetGameFiles()->AsynReadFileString(path);
 }
 
-AsynTask_t<Unique_Bytes> AppFiles::AsynReadFileAsBytes(const Path& path)
+AsynTask_t<Unique_Bytes> AppFiles::AsynReadFileAsBytes(const Path &path)
 {
     return GetGameFiles()->AsynReadGameFileFullBytes(path);
 }
 
-AsynTask_t<Unique_Bytes> AppFiles::AsynReadFileAsBytes(const Path& path, size_t Offset, size_t Size)
+AsynTask_t<Unique_Bytes> AppFiles::AsynReadFileAsBytes(const Path &path, size_t Offset, size_t Size)
 {
-    return GetGameFiles()->AsynReadGameFileBytes(path,Offset,Size);
+    return GetGameFiles()->AsynReadGameFileBytes(path, Offset, Size);
 }
 
 AppFiles::sprite AppFiles::GetSprite(FileHelper::FileType type)
 {
     switch (type)
     {
-    case UCodeEditor::FileHelper::FileType::Null:return AppFiles::sprite::File_image;
-    case UCodeEditor::FileHelper::FileType::File:return AppFiles::sprite::File_image;
-    case UCodeEditor::FileHelper::FileType::Dir:return AppFiles::sprite::Dir_folder_image;
-    case UCodeEditor::FileHelper::FileType::File_Image_Type:return AppFiles::sprite::File_image;
-    case UCodeEditor::FileHelper::FileType::SceneData:return AppFiles::sprite::Scene2dData;
-    case UCodeEditor::FileHelper::FileType::RawEntityData:return AppFiles::sprite::RawEntityData;
-    case UCodeEditor::FileHelper::FileType::ULangFile:return AppFiles::sprite::ULangScript;
-    case UCodeEditor::FileHelper::FileType::ULangLib:return AppFiles::sprite::ULangLib;
-    case UCodeEditor::FileHelper::FileType::UPugin:return AppFiles::sprite::UPugin;
-    case UCodeEditor::FileHelper::FileType::Dll_File:return AppFiles::sprite::DLL_image;
-    case UCodeEditor::FileHelper::FileType::metaFile:return AppFiles::sprite::File_image;
-    case UCodeEditor::FileHelper::FileType::Color:return AppFiles::sprite::File_image;
-    case UCodeEditor::FileHelper::FileType::TxtFile:return AppFiles::sprite::TxtFile;
-    case UCodeEditor::FileHelper::FileType::glslFile:return AppFiles::sprite::GlslFile;
-    default:return AppFiles::sprite::File_image;
+    case UCodeEditor::FileHelper::FileType::Null:
+        return AppFiles::sprite::File_image;
+    case UCodeEditor::FileHelper::FileType::File:
+        return AppFiles::sprite::File_image;
+    case UCodeEditor::FileHelper::FileType::Dir:
+        return AppFiles::sprite::Dir_folder_image;
+    case UCodeEditor::FileHelper::FileType::File_Image_Type:
+        return AppFiles::sprite::File_image;
+    case UCodeEditor::FileHelper::FileType::SceneData:
+        return AppFiles::sprite::Scene2dData;
+    case UCodeEditor::FileHelper::FileType::RawEntityData:
+        return AppFiles::sprite::RawEntityData;
+    case UCodeEditor::FileHelper::FileType::ULangFile:
+        return AppFiles::sprite::ULangScript;
+    case UCodeEditor::FileHelper::FileType::ULangLib:
+        return AppFiles::sprite::ULangLib;
+    case UCodeEditor::FileHelper::FileType::UPugin:
+        return AppFiles::sprite::UPugin;
+    case UCodeEditor::FileHelper::FileType::Dll_File:
+        return AppFiles::sprite::DLL_image;
+    case UCodeEditor::FileHelper::FileType::metaFile:
+        return AppFiles::sprite::File_image;
+    case UCodeEditor::FileHelper::FileType::Color:
+        return AppFiles::sprite::File_image;
+    case UCodeEditor::FileHelper::FileType::TxtFile:
+        return AppFiles::sprite::TxtFile;
+    case UCodeEditor::FileHelper::FileType::glslFile:
+        return AppFiles::sprite::GlslFile;
+    default:
+        return AppFiles::sprite::File_image;
     }
 }
 
