@@ -1,9 +1,9 @@
 #include "UCodeAPI.hpp"
 #include "ULangRunTime.hpp"
 //include Made By UCodeAutoLink
-#include "../Loger.hpp"
-#include "../InputManger/InputManger.hpp"
-#include "../../Core/Entity.hpp"
+#include "../../../UCodeRunTime/Core/Entity.hpp"
+#include "../../../UCodeRunTime/ULibrarys/InputManger/InputManger.hpp"
+#include "../../../UCodeRunTime/ULibrarys/Loger.hpp"
 //UCodeAutoLink include End
 LangStart
 bool UCodeAPI::_HasLib = false;
@@ -26,22 +26,12 @@ void UCodeAPI::MakeNewLib()
 	UCodeLangAutoLink(_UCodeAPILib, UCode)
 
 	{//Made by UCodeAutoLink 
-		using Debug__Log_ptr = void(*UCodeLangAPI)(const String&); 
-		using Debug__Log0_ptr = void(*UCodeLangAPI)(const StringView); 
-		using Debug__LogWarning_ptr = void(*UCodeLangAPI)(const String&); 
-		using Debug__LogWarning0_ptr = void(*UCodeLangAPI)(const StringView); 
-		using Debug__LogError_ptr = void(*UCodeLangAPI)(const String&); 
-		using Debug__LogError0_ptr = void(*UCodeLangAPI)(const StringView); 
-		using Debug__LogFatalError_ptr = void(*UCodeLangAPI)(const String&); 
-		using Debug__LogFatalError0_ptr = void(*UCodeLangAPI)(const StringView); 
-		using Input__IsKeyDown_ptr = bool(*UCodeLangAPI)(InputKey); 
-		using Input__GetMousePosition_ptr = Vec2(*UCodeLangAPI)(); 
 		using ComponentAPI__entity_ptr = Entity*(*UCodeLangAPI)(uintptr_t); 
 		using ComponentAPI__ientity_ptr = const Entity*(*UCodeLangAPI)(uintptr_t); 
 		using Entity__Enable_ptr = void(*UCodeLangAPI)(UCode::Entity*); 
 		using Entity__Disable_ptr = void(*UCodeLangAPI)(UCode::Entity*); 
 		using Entity__active_ptr = bool*(*UCodeLangAPI)(UCode::Entity*); 
-		using Entity__active0_ptr = const bool*(*UCodeLangAPI)(UCode::Entity*); 
+		using Entity__iactive_ptr = const bool*(*UCodeLangAPI)(UCode::Entity*); 
 		using Entity__Destroy_ptr = void(*UCodeLangAPI)(UCode::Entity*); 
 		using Entity__name_ptr = const StringView(*UCodeLangAPI)(UCode::Entity*); 
 		using Entity__name0_ptr = void(*UCodeLangAPI)(UCode::Entity*,StringView); 
@@ -69,104 +59,16 @@ void UCodeAPI::MakeNewLib()
 		using Entity__worldrotation1_ptr = void(*UCodeLangAPI)(UCode::Entity*,const Vec2&); 
 		using Entity__worldscale0_ptr = void(*UCodeLangAPI)(UCode::Entity*,const Vec3&); 
 		using Entity__worldscale1_ptr = void(*UCodeLangAPI)(UCode::Entity*,const Vec2&); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Debug:Log",[](UCodeLang::InterpreterCPPinterface& Input) -> void
-			{
-			
-				const String* Par0 = Input.GetParameter<const String*>();
-				
-				UCode::Debug::Log(*Par0);
-				
-				Input.Set_Return();
-			
-			},(Debug__Log_ptr)UCode::Debug::Log); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Debug__Log0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
-			{
-			
-				const StringView Par0 = Input.GetParameter<const StringView>();
-				
-				UCode::Debug::Log(Par0);
-				
-				Input.Set_Return();
-			
-			},(Debug__Log0_ptr)UCode::Debug::Log); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Debug:LogWarning",[](UCodeLang::InterpreterCPPinterface& Input) -> void
-			{
-			
-				const String* Par0 = Input.GetParameter<const String*>();
-				
-				UCode::Debug::LogWarning(*Par0);
-				
-				Input.Set_Return();
-			
-			},(Debug__LogWarning_ptr)UCode::Debug::LogWarning); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Debug__LogWarning0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
-			{
-			
-				const StringView Par0 = Input.GetParameter<const StringView>();
-				
-				UCode::Debug::LogWarning(Par0);
-				
-				Input.Set_Return();
-			
-			},(Debug__LogWarning0_ptr)UCode::Debug::LogWarning); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Debug:LogError",[](UCodeLang::InterpreterCPPinterface& Input) -> void
-			{
-			
-				const String* Par0 = Input.GetParameter<const String*>();
-				
-				UCode::Debug::LogError(*Par0);
-				
-				Input.Set_Return();
-			
-			},(Debug__LogError_ptr)UCode::Debug::LogError); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Debug__LogError0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
-			{
-			
-				const StringView Par0 = Input.GetParameter<const StringView>();
-				
-				UCode::Debug::LogError(Par0);
-				
-				Input.Set_Return();
-			
-			},(Debug__LogError0_ptr)UCode::Debug::LogError); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Debug:LogFatalError",[](UCodeLang::InterpreterCPPinterface& Input) -> void
-			{
-			
-				const String* Par0 = Input.GetParameter<const String*>();
-				
-				UCode::Debug::LogFatalError(*Par0);
-				
-				Input.Set_Return();
-			
-			},(Debug__LogFatalError_ptr)UCode::Debug::LogFatalError); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Debug__LogFatalError0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
-			{
-			
-				const StringView Par0 = Input.GetParameter<const StringView>();
-				
-				UCode::Debug::LogFatalError(Par0);
-				
-				Input.Set_Return();
-			
-			},(Debug__LogFatalError0_ptr)UCode::Debug::LogFatalError); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Input:IsKeyDown",[](UCodeLang::InterpreterCPPinterface& Input) -> void
-			{
-			
-				InputKey Par0 = Input.GetParameter<InputKey>();
-				
-				bool Ret =UCode::Input::IsKeyDown(Par0);
-				
-				Input.Set_Return<bool>(Ret);
-			
-			},(Input__IsKeyDown_ptr)UCode::Input::IsKeyDown); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Input:GetMousePosition",[](UCodeLang::InterpreterCPPinterface& Input) -> void
-			{
-			
-				Vec2 Ret =UCode::Input::GetMousePosition();
-				
-				Input.Set_Return<Vec2>(Ret);
-			
-			},(Input__GetMousePosition_ptr)UCode::Input::GetMousePosition); 
+		using Input__IsKeyDown_ptr = bool(*UCodeLangAPI)(InputKey); 
+		using Input__GetMousePosition_ptr = Vec2(*UCodeLangAPI)(); 
+		using Debug__Log_ptr = void(*UCodeLangAPI)(const String&); 
+		using Debug__Log0_ptr = void(*UCodeLangAPI)(const StringView); 
+		using Debug__LogWarning_ptr = void(*UCodeLangAPI)(const String&); 
+		using Debug__LogWarning0_ptr = void(*UCodeLangAPI)(const StringView); 
+		using Debug__LogError_ptr = void(*UCodeLangAPI)(const String&); 
+		using Debug__LogError0_ptr = void(*UCodeLangAPI)(const StringView); 
+		using Debug__LogFatalError_ptr = void(*UCodeLangAPI)(const String&); 
+		using Debug__LogFatalError0_ptr = void(*UCodeLangAPI)(const StringView); 
 		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:ComponentAPI:entity",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
@@ -226,18 +128,18 @@ void UCodeAPI::MakeNewLib()
 			{
 				return &thisPar->active();
 			}); 
-		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Entity__active0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:iactive",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
 				UCode::Entity* thisPar = Input.GetParameter<UCode::Entity*>();
 				
-				const bool* Ret =&thisPar->active();
+				const bool* Ret =&thisPar->iactive();
 				
 				Input.Set_Return<const bool*>(Ret);
 			
-			},(Entity__active0_ptr)[](UCode::Entity* thisPar) ->const bool*
+			},(Entity__iactive_ptr)[](UCode::Entity* thisPar) ->const bool*
 			{
-				return &thisPar->active();
+				return &thisPar->iactive();
 			}); 
 		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:Destroy",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
@@ -604,6 +506,104 @@ void UCodeAPI::MakeNewLib()
 			{
 				thisPar->worldscale(Par0);
 			}); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Input:IsKeyDown",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				InputKey Par0 = Input.GetParameter<InputKey>();
+				
+				bool Ret =UCode::Input::IsKeyDown(Par0);
+				
+				Input.Set_Return<bool>(Ret);
+			
+			},(Input__IsKeyDown_ptr)UCode::Input::IsKeyDown); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Input:GetMousePosition",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				Vec2 Ret =UCode::Input::GetMousePosition();
+				
+				Input.Set_Return<Vec2>(Ret);
+			
+			},(Input__GetMousePosition_ptr)UCode::Input::GetMousePosition); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Debug:Log",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				const String* Par0 = Input.GetParameter<const String*>();
+				
+				UCode::Debug::Log(*Par0);
+				
+				Input.Set_Return();
+			
+			},(Debug__Log_ptr)UCode::Debug::Log); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Debug__Log0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				const StringView Par0 = Input.GetParameter<const StringView>();
+				
+				UCode::Debug::Log(Par0);
+				
+				Input.Set_Return();
+			
+			},(Debug__Log0_ptr)UCode::Debug::Log); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Debug:LogWarning",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				const String* Par0 = Input.GetParameter<const String*>();
+				
+				UCode::Debug::LogWarning(*Par0);
+				
+				Input.Set_Return();
+			
+			},(Debug__LogWarning_ptr)UCode::Debug::LogWarning); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Debug__LogWarning0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				const StringView Par0 = Input.GetParameter<const StringView>();
+				
+				UCode::Debug::LogWarning(Par0);
+				
+				Input.Set_Return();
+			
+			},(Debug__LogWarning0_ptr)UCode::Debug::LogWarning); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Debug:LogError",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				const String* Par0 = Input.GetParameter<const String*>();
+				
+				UCode::Debug::LogError(*Par0);
+				
+				Input.Set_Return();
+			
+			},(Debug__LogError_ptr)UCode::Debug::LogError); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Debug__LogError0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				const StringView Par0 = Input.GetParameter<const StringView>();
+				
+				UCode::Debug::LogError(Par0);
+				
+				Input.Set_Return();
+			
+			},(Debug__LogError0_ptr)UCode::Debug::LogError); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Debug:LogFatalError",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				const String* Par0 = Input.GetParameter<const String*>();
+				
+				UCode::Debug::LogFatalError(*Par0);
+				
+				Input.Set_Return();
+			
+			},(Debug__LogFatalError_ptr)UCode::Debug::LogFatalError); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Internal:Debug__LogFatalError0",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				const StringView Par0 = Input.GetParameter<const StringView>();
+				
+				UCode::Debug::LogFatalError(Par0);
+				
+				Input.Set_Return();
+			
+			},(Debug__LogFatalError0_ptr)UCode::Debug::LogFatalError); 
 	}//Made by UCodeAutoLink End
 }
 LangEnd

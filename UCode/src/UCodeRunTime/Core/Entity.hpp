@@ -225,7 +225,7 @@ public:
 	{
 		return _IsActive;
 	}
-	UCodeLangExport const bool& active() const
+	UCodeLangExport const bool& iactive() const
 	{
 		return _IsActive;
 	}
