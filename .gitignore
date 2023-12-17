@@ -14,3 +14,5 @@ Makefile
 /UCodeEditor/UFiles/bin
 /UCodeEditor/UFiles.data
 /UCodeAPI/GameEngine/src/API.uc
+/UCode/PersistentData/Hello/Prefs/WindowPrefData.Pref
+/UCode/PersistentData/Hello/Prefs/WindowPrefData.Pref
