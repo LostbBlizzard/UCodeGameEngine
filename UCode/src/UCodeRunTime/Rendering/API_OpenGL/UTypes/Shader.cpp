@@ -282,13 +282,15 @@ const char* Shader::GetDefaultVertexShader()
     {
         return Default_Vertex_shader_v330;
     }
-    UCodeGameEngineUnreachable();
+    UCodeGEUnreachable();
     return nullptr;
 }
 const char* Shader::GetDefaultFragmentShader()
 {
     auto v = GLVersion();
-    UCodeGEThrow
+   
+    UCodeGELog("OpenGl:" << v);
+
     if (v == 330)
     {
         return Default_fragment_shader_v330;

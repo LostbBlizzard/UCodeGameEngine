@@ -126,7 +126,7 @@ void GameFilesData::Serialize(const GameFilesData& data, USerializer& Out)
 	const char* FileSignature = UCodeGESignature;
 	Out.Write("Signature", (String)FileSignature);
 
-	Out.Write("version", UCodeGameEngineVersionNumber);
+	Out.Write("version", UCodeGEVersion);
 	Out.Write("Company", data.CompanyName);
 	Out.Write("GameName", data.APPName);
 
@@ -172,7 +172,7 @@ std::ofstream GameFilesData::StartWritingBytes(const GameFilesData& data, const 
 
 	Out.Write("Signature", (String)FileSignature);
 
-	Out.Write("version", UCodeGameEngineVersionNumber);
+	Out.Write("version", UCodeGEVersion);
 	Out.Write("Company", data.CompanyName);
 	Out.Write("GameName", data.APPName);
 
