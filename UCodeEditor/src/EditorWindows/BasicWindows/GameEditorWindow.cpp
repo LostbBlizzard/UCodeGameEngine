@@ -299,9 +299,13 @@ void GameEditorWindow::SceneEditorTab()
             
 
             ImGuizmo::SetRect(tep.x, tep.y, Viewportsize.x, Viewportsize.y);
+
+            auto vm =_SceneCamera->Get_ViewMatrix();
+            auto pm =_SceneCamera->Get_ProjectionMatrix();
+            
             bool updated = ImGuizmo::Manipulate(
-             (float*)&_SceneCamera->Get_ViewMatrix(),
-             (float*)&_SceneCamera->Get_ProjectionMatrix()
+             (float*)&vm,
+             (float*)&pm
                 , mode,ImGuizmo::MODE::WORLD, matrixfptr);
 
 
