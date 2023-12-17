@@ -143,7 +143,7 @@ UC::Texture *AppFiles::GetTexture(texture tex)
             newtext = std::move(UC::Texture::MakeNewNullTexture());
             UC::GameFiles *gamefiles = UC::GameFiles::Get(_GameLib);
 
-            UCodeGameEngineAssert(std::filesystem::exists(AppFilesPathDir + Path));
+            UCodeGEAssert(std::filesystem::exists(AppFilesPathDir + Path));
 
             auto Func2 = [id](Unique_Bytes Bytes)
             {
@@ -213,7 +213,7 @@ AsynTask_t<UC::Texture *> AppFiles::AsynGetTexture(texture tex)
         }
         else
         {
-            UCodeGameEngineAssert(std::filesystem::exists(AppFilesPathDir + Path));
+            UCodeGEAssert(std::filesystem::exists(AppFilesPathDir + Path));
 
             UC::GameFiles *gamefiles = UC::GameFiles::Get(_GameLib);
 

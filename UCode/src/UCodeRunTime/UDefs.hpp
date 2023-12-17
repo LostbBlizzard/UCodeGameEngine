@@ -173,4 +173,4 @@ UCodeGEForceinlne void __DebugBreak()
 
 #define UCODE_ENGINE_CURRENT_FUNCTION __func__
 
-#define UCodeGEToDo UCodeGameEngineSTATIC_ASSERT("CURRENT_FUNCTION Is Not implemented");
+#define UCodeGEToDo() UCodeGEThrow("ToDO")

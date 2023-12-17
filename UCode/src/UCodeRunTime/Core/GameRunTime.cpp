@@ -267,7 +267,7 @@ void RunTimeScene::MoveEntity(UCode::Entity* EntityToMove, UCode::RunTimeScene* 
 }
 void RunTimeScene::MoveEntity(UCode::Entity* EntityToMove, const UCode::Entity* MoveNextTo, bool MoveIntoFolder)
 {
-	UCODE_ENGINE_IMPlEMENTED_LATER;
+	UCodeGEToDo();
 }
 
 CoreEnd
