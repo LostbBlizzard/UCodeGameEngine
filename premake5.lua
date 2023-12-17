@@ -31,7 +31,7 @@ workspace "UCodeGameEngine"
    end
 
    OutDirPath ="%{cfg.platform}/%{cfg.buildcfg}"
-   UCPathExe = "%{wks.location}Output/UCodelangCL/" .. OutDirPath .. "/uclang"
+   UCPathExe = "%{wks.location}/Output/UCodeLangCl/" .. OutDirPath .. "/uclang"
 
    
 
@@ -271,22 +271,22 @@ project "UCodeApp"
 
    filter { "system:Windows","architecture:x86_64" }
       postbuildcommands {
-         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe"
+         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe"
       }
     
    filter { "system:Windows","architecture:x86" }
       postbuildcommands {
-         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe"
+         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe"
       }
  
    filter { "system:linux","architecture:x86_64" }
       postbuildcommands {
-        "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64"
+        "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64"
       }
     
    filter { "system:linux","architecture:x86" }
       postbuildcommands {
-        "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}UCodeEditor/UFiles/bin/UCAppLinuxDebug86X32"
+        "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppLinuxDebug86X32"
       }
    
    filter { "configurations:Published","system:Windows"}
@@ -880,145 +880,3 @@ group "Dependencies"
     }
 
 
-
-function executeorexit(str)
- exit = os.execute(str)
-
- if exit == nil then
-  os.exit(1)
- end 
-
- if not exit == true then
-  os.exit(1)
- end 
-
-end 
-
---install
-newaction {
-    trigger = "install",
-    description = "installs compiler tool/librarys",
-    execute = function ()
-        print("----installing tools for " .. os.target())
-        
-        if os.istarget("linux") then
-
-          executeorexit("sudo apt-get update")
-
-          print("----downloading libx11 Packages")
-          executeorexit("sudo apt-get install libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev")
-
-          print("----downloading opengl Packages")
-          executeorexit("sudo apt install mesa-common-dev")
-          
-          print("----installing tools completed");
-        end
-
-        if os.istarget("windows") then
-
-        end
-        
-        if os.istarget("macosx") then
-          
-           print("----downloading glfw Packages")
-
-           executeorexit("brew install glfw")
-          
-           print("----installing tools completed");
-        end
-    end
-}
-newaction {
-    trigger = "installwasm",
-    description = "installs compiler tool/librarys for wasm",
-    execute = function ()
-        print("----installing wasm tools for " .. os.target())
-        
-        if os.istarget("linux") or os.istarget("macosx") then
-
-         if true then
-           executeorexit("cd ~;git clone https://github.com/emscripten-core/emsdk.git;cd emsdk;git pull;./emsdk install latest;./emsdk activate latest;source ./emsdk_env.sh;")
-        else 
-           print("emscripten is already installed")
-         end
-        end
-
-        if os.istarget("windows") then
-
-        end
-    end
-}
---build
-newaction {
-    trigger = "buildeditor",
-    description = "builds the everything",
-    execute = function ()
-        
-        if os.istarget("linux") then
-         executeorexit("make -j4")
-        end
-
-        if os.istarget("windows") then
-         executeorexit("msbuild UCodeGameEngine.sln /t:Build /p:Configuration=Debug /p:Platform=Win64 -maxcpucount")
-        end
-        
-        if os.istarget("macosx") then
-         executeorexit("make -j4")
-        end
-    end
-}
-newaction {
-    trigger = "buildapp",
-    description = "builds the everything",
-    execute = function ()
-        
-        if os.istarget("linux") then
-         executeorexit("make -j4")
-        end
-
-        if os.istarget("windows") then
-         executeorexit("msbuild UCodeGameEngine.sln /t:Build /p:Configuration=Debug /p:Platform=Win64 -maxcpucount")
-        end
-        
-        if os.istarget("macosx") then
-         executeorexit("make -j4")
-        end
-    end
-}
-newaction {
-    trigger = "buildwasmapp",
-    description = "builds the everything",
-    execute = function ()
-        
-        if os.istarget("linux") then
-         executeorexit("emmake make -j4")
-        end
-
-        if os.istarget("windows") then
-         executeorexit("msbuild UCodeGameEngine.sln /t:Build /p:Configuration=Debug /p:Platform=Win64 -maxcpucount")
-        end
-        
-        if os.istarget("macosx") then
-         executeorexit("emmake make -j4")
-        end
-    end
-}
----test
-newaction {
-    trigger = "test",
-    description = "runs tests",
-    execute = function ()
-        
-        if os.istarget("linux") then
-          executeorexit("cd ./UCodeEditor;../Output/UCodeEditor/linux64/Debug/UCodeEditor --RunTests")
-        end
-
-        if os.istarget("windows") then
-          executeorexit("cd ./UCodeEditor && ..\\Output\\UCodeEditor\\Win64\\Debug\\UCodeEditor.exe --RunTests")
-        end
-        
-        if os.istarget("macosx") then
-
-        end
-    end
-}

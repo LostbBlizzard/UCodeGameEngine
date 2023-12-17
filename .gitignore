@@ -1,11 +1,11 @@
 Output
+Makefile
+*.make
 .vs
 *.sln
 *.filters
 *.vcxproj
 *.user
-.vscode/
-Makefile
 /UCodeEditor/UFiles/source/NStandardLibrary
 /UCodeEditor/UFiles/source/StandardLibrary
 /UCodeEditor/UFiles/source/UCodeGameEngineEditor
