@@ -29,16 +29,16 @@ public:
 	}
 
 	
-	UCodeGameEngineForceinlne bool GetBool() { return GetInt<Byte>(0, 1); }
+	UCodeGEForceinlne bool GetBool() { return GetInt<Byte>(0, 1); }
 
 
 
 	static Random RandomSeed();
-	UCodeGameEngineForceinlne auto Get_State() const { return _state; }
+	UCodeGEForceinlne auto Get_State() const { return _state; }
 private:
 	const static SeedType MaxSeedValue =UINT32_MAX;
 	
-	UCodeGameEngineForceinlne void NextNumber()
+	UCodeGEForceinlne void NextNumber()
 	{
 		_state.Value = xorshift32(_state);
 	}

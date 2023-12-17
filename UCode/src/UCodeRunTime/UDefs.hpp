@@ -1,68 +1,68 @@
 #pragma once
 
 
-#define UCodeGameEngineOpenGL 1
-#define UCodeGameEngineVulkan 0
-#define UCodeGameEngineDirect3D 0
-#define UCodeGameEngineMetal 0
-#define UCodeGameEngineWebGPU 0
+#define UCodeGEOpenGL 1
+#define UCodeGEVulkan 0
+#define UCodeGEDirect3D 0
+#define UCodeGEMetal 0
+#define UCodeGEWebGPU 0
 
 
-#define UCodeGameEngineDEBUG DEBUG
+#define UCodeGEDebug DEBUG
 
 
-#define UCodeGameEngineMajorVersion 0
-#define UCodeGameEngineMinorVersion 0
-#define UCodeGameEnginePatchVersion 1
+#define UCodeGEMajor 0
+#define UCodeGEMinor 0
+#define UCodeGEPatch 1
 
 using VersionNumber_t = int;
-#define UCodeGameEngineVersionNumber ((VersionNumber_t)(UCodeGameEnginePatchVersion))
+#define UCodeGameEngineVersionNumber ((VersionNumber_t)((UCodeGEMajor << 16) | (UCodeGEMinor << 8) | UCodeGEPatch))
 
 
 #if defined(_MSC_VER)
-#define UCodeGameEngineMSVC 1
+#define UCodeGEMSVC 1
 #else
-#define UCodeGameEngineMSVC 0
+#define UCodeGEMSVC 0
 #endif
 
 #if defined(__GNUC__)
-#define UCodeGameEngineGNUC 1
+#define UCodeGEGNUC 1
 #else
-#define UCodeGameEngineGNUC 0
+#define UCodeGEGNUC 0
 #endif
 
 #if defined(__clang__)
-#define UCodeGameEngineClang 1
+#define UCodeGEClang 1
 #else
-#define UCodeGameEngineClang 0
+#define UCodeGEClang 0
 #endif
 
 
 #if defined(__EMSCRIPTEN__)
-#define UCodeGameEngineEmscripten 1
+#define UCodeGEEmscripten 1
 #else
-#define UCodeGameEngineEmscripten 0
+#define UCodeGEEmscripten 0
 #endif
 
 
 
 #if _WIN64 || _WIN32
-#define UCodeGameEnginePlatformWindows 1
+#define UCodeGEWindows 1
 #else
-#define UCodeGameEnginePlatformWindows 0
+#define UCodeGEWindows 0
 #endif // _WIN64 || _WIN32
 
 #if __gnu_linux__ || __linux__
-#define UCodeGameEnginePlatformLinux 1
+#define UCodeGELinux 1
 #include <endian.h> //For UCodeLang_CPUBIs_BigEndian
 #else
-#define UCodeGameEnginePlatformLinux 0
+#define UCodeGELinux 0
 #endif // linux 
 
 #if __APPLE__ && __MACH__
-#define UCodeGameEnginePlatformMacOS 1
+#define UCodeGE 1
 #else
-#define UCodeGameEnginePlatformMacOS 0
+#define UCodeGEMacOS 0
 #endif // MacOs
 
 
@@ -70,82 +70,82 @@ using VersionNumber_t = int;
 #include "TargetConditionals.h"
 
 #if TARGET_OS_IPHONE
-#define UCodeGameEnginePlatformIPHONE 1
+#define UCodeGEIphone 1
 #else 
-#define UCodeGameEnginePlatformIPHONE 0
+#define UCodeGEIphone 0
 #endif 
 
 #else
-#define UCodeGameEnginePlatformIPHONE 0
+#define UCodeGEIphone 0
 #endif // MacOs
 
 #if __ANDROID__
-#define UCodeLangPlatformANDROID 1
+#define UCodeGEAndroid 1
 #else
-#define UCodeLangPlatformANDROID 0
+#define UCodeGEAndroid 0
 #endif // ANDROID
 
 #if  defined(__wasm32__) || defined(__wasm64__)
-#define UCodeLangPlatformWasm 1
+#define UCodeGEWasm 1
 #else
-#define UCodeLangPlatformWasm 0
+#define UCodeGEWasm 0
 #endif // Wasm 
 
 #if defined(__wasm32__)
-#define UCodeLangPlatformWasm32 1
+#define UCodeGEWasm32 1
 #else
-#define UCodeLangPlatformWasm32 0
+#define UCodeGEWasm32 0
 #endif // wasm32
 
 #if defined(__wasm64__)
-#define UCodeGameEnginePlatformWasm64 1
+#define UCodeGEWasm64 1
 #else
-#define UCodeGameEnginePlatformWasm64 0
+#define UCodeGEWasm64 0
 #endif // wasm64
 
 
 #if defined(__unix__) || (__APPLE__ && __MACH__)
-#define UCodeGameEnginePlatformPosix 1
+#define UCodeGEPosix 1
 #else
-#define UCodeGameEnginePlatformPosix 0
+#define UCodeGEPosix 0
 #endif // MacOs
 
-#ifdef UCodeGameEngineDEBUG
-#define UCodeGameEngineForceinlne inline
+#ifdef UCodeGEDebug
+#define UCodeGEForceinlne inline
 #else 
-#define UCodeGameEngineForceinlne __forceinline 
+#define UCodeGEForceinlne __forceinline 
 #endif // DEBUG
 
-#ifdef UCodeGameEngineDEBUG
+#ifdef UCodeGEDebug
 #define UCodeGameEngineNoDiscard
 #else 
 #define UCodeGameEngineNoDiscard [[nodiscard]] 
 #endif // DEBUG
 
-#define UCodeGameEngineFileSignature "LBGameEngine"
+#define UCodeGESignature "LBGameEngine"
 
 
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 #define UCODE_VS_FULLPATH "../"
 #define UCode_VS_PROJECTPATH UCODE_VS_FULLPATH "UCode/"
 #define UCodeEditor_VS_PROJECTPATH UCODE_VS_FULLPATH "UCodeEditor/"
 #endif // DEBUG
 
-#if UCodeGameEngineMSVC
+#if UCodeGEMSVC
 #include <vcruntime_exception.h>
 #endif
 
-#if UCodeGameEnginePlatformPosix
+#if UCodeGEPosix
 #include <csignal>
 #endif
 
-UCodeGameEngineForceinlne void __DebugBreak()
+UCodeGEForceinlne void __DebugBreak()
 {
-	#if UCodeGameEngineDEBUG
+	#if UCodeGEDebug
 
-	#if UCodeGameEngineMSVC
+	#if UCodeGEMSVC
 	__debugbreak(); 
-	#elif UCodeGameEnginePlatformPosix
+	#elif UCodeGEPosix
 	raise(SIGTRAP);
 	#endif
 	
@@ -155,18 +155,18 @@ UCodeGameEngineForceinlne void __DebugBreak()
 //#define UCodeGameEngineAssert(x) if(x){UCODE_ENGINE_LOG("breakpoint Called") __DebugBreak(); }
 #define UCodeGameEngineAssert(x) if(!x){__DebugBreak(); }
 
-#if UCodeGameEnginePlatformPosix
-#define UCodeGameEngineThrowException(x) throw std::runtime_error(x);
+#if UCodeGEPosix
+#define UCodeGEThrow(x) throw std::runtime_error(x);
 #else 
-#define UCodeGameEngineThrowException(x) throw std::exception(x);
+#define UCodeGEThrow(x) throw std::exception(x);
 #endif
 
-#if UCodeGameEngineDEBUG
-#define UCodeGameEngineUnreachable() UCodeGameEngineThrowException("reached unreachable path")
+#if UCodeGEDebug
+#define UCodeGEUnreachable() UCodeGEThrow("reached unreachable path")
 #else
-#if UCodeGameEngineMSVC
+#if UCodeGEMSVC
 #define UCodeGameEngineUnreachable() __assume(0);
-#elif UCodeGameEngineGNUC
+#elif UCodeGEGNUC
 #define UCodeGameEngineUnreachable() __builtin_unreachable()
 #else
 #define UCodeLangUnreachable()
@@ -176,12 +176,12 @@ UCodeGameEngineForceinlne void __DebugBreak()
 
 #define UCODE_ENGINE_CURRENT_FUNCTION __func__
 
-#define UCODE_ENGINE_THROWNOTIMPlEMENTED UCodeGameEngineSTATIC_ASSERT("CURRENT_FUNCTION Is Not implemented");
+#define UCodeGEToDo UCodeGameEngineSTATIC_ASSERT("CURRENT_FUNCTION Is Not implemented");
 
 
 
-#if UCodeGameEngineDEBUG
-#define UCODE_ENGINE_IMPlEMENTED_LATER UCodeGameEngineThrowException("CURRENT Is Not implemented");
+#if UCodeGEDebug
+#define UCODE_ENGINE_IMPlEMENTED_LATER UCodeGEThrow("CURRENT Is Not implemented");
 #else
 //#define UCODE_ENGINE_IMPlEMENTED_LATER UCODE_ENGINE_THROWNOTIMPlEMENTED
 #define UCODE_ENGINE_IMPlEMENTED_LATER 

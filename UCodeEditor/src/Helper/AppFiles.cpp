@@ -2,7 +2,7 @@
 EditorStart
 
 
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 const char* nullTexPath = "_NullTex";
 #else
 const char* nullTexPath = "";

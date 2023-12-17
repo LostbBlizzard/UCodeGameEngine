@@ -26,18 +26,18 @@ public:
 	void UpdateDataToGPU();
 
 
-	UCodeGameEngineForceinlne auto Get_RendererID() const {return _RendererID.value();}
-	UCodeGameEngineForceinlne const Color32* Get_ColorData() const { return (const Color32*)_Buffer.get(); }
-	UCodeGameEngineForceinlne i32 Get_Width() const { return _Width; }
-	UCodeGameEngineForceinlne i32 Get_Height() const { return _Height; }
+	UCodeGEForceinlne auto Get_RendererID() const {return _RendererID.value();}
+	UCodeGEForceinlne const Color32* Get_ColorData() const { return (const Color32*)_Buffer.get(); }
+	UCodeGEForceinlne i32 Get_Width() const { return _Width; }
+	UCodeGEForceinlne i32 Get_Height() const { return _Height; }
 
-	UCodeGameEngineForceinlne const Path& Get_FilePath() const { return _FilePath; }
+	UCodeGEForceinlne const Path& Get_FilePath() const { return _FilePath; }
 
 	//MultThreading Stuff
 	void MultThread_UpdateTextureFromPath(const Path Path);
 	void TryUploadTexToGPU();
-	UCodeGameEngineForceinlne void Set_FilePath(const Path& path) { _FilePath = path; }//This is used with MultThread_UpdateTextureFromPath;
-	UCodeGameEngineForceinlne bool IsUploadedToGPU() { return _BufferIsInGPU; }
+	UCodeGEForceinlne void Set_FilePath(const Path& path) { _FilePath = path; }//This is used with MultThread_UpdateTextureFromPath;
+	UCodeGEForceinlne bool IsUploadedToGPU() { return _BufferIsInGPU; }
 
 	void FreeFromCPU();
 private:

@@ -51,7 +51,7 @@ u32 VertexBufferLayout::Element::GetSizeOfType(u32 GlType)
 	case GL_UNSIGNED_BYTE:return sizeof(GLubyte);
 	case GL_UNSIGNED_SHORT:return sizeof(GLushort);
 	default:
-		UCodeGameEngineUnreachable();
+		UCodeGEUnreachable();
 		return -1;
 	}
 }

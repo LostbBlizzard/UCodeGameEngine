@@ -24,36 +24,36 @@ constexpr size_t TestCount = sizeof(Tests) / sizeof(Tests[0]);
 
 int RunTests()
 {
-	UCODE_ENGINE_LOG("Runing Tests");
+	UCodeGELog("Runing Tests");
 	size_t TestPassed = 0;
 
 	for (size_t i = 0; i < TestCount; i++)
 	{
 		auto& Item = Tests[i];
-		UCODE_ENGINE_LOG("Runing Test" + (String)Item.TestName);
+		UCodeGELog("Runing Test" + (String)Item.TestName);
 		bool Passed = Item.Func();
 
 		if (Passed)
 		{
-			UCODE_ENGINE_LOG("Test " + (String)Item.TestName + "Passed");
+			UCodeGELog("Test " + (String)Item.TestName + "Passed");
 			TestPassed++;
 		}
 		else
 		{
-			UCODE_ENGINE_LOG("Test " + (String)Item.TestName + "Failed");
+			UCodeGELog("Test " + (String)Item.TestName + "Failed");
 		}
 	}
 
 
-	UCODE_ENGINE_LOG( std::to_string(TestPassed) + "/" + std::to_string(TestCount) + " Tests Passed");
+	UCodeGELog( std::to_string(TestPassed) + "/" + std::to_string(TestCount) + " Tests Passed");
 
 	if (TestPassed == 0)
 	{
-		UCODE_ENGINE_LOG("Tests Passed");
+		UCodeGELog("Tests Passed");
 	}
 	else
 	{
-		UCODE_ENGINE_LOG("Tests Fail")
+		UCodeGELog("Tests Fail")
 	}
 	return TestPassed == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }

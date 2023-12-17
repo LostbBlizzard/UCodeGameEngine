@@ -220,7 +220,7 @@ struct variant_helper;
 template <typename T, typename... Types>
 struct variant_helper<T, Types...>
 {
-	UCodeGameEngineForceinlne static void construct(const VariantTagType type_index, void* data)
+	UCodeGEForceinlne static void construct(const VariantTagType type_index, void* data)
 	{
 		if (type_index == sizeof...(Types))
 		{
@@ -232,7 +232,7 @@ struct variant_helper<T, Types...>
 		}
 	}
 
-	UCodeGameEngineForceinlne static void destroy(const VariantTagType type_index, void* data)
+	UCodeGEForceinlne static void destroy(const VariantTagType type_index, void* data)
 	{
 		if (type_index == sizeof...(Types))
 		{
@@ -244,7 +244,7 @@ struct variant_helper<T, Types...>
 		}
 	}
 
-	UCodeGameEngineForceinlne static void move(const VariantTagType old_type_index, void* old_value, void* new_value)
+	UCodeGEForceinlne static void move(const VariantTagType old_type_index, void* old_value, void* new_value)
 	{
 		if (old_type_index == sizeof...(Types))
 		{
@@ -256,7 +256,7 @@ struct variant_helper<T, Types...>
 		}
 	}
 
-	UCodeGameEngineForceinlne static void copy(const VariantTagType old_type_index, const void* old_value, void* new_value)
+	UCodeGEForceinlne static void copy(const VariantTagType old_type_index, const void* old_value, void* new_value)
 	{
 		if (old_type_index == sizeof...(Types))
 		{
@@ -272,10 +272,10 @@ struct variant_helper<T, Types...>
 template <>
 struct variant_helper<>
 {
-	UCodeGameEngineForceinlne static void construct(const VariantTagType, void*) {}
-	UCodeGameEngineForceinlne static void destroy(const VariantTagType, void*) {}
-	UCodeGameEngineForceinlne static void move(const VariantTagType, void*, void*) {}
-	UCodeGameEngineForceinlne static void copy(const VariantTagType, const void*, void*) {}
+	UCodeGEForceinlne static void construct(const VariantTagType, void*) {}
+	UCodeGEForceinlne static void destroy(const VariantTagType, void*) {}
+	UCodeGEForceinlne static void move(const VariantTagType, void*, void*) {}
+	UCodeGEForceinlne static void copy(const VariantTagType, const void*, void*) {}
 };
 
 
@@ -388,7 +388,7 @@ public:
 		MustBeMyType<T>();
 		if (!IsType<T>())
 		{
-		UCodeGameEngineThrowException("bad type cast");
+		UCodeGEThrow("bad type cast");
 		}
 		return *(T*)&_Tag;
 	}
@@ -397,7 +397,7 @@ public:
 		MustBeMyType<T>();
 		if (!IsType<T>())
 		{
-			UCodeGameEngineThrowException("bad type cast");
+			UCodeGEThrow("bad type cast");
 		}
 		return *(T*)&_Tag;
 	}

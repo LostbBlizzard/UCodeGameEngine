@@ -71,7 +71,7 @@ bool GameFilesData::ReadFileKeepOpen(const Path& Path, FileBuffer& OutFile, Game
 		{
 			String Sing;
 			OutFile.ReadType(Sing);
-			if (Sing == UCodeGameEngineFileSignature)
+			if (Sing == UCodeGESignature)
 			{
 				VersionNumber_t Version = 0;
 				OutFile.ReadType(Version);
@@ -123,7 +123,7 @@ template<> struct BitData<GameFileIndex>
 
 void GameFilesData::Serialize(const GameFilesData& data, USerializer& Out)
 {
-	const char* FileSignature = UCodeGameEngineFileSignature;
+	const char* FileSignature = UCodeGESignature;
 	Out.Write("Signature", (String)FileSignature);
 
 	Out.Write("version", UCodeGameEngineVersionNumber);
@@ -144,7 +144,7 @@ bool GameFilesData::Deserializ(UDeserializer& In, GameFilesData& Out)
 {
 	String Sing;
 	In.ReadType("Signature", Sing);
-	if (Sing == UCodeGameEngineFileSignature)
+	if (Sing == UCodeGESignature)
 	{
 		VersionNumber_t Version = 0;
 		In.ReadType("version", Version);
@@ -165,7 +165,7 @@ bool GameFilesData::Deserializ(UDeserializer& In, GameFilesData& Out)
 }
 std::ofstream GameFilesData::StartWritingBytes(const GameFilesData& data, const Path& path, size_t BufferSize)
 {
-	const char* FileSignature = UCodeGameEngineFileSignature;
+	const char* FileSignature = UCodeGESignature;
 	USerializer Out = USerializer(USerializerType::Bytes);
 
 	Out.Get_BitMaker().WriteType((USerializerType_t)USerializerType::Bytes);
@@ -343,7 +343,7 @@ Unique_Bytes GameFiles::ReadFileAsBytes(const Path& Path)
 }
 Unique_Bytes GameFiles::ReadFileAsBytes(const Path& path, size_t Offset, size_t Size)
 {
-	UCodeGameEngineThrowException("bad");
+	UCodeGEThrow("bad");
 	return Unique_Bytes();
 }
 String GameFiles::ReadGameFileAsString(const Path& path)
@@ -371,7 +371,7 @@ String GameFiles::ReadGameFileAsString(const Path& path)
 	}
 	else
 	{
-		UCodeGameEngineUnreachable();
+		UCodeGEUnreachable();
 	}
 }
 Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& path)
@@ -399,12 +399,12 @@ Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& path)
 	}
 	else
 	{
-		UCodeGameEngineUnreachable();
+		UCodeGEUnreachable();
 	}
 }
 Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& Path, size_t Offset, size_t Size)
 {
-	UCodeGameEngineThrowException("bad");
+	UCodeGEThrow("bad");
 	return {};
 }
 
@@ -470,7 +470,7 @@ Shader* GameFiles::Get_DefaultShader()
 {
 	if (!_DefaultShader) 
 	{
-		_DefaultShader =std::make_unique<Shader>(Shader::dafalult_Vertex_shader_text, Shader::dafalult_fragment_shader_text);
+		_DefaultShader =std::make_unique<Shader>(Shader::GetDefaultVertexShader(), Shader::GetDefaultFragmentShader());
 	}
 	return _DefaultShader.get();
 }
@@ -516,7 +516,7 @@ Path GameFiles::Get_PersistentDataPath(const AppData& data)
 
 	#endif 
 
-	#if UCodeGameEngineDEBUG
+	#if UCodeGEDebug
 	Persistentpath = (String)UCode_VS_PROJECTPATH + "Persistentpath/";
 	#endif // DEBUG
 

@@ -7,7 +7,7 @@
 RenderingStart
 
 
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 const static std::string nullstring = "null";
 const static std::string MadewithColor = "madewithColor32";
 #else
@@ -99,7 +99,7 @@ Texture::~Texture()
 
 Unique_ptr<Texture> Texture::MakeNewNullTexture()
 {
-	#if UCodeGameEngineDEBUG
+	#if UCodeGEDebug
 	const Color32 NullTexureColorData[]
 	{
 		Color32(),
@@ -129,10 +129,10 @@ void Texture::SetTexture(const BytesView PngData)
 
 void Texture::UpdateDataToGPU()
 {
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 	if (_FilePath != MadewithColor)
 	{
-		UCodeGameEngineThrowException("This texture is read only cannot be Updated");
+		UCodeGEThrow("This texture is read only cannot be Updated");
 	}
 #endif // DEBUG
 	GlCall(glBindTexture(GL_TEXTURE_2D, _RendererID.value()));

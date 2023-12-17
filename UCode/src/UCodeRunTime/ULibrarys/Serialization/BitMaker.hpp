@@ -33,11 +33,11 @@ public:
 
 	}
 
-	UCodeGameEngineForceinlne void Resize(size_t NewSize){ _Bytes.resize(NewSize);}
-	UCodeGameEngineForceinlne void Clear(){ _Bytes.clear();}
-	UCodeGameEngineForceinlne auto& Get_Bytes() { return _Bytes; }
-	UCodeGameEngineForceinlne const auto& Get_Bytes() const { return _Bytes; }
-	UCodeGameEngineForceinlne size_t Size() const {return _Bytes.size(); }
+	UCodeGEForceinlne void Resize(size_t NewSize){ _Bytes.resize(NewSize);}
+	UCodeGEForceinlne void Clear(){ _Bytes.clear();}
+	UCodeGEForceinlne auto& Get_Bytes() { return _Bytes; }
+	UCodeGEForceinlne const auto& Get_Bytes() const { return _Bytes; }
+	UCodeGEForceinlne size_t Size() const {return _Bytes.size(); }
 
 	void WriteBytes(const Byte* Bits, size_t size)
 	{
@@ -48,53 +48,53 @@ public:
 	}
 
 	template<typename T>
-	UCodeGameEngineForceinlne void WriteTypeAsBytes(const T& Value){WriteBytes((const Byte*)&Value, sizeof(Value));}
+	UCodeGEForceinlne void WriteTypeAsBytes(const T& Value){WriteBytes((const Byte*)&Value, sizeof(Value));}
 
 
 	template<typename T>
-	UCodeGameEngineForceinlne void WriteType(const T& Value){ BitData<T>::ToBytes(*this, Value);}
+	UCodeGEForceinlne void WriteType(const T& Value){ BitData<T>::ToBytes(*this, Value);}
 
 
 	
-	UCodeGameEngineForceinlne void WriteType(const bool& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGEForceinlne void WriteType(const bool& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
 	
-	UCodeGameEngineForceinlne void WriteType(const Byte& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGEForceinlne void WriteType(const Byte& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
 	
-	UCodeGameEngineForceinlne void WriteType(const i8& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGEForceinlne void WriteType(const i8& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
 	
-	UCodeGameEngineForceinlne void WriteType(const char& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGEForceinlne void WriteType(const char& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
 	
-	UCodeGameEngineForceinlne void WriteType(const u16& Value) { WriteTypeAsBytes(Converter->GetBytes(Value));}
+	UCodeGEForceinlne void WriteType(const u16& Value) { WriteTypeAsBytes(Converter->GetBytes(Value));}
 
 	
-	UCodeGameEngineForceinlne void WriteType(const i16& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGEForceinlne void WriteType(const i16& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 	
 	
-	UCodeGameEngineForceinlne void WriteType(const u32& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGEForceinlne void WriteType(const u32& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 	
 	
-	UCodeGameEngineForceinlne void WriteType(const i32& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGEForceinlne void WriteType(const i32& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 	
 	
-	UCodeGameEngineForceinlne void WriteType(const u64& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGEForceinlne void WriteType(const u64& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
 	
-	UCodeGameEngineForceinlne void WriteType(const i64& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGEForceinlne void WriteType(const i64& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 	
 	
-	UCodeGameEngineForceinlne void WriteType(const f32& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGEForceinlne void WriteType(const f32& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
 	
-	UCodeGameEngineForceinlne void WriteType(const f64& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+	UCodeGEForceinlne void WriteType(const f64& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
 
 	//
 	
-	UCodeGameEngineForceinlne void WriteType(const char* Value)
+	UCodeGEForceinlne void WriteType(const char* Value)
 	{ 
 		size_t size = strlen(Value);
 		WriteType((SizeAsBits)size);
@@ -102,7 +102,7 @@ public:
 	}
 
 	template<typename T>
-	UCodeGameEngineForceinlne void WriteType(const Span<T> Value)
+	UCodeGEForceinlne void WriteType(const Span<T> Value)
 	{
 		size_t size = Value.Size();
 		WriteType((SizeAsBits)size);
@@ -113,7 +113,7 @@ public:
 	}
 
 	
-	UCodeGameEngineForceinlne void WriteType(const String& Value) 
+	UCodeGEForceinlne void WriteType(const String& Value) 
 	{
 		size_t size = Value.size();
 		WriteType((SizeAsBits)size);
@@ -121,39 +121,39 @@ public:
 	}
 
 	template<typename T>
-	UCodeGameEngineForceinlne void WriteType(const Vector<T>& Value) 
+	UCodeGEForceinlne void WriteType(const Vector<T>& Value) 
 	{  
 		WriteType(Span<T>::Make(Value.data(), Value.size()));
 	}
 
 	template<typename T>
-	UCodeGameEngineForceinlne void WriteType(const Ref<T>& Value)
+	UCodeGEForceinlne void WriteType(const Ref<T>& Value)
 	{
 		const auto& Obj = Value.get();
 		WriteType(Obj);
 	}
 	//
 	
-	UCodeGameEngineForceinlne void WriteType(const Vec2& Value)
+	UCodeGEForceinlne void WriteType(const Vec2& Value)
 	{
 		WriteType(Value.X);
 		WriteType(Value.Y);
 	}
 	
-	UCodeGameEngineForceinlne void WriteType(const Vec2i& Value)
+	UCodeGEForceinlne void WriteType(const Vec2i& Value)
 	{
 		WriteType(Value.X);
 		WriteType(Value.Y);
 	}
 	
-	UCodeGameEngineForceinlne void WriteType(const Vec3& Value)
+	UCodeGEForceinlne void WriteType(const Vec3& Value)
 	{
 		WriteType(Value.X);
 		WriteType(Value.Y);
 		WriteType(Value.Z);
 	}
 	
-	UCodeGameEngineForceinlne void WriteType(const Vec3i& Value)
+	UCodeGEForceinlne void WriteType(const Vec3i& Value)
 	{
 		WriteType(Value.X);
 		WriteType(Value.Y);
@@ -161,7 +161,7 @@ public:
 	}
 
 	
-	UCodeGameEngineForceinlne void WriteType(const Color& Value)
+	UCodeGEForceinlne void WriteType(const Color& Value)
 	{
 		WriteType(Value.R);
 		WriteType(Value.G);
@@ -169,7 +169,7 @@ public:
 		WriteType(Value.A);
 	}
 	
-	UCodeGameEngineForceinlne void WriteType(const Color32& Value)
+	UCodeGEForceinlne void WriteType(const Color32& Value)
 	{
 		WriteType(Value.R);
 		WriteType(Value.G);
@@ -178,14 +178,14 @@ public:
 	}
 
 	
-	UCodeGameEngineForceinlne void WriteType(const Color24& Value)
+	UCodeGEForceinlne void WriteType(const Color24& Value)
 	{
 		WriteType(Value.R);
 		WriteType(Value.G);
 		WriteType(Value.B);
 	}
 	
-	UCodeGameEngineForceinlne void WriteType(const ColorRGB& Value)
+	UCodeGEForceinlne void WriteType(const ColorRGB& Value)
 	{
 		WriteType(Value.R);
 		WriteType(Value.G);
@@ -193,7 +193,7 @@ public:
 	}
 
 	
-	UCodeGameEngineForceinlne void WriteType(const Version& Value)
+	UCodeGEForceinlne void WriteType(const Version& Value)
 	{
 		WriteType(Value.Major);
 		WriteType(Value.Minor);
@@ -201,13 +201,13 @@ public:
 	}
 	
 
-	 UCodeGameEngineForceinlne void WriteType(const Path& Value)
+	 UCodeGEForceinlne void WriteType(const Path& Value)
 	{
 		WriteType(Value.generic_string());
 
 	}
 
-	 UCodeGameEngineForceinlne void WriteType(const UID& Value)
+	 UCodeGEForceinlne void WriteType(const UID& Value)
 	{
 		WriteType(Value.Get_Value());
 
@@ -233,17 +233,17 @@ public:
 
 	}
 
-	UCodeGameEngineForceinlne void SetBytes(const BytesView Bytes)
+	UCodeGEForceinlne void SetBytes(const BytesView Bytes)
 	{
 		SetBytes(Bytes.Data(), Bytes.Size());
 	}
-	UCodeGameEngineForceinlne void SetBytes(const Byte* Bytes,size_t Size)
+	UCodeGEForceinlne void SetBytes(const Byte* Bytes,size_t Size)
 	{
 		_Bytes = Bytes;
 		_BytesSize = Size;
 		Resetoffset();
 	}
-	UCodeGameEngineForceinlne void Resetoffset()
+	UCodeGEForceinlne void Resetoffset()
 	{
 		_BitOffset = 0;
 	}
@@ -293,11 +293,11 @@ public:
 		}
 	}	
 	
-	UCodeGameEngineForceinlne void SizeCheck(size_t Size)
+	UCodeGEForceinlne void SizeCheck(size_t Size)
 	{
 		if (_BitOffset + Size > _BytesSize)
 		{
-			UCodeGameEngineThrowException("No More Values");
+			UCodeGEThrow("No More Values");
 		}
 	}
 	//
@@ -489,14 +489,14 @@ public:
 		ReadType(V);
 		Out = V;
 	}
-	 UCodeGameEngineForceinlne void ReadType(UID& Out)
+	 UCodeGEForceinlne void ReadType(UID& Out)
 	{
 		UID::UID_t b = 0;
 		ReadType(b,b);
 		Out.Set_Value(b);
 	}
 
-	 UCodeGameEngineForceinlne void ReadType(Version& Out)
+	 UCodeGEForceinlne void ReadType(Version& Out)
 	{
 		ReadType(Out.Major, Out.Major);
 		ReadType(Out.Minor, Out.Minor);

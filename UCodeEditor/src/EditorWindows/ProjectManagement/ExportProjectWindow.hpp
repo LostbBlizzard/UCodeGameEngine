@@ -29,11 +29,11 @@ public:
 		Dedicated_Server,
 
 
-#if UCodeGameEnginePlatformWindows
+#if UCodeGEWindows
 	ThisPlatform = Windows,
-#elif UCodeGameEnginePlatformLinux
+#elif UCodeGELinux
 	ThisPlatform = Linux_Standalone,
-#elif UCodeGameEnginePlatformMacOS
+#elif UCodeGEMacOS
 	ThisPlatform = Mac,
 #endif 
 	};

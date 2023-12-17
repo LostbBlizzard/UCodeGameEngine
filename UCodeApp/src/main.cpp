@@ -2,7 +2,7 @@
 #include "UCodeRunTime/UDefs.hpp"
 
 #if PUBLISHED || RELASE
-#if UCodeGameEnginePlatformWindows
+#if UCodeGEWindows
 
 #include <Windows.h>
 

@@ -481,7 +481,7 @@ void OpenGlRender::EndRender()
 
 void OpenGlRender::glfwerror_callback(int error, const char* description)
 {
-    UCODE_ENGINE_ERROR("Glfw ERROR(" << error << "):" << description);
+    UCodeGEError("Glfw ERROR(" << error << "):" << description);
 }
 
 static const size_t MaxQuadCount = 1000;

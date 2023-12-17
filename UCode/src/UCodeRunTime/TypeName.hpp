@@ -88,7 +88,7 @@ struct NameVariant_helper;
 template <typename T2, typename... Types2>
 struct NameVariant_helper<T2, Types2...>
 {
-	UCodeGameEngineForceinlne static const char* GetName(const UCode::VariantTagType type_index)
+	UCodeGEForceinlne static const char* GetName(const UCode::VariantTagType type_index)
 	{
 		if (type_index == sizeof...(Types2))
 		{
@@ -103,7 +103,7 @@ struct NameVariant_helper<T2, Types2...>
 template <>
 struct NameVariant_helper<>
 {
-	UCodeGameEngineForceinlne static const char* GetName(const UCode::VariantTagType type_index) { return {}; }
+	UCodeGEForceinlne static const char* GetName(const UCode::VariantTagType type_index) { return {}; }
 };
 
 template<typename... Types> inline const char*  _GetTypeName(const Variant<Types...>* ParForOverloading)

@@ -24,7 +24,7 @@ void USerializer::Reset()
 		_TextMaker << YAML::BeginMap;
 	}break;
 	default:
-		UCodeGameEngineUnreachable();
+		UCodeGEUnreachable();
 		break;
 	}
 
@@ -68,7 +68,7 @@ void USerializer::ToString(String& Out, bool WithSerializerType)
 	}
 	break;
 	default:
-		UCodeGameEngineUnreachable();
+		UCodeGEUnreachable();
 		break;
 	}
 
@@ -112,7 +112,7 @@ void USerializer::ToStream(std::ostream& Out, bool WithSerializerType)
 	}
 	break;
 	default:
-		UCodeGameEngineUnreachable();
+		UCodeGEUnreachable();
 		break;
 	}
 }

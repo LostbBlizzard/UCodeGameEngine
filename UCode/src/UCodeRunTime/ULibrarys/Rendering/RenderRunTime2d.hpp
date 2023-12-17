@@ -67,7 +67,7 @@ public:
 		Color color;
 		DrawLayer_t drawLayer;
 		DrawOrder_t draworder;
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 		Renderer2d* madeby = nullptr;
 #endif // DEBUG
 		DrawQuad2dData(Vec2 p, Vec2 s, Vec2 rot)

@@ -17,7 +17,7 @@ EditorApp::~EditorApp()
 
 void EditorApp::Run(const String& ProjPath)
 {
-   UCODE_ENGINE_LOG("Hello World");
+   UCodeGELog("Hello World");
 
 
     UCode::RenderAPI::WindowData winData;

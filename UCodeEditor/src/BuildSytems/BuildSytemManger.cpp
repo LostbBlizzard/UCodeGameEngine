@@ -52,7 +52,7 @@ bool BuildSytemManger::BuildProject()
 	}
 	else
 	{
-		UCodeGameEngineUnreachable();
+		UCodeGEUnreachable();
 	}
 }
 void BuildSytemManger::Reset()
@@ -206,7 +206,7 @@ bool BuildSytemManger::BuildProjectGlobalWasGameData(const Path& GameFilesDataPa
 
 		UCode::GameFilesData::MakeFile(GameData, GameFilesDataPath, SerializerMode);
 		
-		#if UCodeGameEngineDEBUG
+		#if UCodeGEDebug
 		fs::copy_file(GameFilesDataPath, "../UCodeApp" / Path(UCode::GameFilesData::FileDataName),fs::copy_options::overwrite_existing);
 		#endif
 	}

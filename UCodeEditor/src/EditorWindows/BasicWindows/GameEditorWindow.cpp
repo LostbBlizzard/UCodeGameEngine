@@ -284,7 +284,7 @@ void GameEditorWindow::SceneEditorTab()
                 mode = ImGuizmo::OPERATION::ROTATE;
                 break;
             default:
-                UCodeGameEngineUnreachable();
+                UCodeGEUnreachable();
                 break;
             }
 
@@ -837,7 +837,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
                         else
                         {
                             Path RelativePath = Str.native().substr(PorjDat->GetAssetsDir().native().size());
-                            UCODE_ENGINE_LOG("Cant find Component for " + RelativePath.generic_string());
+                            UCodeGELog("Cant find Component for " + RelativePath.generic_string());
                         }
                     }
                 }
@@ -845,7 +845,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
                 if (!ItWork)
                 {
                     Path RelativePath = Str.native().substr(PorjDat->GetAssetsDir().native().size());
-                    UCODE_ENGINE_LOG("Cant find Object-file for " + RelativePath.generic_string());
+                    UCodeGELog("Cant find Object-file for " + RelativePath.generic_string());
                 }
             }
 

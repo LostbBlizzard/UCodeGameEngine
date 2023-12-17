@@ -5,10 +5,10 @@ CoreStart
 
 void DebugingClient::Connet(DebugingSever* Sever)
 {
-	#if UCodeGameEngineDEBUG
+	#if UCodeGEDebug
 	if (IsConneted())
 	{
-		UCodeGameEngineThrowException("Is Conneted");
+		UCodeGEThrow("Is Conneted");
 	}
 	#endif // DEBUG
 
@@ -17,10 +17,10 @@ void DebugingClient::Connet(DebugingSever* Sever)
 
 void DebugingClient::Connet(const UCode::Ip_t& SeverIp, UCode::Port_t SeverPort)
 {
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 	if (IsConneted())
 	{
-	   UCodeGameEngineThrowException("Is Conneted");
+	   UCodeGEThrow("Is Conneted");
 	}
 #endif // DEBUG
 
@@ -47,10 +47,10 @@ void DebugingClient::Disconnect()
 }
 void DebugingClient::Update()
 {
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 	if (!IsConneted())
 	{
-		UCodeGameEngineThrowException("Is not Conneted");
+		UCodeGEThrow("Is not Conneted");
 	}
 #endif // DEBUG
 	UpdateReadData();
@@ -71,7 +71,7 @@ bool DebugingClient::IsConneted()
 	{
 		return Val->Connection.IsConneted();
 	}
-	UCodeGameEngineUnreachable();
+	UCodeGEUnreachable();
 }
 void DebugingClient::UpdateReadData()
 {
@@ -81,7 +81,7 @@ void DebugingClient::UpdateReadData()
 	}
 	else if (auto Val = SeverConnection.IfType<DebugingSever*>())
 	{
-		UCodeGameEngineThrowException("not added");
+		UCodeGEThrow("not added");
 		//(*Val)->
 	}
 
@@ -120,10 +120,10 @@ void DebugingClient::ReadPacket(DebugingSeverPacket&& Packet)
 }
 void DebugingSever::StartSever(const UCode::Ip_t& SeverIp, UCode::Port_t SeverPort)
 {
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 	if (!IsSeverRuning())
 	{
-		UCodeGameEngineThrowException("Sever is runing");
+		UCodeGEThrow("Sever is runing");
 	}
 #endif // DEBUG
 
@@ -142,10 +142,10 @@ void DebugingSever::StartSever(const UCode::Ip_t& SeverIp, UCode::Port_t SeverPo
 
 void DebugingSever::StartSever(DebugingClient* client)
 {
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 	if (!IsSeverRuning())
 	{
-		UCodeGameEngineThrowException("Sever is runing");
+		UCodeGEThrow("Sever is runing");
 	}
 #endif // DEBUG
 
@@ -217,21 +217,21 @@ void DebugingSever::UpdateReadData()
 void DebugingSever::FromClient(DebugingClient* client, DebugingClientPacket&& Packet)
 {
 
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 	if (!IsSeverRuning())
 	{
-		UCodeGameEngineThrowException("Sever not runing");
+		UCodeGEThrow("Sever not runing");
 	}
 	if (auto V = ClientConnection.IfType<DebugingClient*>())
 	{
 		if (*V != client)
 		{
-			UCodeGameEngineThrowException("bad client");
+			UCodeGEThrow("bad client");
 		}
 	}
 	else
 	{
-		UCodeGameEngineThrowException("is net sever not interal sever");
+		UCodeGEThrow("is net sever not interal sever");
 	}
 #endif // DEBUG
 	ReadPackets.push_back(std::move(Packet));

@@ -36,7 +36,7 @@ struct WindowsBuildSetings
 		x86_64,
 		x86,
 
-		#if UCodeGameEnginePlatformWindows
+		#if UCodeGEWindows
 		#if UCode_Build_32Bit
 		Native = (int)Architecture::x86,
 		Default = (int)Native,

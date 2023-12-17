@@ -67,7 +67,7 @@ public:
 		Color color;
 		RenderRunTime2d::DrawLayer_t drawLayer;
 		RenderRunTime2d::DrawOrder_t draworder;
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 		Renderer2d* madeby = nullptr;
 #endif // DEBUG
 		DrawQuad2dData(Vec2 p, Vec2 s, Vec2 rot)
@@ -77,10 +77,10 @@ public:
 		{
 
 		};
-		UCodeGameEngineForceinlne void SetTexture(SpritePtr v) { Spr = v; }
-		UCodeGameEngineForceinlne void SetColor(Color v) { color = v; }
-		UCodeGameEngineForceinlne void SetDrawLayer(RenderRunTime2d::DrawLayer_t v) { drawLayer = v; }
-		UCodeGameEngineForceinlne void SetDraworder(RenderRunTime2d::DrawOrder_t v) { draworder = v; }
+		UCodeGEForceinlne void SetTexture(SpritePtr v) { Spr = v; }
+		UCodeGEForceinlne void SetColor(Color v) { color = v; }
+		UCodeGEForceinlne void SetDrawLayer(RenderRunTime2d::DrawLayer_t v) { drawLayer = v; }
+		UCodeGEForceinlne void SetDraworder(RenderRunTime2d::DrawOrder_t v) { draworder = v; }
 
 
 	};

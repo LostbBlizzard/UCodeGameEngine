@@ -85,7 +85,7 @@ public:
 	void Reset();
 
 
-	UCodeGameEngineForceinlne USerializerType Get_Type(){return _Type;}
+	UCodeGEForceinlne USerializerType Get_Type(){return _Type;}
 	UCodeGameEngineNoDiscard bool ToFile(const Path& Path, bool WithSerializerType = true);
 	void ToString(String& Out, bool WithSerializerType = false);
 	void ToBytes(Vector<Byte>& Out,bool WithSerializerType =false);
@@ -96,7 +96,7 @@ public:
 	{
 		if (_Type != USerializerType::Bytes)
 		{
-			UCodeGameEngineThrowException("Bad Cast");
+			UCodeGEThrow("Bad Cast");
 		}
 		return _BitMaker;
 	}
@@ -104,7 +104,7 @@ public:
 	{
 		if (_Type != USerializerType::YAML)
 		{
-			UCodeGameEngineThrowException("Bad Cast");
+			UCodeGEThrow("Bad Cast");
 		}
 		return  _TextMaker;
 	}
@@ -180,7 +180,7 @@ public:
 	{
 		if (_Type != USerializerType::Bytes)
 		{
-			UCodeGameEngineThrowException("Bad Cast");
+			UCodeGEThrow("Bad Cast");
 		}
 		return  _BitReader;
 	}
@@ -188,7 +188,7 @@ public:
 	{
 		if (_Type != USerializerType::YAML)
 		{
-			UCodeGameEngineThrowException("Bad Cast");
+			UCodeGEThrow("Bad Cast");
 		}
 		return _YamlReader;
 	}

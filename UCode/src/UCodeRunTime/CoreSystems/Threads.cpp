@@ -328,7 +328,7 @@ void Threads::ThrowErrIfNotOnMainThread()
 {
 	if (!IsOnMainThread())
 	{
-		UCodeGameEngineThrowException("Not on Main-Thread");
+		UCodeGEThrow("Not on Main-Thread");
 	}
 }
 

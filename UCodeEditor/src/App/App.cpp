@@ -6,7 +6,7 @@
 
 #include "../BuildSytems/BuildSytemManger.hpp"
 
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 #include "tests/tests.hpp"
 #endif // DEBUG
 
@@ -94,7 +94,7 @@ int App::main(int argc, char* argv[])
 	namespace UC = UCode;
 	namespace UE = UCodeEditor;
 	int a = 0;
-	#ifndef UCodeGameEngineDEBUG
+	#ifndef UCodeGEDebug
 	try
 #endif // DEBUG
 
@@ -114,7 +114,7 @@ int App::main(int argc, char* argv[])
 		}
 		UC::StringView Str = StrV;
 
-		#if UCodeGameEngineDEBUG
+		#if UCodeGEDebug
 		if (Str == "--RunTests")
 		{
 			return UCodeEditor::Tests::RunTests();
@@ -204,22 +204,22 @@ int App::main(int argc, char* argv[])
 			}
 			else
 			{
-				#if UCodeGameEnginePlatformWindows
+				#if UCodeGEWindows
 				UE::WindowsBuildSetings settings;
 
 
 				build.Setings.Settings = std::move(settings);
-				#elif UCodeGameEnginePlatformLinux
+				#elif UCodeGELinux
 				UE::LinuxBuildSetings settings;
 
 
 				build.Setings.Settings = std::move(settings);
-				#elif UCodeGameEnginePlatformMacOS
+				#elif UCodeGEMacOS
 				UE::MacOsBuildSetings settings;
 
 
 				build.Setings.Settings = std::move(settings);
-				#elif UCodeLangPlatformWasm
+				#elif UCodeGEWasm
 				UE::WebBuildSetings settings;
 
 
@@ -240,7 +240,7 @@ int App::main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 	}
 
-	#ifndef UCodeGameEngineDEBUG
+	#ifndef UCodeGEDebug
 	catch (const std::exception& ex)
 	{
 		UC::Loger::Log( (UC::String)"App crashed :" + (UC::String)ex.what(), UC::LogType::Fatal);

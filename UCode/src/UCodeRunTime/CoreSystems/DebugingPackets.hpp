@@ -98,10 +98,10 @@ struct DebugingClientPacket
 	template<typename T> Optional<T> As() const
 	{
 		
-		#if UCodeGameEngineDEBUG
+		#if UCodeGEDebug
 		if (PacketType != T::PacketType)
 		{
-			UCodeGameEngineThrowException("Bad cast");
+			UCodeGEThrow("Bad cast");
 		}
 		#endif // DEBUG
 		T R;
@@ -128,10 +128,10 @@ struct DebugingSeverPacket
 	}
 	template<typename T> Optional<T> As() const
 	{
-#		ifdef UCodeGameEngineDEBUG
+#		ifdef UCodeGEDebug
 		if (PacketType != T::PacketType)
 		{
-			UCodeGameEngineThrowException("Bad cast");
+			UCodeGEThrow("Bad cast");
 		}
 		#endif // DEBUG
 		T R;

@@ -532,48 +532,48 @@ struct Span
 	constexpr Span() :_Data(nullptr), _Size(0) {}
 	constexpr Span(T* data, size_t Size) : _Data(data), _Size(Size) {}
 
-	constexpr UCodeGameEngineForceinlne T& operator[](size_t Index)
+	constexpr UCodeGEForceinlne T& operator[](size_t Index)
 	{
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 		if (Index > _Size)
 		{
-			UCodeGameEngineThrowException("Index out of range");
+			UCodeGEThrow("Index out of range");
 		}
 #endif // DEBUG
 
 		return _Data[Index];
 	}
 
-	constexpr UCodeGameEngineForceinlne const T& operator[](size_t Index) const
+	constexpr UCodeGEForceinlne const T& operator[](size_t Index) const
 	{
-#if UCodeGameEngineDEBUG
+#if UCodeGEDebug
 		if (Index > _Size)
 		{
-			UCodeGameEngineThrowException("Index out of range");
+			UCodeGEThrow("Index out of range");
 		}
 #endif // DEBUG
 
 		return _Data[Index];
 	}
 
-	constexpr UCodeGameEngineForceinlne const T* Data()const
+	constexpr UCodeGEForceinlne const T* Data()const
 	{
 		return _Data;
 	}
-	constexpr UCodeGameEngineForceinlne T* Data()
+	constexpr UCodeGEForceinlne T* Data()
 	{
 		return _Data;
 	}
-	constexpr UCodeGameEngineForceinlne size_t Size()const
+	constexpr UCodeGEForceinlne size_t Size()const
 	{
 		return _Size;
 	}
 
-	constexpr UCodeGameEngineForceinlne static Span<T> Make(T* data, size_t Size)
+	constexpr UCodeGEForceinlne static Span<T> Make(T* data, size_t Size)
 	{
 		return Span(data, Size);
 	}
-	constexpr UCodeGameEngineForceinlne static const Span<T> Make(const T* data, size_t Size)
+	constexpr UCodeGEForceinlne static const Span<T> Make(const T* data, size_t Size)
 	{
 		return Span((T*)data, Size);
 	}
@@ -620,24 +620,24 @@ struct Unique_Span
 		return *this;
 	}
 
-	constexpr UCodeGameEngineForceinlne T& operator[](size_t Index)
+	constexpr UCodeGEForceinlne T& operator[](size_t Index)
 	{
-		#if UCodeGameEngineDEBUG
+		#if UCodeGEDebug
 		if (Index >= _Size)
 		{
-			UCodeGameEngineThrowException("Index out of range");
+			UCodeGEThrow("Index out of range");
 		}
 		#endif // DEBUG
 
 		return Pointer[Index];
 	}
 
-	constexpr UCodeGameEngineForceinlne const T& operator[](size_t Index) const
+	constexpr UCodeGEForceinlne const T& operator[](size_t Index) const
 	{
-		#if UCodeGameEngineDEBUG
+		#if UCodeGEDebug
 		if (Index >= _Size)
 		{
-			UCodeGameEngineThrowException("Index out of range");
+			UCodeGEThrow("Index out of range");
 		}
 		#endif // DEBUG
 
@@ -815,7 +815,7 @@ public:
 	{
 		AddPointerRef();
 	}
-	UCodeGameEngineForceinlne Ref& operator=(const Ref& ToCopy)
+	UCodeGEForceinlne Ref& operator=(const Ref& ToCopy)
 	{
 		ReMovePointerRef();
 
@@ -825,13 +825,13 @@ public:
 		return *this;
 	}
 
-	UCodeGameEngineForceinlne void SetToNull()
+	UCodeGEForceinlne void SetToNull()
 	{
 		ReMovePointerRef();
 		_Data = nullptr;
 	}
 
-	UCodeGameEngineNoDiscard UCodeGameEngineForceinlne const T* get() const
+	UCodeGameEngineNoDiscard UCodeGEForceinlne const T* get() const
 	{
 		if (_Data == nullptr)
 		{
@@ -840,11 +840,11 @@ public:
 
 		return &_Data->Data;
 	}
-	UCodeGameEngineNoDiscard UCodeGameEngineForceinlne const T* operator->() const { return get(); }
-	UCodeGameEngineNoDiscard UCodeGameEngineForceinlne const T& operator*() const { return *get(); }
-	UCodeGameEngineNoDiscard UCodeGameEngineForceinlne const T& operator[](size_t Index) const { return get()[Index]; }
+	UCodeGameEngineNoDiscard UCodeGEForceinlne const T* operator->() const { return get(); }
+	UCodeGameEngineNoDiscard UCodeGEForceinlne const T& operator*() const { return *get(); }
+	UCodeGameEngineNoDiscard UCodeGEForceinlne const T& operator[](size_t Index) const { return get()[Index]; }
 
-	UCodeGameEngineNoDiscard UCodeGameEngineForceinlne T* get()
+	UCodeGameEngineNoDiscard UCodeGEForceinlne T* get()
 	{
 		if (_Data == nullptr)
 		{
@@ -853,12 +853,12 @@ public:
 
 		return &_Data->Data;
 	}
-	UCodeGameEngineNoDiscard UCodeGameEngineForceinlne T* operator->() { return get(); }
-	UCodeGameEngineNoDiscard UCodeGameEngineForceinlne T& operator*() { return *get(); }
-	UCodeGameEngineNoDiscard UCodeGameEngineForceinlne T& operator[](size_t Index) { return get()[Index]; }
+	UCodeGameEngineNoDiscard UCodeGEForceinlne T* operator->() { return get(); }
+	UCodeGameEngineNoDiscard UCodeGEForceinlne T& operator*() { return *get(); }
+	UCodeGameEngineNoDiscard UCodeGEForceinlne T& operator[](size_t Index) { return get()[Index]; }
 
-	UCodeGameEngineNoDiscard UCodeGameEngineForceinlne size_t get_RefCount() const { return _Data->RefCount; }
-	UCodeGameEngineNoDiscard UCodeGameEngineForceinlne RefData* get_DatatPtr() { return _Data; }
+	UCodeGameEngineNoDiscard UCodeGEForceinlne size_t get_RefCount() const { return _Data->RefCount; }
+	UCodeGameEngineNoDiscard UCodeGEForceinlne RefData* get_DatatPtr() { return _Data; }
 private:
 	RefData* _Data;
 	void AddPointerRef()

@@ -132,7 +132,7 @@ void UserSettingsWindow::UpdateWindow()
 					UCode::RenderAPI::OpenGlRender::SetStyle_Dark();
 					break;
 				default:
-					UCodeGameEngineUnreachable();
+					UCodeGEUnreachable();
 					break;
 				}
 			}
