@@ -239,7 +239,7 @@ project "UCode"
    includeUCode();
 
    prebuildcommands{
-       UCPathExe.." cppdirtoulangvm %{wks.location}UCode/src %{wks.location}UCode/src/UCodeRunTime/ULibrarys/UCodeLang/UCodeAPI.cpp %{wks.location}UCodeAPI/GameEngine/src/API.uc",
+       UCPathExe.." cppdirtoulangvm %{wks.location}/UCode/src %{wks.location}/UCode/src/UCodeRunTime/ULibrarys/UCodeLang/UCodeAPI.cpp %{wks.location}UCodeAPI/GameEngine/src/API.uc",
    }
 
 
@@ -271,21 +271,25 @@ project "UCodeApp"
 
    filter { "system:Windows","architecture:x86_64" }
       postbuildcommands {
+         "{MKDIR} %{wks.location}/UCodeEditor/UFiles/bin",
          "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe"
       }
     
    filter { "system:Windows","architecture:x86" }
       postbuildcommands {
+         "{MKDIR} %{wks.location}/UCodeEditor/UFiles/bin",
          "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe"
       }
  
    filter { "system:linux","architecture:x86_64" }
       postbuildcommands {
+        "{MKDIR} %{wks.location}/UCodeEditor/UFiles/bin", 
         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64"
       }
     
    filter { "system:linux","architecture:x86" }
       postbuildcommands {
+        "{MKDIR} %{wks.location}/UCodeEditor/UFiles/bin",
         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppLinuxDebug86X32"
       }
    
@@ -341,7 +345,7 @@ project "UCodeEditor"
    linkUCode(true)
    
 
-   UEditorPathExe = "%{wks.location}Output/UCodeEditor/" .. OutDirPath .. "/UCodeEditor"
+   UEditorPathExe = "%{wks.location}/Output/UCodeEditor/" .. OutDirPath .. "/UCodeEditor"
 
    
 
@@ -372,7 +376,7 @@ project "UCodeEditor"
       buildmessage "Packing UFilesDir"
       postbuildcommands 
       {
-       UEditorPathExe.." pack %{prj.location}UFiles %{cfg.targetdir}/UFiles.data"
+       UEditorPathExe.." pack %{prj.location}/UFiles %{cfg.targetdir}/UFiles.data"
       }
 
    filter { "configurations:Release" }
@@ -380,7 +384,7 @@ project "UCodeEditor"
       postbuildcommands 
       {
        --"{COPYDIR} %{prj.location}/UFiles %{prj.location}%{cfg.targetdir}/UFiles"
-       UEditorPathExe.." pack %{prj.location}UFiles %{cfg.targetdir}/UFiles.data"
+       UEditorPathExe.." pack %{prj.location}/UFiles %{cfg.targetdir}/UFiles.data"
       }
 
 project "UCodeGameEngineDoc"
@@ -880,3 +884,64 @@ group "Dependencies"
     }
 
 
+newaction {
+    trigger = "install",
+    description = "installs compiler tool/librarys",
+    execute = function ()
+        print("----installing tools for " .. os.target())
+        
+        if os.istarget("linux") then
+
+          os.execute("sudo apt-get update")
+
+          print("----downloading libx11 Packages")
+          os.execute("sudo apt-get install libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev")
+
+          print("----downloading glfw Packages")
+          os.execute("sudo apt-get install libglfw3")
+          os.execute("sudo apt-get install libglfw3-dev")
+
+          print("----downloading glfw libgtk-3-dev")
+          os.execute("sudo apt-get install libgtk-3-dev")
+          
+          print("----installing tools completed");
+        end
+
+        if os.istarget("windows") then
+
+        end
+        
+        if os.istarget("macosx") then
+
+        end
+    end
+}
+newaction {
+    trigger = "installwasm",
+    description = "installs compiler tool/librarys for wasm",
+    execute = function ()
+        print("----installing emscripten for " .. os.target())
+        
+        if os.istarget("linux") then
+          os.execute("git clone https://github.com/emscripten-core/emsdk.git")
+
+          os.execute("cd emsdk")
+
+          os.execute("git pull")
+
+          os.execute("./emsdk install latest")
+
+          os.execute("./emsdk activate latest")
+
+          os.execute("source ./emsdk_env.sh")
+        end
+
+        if os.istarget("windows") then
+
+        end
+        
+        if os.istarget("macosx") then
+
+        end
+    end
+}
