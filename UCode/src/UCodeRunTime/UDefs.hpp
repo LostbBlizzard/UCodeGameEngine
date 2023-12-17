@@ -16,7 +16,7 @@
 #define UCodeGEPatch 1
 
 using VersionNumber_t = int;
-#define UCodeGameEngineVersionNumber ((VersionNumber_t)((UCodeGEMajor << 16) | (UCodeGEMinor << 8) | UCodeGEPatch))
+#define UCodeGEVersion ((VersionNumber_t)((UCodeGEMajor << 16) | (UCodeGEMinor << 8) | UCodeGEPatch))
 
 
 #if defined(_MSC_VER)
