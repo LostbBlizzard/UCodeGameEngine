@@ -1030,7 +1030,7 @@ newaction {
         end
 
         if os.istarget("windows") then
-          executeorexit("Output\\UCodeEditor\\Win64\\Published\\UCodeEditor.exe zip Output\\UCodeEditor\\Win64\\Published Output\\UCodeEditor\\Win64\\Win64.zip")
+          executeorexit("Output\\UCodeEditor\\Win64\\Published\\UCodeEditor.exe zip Output\\UCodeEditor\\Win64\\Published Output\\UCodeEditor\\Win64\\UCodeGameEngine.zip")
         end
         
         if os.istarget("macosx") then
