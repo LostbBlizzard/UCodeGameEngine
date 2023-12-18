@@ -6,6 +6,8 @@
 
 #include "../BuildSytems/BuildSytemManger.hpp"
 
+#include "zip.h"
+
 #if UCodeGEDebug
 #include "tests/tests.hpp"
 #endif // DEBUG
@@ -114,7 +116,6 @@ int App::main(int argc, char* argv[])
 			}
 		}
 		UC::StringView Str = StrV;
-
 		#if UCodeGEDebug
 		if (Str == "--RunTests")
 		{
@@ -136,6 +137,49 @@ int App::main(int argc, char* argv[])
 			Path pout = GetPath(Str);
 
 			return UC::GameFilesData::UnPackToDir(pin, pout) == true ? EXIT_SUCCESS : EXIT_FAILURE;
+		}
+		else if (StringHelper::StartsWith(Str, "zip"))
+		{
+			Str = Str.substr(sizeof("zip"));
+			Path pin = GetPath(Str);
+			Path pout = GetPath(Str);
+
+			UC::Vector<UC::String> FileName;
+
+			for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(pin))
+			{
+				if (dirEntry.is_regular_file())
+				{
+					FileName.push_back(dirEntry.path().generic_string());
+					std::cout << dirEntry.path().generic_string() << "\n";
+				}
+			}
+
+
+			int exitcode;
+			{
+				UC::Vector<const char*> FileNamesptr;
+				FileNamesptr.resize(FileName.size());
+
+				for (size_t i = 0; i < FileName.size(); i++)
+				{
+					FileNamesptr[i] = FileName[i].c_str();
+				}
+
+				exitcode = zip_create(pout.generic_string().c_str(), FileNamesptr.data(), FileNamesptr.size()) == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
+			}
+			
+
+			return exitcode;
+		}
+		else if (StringHelper::StartsWith(Str, "unzip"))
+		{
+			Str = Str.substr(sizeof("unzip"));
+			UC::String pin = UC::String(GetPath(Str));
+			UC::String pout = UC::String(GetPath(Str));
+
+
+			return zip_extract(pin.c_str(), pout.c_str(), nullptr, nullptr) == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 		}
 		else if (StringHelper::StartsWith(Str, "build"))
 		{
