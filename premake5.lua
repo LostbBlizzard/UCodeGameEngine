@@ -884,6 +884,20 @@ group "Dependencies"
     }
 
 
+
+function executeorexit(str)
+ exit = os.execute(str)
+
+ if exit == nil then
+  os.exit(1)
+ end 
+
+ if not exit == true then
+  os.exit(1)
+ end 
+
+end 
+--install
 newaction {
     trigger = "install",
     description = "installs compiler tool/librarys",
@@ -938,6 +952,85 @@ newaction {
 
         if os.istarget("windows") then
 
+        end
+        
+        if os.istarget("macosx") then
+
+        end
+    end
+}
+--build
+newaction {
+    trigger = "buildeditor",
+    description = "installs compiler tool/librarys for wasm",
+    execute = function ()
+        print("----installing emscripten for " .. os.target())
+        
+        if os.istarget("linux") then
+          executeorexit("make UCodeEditor -j4")
+        end
+
+        if os.istarget("windows") then
+          executeorexit("msbuild UCodeGameEngine.sln /t:Build /p:Configuration=Debug /p:Platform=Win64 -maxcpucount")
+        end
+        
+        if os.istarget("macosx") then
+          executeorexit("make UCodeEditor -j4")
+        end
+    end
+}
+newaction {
+    trigger = "buildwasm",
+    description = "installs compiler tool/librarys for wasm",
+    execute = function ()
+        print("----installing emscripten for " .. os.target())
+        
+        if os.istarget("linux") then
+          executeorexit("eemake make UCodeEditor -j4")
+        end
+
+        if os.istarget("windows") then
+          executeorexit("eemake UCodeApp -j4")
+        end
+        
+        if os.istarget("macosx") then
+          executeorexit("eemake UCodeApp -j4")
+        end
+    end
+}
+--test
+
+--publish
+newaction {
+    trigger = "build_editor_publish",
+    description = "installs compiler tool/librarys for wasm",
+    execute = function ()
+        print("----installing emscripten for " .. os.target())
+        
+        if os.istarget("linux") then
+          executeorexit("make config=publish_linux64 -j4")
+        end
+
+        if os.istarget("windows") then
+          executeorexit("msbuild UCodeGameEngine.sln /t:Publish /p:Configuration=Debug /p:Platform=Win64 -maxcpucount")
+        end
+        
+        if os.istarget("macosx") then
+
+        end
+    end
+}
+newaction {
+    trigger = "package_editor",
+    description = "installs compiler tool/librarys for wasm",
+    execute = function ()
+        
+        if os.istarget("linux") then
+          --executeorexit("make config=publish_linux64 -j4")
+        end
+
+        if os.istarget("windows") then
+          executeorexit("Output\\UCodeEditor\\Win64\\Published\\UCodeEditor.exe zip Output\\UCodeEditor\\Win64\\Published Output\\UCodeEditor\\Win64\\Win64.zip")
         end
         
         if os.istarget("macosx") then
