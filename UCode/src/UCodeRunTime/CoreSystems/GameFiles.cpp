@@ -216,18 +216,28 @@ bool GameFilesData::PackDir(const Path& dirpath, const Path& outfile)
 		}
 	}
 
-	GameFilesData f;
+	GameFilesData fdata;
+	fdata._Type = Type::ThisFile;
+
 	size_t offset = 0;
 	for (auto& Item : files)
 	{
 		GameFileIndex f;
 		f.FileFullName = Path(Item.path.native().substr(dirpath.native().size()));
+		
+		if (f.FileFullName.native().front() == Path::preferred_separator)
+		{
+			f.FileFullName = f.FileFullName.native().substr(1);
+		}
+		
 		f.FileOffset = offset;
-		f.FileSize - Item.Size;
+		f.FileSize = Item.Size;
 
 		offset += Item.Size;
+	
+		fdata.Offsets.push_back(std::move(f));
 	}
-	auto ofile = StartWritingBytes(f, outfile, offset);
+	auto ofile = StartWritingBytes(fdata, outfile, offset);
 	//TODO pre allocate space for ofile
 
 	const size_t BufferSize = GetPageSize();
@@ -236,7 +246,7 @@ bool GameFilesData::PackDir(const Path& dirpath, const Path& outfile)
 	
 	for (auto& Item : files)
 	{
-		std::ifstream file(Item.path);
+		std::ifstream file(Item.path, std::ios::binary);
 		size_t fileleft = Item.Size;
 		
 		while (fileleft != 0)
@@ -264,9 +274,14 @@ bool GameFilesData::UnPackToDir(const Path& datafile, const Path& dirpath)
 		Vector<Byte> Buffer;
 		Buffer.resize(BufferSize);
 
+		fs::create_directories(dirpath);
+
 		for (auto& Item : tep.Offsets)
 		{
 			buf.Set_FileReadIndex(Item.FileOffset);
+
+
+			fs::create_directories((dirpath / Path(Item.FileFullName)).parent_path());
 
 			Path outpath = dirpath / Path(Item.FileFullName);
 			std::ofstream ofile(outpath, std::ios::out | std::ios::binary);
@@ -287,6 +302,7 @@ bool GameFilesData::UnPackToDir(const Path& datafile, const Path& dirpath)
 			ofile.close();
 		}
 
+		return true;
 	}
 	else
 	{
