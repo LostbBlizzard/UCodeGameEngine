@@ -158,6 +158,11 @@ FileHelper::OpenFileData FileHelper::OpenDirFromUser(const Path&  defaultPath)
 
 	nfdresult_t result = NFD_PickFolder(FilePath, &outPath);
 
+	if (result == nfdresult_t::NFD_ERROR)
+	{
+		result = NFD_PickFolder(nullptr, &outPath);
+	}
+
 	FileHelper::OpenFileData r;
 	if (outPath) { r.Path = UCode::String(outPath); NFDi_Free(outPath); }
 	r.Result = (FileHelper::OpenFileResult)result;//same type
@@ -247,13 +252,14 @@ void FileHelper::OpenPathinFiles(const Path&  Dir)
 
 Path FileHelper::Get_PersistentDataPath()
 {
-	//UCode::AppData Data;
-	//Data.CompanyName = "Lost blizzard";
-	//Data.APPName = "UCodeEditor";
-	Path R;// = UCode::GameFiles::Get_PersistentDataPath(Data);
-	
+	UCode::AppData Data;
+	Data.CompanyName = "Lost blizzard";
+	Data.APPName = "UCodeEditor";
+	Path R;
 	#if UCodeGEDebug
 	R = UCode_VS_PROJECTPATH "PersistentData/";
+	#else
+	R = UCode::GameFiles::Get_PersistentDataPath(Data);
 	#endif // DEBUG
 	if (!fs::exists(R))
 	{

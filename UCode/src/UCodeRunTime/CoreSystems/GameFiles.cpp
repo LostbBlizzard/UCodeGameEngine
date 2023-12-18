@@ -7,10 +7,15 @@
 #include <UCodeRunTime/ULibrarys/Serialization/Bit_Implementation/AsssetPtr.hpp>
 
 
-#ifdef UCode_Build_Windows_OS
+
+#if UCodeGEWindows
 #include <Windows.h>
 #include <shlobj.h>
-#endif // UCode_Build_Windows_OS
+#endif 
+
+#undef min
+
+#undef max
 
 Yaml_NotIMPlEMENTED(UCode::GameFileIndex);
 CoreStart
@@ -406,6 +411,8 @@ Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& path)
 			V.Resize(val->FileSize);
 			_FileBuffer.ReadBytes(V.Data(), V.Size());
 
+
+
 			return V;
 		}
 		else
@@ -432,7 +439,42 @@ bool GameFiles::CopyGameFileTo(const Path& path, const Path& outpath)
 	}
 	else if (_Data._Type == GameFilesData::Type::ThisFile)
 	{
-		UCodeGEToDo();
+		if (auto val = _Data.GetFile(path))
+		{
+			std::ofstream ofile(outpath, std::ios::out | std::ios::binary);
+			if (ofile.is_open()) 
+			{
+				//TODO pre allocate space for ofile
+
+				size_t BufferSize = GetPageSize();
+				_FileBuffer.Set_FileReadIndex(val->FileOffset);
+
+				Vector<Byte> Buffer;
+				Buffer.resize(BufferSize);
+
+				size_t fileleft = val->FileSize;
+
+				while (fileleft != 0)
+				{
+					size_t MaxToRead = std::min(BufferSize, fileleft);
+
+					_FileBuffer.ReadBytes(Buffer.data(), MaxToRead);
+					ofile.write((char*)Buffer.data(), MaxToRead);
+
+					fileleft -= MaxToRead;
+				}
+
+				ofile.close();
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
 	}
 	else
 	{
@@ -518,14 +560,18 @@ Path GameFiles::GetFileFullName(const Path& FilePath) const
 }
 
 
-
 Path GameFiles::Get_PersistentDataPath(const AppData& data)
 {
-	const String CompanyName = "company";
-	const String APPName = "app";
+	const String& CompanyName = data.CompanyName;
+	const String& APPName = data.APPName;
 
 	fs::path Persistentpath;
-	#ifdef UCode_Build_Windows_OS
+
+	#if UCodeGEDebug
+	Persistentpath = (String)UCode_VS_PROJECTPATH + "Persistentpath/";
+	#else 
+
+	#if UCodeGEWindows
 
 	PWSTR path_tmp;
 	auto V = SHGetKnownFolderPath(FOLDERID_LocalAppDataLow, 0, nullptr, &path_tmp);
@@ -544,14 +590,19 @@ Path GameFiles::Get_PersistentDataPath(const AppData& data)
 	/* Free memory :) */
 	CoTaskMemFree(path_tmp);
 
+	#elif UCodeGELinux
 
+	UCodeGEToDo();
+	#elif UCodeGEWasm
 
+	UCodeGEToDo();
+	#else
+
+	UCodeGEToDo();
 	#endif 
 
-	#if UCodeGEDebug
-	Persistentpath = (String)UCode_VS_PROJECTPATH + "Persistentpath/";
-	#endif // DEBUG
-
+	#endif
+	
 	String S_Persistentpath = Persistentpath.generic_u8string();
 	S_Persistentpath += '/' + CompanyName + '/' += APPName;//Comany
 	fs::create_directories(S_Persistentpath);

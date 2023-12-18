@@ -412,7 +412,9 @@ void  EditorAppCompoent::BeginDockSpace(bool* p_open)
 }
 void  EditorAppCompoent::SaveApp()
 {
-    SaveWindowsPref();
+    if (_RunTimeProjectData.Is_ProjLoaded()) {
+        SaveWindowsPref();
+    }
 }
 void  EditorAppCompoent::OnAppEnded()
 {
