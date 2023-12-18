@@ -101,6 +101,7 @@ int App::main(int argc, char* argv[])
 	{
 		
 		//while (true);
+		
 		UC::String StrV;
 		for (size_t i = 1; i < argc; i++)
 		{
