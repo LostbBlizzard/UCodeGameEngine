@@ -61,15 +61,71 @@ void BuildSytemManger::Reset()
 }
 bool BuildSytemManger::Build(const WindowsBuildSetings& setings)
 {
-	const Path ExePath = Setings._OutDir / Path(Setings._OutName).concat(".exe").native();
-	const Path GameFilesDataPath = Setings._OutDir / Path(UCode::GameFilesData::FileDataName).native();
-	const auto ExeTepPath = AppFiles::ReadFileAsBytes(Path("bin/UCAppWinDebug86X64.exe"));
+	Path OutDir = Path(Setings._OutDir.native() + Path::preferred_separator);
+	
 
-	fs::create_directories(Setings._OutDir);
-	fs::create_directories(Setings.TemporaryPlatfromPath);
+	Path AddedPath;
+	{
+		AddedPath += "Windows";
+
+		if (setings.architecture == WindowsBuildSetings::Architecture::x86_64)
+		{
+			AddedPath += "-X86_64";
+		}
+		else
+		{
+			AddedPath += "-X86";
+		}
+		if (setings.DebugBuild)
+		{
+			AddedPath += "-Debug";
+		}
+		else
+		{
+			AddedPath += "-Publish";
+		}
+	}
+	OutDir += AddedPath;
+
+	Platfromteppath = Setings.TemporaryPlatfromPath / AddedPath;
+
+	const Path ExePath = OutDir / Path(Setings._OutName).concat(".exe").native();
+	const Path GameFilesDataPath = OutDir / Path(UCode::GameFilesData::FileDataName).native();
+
+	Path baseexepath;
+	if (setings.DebugBuild)
+	{
+		if (setings.architecture == WindowsBuildSetings::Architecture::x86_64)
+		{
+			baseexepath = Path("bin/UCAppWinDebug86X64.exe");
+		}
+		else
+		{
+			baseexepath = Path("bin/UCAppWinDebug86X32.exe");
+		}
+	}
+	else
+	{
+		if (setings.architecture == WindowsBuildSetings::Architecture::x86_64)
+		{
+			baseexepath = Path("bin/UCAppWinPub86X64.exe");
+		}
+		else
+		{
+
+			baseexepath = Path("bin/UCAppWinPub86X32.exe");
+		}
+	}
+
+
+
+	const auto ExeTepPath = AppFiles::ReadFileAsBytes(baseexepath);
+
+	fs::create_directories(OutDir);
+	fs::create_directories(Platfromteppath);
 	fs::create_directories(Setings.TemporaryGlobalPath);
 
-	RemoveFileInPath(Setings._OutDir);
+	RemoveFileInPath(OutDir);
 
 	if (fs::exists(ExePath))
 	{

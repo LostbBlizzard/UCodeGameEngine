@@ -27,7 +27,8 @@ public:
 		Nintendo_Switch,
 
 		Dedicated_Server,
-
+		
+		Custom,
 
 #if UCodeGEWindows
 	ThisPlatform = Windows,
@@ -56,18 +57,29 @@ private:
 	static EditorWindow* MakeWin(const NewEditorWindowData& windowdata);
 
 	void ShowWindowsExportSeting();
+	void ShowLinuxExportSeting();
+	void ShowMacOsExportSeting();
+	void ShowIosExportSeting();
+
 	void ShowWebExportSeting();
-	void SetBuildData(UCodeEditor::Path& AssetsPath, UCodeEditor::RunTimeProjectData* ProjectInfo, UCodeEditor::String& AddedOnOutDir, BuildSetings::SettingsType Info);
+	void SetBuildData(Path& AssetsPath, RunTimeProjectData* ProjectInfo,BuildSetings::SettingsType Info);
 	void ShowAndroidExportSeting();
 	void ShowSeverExportSeting();
 	void ShowUCodeEditorExportSeting();
+	void ShowCustomExportSeting();
+
 	const PlatformsData* LookingAtPlatform = nullptr;
 	BuildSytemManger buildSytem;
 
 	WindowsBuildSetings WinSettings;
-	WebBuildSetings WebSettings;
-	AndroidBuildSetings AndroidSettings;
+	LinuxBuildSetings linuxSettings;
+	MacOsBuildSetings macSettings;
 
+	WebBuildSetings webSettings;
+	AndroidBuildSetings androidSettings;
+	IOSBuildSetings iosBuildSetings;
+
+	CustomBuildSetings customBuildSetings;
 	UCode::AsynTask _Task;
 };
 

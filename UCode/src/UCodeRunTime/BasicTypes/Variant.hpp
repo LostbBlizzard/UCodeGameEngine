@@ -390,7 +390,7 @@ public:
 		{
 		UCodeGEThrow("bad type cast");
 		}
-		return *(T*)&_Tag;
+		return *(T*)&_Items;
 	}
 	template<typename T> const T& GetType() const
 	{
@@ -399,7 +399,7 @@ public:
 		{
 			UCodeGEThrow("bad type cast");
 		}
-		return *(T*)&_Tag;
+		return *(T*)&_Items;
 	}
 
 	template<typename T>
