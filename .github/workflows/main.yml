@@ -18,10 +18,10 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Run Premake install
-      run: ./InstallTools.bat
+      run: ./premake.sh install
 
     - name: Run Premake
-      run: ./VS_2019.bat
+      run: VS_2022.bat
 
     - name: Restore cached objs
       id: cache-objs-restore
@@ -75,7 +75,7 @@ jobs:
         key: ${{ runner.os }}-1
 
     - name: Build 64 bit
-      run: ./premake.bat buildeditor
+      run: ./premake.sh buildeditor
 
     - name: Save cached Objs
       id: cache-Objs-save
@@ -85,7 +85,7 @@ jobs:
         key: ${{ steps.cache-objs-restore.outputs.cache-primary-key }}
 
     - name: RunTests for 64 bit
-      run: ./premake.bat test
+      run: ./premake.sh test
 
   clang-build:
     runs-on: ubuntu-latest  
