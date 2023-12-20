@@ -160,7 +160,7 @@ function includeUCode(HasULangCompiler)
     end 
 end
       
-function linkUCode(HasULangCompiler)    
+function linkUCode(HasULangCompiler,IsPubMode)    
 
     filter { "system:Windows" }
       links {"Ws2_32.lib"}
@@ -191,8 +191,14 @@ function linkUCode(HasULangCompiler)
       "Output/MinimalSocket/" .. OutDirPath, 
       "Output/UCode/" .. OutDirPath,
      }
+
+     if IsPubMode then
+     links {"UCodePub"}
+     else
+     links {"UCode"}
+     end
+
      links {
-      "UCode",
       "Imgui",
       "yaml-cpp",
       "stb_image",
@@ -241,7 +247,26 @@ project "UCode"
    
    includeUCode();
 
-  
+project "UCodePub"
+   location "UCode"
+   kind "StaticLib"
+   language "C++"
+   defines {"PublishMode"}
+   
+   targetdir ("Output/UCode/" .. OutDirPath)
+   objdir ("Output/int/%{prj.name}/" .. OutDirPath)
+   
+   
+   files { 
+     "UCode/src/**.c",
+     "UCode/src/**.h",
+     "UCode/src/**.cpp",
+     "UCode/src/**.hpp", 
+   }
+
+   includedirs{"%UCode/src"}
+   
+   includeUCode();
 
 
 project "UCodeApp"
@@ -251,6 +276,7 @@ project "UCodeApp"
    
    targetdir ("Output/%{prj.name}/" .. OutDirPath)
    objdir ("Output/int/%{prj.name}/" .. OutDirPath)
+   defines {"DebugMode"}
    
    dependson {"UCode"}
 
@@ -264,7 +290,7 @@ project "UCodeApp"
 
    includeUCode(false)
 
-   linkUCode(false)
+   linkUCode(false,false)
    
   
   
@@ -300,6 +326,62 @@ project "UCodeApp"
    filter { "configurations:Release","system:Windows"}
     kind ("WindowedApp")
 
+project "UCodeAppPub"
+   location "UCodeApp"
+   kind "ConsoleApp"
+   language "C++"
+   
+   targetdir ("Output/UCodeApp/" .. OutDirPath)
+   objdir ("Output/int/UCodeAppPub/" .. OutDirPath)
+   defines {"PublishMode"}
+   
+   dependson {"UCodePub"}
+
+   files { 
+     "UCodeApp/src/**.c",
+     "UCodeApp/src/**.h",
+     "UCodeApp/src/**.cpp",
+     "UCodeApp/src/**.hpp", 
+   }
+   includedirs{"UCodeApp/src"}
+
+   includeUCode(false)
+
+   linkUCode(false,true)
+   
+  
+  
+   buildmessage "Copying Output"
+
+   filter { "system:Windows","architecture:x86_64" }
+      postbuildcommands {
+         "{MKDIR} %{wks.location}/UCodeEditor/UFiles/bin",
+         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppWinPub86X64.exe"
+      }
+    
+   filter { "system:Windows","architecture:x86" }
+      postbuildcommands {
+         "{MKDIR} %{wks.location}/UCodeEditor/UFiles/bin",
+         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppWinPub86X32.exe"
+      }
+ 
+   filter { "system:linux","architecture:x86_64" }
+      postbuildcommands {
+        "{MKDIR} %{wks.location}/UCodeEditor/UFiles/bin", 
+        "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppLinuxPub86X64"
+      }
+    
+   filter { "system:linux","architecture:x86" }
+      postbuildcommands {
+        "{MKDIR} %{wks.location}/UCodeEditor/UFiles/bin",
+        "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppLinuxPub86X32"
+      }
+   
+   filter { "configurations:Published","system:Windows"}
+    kind ("WindowedApp")
+   
+   filter { "configurations:Release","system:Windows"}
+    kind ("WindowedApp")
 
 
 project "UCodeEditor"
@@ -309,6 +391,7 @@ project "UCodeEditor"
    
    dependson {
    "UCodeApp",
+   "UCodePub",
    "FileWatcher",
    "glslang",
    "SPIRV-Cross",
@@ -343,7 +426,7 @@ project "UCodeEditor"
   
    includeUCode(true)
 
-   linkUCode(true)
+   linkUCode(true,false)
    
 
    UEditorPathExe = "%{wks.location}/Output/UCodeEditor/" .. OutDirPath .. "/UCodeEditor"
