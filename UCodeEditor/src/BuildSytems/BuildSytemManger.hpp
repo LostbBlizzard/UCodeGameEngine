@@ -16,7 +16,7 @@ public:
 	Vector<BuildError> errors;
 private:
 	bool BuildProjectGlobalWasGameData(const Path& GameFilesDataPath, USerializerType SerializerMode);
-	
+	Path Platfromteppath;
 
 	//Main
 	bool Build(const WindowsBuildSetings& setings);

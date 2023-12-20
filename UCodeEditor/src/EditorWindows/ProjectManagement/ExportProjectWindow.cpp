@@ -14,10 +14,17 @@ ExportProjectWindow::~ExportProjectWindow()
 
 const ExportProjectWindow::PlatformsData PlatformsData_[] =
 {
-	{"Windows",ExportProjectWindow::Platforms::Windows,AppFiles::sprite::Windows_Platform,"This Makes An Windows Exe."},
+	{"Windows",ExportProjectWindow::Platforms::Windows,AppFiles::sprite::Windows_Platform,"This Makes An Windows executable"},
+	{"Linux",ExportProjectWindow::Platforms::Linux_Standalone,AppFiles::sprite::Linux_Platform,"This Makes An Linux executable"},
+	{"MaxOS",ExportProjectWindow::Platforms::Mac,AppFiles::sprite::Mac_Platform,"This Makes An MaxOS executable"},
+
     {"WebGL",ExportProjectWindow::Platforms::WebGL,AppFiles::sprite::Web_Platform,"This Makes An WebGL App."},
 	{"Android",ExportProjectWindow::Platforms::Android,AppFiles::sprite::Android_Platform,"This Makes An Android Apk."},
+	{"IOS",ExportProjectWindow::Platforms::iOS,AppFiles::sprite::IOS_Platform,"This Makes An IOS App."},
+
+
 	{"Dedicated Server",ExportProjectWindow::Platforms::Dedicated_Server,AppFiles::sprite::Sever_Platform,"This Makes An Windowless App."},
+	{"Custom",ExportProjectWindow::Platforms::Custom,AppFiles::sprite::Uility_image,"Use a Custom Exporter"},
 	{"UCodeEditor",ExportProjectWindow::Platforms::UCodeEditor,AppFiles::sprite::UCodeEditor_Platform,"This Makes An UPugin"},
 };
 constexpr size_t PlatfromSize = sizeof(PlatformsData_) / sizeof(PlatformsData_[0]);
@@ -91,11 +98,19 @@ void ExportProjectWindow::UpdateWindow()
 		switch (LookingAtPlatform->Value)
 		{
 		case Platforms::Windows:ShowWindowsExportSeting();break;
+		case Platforms::Linux_Standalone:ShowLinuxExportSeting(); break;
+		case Platforms::Mac:ShowMacOsExportSeting(); break;
+
 		case Platforms::WebGL:ShowWebExportSeting(); break;
 		case Platforms::Android:ShowAndroidExportSeting(); break;
-		case Platforms::Dedicated_Server:
+		case Platforms::iOS:ShowIosExportSeting(); break;
+
+		case Platforms::Dedicated_Server:ShowSeverExportSeting(); break;
 		case Platforms::UCodeEditor:ShowUCodeEditorExportSeting();break;
-		default:break;
+		case Platforms::Custom:ShowCustomExportSeting(); break;
+		default:
+			UCodeGEUnreachable();
+			break;
 		}
 	}
 }
@@ -138,6 +153,8 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 		{"x86_64",WindowsBuildSetings::Architecture::x86_64},
 		{"x86",WindowsBuildSetings::Architecture::x86},
 		
+		//{"Arm64",WindowsBuildSetings::Architecture::Arm64},
+		//{"Arm",WindowsBuildSetings::Architecture::Arm32},
 	};
 
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
@@ -153,26 +170,8 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 		auto Threads = UCode::Threads::Get(Get_GameLib());
 		buildSytem.Setings._OutDir = OutputPath;
 
-		String AddedOnOutDir = "Windows";
-	
-		{
-			if (Info.architecture == WindowsBuildSetings::Architecture::x86_64)
-			{
-				AddedOnOutDir += "-X86_64";
-			}
-			else
-			{
-				AddedOnOutDir += "-X86";
-			}
-			if (Info.DebugBuild)
-			{
-				AddedOnOutDir += "-Debug";
-			}
-		}
-		buildSytem.Setings._OutDir /= AddedOnOutDir;
-
 		BuildSetings::SettingsType Copy = Info;
-		SetBuildData(AssetsPath, ProjectInfo, AddedOnOutDir,Copy);
+		SetBuildData(AssetsPath, ProjectInfo, Copy);
 		
 		RuningTask V;
 		V.TaskType = RuningTask::Type::BuildingProject;
@@ -184,12 +183,28 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 		};
 
 		//_Task = Threads->AddTask_t(UCode::TaskType::FileIO,std::move(Func), {});
-		buildSytem.BuildProject();
+		Func();
+
 		IsDone = true;
 	}
 
 	
 	
+}
+
+void ExportProjectWindow::ShowLinuxExportSeting()
+{
+	ImGuIHelper::Image(AppFiles::sprite::Linux_Platform, { 20,20 });
+	ImGui::SameLine();
+	ImGui::Text("Linux");
+
+}
+
+void ExportProjectWindow::ShowMacOsExportSeting()
+{
+	ImGuIHelper::Image(AppFiles::sprite::Mac_Platform, { 20,20 });
+	ImGui::SameLine();
+	ImGui::Text("MaxOS");
 }
 
 void ExportProjectWindow::ShowWebExportSeting()
@@ -198,9 +213,10 @@ void ExportProjectWindow::ShowWebExportSeting()
 	ImGui::SameLine();
 	ImGui::Text("Webgl");
 
-	WebBuildSetings& Info = WebSettings;
+	WebBuildSetings& Info = webSettings;
 
-	
+
+	ImGui::BeginDisabled(true);
 	if (ImGui::Button("Export", { ImGui::GetContentRegionAvail().x,20 }))
 	{
 		auto ProjectInfo = Get_ProjectData();
@@ -233,14 +249,15 @@ void ExportProjectWindow::ShowWebExportSeting()
 			std::move(Func), {});
 
 	}
+	ImGui::EndDisabled();
 
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 }
 
-void ExportProjectWindow::SetBuildData(UCodeEditor::Path& AssetsPath, UCodeEditor::RunTimeProjectData* ProjectInfo, UCodeEditor::String& AddedOnOutDir, BuildSetings::SettingsType Info)
+void ExportProjectWindow::SetBuildData(UCodeEditor::Path& AssetsPath, UCodeEditor::RunTimeProjectData* ProjectInfo,BuildSetings::SettingsType Info)
 {
 	buildSytem.Setings._InputDir = AssetsPath;
-	buildSytem.Setings.TemporaryPlatfromPath = ProjectInfo->GetCachedDir().native() + Path(Path("Build") / AddedOnOutDir).native();
+	buildSytem.Setings.TemporaryPlatfromPath = ProjectInfo->GetCachedDir().native() + Path(Path("Build")).native();
 	buildSytem.Setings.TemporaryGlobalPath = ProjectInfo->GetCachedDir().native() + Path(Path("Build") / Path("Global")).native();
 	buildSytem.Setings._OutName = ProjectInfo->Get_ProjData()._ProjectName;
 	buildSytem.Setings.Settings = Info;
@@ -253,7 +270,7 @@ void ExportProjectWindow::ShowAndroidExportSeting()
 	ImGui::SameLine();
 	ImGui::Text("Android");
 
-	AndroidBuildSetings& Info = AndroidSettings;
+	AndroidBuildSetings& Info = androidSettings;
 
 	
 	if (ImGui::Button("Export", { ImGui::GetContentRegionAvail().x,20 }))
@@ -292,16 +309,25 @@ void ExportProjectWindow::ShowAndroidExportSeting()
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 }
 
+void ExportProjectWindow::ShowIosExportSeting()
+{
+	ImGuIHelper::Image(AppFiles::sprite::IOS_Platform, { 20,20 });
+	ImGui::SameLine();
+	ImGui::Text("Ios");
+}
+
 void ExportProjectWindow::ShowSeverExportSeting()
 {
 	ImGuIHelper::Image(AppFiles::sprite::Sever_Platform, { 20,20 });
 	ImGui::SameLine();
 	ImGui::Text("Sever");
 
+	ImGui::BeginDisabled(true);
 	if (ImGui::Button("Export", { ImGui::GetContentRegionAvail().x,20 }))
 	{
 
 	}
+	ImGui::EndDisabled();
 }
 
 void ExportProjectWindow::ShowUCodeEditorExportSeting()
@@ -316,6 +342,10 @@ void ExportProjectWindow::ShowUCodeEditorExportSeting()
 
 	}
 	ImGui::EndDisabled();
+}
+
+void ExportProjectWindow::ShowCustomExportSeting()
+{
 }
 
 EditorEnd

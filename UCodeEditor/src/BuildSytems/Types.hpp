@@ -35,7 +35,9 @@ struct WindowsBuildSetings
 	{
 		x86_64,
 		x86,
-
+		Arm64,
+		Arm32,
+	
 		#if UCodeGEWindows
 		#if UCode_Build_32Bit
 		Native = (int)Architecture::x86,

@@ -70,6 +70,12 @@ public:
 		GlslFile = Uility_image,
 
 		UCodeEditor_Platform = UPugin,
+
+		Linux_Platform,
+		Mac_Platform,
+		IOS_Platform,
+
+
 		//
 		Max_Value,
 	};
