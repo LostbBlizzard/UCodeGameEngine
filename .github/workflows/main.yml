@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches:
@@ -16,6 +17,9 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
 
+    - name: Run Premake install
+      run: ./InstallTools.bat
+
     - name: Run Premake
       run: ./VS_2019.bat
 
@@ -27,14 +31,10 @@ jobs:
         key: ${{ runner.os }}-1
 
     - name: Build 64 bit
-      run: |
-           cd ./BuildTools
-           ./BuildWin64Debug.bat
+      run: ./premake.bat buildeditor
 
     - name: Build 32 bit
-      run: |
-           cd ./BuildTools
-           ./BuildWin64Debug.bat
+      run: ./premake.bat buildeditor32
 
     - name: Save cached Objs
       id: cache-Objs-save
@@ -45,10 +45,10 @@ jobs:
 
 
     - name: Run Tests 64 bit
-      run: "echo RunTests"
+      run: ./premake.bat test
 
     - name: Run Tests 32 bit
-      run: "echo RunTests"
+      run: ./premake.bat test32
   
   gmake-build:
     runs-on: ubuntu-latest
@@ -56,19 +56,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Get Packages
-      run: sudo apt-get install libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev
-
-    - name: Get Packages GTk
-      run: sudo apt-get libgtk-3-dev
-    
     - name: Make a scripts executable
       run: |
        chmod +x ./GNU_Make.sh
-       chmod +x ./BuildTools/BuildLinux32Debug.sh
-       chmod +x ./BuildTools/BuildLinux64Debug.sh
-       chmod +x ./BuildTools/RunTestsLinux32Debug.sh
-       chmod +x ./BuildTools/RunTestsLinux64Debug.sh
+       chmod +x ./premake.sh
+
+    - name: Run Premake install
+      run: ./premake.sh install
 
     - name: Run Premake
       run: ./GNU_Make.sh
@@ -81,10 +75,7 @@ jobs:
         key: ${{ runner.os }}-1
 
     - name: Build 64 bit
-      run: ./BuildTools/BuildLinux64Debug.sh
-
-    - name: Build 32 bit
-      run: ./BuildTools/BuildLinux32Debug.sh
+      run: ./premake.bat buildeditor
 
     - name: Save cached Objs
       id: cache-Objs-save
@@ -94,7 +85,36 @@ jobs:
         key: ${{ steps.cache-objs-restore.outputs.cache-primary-key }}
 
     - name: RunTests for 64 bit
-      run: ./BuildTools/RunTestsLinux32Debug.sh
+      run: ./premake.bat test
 
-    - name: RunTests for 32 bit
-      run: ./BuildTools/RunTestsLinux64Debug.sh
+  clang-build:
+    runs-on: ubuntu-latest  
+    if: 'false'
+    
+    steps:
+      - name: TODO
+        run: echo "TODO"
+
+  web-build:
+    runs-on: ubuntu-latest 
+    if: 'false'
+
+    steps:
+      - name: TODO
+        run: echo "TODO"
+
+  android-build:
+    runs-on: ubuntu-latest 
+    if: 'false'
+
+    steps:
+      - name: TODO
+        run: echo "TODO"
+
+  ios-build:
+    runs-on: ubuntu-latest 
+    if: 'false'
+
+    steps:
+      - name: TODO
+        run: echo "TODO"
