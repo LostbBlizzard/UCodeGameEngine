@@ -39,6 +39,8 @@ Source: "Output\UCodeEditor\Win64\Published\{#MyAppExeName}"; DestDir: "{app}\bi
 Source: "Output\UCodeEditor\Win64\Published\UFiles.data"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "LICENSE.txt"; DestDir: "{app}\bin";
 
+[UninstallDelete]
+Type: files; Name: "{app}\imgui.ini"
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
