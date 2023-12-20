@@ -994,7 +994,6 @@ newaction {
     trigger = "buildeditor",
     description = "installs compiler tool/librarys for wasm",
     execute = function ()
-        print("----installing emscripten for " .. os.target())
         
         if os.istarget("linux") then
           executeorexit("make UCodeEditor -j4")
@@ -1028,6 +1027,63 @@ newaction {
         end
     end
 }
+
+newaction {
+    trigger = "buildeditor32",
+    description = "installs compiler tool/librarys for wasm",
+    execute = function ()
+        
+        if os.istarget("linux") then
+          executeorexit("make UCodeEditor -j4")
+        end
+
+        if os.istarget("windows") then
+          executeorexit("msbuild UCodeGameEngine.sln /t:Build /p:Configuration=Debug /p:Platform=Win32 -maxcpucount")
+        end
+        
+        if os.istarget("macosx") then
+          executeorexit("make UCodeEditor -j4")
+        end
+    end
+}
+
+
+newaction {
+    trigger = "buildeditorpublished",
+    description = "build the published editor for 64bit",
+    execute = function ()
+        
+        if os.istarget("linux") then
+          executeorexit("make UCodeEditor config=published_linux64 -j4")
+        end
+
+        if os.istarget("windows") then
+          executeorexit("msbuild UCodeGameEngine.sln /t:Build /p:Configuration=Published /p:Platform=Win64 -maxcpucount")
+        end
+        
+        if os.istarget("macosx") then
+          executeorexit("make UCodeEditor -j4")
+        end
+    end
+}
+newaction {
+    trigger = "buildeditor32published",
+    description = "build the published editor for 32bit",
+    execute = function ()
+        
+        if os.istarget("linux") then
+          executeorexit("make UCodeEditor config=published_linux32 -j4")
+        end
+
+        if os.istarget("windows") then
+          executeorexit("msbuild UCodeGameEngine.sln /t:Build /p:Configuration=Published /p:Platform=Win32 -maxcpucount")
+        end
+        
+        if os.istarget("macosx") then
+
+        end
+    end
+}
 --test
 newaction {
     trigger = "test",
@@ -1048,7 +1104,25 @@ newaction {
         end
     end
 }
+newaction {
+    trigger = "test32",
+    description = "run 32bit tests",
+    execute = function ()
+        print("----runing tests for " .. os.target())
+        
+        if os.istarget("linux") then
 
+        end
+
+        if os.istarget("windows") then
+
+        end
+        
+        if os.istarget("macosx") then
+
+        end
+    end
+}
 --publish
 newaction {
     trigger = "build_editor_publish",
