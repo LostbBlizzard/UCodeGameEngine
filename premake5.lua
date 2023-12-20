@@ -383,7 +383,6 @@ project "UCodeEditor"
       buildmessage "Copying UFilesDir"
       postbuildcommands 
       {
-       --"{COPYDIR} %{prj.location}/UFiles %{prj.location}%{cfg.targetdir}/UFiles"
        UEditorPathExe.." pack %{prj.location}/UFiles %{cfg.targetdir}/UFiles.data"
       }
 
@@ -959,6 +958,37 @@ newaction {
         end
     end
 }
+
+newaction {
+    trigger = "installandroidsdk",
+    description = "installs compiler tool/librarys for android",
+    execute = function ()
+        print("----installing android sdk tools for " .. os.target())
+        
+        if os.istarget("linux") then
+         --executeorexit("sudo apt update && sudo apt install android-sdk")
+        end
+
+        if os.istarget("windows") then
+
+        end
+        
+        if os.istarget("macosx") then
+
+        end
+    end
+}
+
+newaction {
+    trigger = "installinno",
+    description = "downloads inno setup and puts in output",
+    execute = function ()
+        print("----installing inno setup tools for " .. os.target())
+        
+        executeorexit("git clone https://github.com/LostbBlizzard/installed-inno Dependencies/bin/inno")
+        
+    end
+}
 --build
 newaction {
     trigger = "buildeditor",
@@ -999,6 +1029,25 @@ newaction {
     end
 }
 --test
+newaction {
+    trigger = "test",
+    description = "run tests",
+    execute = function ()
+        print("----runing tests for " .. os.target())
+        
+        if os.istarget("linux") then
+
+        end
+
+        if os.istarget("windows") then
+
+        end
+        
+        if os.istarget("macosx") then
+
+        end
+    end
+}
 
 --publish
 newaction {
@@ -1035,6 +1084,24 @@ newaction {
         
         if os.istarget("macosx") then
 
+        end
+    end
+}
+
+newaction {
+    trigger = "buildinstaller",
+    description = "build the installer",
+    execute = function ()
+        
+        if os.istarget("linux") then
+        end
+
+        if os.istarget("windows") then
+          executeorexit("Output\\UCodeEditor\\Win64\\Published\\UCodeEditor.exe pack UCodeEditor\\UFiles Output\\UCodeEditor\\Win64\\Published\\UFiles.data")
+          executeorexit("Dependencies\\bin\\inno\\ISCC.exe install.iss")
+        end
+        
+        if os.istarget("macosx") then
         end
     end
 }
