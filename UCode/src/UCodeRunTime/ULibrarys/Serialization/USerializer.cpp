@@ -186,24 +186,28 @@ void UDeserializer::SetData(const BytesView Bytes)
 
 UCodeGameEngineNoDiscard bool UDeserializer::FromFile(const Path& Path, UDeserializer& Out)
 {
-	String Text;
-	String line;
-	std::ifstream File(Path, std::ios::binary);
-	if (File.is_open())
+	if (std::filesystem::is_regular_file(Path))
 	{
-		Unique_Bytes Bits;
-		File.seekg(0, File.end);
-		Bits.Resize(File.tellg());
-		File.seekg(0, File.beg);
-		File.read((char*)Bits.Data(), Bits.Size());
-		
+		String Text;
+		String line;
+		std::ifstream File(Path, std::ios::binary);
+		if (File.is_open())
+		{
+			Unique_Bytes Bits;
+			File.seekg(0, File.end);
+			Bits.Resize(File.tellg());
+			File.seekg(0, File.beg);
+			File.read((char*)Bits.Data(), Bits.Size());
 
-		Out.SetData(Bits.AsView());
-		Out.SetBytesPtr(std::move(Bits));
 
-		return true;
+			Out.SetData(Bits.AsView());
+			Out.SetBytesPtr(std::move(Bits));
+
+			return true;
+		}
 	}
 	return false;
+
 }
 CoreEnd
 
