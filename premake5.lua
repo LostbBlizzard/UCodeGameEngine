@@ -205,10 +205,18 @@ function linkUCode(HasULangCompiler)
      if HasULangCompiler then
       libdirs { "Output/UCodeLang/" .. OutDirPath}
       links { "UCodeLang" }
+      dependson {"UCodeLang"}
      else
       libdirs { "Output/UCodeLangNoCompiler/" .. OutDirPath}
       links { "UCodeLangNoCompiler" }
+      dependson {"UCodeLangNoCompiler"}
      end
+
+     dependson {
+      "GLEW","GLFW","glm", 
+      "box2d","yaml-cpp","stb_image","stb_image_write","Imgui",
+      "plog","MinimalSocket",
+     }
 end
    
       
@@ -219,7 +227,7 @@ project "UCode"
 
    dependson {
     "GLEW","GLFW","glm", 
-    "box2d","yaml-cpp","stb_image","stb_image_write","Imgui","UCodeLangCl","UCodeLangNoCompiler",
+    "box2d","yaml-cpp","stb_image","stb_image_write","Imgui","UCodeLangNoCompiler",
     "plog","MinimalSocket",
    }
    
@@ -910,6 +918,9 @@ newaction {
 
           print("----downloading opengl Packages")
           executeorexit("sudo apt install mesa-common-dev")
+
+          print("----downloading glew Packages")
+          executeorexit("sudo apt-get install libglew-dev")
 
           print("----downloading glfw Packages")
           os.execute("sudo apt-get install libglfw3")
