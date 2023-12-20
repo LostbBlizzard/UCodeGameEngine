@@ -41,25 +41,11 @@ jobs:
       - name: Run Premake
         run: ./VS_2019.bat
 
-      - name: Restore cached objs
-        id: cache-objs-restore
-        uses: actions/cache/restore@v3
-        with:
-          path: ./Output
-          key: ${{ runner.os }}-deployment
-
       - name: Build 64 bit
-        run: ./premake.bat buildeditor
+        run: ./premake.bat buildeditorpublished
 
       - name: Build 32 bit
-        run: ./premake.bat buildeditor32
-
-      - name: Save cached Objs
-        id: cache-Objs-save
-        uses: actions/cache/save@v3
-        with:
-          path: ./Output
-          key: ${{ steps.cache-objs-restore.outputs.cache-primary-key }}
+        run: ./premake.bat buildeditor32published
 
       - name: Archive Output
         uses: actions/upload-artifact@v3
@@ -87,22 +73,8 @@ jobs:
      - name: Run Premake
        run: ./GNU_Make.sh
 
-     - name: Restore cached objs
-       id: cache-objs-restore
-       uses: actions/cache/restore@v3
-       with:
-         path: ./Output
-         key: ${{ runner.os }}-deployment
-
      - name: Build 64 bit
-       run: ./premake.sh buildeditor
-
-     - name: Save cached Objs
-       id: cache-Objs-save
-       uses: actions/cache/save@v3
-       with:
-         path: ./Output
-         key: ${{ steps.cache-objs-restore.outputs.cache-primary-key }}
+       run: ./premake.sh buildeditorpublished
 
      - name: Archive Output
        uses: actions/upload-artifact@v3
@@ -113,20 +85,22 @@ jobs:
 
   build-MacOS:
     runs-on: ubuntu-latest
-    
+    if: 'false'
+
     steps:
       - name: Build MacOS
         run: echo "Build"
 
-  build-Web:
+  build-Web:  
     runs-on: ubuntu-latest
-    
+    if: 'false'
+
     steps:
       - name: Build Web
         run: echo "Build"
 
   deployment-GitHub:
-    needs: [build-Windows,build-Linux,build-MacOS,build-Web]
+    needs: [build-Windows,build-Linux]
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -135,8 +109,20 @@ jobs:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v3
 
-      - name: Build
-        run:  echo "Do Build Here"
+      - name: MoveOutputs
+        run: |
+            mkdir -p Output/UCodeEditor/Win64/Published
+            mkdir -p Output/UCodeEditor/Win32/Published
+            mkdir -p Output/UCodeEditor/linux64/Published
+            mkdir -p UCodeEditor/UFiles/bin
+            cp Output_Windows/UCodeEditor/Win64/Published/UCodeEditor.exe Output/UCodeEditor/Win64/Published/UCodeEditor.exe
+            cp Output_Windows/UCodeEditor/Win32/Published/UCodeEditor.exe Output/UCodeEditor/Win32/Published/UCodeEditor.exe
+            cp Output_Linux/UCodeEditor/linux64/Published/UCodeEditor Output/UCodeEditor/linux64/Published/UCodeEditor
+            cp Output_Windows/UCodeApp/Win64/Published/UCodeApp.exe UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe
+            cp Output_Windows/UCodeApp/Win32/Published/UCodeApp.exe UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe
+            cp Output_Windows/UCodeApp/Win64/Published/UCodeAppPub.exe UCodeEditor/UFiles/bin/UCAppWinPub86X64.exe
+            cp Output_Windows/UCodeApp/Win32/Published/UCodeAppPub.exe UCodeEditor/UFiles/bin/UCAppWinPub86X32.exe
+
 
       - name: Create Release
         id: create_release
@@ -146,35 +132,39 @@ jobs:
         with:
           release_name: Release ${{ inputs.VersionNumber }}
           body: |
-            LanguageChangelog Changelog:
-            ${{ inputs.LanguageChangelog }}
-
-            Implementers Changelog:
-            ${{ inputs.ImplementerChangelog }}
-
-            LSP Changelog:
-            ${{ inputs.LSPChangelog }}
+            Changelog:
+            ${{ inputs.Changelog }}
 
           draft: false
           prerelease: ${{ inputs.IsPreRelease }}
           tag_name: Release
       
+      - name: Upload UFiles Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: Output/UCodeEditor/Win64/Published/UFiles.data
+          asset_name: UFiles.data
+          asset_content_type: application/octet-stream
+
       - name: Upload Win64 Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: Output_Windows/UCodeEditor/Published-windows-x86_64
-          asset_name: UCodeEditor_Win_x86_64
-          asset_content_type: application/zip #https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+          asset_path: Output/UCodeEditor/Win64/Published/UCodeEditor.exe
+          asset_name: UCodeEditor.exe
+          asset_content_type: application/octet-stream
 
-      - name: Upload Win32 Asset
+      - name: Upload Linux64 Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: Output_Windows/UCodeEditor/Published-windows-x86
-          asset_name: UCodeEditor_Win_x86
-          asset_content_type: application/zip #https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+          asset_path: Output/UCodeEditor/linux64/Published/UCodeEditor
+          asset_name: LinuxUCodeEditor
+          asset_content_type: application/octet-stream
