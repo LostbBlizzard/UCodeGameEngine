@@ -18,10 +18,10 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Run Premake install
-      run: ./premake.sh install
+      run: ./premake.bat install
 
     - name: Run Premake
-      run: VS_2022.bat
+      run: ./VS_2022.bat
 
     - name: Restore cached objs
       id: cache-objs-restore
