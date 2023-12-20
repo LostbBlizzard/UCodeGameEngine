@@ -1,11 +1,5 @@
-_ProjectDir: C:/CoolStuff/CoolCodeingStuff/cpp/UCodeGameEngine/UCode/PersistentData/
+_ProjectDir: ""
 _Projects:
   -
     - Hello
-    - C:/CoolStuff/CoolCodeingStuff/cpp/UCodeGameEngine/UCode/PersistentData/Hello
-  -
-    - Test
-    - C:/CoolStuff/CoolCodeingStuff/cpp/UCodeGameEngine/UCode/PersistentData/Test
-  -
-    - Test Linux
-    - /home/lostbit/CoolStuff/CoolCodeingStuff/Cpp/UCodeGameEngine/UCode/PersistentData/Test
+    - /home/lostbit/CoolStuff/CoolCodeingStuff/Cpp/UCodeGameEngine/UCode/PersistentData/Hello
