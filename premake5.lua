@@ -238,9 +238,7 @@ project "UCode"
    
    includeUCode();
 
-   prebuildcommands{
-       UCPathExe.." cppdirtoulangvm %{wks.location}/UCode/src %{wks.location}/UCode/src/UCodeRunTime/ULibrarys/UCodeLang/UCodeAPI.cpp %{wks.location}UCodeAPI/GameEngine/src/API.uc",
-   }
+  
 
 
 project "UCodeApp"
@@ -1177,5 +1175,17 @@ newaction {
         
         if os.istarget("macosx") then
         end
+    end
+}
+---tools
+newaction {
+    trigger = "updateucodelinks",
+    description = "updated the ucode bindings",
+    execute = function ()
+
+      if os.istarget("windows") then
+        executeorexit("Output\\UCodeLangCl\\Win64\\Debug\\uclang cppdirtoulangvm UCode/src UCode/src/UCodeRunTime/ULibrarys/UCodeLang/UCodeAPI.cpp UCodeAPI/GameEngine/src/API.uc");
+      end
+
     end
 }
