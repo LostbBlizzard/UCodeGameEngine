@@ -215,7 +215,7 @@ function linkUCode(HasULangCompiler)
      dependson {
       "GLEW","GLFW","glm", 
       "box2d","yaml-cpp","stb_image","stb_image_write","Imgui",
-      "plog","MinimalSocket",
+      "MinimalSocket",
      }
 end
    
@@ -225,11 +225,6 @@ project "UCode"
    kind "StaticLib"
    language "C++"
 
-   dependson {
-    "GLEW","GLFW","glm", 
-    "box2d","yaml-cpp","stb_image","stb_image_write","Imgui","UCodeLangNoCompiler",
-    "plog","MinimalSocket",
-   }
    
    targetdir ("Output/%{prj.name}/" .. OutDirPath)
    objdir ("Output/int/%{prj.name}/" .. OutDirPath)
