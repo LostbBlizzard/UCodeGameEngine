@@ -210,8 +210,9 @@ bool GameFilesData::PackDir(const Path& dirpath, const Path& outfile)
 	struct FileInfo
 	{
 		Path path;
-		size_t Size;
+		uintmax_t Size;
 	};
+
 	Vector<FileInfo> files;
 	for (const auto& dirEntry : recursive_directory_iterator(dirpath))
 	{
@@ -224,7 +225,7 @@ bool GameFilesData::PackDir(const Path& dirpath, const Path& outfile)
 	GameFilesData fdata;
 	fdata._Type = Type::ThisFile;
 
-	size_t offset = 0;
+	uintmax_t offset = 0;
 	for (auto& Item : files)
 	{
 		GameFileIndex f;
@@ -245,14 +246,14 @@ bool GameFilesData::PackDir(const Path& dirpath, const Path& outfile)
 	auto ofile = StartWritingBytes(fdata, outfile, offset);
 	//TODO pre allocate space for ofile
 
-	const size_t BufferSize = GetPageSize();
+	const uintmax_t BufferSize = GetPageSize();
 	Vector<Byte> Buffer;
 	Buffer.resize(BufferSize);
 	
 	for (auto& Item : files)
 	{
 		std::ifstream file(Item.path, std::ios::binary);
-		size_t fileleft = Item.Size;
+		uintmax_t fileleft = Item.Size;
 		
 		while (fileleft != 0)
 		{
