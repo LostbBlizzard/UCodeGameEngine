@@ -168,20 +168,26 @@ function linkUCode(HasULangCompiler,IsPubMode)
 
     filter { "system:Windows" }
       links {"Ws2_32.lib"}
-      
               
     filter { "system:Windows","architecture:x86"}
       links {"glew32s.lib","Opengl32.lib"}
           
     filter { "system:Windows","architecture:x86_64"}
       links {"glew64s.lib","Opengl32.lib"}
-
              
-    filter { "platforms:linux" }
-      links {"GL"}
-      links {"GLEW"}
-    
+    filter { "platforms:linux64" }
+      links {"GL","GLEW"}
+
+    filter { "platforms:Web" }
+      kind "ConsoleApp"   
+      links {"glfw","GL"}
+      linkoptions {"-s USE_PTHREADS=1","-sUSE_GLFW=3"}
+     
+    filter { "platforms:not Web" }
+      links {"GLFW"}
+
     filter {}
+     links {"GL","GLEW"}
      libdirs { 
       "Output/Imgui/" .. OutDirPath,
       "Output/yaml-cpp/" .. OutDirPath,
@@ -195,17 +201,8 @@ function linkUCode(HasULangCompiler,IsPubMode)
       "Output/MinimalSocket/" .. OutDirPath, 
       "Output/UCode/" .. OutDirPath,
      }
-
-     filter { "platforms:Web" }
-      kind "ConsoleApp"   
-      links {"glfw","GL"}
-      linkoptions {"-s USE_PTHREADS=1","-sUSE_GLFW=3"}
      
-     filter { "platforms:not Web" }
-      links {"GLFW"}
-
-     filter {}
-
+     
      if IsPubMode then
      links {"UCodePub"}
      else
