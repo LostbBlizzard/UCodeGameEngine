@@ -65,6 +65,8 @@ bool UCompiler::CompileProject(const CompileData& Data)
 		auto v = f.BuildModule(Compiler, index, true);
 		if (v.CompilerRet.IsError())
 		{
+			*Data.Error = Compiler.Get_Errors();
+			
 			return false;
 		}
 		else 
@@ -86,6 +88,7 @@ bool UCompiler::CompileProject(const CompileData& Data)
 		auto v = f.BuildModule(Compiler, index, true);
 		if (v.CompilerRet.IsError())
 		{
+			*Data.Error =  std::move(Compiler.Get_Errors());
 			return false;
 		}
 		else
@@ -96,11 +99,8 @@ bool UCompiler::CompileProject(const CompileData& Data)
 
 	auto r = Compiler.CompileFiles_UseIntDir(pathData, External);
 
-	auto& Errors = Compiler.Get_Errors();
-	for (auto item : Errors.Get_Errors())
-	{
-		Data.Error->AddError(item);
-	}
+
+	*Data.Error = std::move(Compiler.Get_Errors());
 	return !r.IsError();
 }
 Optional<Path> UCompiler::GetIntermediate(const Path& FullFilePath, RunTimeProjectData* RunTimeProject)

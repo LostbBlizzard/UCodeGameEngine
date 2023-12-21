@@ -1,3 +1,3 @@
-int a = '20';
+int a = 20;
 
 $Player;

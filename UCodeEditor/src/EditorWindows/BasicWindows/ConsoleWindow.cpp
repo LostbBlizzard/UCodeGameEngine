@@ -59,6 +59,8 @@ void ConsoleWindow::UpdateWindow()
         if (StringHelper::Fllter(_filter, Item.Text))
         {
             ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Text, Color);
+            ImGui::PushID(&Item);
+            
             if (ImGui::Selectable(Item.Text.c_str(), _LookingAtLog == &Item))
             {
                 _LookingAtLog = &Item;
@@ -70,7 +72,9 @@ void ConsoleWindow::UpdateWindow()
                     Item._OnOpen.value()(*this, Item);
                 }
             }
+
             ImGui::PopStyleColor();
+            ImGui::PopID();
         }
     }
     ImGui::EndGroup();
