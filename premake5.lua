@@ -318,18 +318,24 @@ project "UCodeApp"
          "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe"
       }
  
-   filter { "system:linux","architecture:x86_64" }
+   filter { "platforms:linux","architecture:x86_64" }
       postbuildcommands {
         "{MKDIR} %{wks.location}/UCodeEditor/UFiles/bin", 
         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64"
       }
     
-   filter { "system:linux","architecture:x86" }
+   filter { "platforms:linux","architecture:x86" }
       postbuildcommands {
         "{MKDIR} %{wks.location}/UCodeEditor/UFiles/bin",
         "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCAppLinuxDebug86X32"
       }
-   
+   filter { "platforms:Web"}
+      postbuildcommands {
+        "{MKDIR} %{wks.location}/UCodeEditor/UFiles/bin",
+        "{COPYFILE} %{cfg.buildtarget.abspath} %{wks.location}/UCodeEditor/UFiles/bin/UCApp32.wasm"
+      }
+
+
    filter { "configurations:Published","system:Windows"}
     kind ("WindowedApp")
    
