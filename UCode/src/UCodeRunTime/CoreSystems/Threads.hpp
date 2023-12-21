@@ -9,6 +9,7 @@
 #include <condition_variable>
 #include <future>
 #include <chrono>
+#include "PackagedTask.hpp"
 CoreStart
 
 
@@ -644,7 +645,7 @@ public:
 	AsynTask_t<R> AddTask_t(ThreadToRunID TaskType,Delegate<R,Pars...>&& task_function
 		,const Vector<TaskID>& TaskDependencies, MovedParsParam(Pars) pars)
 	{
-		auto task_promise = std::make_shared<std::packaged_task<R(Pars...)>>(task_function);
+		auto task_promise = std::make_shared<PackagedTask<R(Pars...)>>(task_function);
 
 		auto r = task_promise->get_future();
 		AsynTask_t<R> Ret;

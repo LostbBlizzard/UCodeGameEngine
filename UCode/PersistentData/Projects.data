@@ -2,4 +2,4 @@ _ProjectDir: ""
 _Projects:
   -
     - Hello
-    - /home/lostbit/CoolStuff/CoolCodeingStuff/Cpp/UCodeGameEngine/UCode/PersistentData/Hello
+    - C:/CoolStuff/CoolCodeingStuff/cpp/UCodeGameEngine/UCode/PersistentData/Hello
