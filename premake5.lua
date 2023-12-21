@@ -200,6 +200,11 @@ function linkUCode(HasULangCompiler,IsPubMode)
       kind "ConsoleApp"   
       links {"glfw","GL"}
       linkoptions {"-s USE_PTHREADS=1","-sUSE_GLFW=3"}
+     
+     filter { "platforms:not Web" }
+      links {"GLFW"}
+
+     filter {}
 
      if IsPubMode then
      links {"UCodePub"}
@@ -212,7 +217,6 @@ function linkUCode(HasULangCompiler,IsPubMode)
       "yaml-cpp",
       "stb_image",
       "stb_image_write",
-      --"GLFW",
       "box2d",
       "MinimalSocket"
      }
