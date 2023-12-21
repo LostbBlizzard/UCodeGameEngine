@@ -13,6 +13,5 @@ Makefile
 /UCodeApp/GameFiles.data
 /UCodeEditor/UFiles/bin
 /UCodeEditor/UFiles.data
-/UCodeAPI/GameEngine/src/API.uc
 /UCodeEditor/imgui.ini
 UCodeEditor/UFiles/bin

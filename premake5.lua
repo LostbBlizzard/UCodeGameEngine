@@ -1264,6 +1264,7 @@ newaction {
 
       if os.istarget("windows") then
         executeorexit("Output\\UCodeLangCl\\Win64\\Debug\\uclang cppdirtoulangvm UCode/src UCode/src/UCodeRunTime/ULibrarys/UCodeLang/UCodeAPI.cpp UCodeAPI/GameEngine/src/API.uc");
+        executeorexit("Output\\UCodeLangCl\\Win64\\Debug\\uclang cppdirtoulangvm UCodeEditor/src/ULang/API UCodeEditor/src/ULang/EditorLink.cpp UCodeAPI/GameEngineEditor/src/API.uc");
       end
 
     end
