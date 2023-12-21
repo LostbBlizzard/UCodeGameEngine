@@ -187,7 +187,6 @@ function linkUCode(HasULangCompiler,IsPubMode)
       links {"GLFW"}
 
     filter {}
-     links {"GL","GLEW"}
      libdirs { 
       "Output/Imgui/" .. OutDirPath,
       "Output/yaml-cpp/" .. OutDirPath,
