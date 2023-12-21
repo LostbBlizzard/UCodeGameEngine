@@ -80,6 +80,8 @@ workspace "UCodeGameEngine"
       architecture "x86"
       defines { "ZYAN_POSIX" }
       targetextension (".html")
+      linkoptions { "-pthread"}
+      buildoptions { "-pthread"} 
 
 
     filter { "platforms:Android" }
@@ -112,7 +114,6 @@ function includeUCode(HasULangCompiler)
       "Dependencies/glm",
       "Dependencies/GLFW/include",
       "Dependencies/GLFW/deps",
-      "Dependencies/GLEW",
       "Dependencies/plog/include",
       "Dependencies/UCodeLang",
       "Dependencies/UCodeLang/UCodeLang",
@@ -153,6 +154,9 @@ function includeUCode(HasULangCompiler)
     filter { "system:Android" }
      defines {"GLEW_NO_GLU"}
 
+    filter { "not platforms:Web" }
+        includedirs{"Dependencies/GLEW"}
+    
     filter {}
 
     if not HasULangCompiler then
@@ -173,7 +177,7 @@ function linkUCode(HasULangCompiler,IsPubMode)
       links {"glew64s.lib","Opengl32.lib"}
 
              
-    filter { "system:linux" }
+    filter { "platforms:linux" }
       links {"GL"}
       links {"GLEW"}
     
@@ -192,6 +196,11 @@ function linkUCode(HasULangCompiler,IsPubMode)
       "Output/UCode/" .. OutDirPath,
      }
 
+     filter { "platforms:Web" }
+      kind "ConsoleApp"   
+      links {"glfw","GL"}
+      linkoptions {"-s USE_PTHREADS=1","-sUSE_GLFW=3"}
+
      if IsPubMode then
      links {"UCodePub"}
      else
@@ -203,10 +212,11 @@ function linkUCode(HasULangCompiler,IsPubMode)
       "yaml-cpp",
       "stb_image",
       "stb_image_write",
-      "GLFW",
+      --"GLFW",
       "box2d",
       "MinimalSocket"
      }
+     
 
      if HasULangCompiler then
       libdirs { "Output/UCodeLang/" .. OutDirPath}
@@ -219,7 +229,7 @@ function linkUCode(HasULangCompiler,IsPubMode)
      end
 
      dependson {
-      "GLEW","GLFW","glm", 
+      "GLFW","glm", 
       "box2d","yaml-cpp","stb_image","stb_image_write","Imgui",
       "MinimalSocket",
      }
@@ -264,7 +274,7 @@ project "UCodePub"
      "UCode/src/**.hpp", 
    }
 
-   includedirs{"%UCode/src"}
+   includedirs{"UCode/src"}
    
    includeUCode();
 
@@ -655,35 +665,7 @@ group "Dependencies"
       "Dependencies/%{prj.name}/**.c",
     }
   
-  project "GLFW"
-    location "Dependencies/%{prj.name}"
-    kind "StaticLib"
-    language "C++" 
-
-    targetdir ("Output/%{prj.name}/" .. OutDirPath)
-    objdir ("Output/int/%{prj.name}/" .. OutDirPath)
-
-    files {
-      "Dependencies/%{prj.name}/include/**.h", 
-      "Dependencies/%{prj.name}/src/**.c",
-    }
-
-    includedirs{
-      "Dependencies/%{prj.name}",
-      
-    }
-    filter { "system:Windows" }
-      defines {"_GLFW_WIN32"}
-      
-    
-    filter { "system:linux" }
-
-    filter { "system:linux" }
-      defines {"_GLFW_X11","GLEW_NO_GLU"}
-        
-    filter { "system:MacOS" }
-      defines {"_GLFW_COCOA","GLEW_NO_GLU"}
-    
+ 
   project "UCodeLang"
     location "Dependencies/%{prj.name}"
     kind "StaticLib"
@@ -1102,19 +1084,18 @@ newaction {
     trigger = "buildwasm",
     description = "installs compiler tool/librarys for wasm",
     execute = function ()
-        print("----installing emscripten for " .. os.target())
+       
+        executeorexit("emmake make UCodeApp config=published_web -j4")
         
-        if os.istarget("linux") then
-          executeorexit("eemake make UCodeEditor -j4")
-        end
-
-        if os.istarget("windows") then
-          executeorexit("eemake UCodeApp -j4")
-        end
+    end
+}
+newaction {
+    trigger = "buildwasmpub",
+    description = "installs compiler tool/librarys for wasm",
+    execute = function ()
+       
+        executeorexit("emmake make UCodeAppPub config=published_web -j4")
         
-        if os.istarget("macosx") then
-          executeorexit("eemake UCodeApp -j4")
-        end
     end
 }
 

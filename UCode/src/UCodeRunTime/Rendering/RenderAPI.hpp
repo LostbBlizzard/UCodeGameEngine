@@ -1,6 +1,13 @@
-#pragma once
+#pragma
+#include "../UDefs.hpp"
+
+#if UCodeGEOpenGL
 #include "API_OpenGL/OpenGlRender.hpp"
+#endif
 
 RenderAPIStart
-typedef OpenGlRender RenderAPI;
+
+#if UCodeGEOpenGL
+    using RenderAPI = OpenGlRender;
+#endif
 RenderAPIEnd
