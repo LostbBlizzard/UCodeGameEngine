@@ -103,7 +103,7 @@ Path RunTimeProjectData::GetCachedDir() const
 }
 Path RunTimeProjectData::GetOutDir() const
 {
-	auto path = ProjectManger::GetProjectCachedDir(_ProjDir).native() + Path("Output").native() + Path::preferred_separator;;
+	auto path = ProjectManger::GetProjectCachedDir(_ProjDir).native() + Path("output").native() + Path::preferred_separator;;
 	fs::path Path_t = path;
 
 	if (!fs::exists(Path_t))
@@ -117,7 +117,7 @@ Path RunTimeProjectData::GetOutDir() const
 }
 Path RunTimeProjectData::GetGameLibDir() const
 {
-	auto path = GetCachedDir().native() + Path("GameLib/").native();
+	auto path = GetCachedDir().native() + Path("gamelib/").native();
 
 	fs::path Path_t = path;
 	if (!fs::exists(Path_t))
@@ -133,7 +133,7 @@ Path RunTimeProjectData::GetGameLibDir() const
 }
 Path RunTimeProjectData::GetULangIntDir() const
 {
-	auto path = GetCachedDir().native() + Path("Ulang/Int/").native();
+	auto path = GetCachedDir().native() + Path("ulang/int/").native();
 
 	Path Path_t = path;
 	if (!fs::exists(Path_t))
@@ -149,7 +149,7 @@ Path RunTimeProjectData::GetULangIntDir() const
 }
 Path RunTimeProjectData::GetULangOutDir() const
 {
-	auto path = GetGameLibDir().native() + Path("Bin/").native();
+	auto path = GetGameLibDir().native() + Path("bin/").native();
 	Path Path_t = path;
 	if (!fs::exists(Path_t))
 	{

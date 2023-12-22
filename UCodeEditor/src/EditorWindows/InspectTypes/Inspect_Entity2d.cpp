@@ -342,7 +342,7 @@ void Inspect_Compoent2d::ShowAddCompoenList(UCode::Entity* item)
                     {
                         if (Item->Get_Type() == UCodeLang::ClassType::Class) 
                         {
-                            if (UCompiler::IsComponent(*Item, Assembly))
+                            if (UCompiler::IsAComponent(*Item, Assembly))
                             {
                                 auto Spr = Inspect_Compoent2d::GetCompoentSprite(UCode::ULangScript::Get_TypeID());
                                 ImGuIHelper::Image(Spr, Size);
