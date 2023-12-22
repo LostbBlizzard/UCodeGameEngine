@@ -7,7 +7,7 @@ EditorStart
 #define _NewMenu(Name) { Name,  MakeableCompoents::NewMenuName,nullptr },
 #define _EndMenu() {"",  MakeableCompoents::EndMenuName,nullptr },
 
-MakeableCompoents::MyStruct Data[] =
+MakeableCompoents::Lib Data[] =
 {
 
 
@@ -36,7 +36,7 @@ _EndMenu()
 
 };
 
-const MakeableCompoents::MyStruct* MakeableCompoents::Compoents = Data;
-const size_t MakeableCompoents::Compoents_Size = sizeof(Data) / sizeof(MakeableCompoents::MyStruct);
+const MakeableCompoents::Lib* MakeableCompoents::Compoents = Data;
+const size_t MakeableCompoents::Compoents_Size = sizeof(Data) / sizeof(MakeableCompoents::Lib);
 
 EditorEnd

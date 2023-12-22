@@ -32,8 +32,21 @@ bool ULangRunTime::HotReLoadScripts()
 
 void ULangRunTime::ReLoadScripts()
 {
-	//_State.ClearsLibs();
+	_State.ClearRunTimeState();
+	
+	for (auto& Item : Libs)
+	{
+		_State.AddLib(Item.RunPtr.get());
+	}
+	_State.AddLib(UCodeAPI::Get());
+	
 	_State.LinkLibs();
+
+	for (size_t i = 0; i < _Scripts.size(); i++)
+	{
+		auto Item = _Scripts[i];
+		Item->ReLoad();
+	}
 }
 
 void ULangRunTime::OpenLibs(const Path& PathDir)
@@ -82,6 +95,44 @@ void ULangRunTime::OpenLibs(const Path& PathDir)
 ULangRunTime::ULangRunTime(Gamelibrary* e) :System(e), _State()
 {
 	_Interpreter.Init(&_State);
+}
+
+
+
+ULangRunTime::LibID ULangRunTime::AddLib(Lib&& lib)
+{
+	auto newid = _NextID;
+	_NextID++;
+
+	Libs.push_back(std::move(lib));
+	Libs.back()._ID = newid;
+
+	return newid;
+}
+void ULangRunTime::RemoveLib(LibID ID)
+{
+	for (size_t i = 0; i < Libs.size(); i++)
+	{
+		auto& Item = Libs[i];
+	
+		if (Item._ID == ID)
+		{
+			Libs.erase(Libs.begin() + i);
+			return;
+		}
+	}
+}
+
+ULangRunTime::Lib& ULangRunTime::GetLib(LibID ID)
+{
+	for (auto& Item : Libs)
+	{
+		if (Item._ID == ID)
+		{
+			return Item;
+		}
+	}
+	UCodeGEUnreachable();
 }
 
 ULangRunTime::~ULangRunTime()
@@ -1028,14 +1079,12 @@ void ULangHelper::Deserialize(UDeserializer& Serializer, void* Pointer, const UC
 
 		if (Serializer.Get_Mode() == USerializerType::YAML)
 		{
-			auto oldYaml =std::move(Serializer.Get_TextReader());
+			UDeserializer newSerializer = UDeserializer("");
+			newSerializer.Get_TextReader() = Serializer.Get_TextReader()[Item.Name];
 
-			Serializer.Get_TextReader() = oldYaml[Item.Name];
-			
 
-			Deserialize(Serializer, FieldP, Item.Type, Assembly, Is32Mode);
+			Deserialize(newSerializer, FieldP, Item.Type, Assembly, Is32Mode);
 
-			Serializer.Get_TextReader() = std::move(oldYaml);
 		}
 		else
 		{

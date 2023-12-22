@@ -120,7 +120,7 @@ public:
 			{
 				if (Item->Get_Type() == UCodeLang::ClassType::Class) 
 				{
-					if (UCompiler::IsComponentTrait(*Item,Assembly))
+					if (UCompiler::IsAComponent(*Item,Assembly))
 					{
 						if (ImGui::MenuItem(Item->FullName.size() ? Item->FullName.c_str() : "noname"))
 						{
@@ -343,22 +343,34 @@ void CodeModule::BuildUCode(bool IsInEditor)
 							auto ULang = UCode::ULangRunTime::Get(app->GetGameRunTime()->Get_Library_Edit());
 							auto& runtme = ULang->Get_State();
 
-							static UCodeLang::UClib lib;
-							static UCodeLang::RunTimeLib rlib;
-							static bool inruntime = false;
+							UCodeLang::UClib lib;
+							static Optional<UCode::ULangRunTime::LibID> Libid;
+							
 
 							if (UCodeLang::UClib::FromFile(&lib, data.OutPath))
 							{
-								rlib.Init(&lib);
 								
-								if (inruntime == false) 
+								if (!Libid.has_value())
 								{
-									runtme.AddLib(&rlib);
+									UCode::ULangRunTime::Lib runlib;
+									
+									runlib.Ptr = std::make_unique<UCodeLang::UClib>(std::move(lib));
+									runlib.RunPtr = std::make_unique<UCodeLang::RunTimeLib>();
+									
+									runlib.RunPtr->Init(runlib.Ptr.get());
+
+									Libid = ULang->AddLib(std::move(runlib));
+
 									ULang->ReLoadScripts();
-									inruntime = true;
 								}
 								else
 								{
+									auto& runlib = ULang->GetLib(Libid.value());
+
+									runlib.RunPtr->UnLoad();
+									*runlib.Ptr = std::move(lib);
+									runlib.RunPtr->Init(runlib.Ptr.get());
+
 									if (!ULang->HotReLoadScripts())
 									{
 										ULang->ReLoadScripts();
@@ -391,11 +403,11 @@ Vector<ExportEditorReturn> CodeModule::ExportSystems(ExportEditorContext& Contex
 	data.Threads = nullptr;
 
 	data.InPath = Context.AssetPath;
-	data.IntPath = Context.TemporaryGlobalPath / "Ulang" / "int";
-	data.OutPath = Context.TemporaryGlobalPath / "Ulang" / Path(Path("UCode").native() + Path(UCodeLang::FileExt::LibWithDot).native());
+	data.IntPath = Context.TemporaryGlobalPath / "ulang" / "int";
+	data.OutPath = Context.TemporaryGlobalPath / "ulang" / Path(Path("UCode").native() + Path(UCodeLang::FileExt::LibWithDot).native());
 
 	
-	Path modoutfile = Context.TemporaryGlobalPath / "Ulang.data";
+	Path modoutfile = Context.TemporaryGlobalPath / "ulang.data";
 	ExportEditorReturn r;
 	r.OutputModuleFile = modoutfile;
 

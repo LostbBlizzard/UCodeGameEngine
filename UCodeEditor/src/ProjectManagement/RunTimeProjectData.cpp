@@ -133,7 +133,7 @@ Path RunTimeProjectData::GetGameLibDir() const
 }
 Path RunTimeProjectData::GetULangIntDir() const
 {
-	auto path = GetCachedDir().native() + Path("ulang/int/").native();
+	auto path = GetCachedDir().native() + Path("ulang/").native();
 
 	Path Path_t = path;
 	if (!fs::exists(Path_t))

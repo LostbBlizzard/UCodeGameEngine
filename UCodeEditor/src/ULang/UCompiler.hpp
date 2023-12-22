@@ -24,7 +24,7 @@ public:
 			InPath = Data->GetAssetsDir();
 			IntPath = Data->GetULangIntDir();
 
-			const String LibName = "UCode" + (UCode::String)UCodeLang::FileExt::LibWithDot;
+			const String LibName = "ucode" + (UCode::String)UCodeLang::FileExt::LibWithDot;
 
 			const Path& outDir = Data->GetULangOutDir();
 			const Path outlibPath = outDir.native() + Path(LibName).native();

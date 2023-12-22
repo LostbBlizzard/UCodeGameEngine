@@ -309,12 +309,12 @@ void Inspect_Compoent2d::Insp_(UCode::Compoent* item, InspectWindow::InspectDraw
 void Inspect_Compoent2d::ShowAddCompoenList(UCode::Entity* item)
 {
     ImVec2 Size = { 20,20 };
-    struct MyStruct
+    struct Lib
     {
         bool IsOpen;
         String MenuName;
     };
-    static std::stack<MyStruct> MenuData;//TODO ReMove This
+    static std::stack<Lib> MenuData;//TODO ReMove This
     for (size_t i = 0; i < MakeableCompoents::Compoents_Size; i++)
     {
         

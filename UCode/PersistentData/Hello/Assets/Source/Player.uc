@@ -3,5 +3,5 @@ use UCodeGameEngine;
 
 $Player[Component]:
  int Speed = 10;
- int G = 30;
+ int G =2;
  |Update[this&] -> void;

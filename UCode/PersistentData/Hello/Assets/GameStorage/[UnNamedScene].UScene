@@ -34,7 +34,9 @@ _Entitys:
       - _TypeID: ULangScript
         _Data:
           _ScriptType: Player
-          _Handle: 3452816845
+          Speed: -842150451
+          G: -842150451
+          _Handle: 3390883872
     _Entitys:
       []
     _Name: "[UnNamedEntity]"
