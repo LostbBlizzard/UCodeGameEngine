@@ -11,14 +11,14 @@ public:
     typedef UCode::Compoent* (*Make)(UCode::Entity* entity);
     
     
-    struct MyStruct
+    struct Lib
     {
         const String Name;
         UCode::UComponentsID Id;
         Make MakeCompoent;
         
     };
-    const static MyStruct* Compoents;
+    const static Lib* Compoents;
     const static size_t Compoents_Size;
 
     

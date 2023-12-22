@@ -27,6 +27,15 @@ public:
 	static ULangRunTime* Get(Gamelibrary* e);
 	static ULangRunTime* Find(const Gamelibrary* e);
 
+	;
+	using LibID = uintptr_t;
+	struct Lib
+	{
+		Unique_ptr<UCodeLang::UClib> Ptr;
+		Unique_ptr<UCodeLang::RunTimeLib> RunPtr;
+		LibID _ID;
+	};
+
 	bool HotReLoadScripts();
 	void ReLoadScripts();
 
@@ -82,7 +91,9 @@ public:
 	{
 		return _State;
 	}
-
+	LibID AddLib(Lib&& lib);
+	void RemoveLib(LibID ID);
+	Lib& GetLib(LibID ID);
 
 	inline static const char* MainFile = "bin/ucode.lib";
 private:
@@ -93,18 +104,15 @@ private:
 	void Remove(ULangScript* Script);
 
 
-	struct MyStruct
-	{
-		Unique_ptr<UCodeLang::UClib> Ptr;
-		Unique_ptr<UCodeLang::RunTimeLib> RunPtr;
-	};
+	
 
-	Vector<MyStruct> Libs;
+	Vector<Lib> Libs;
 	Vector<ULangScript*> _Scripts;
 	//
 	
 	UCodeLang::RunTimeLangState _State;
 	UCodeLang::Interpreter _Interpreter;
+	LibID _NextID = 0;
 	//
 	MemData _MemData;
 	static UComponentData type_Data;
