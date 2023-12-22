@@ -25,12 +25,15 @@ ULangRunTime* ULangRunTime::Find(const Gamelibrary* e)
 	return (ULangRunTime*)item;
 }
 
-void ULangRunTime::HotReLoadScripts()
+bool ULangRunTime::HotReLoadScripts()
 {
+	return false;
 }
 
 void ULangRunTime::ReLoadScripts()
 {
+	//_State.ClearsLibs();
+	_State.LinkLibs();
 }
 
 void ULangRunTime::OpenLibs(const Path& PathDir)
@@ -222,14 +225,23 @@ void ULangScript::LoadScript(const UCodeLang::AssemblyNode* ClassData, bool call
 
 	_ClassData = &ClassData->Get_ClassData();
 	_ClassName = ClassData->FullName;
-	GetCallBinds(); 
+	GetCallBinds();
 	size_t ObjSize = _ClassData->Size;
 
 	_UObj = ULang->Lang_Malloc(ObjSize);
-		
-	if (_LangConstructor) 
+
+	if (_LangConstructor)
 	{
 		ULang->LangThisCall(_LangConstructor, _UObj);
+	}
+
+	{
+		auto handle = _ClassData->Get_ClassField("_Handle");
+		UCodeGEAssert(handle);
+
+		void* p =(void*)((uintptr_t)_UObj + handle->offset);
+		
+		*(Compoent**)p = (Compoent*)this;
 	}
 	if (callAwake) {CallAwake();}
 }
@@ -237,7 +249,7 @@ void ULangScript::LoadScript(const UCodeLang::AssemblyNode* ClassData, bool call
 void ULangScript::GetCallBinds()
 {
 	auto& Class = *_ClassData;
-	_LangConstructor = Class.Get_ClassInit();
+	_LangConstructor = Class.Get_ClassConstructor();
 	_LangDestructor = Class.Get_ClassDestructor();
 	_LangAwake = Class.Get_ClassMethod("Awake");
 	_LangStart = Class.Get_ClassMethod("Start");

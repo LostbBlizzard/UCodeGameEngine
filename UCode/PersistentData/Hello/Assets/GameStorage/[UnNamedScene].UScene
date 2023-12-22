@@ -31,6 +31,10 @@ _Entitys:
           flipY: false
           DrawLayer: 0
           DrawOrder: 0
+      - _TypeID: ULangScript
+        _Data:
+          _ScriptType: Player
+          _Handle: 3452816845
     _Entitys:
       []
     _Name: "[UnNamedEntity]"

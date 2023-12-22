@@ -189,6 +189,8 @@ bool UCodeDrawer::DrawClass(void* Pointer, const UCodeLang::Class_Data& Class, c
 	bool R = false;
 	for (const auto& Item : Class.Fields)
 	{
+		if (Item.Name == "_Handle") { continue; }
+
 		uintptr_t newFieldPtr = (uintptr_t)Pointer + (uintptr_t)Item.offset;
 		if (DrawField((void*)newFieldPtr, Item.Name.c_str(), Item.Type, Assembly))
 		{

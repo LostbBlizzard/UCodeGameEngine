@@ -1,3 +1,7 @@
-int a = 20;
+use ULang;
+use UCodeGameEngine;
 
-$Player;
+$Player[Component]:
+ int Speed = 10;
+ int G = 30;
+ |Update[this&] -> void;

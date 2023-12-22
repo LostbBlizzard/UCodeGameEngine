@@ -176,15 +176,31 @@ function linkUCode(HasULangCompiler,IsPubMode)
       links {"glew64s.lib","Opengl32.lib"}
              
     filter { "platforms:linux64" }
-      links {"GL","GLEW"}
+      links {"GL","GLEW","GLFW"}
 
     filter { "platforms:Web" }
       kind "ConsoleApp"   
       links {"glfw","GL"}
       linkoptions {"-s USE_PTHREADS=1","-sUSE_GLFW=3"}
      
-    filter { "platforms:not Web" }
-      links {"GLFW"}
+
+    filter { "system:Windows"}
+      files {
+       "Dependencies/GLFW/include/**.h", 
+       "Dependencies/GLFW/src/**.c",
+      }
+
+      includedirs{
+       "Dependencies/GLFW",
+      }
+    filter { "system:Windows" }
+      defines {"_GLFW_WIN32"}
+    
+    filter { "system:linux" }
+      defines {"_GLFW_X11","GLEW_NO_GLU"}
+        
+    filter { "system:MacOS" }
+      defines {"_GLFW_COCOA","GLEW_NO_GLU"}
 
     filter {}
      libdirs { 

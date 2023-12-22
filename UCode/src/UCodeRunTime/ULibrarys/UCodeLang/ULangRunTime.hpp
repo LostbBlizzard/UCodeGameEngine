@@ -27,7 +27,7 @@ public:
 	static ULangRunTime* Get(Gamelibrary* e);
 	static ULangRunTime* Find(const Gamelibrary* e);
 
-	void HotReLoadScripts();
+	bool HotReLoadScripts();
 	void ReLoadScripts();
 
 	UCodeGEForceinlne void* Lang_Malloc(size_t Size)
@@ -78,8 +78,13 @@ public:
 		return _State.Get_Allocator();
 	}
 
+	UCodeGEForceinlne auto& Get_State()
+	{
+		return _State;
+	}
 
-	inline static const char* MainFile = "Bin/UCode.lib";
+
+	inline static const char* MainFile = "bin/ucode.lib";
 private:
 	ULangRunTime(Gamelibrary* e);
 	~ULangRunTime();

@@ -120,8 +120,7 @@ public:
 			{
 				if (Item->Get_Type() == UCodeLang::ClassType::Class) 
 				{
-					//if (Item->Get_ClassData().HasAttribute(UScript_Attribute))
-					if (true)
+					if (UCompiler::IsComponentTrait(*Item,Assembly))
 					{
 						if (ImGui::MenuItem(Item->FullName.size() ? Item->FullName.c_str() : "noname"))
 						{
@@ -329,15 +328,49 @@ void CodeModule::BuildUCode(bool IsInEditor)
 
 
 
-				UCompiler::CompileProject(data);
+				bool ok = UCompiler::CompileProject(data);
 
 
-				Threads->RunOnOnMainThread([app, MovedErrs = std::move(_Errs)]()
+				Threads->RunOnOnMainThread([data,ok,app, MovedErrs = std::move(_Errs)]()
 					{
 						auto Win = app->Get_Window<ConsoleWindow>();
 						LogErrors(Win, MovedErrs);
 						Win->FocusWindow();
 						RuningTasksInfo::ReMoveTask(RuningTask::Type::BuildingUCodeFiles);
+
+
+						if (ok) {
+							auto ULang = UCode::ULangRunTime::Get(app->GetGameRunTime()->Get_Library_Edit());
+							auto& runtme = ULang->Get_State();
+
+							static UCodeLang::UClib lib;
+							static UCodeLang::RunTimeLib rlib;
+							static bool inruntime = false;
+
+							if (UCodeLang::UClib::FromFile(&lib, data.OutPath))
+							{
+								rlib.Init(&lib);
+								
+								if (inruntime == false) 
+								{
+									runtme.AddLib(&rlib);
+									ULang->ReLoadScripts();
+									inruntime = true;
+								}
+								else
+								{
+									if (!ULang->HotReLoadScripts())
+									{
+										ULang->ReLoadScripts();
+									}
+								}
+
+							}
+							else
+							{
+							
+							}
+						}
 					});
 
 			};

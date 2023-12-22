@@ -125,9 +125,64 @@ Optional<Path> UCompiler::GetRelativeIntermediate(const Path& RelativeFilePath, 
 		return {};
 	}
 }
-bool UCompiler::IsComponent(const UCodeLang::AssemblyNode& Node, const UCodeLang::ClassAssembly& Assembly)
+
+//Because UCodeLang ReflectionID dont change when recompilation or between ClassAssemblys we can just cash it
+thread_local Optional<UCodeLang::ReflectionCustomTypeID> CompoentID;
+
+bool UCompiler::IsAComponent(const UCodeLang::AssemblyNode& Node, const UCodeLang::ClassAssembly& Assembly)
 {
-	return true;
+	if (!CompoentID.has_value())
+	{
+		if (auto node = Assembly.Find_Node((StringView)"Component", "UCodeGameEngine"))
+		{
+			if (node->Get_Type() == UCodeLang::ClassType::Trait)
+			{
+				CompoentID = node->Get_TraitData().TypeID;
+			}
+		}
+	}
+
+	if (Node.Get_Type() == UCodeLang::ClassType::Class)
+	{
+		const UCodeLang::Class_Data& classnode = Node.Get_ClassData();
+		bool hastrait = false;
+		for (auto& Item : classnode.InheritedTypes)
+		{
+			if (CompoentID.has_value())
+			{
+				if (CompoentID.value() == Item.TraitID)
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+bool UCompiler::IsComponentTrait(const UCodeLang::AssemblyNode& Node, const UCodeLang::ClassAssembly& Assembly)
+{
+	if (!CompoentID.has_value())
+	{
+		if (auto node = Assembly.Find_Node((StringView)"Component", "UCodeGameEngine"))
+		{
+			if (node->Get_Type() == UCodeLang::ClassType::Trait)
+			{
+				CompoentID = node->Get_TraitData().TypeID;
+			}
+		}
+	}
+
+	if (Node.Get_Type() == UCodeLang::ClassType::Class)
+	{
+		const UCodeLang::Class_Data& classnode = Node.Get_ClassData();
+		
+		if (CompoentID.has_value())
+		{
+			return classnode.TypeID == CompoentID.value();
+		}
+	}
+
+	return false;
 }
 EditorEnd
 

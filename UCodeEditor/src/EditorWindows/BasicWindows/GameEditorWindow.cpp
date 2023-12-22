@@ -802,7 +802,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
                                 auto SameTypeButIn = Assembly.Find_Node(NodeTypeIDs.front());
                                 if (SameTypeButIn)
                                 {
-                                    if (UCompiler::IsComponent(*SameTypeButIn, Assembly)) 
+                                    if (UCompiler::IsAComponent(*SameTypeButIn, Assembly)) 
                                     {
                                         New.push_back(Item);
                                     }
