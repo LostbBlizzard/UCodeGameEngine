@@ -46,10 +46,18 @@ OpenGlRender::~OpenGlRender()
     {
         if (*it == this)
         {
+            QuadVA = {};
+            QuadVB = {};
+            QuadIB = {};
+            QuadBuffer = {};
+            WhiteTexture = {};
+
+            (*it)->EndRender();
             Classes.erase(it);
             return;
         }
     }
+    UCodeGEUnreachable();
 }
 void OpenGlRender::RenderSetUp()
 {

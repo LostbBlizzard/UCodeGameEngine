@@ -290,9 +290,9 @@ void ULangScript::LoadScript(const UCodeLang::AssemblyNode* ClassData, bool call
 		auto handle = _ClassData->Get_ClassField("_Handle");
 		UCodeGEAssert(handle);
 
-		void* p =(void*)((uintptr_t)_UObj + handle->offset);
+		Compoent** p =(Compoent**)((uintptr_t)_UObj + handle->offset);
 		
-		*(Compoent**)p = (Compoent*)this;
+		*p = (Compoent*)this;
 	}
 	if (callAwake) {CallAwake();}
 }
@@ -762,6 +762,8 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 			continue;
 		}
 
+		if (Item.Name == "_Handle") { continue; }
+
 		if (Serializer.Get_Type() == USerializerType::YAML)
 		{
 			Serializer.Get_TextMaker() << YAML::Key << Item.Name;
@@ -1076,6 +1078,7 @@ void ULangHelper::Deserialize(UDeserializer& Serializer, void* Pointer, const UC
 		{
 			continue;
 		}
+		if (Item.Name == "_Handle") { continue; }
 
 		if (Serializer.Get_Mode() == USerializerType::YAML)
 		{
