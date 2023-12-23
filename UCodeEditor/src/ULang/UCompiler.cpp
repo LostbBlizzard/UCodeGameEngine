@@ -179,6 +179,9 @@ Optional<Path> UCompiler::GetRelativeIntermediate(const Path& RelativeFilePath, 
 
 //Because UCodeLang ReflectionID dont change when recompilation or between ClassAssemblys we can just cash it
 thread_local Optional<UCodeLang::ReflectionCustomTypeID> CompoentID;
+thread_local Optional<UCodeLang::ReflectionCustomTypeID> AssetID;
+thread_local Optional<UCodeLang::ReflectionCustomTypeID> WindowID;
+thread_local Optional<UCodeLang::ReflectionCustomTypeID> ExporterID;
 
 bool UCompiler::IsAComponent(const UCodeLang::AssemblyNode& Node, const UCodeLang::ClassAssembly& Assembly)
 {
@@ -235,6 +238,178 @@ bool UCompiler::IsComponentTrait(const UCodeLang::AssemblyNode& Node, const UCod
 
 	return false;
 }
+
+bool UCompiler::IsAAsset(const UCodeLang::AssemblyNode& Node, const UCodeLang::ClassAssembly& Assembly)
+{
+	if (!AssetID.has_value())
+	{
+		if (auto node = Assembly.Find_Node((StringView)"Asset", "UCodeGameEngine"))
+		{
+			if (node->Get_Type() == UCodeLang::ClassType::Trait)
+			{
+				AssetID = node->Get_TraitData().TypeID;
+			}
+		}
+	}
+
+	if (Node.Get_Type() == UCodeLang::ClassType::Class)
+	{
+		const UCodeLang::Class_Data& classnode = Node.Get_ClassData();
+		bool hastrait = false;
+		for (auto& Item : classnode.InheritedTypes)
+		{
+			if (AssetID.has_value())
+			{
+				if (AssetID.value() == Item.TraitID)
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+bool UCompiler::IsAssetTrait(const UCodeLang::AssemblyNode& Node, const UCodeLang::ClassAssembly& Assembly)
+{
+	if (!AssetID.has_value())
+	{
+		if (auto node = Assembly.Find_Node((StringView)"Component", "UCodeGameEngine"))
+		{
+			if (node->Get_Type() == UCodeLang::ClassType::Trait)
+			{
+				AssetID = node->Get_TraitData().TypeID;
+			}
+		}
+	}
+
+	if (Node.Get_Type() == UCodeLang::ClassType::Class)
+	{
+		const UCodeLang::Class_Data& classnode = Node.Get_ClassData();
+
+		if (AssetID.has_value())
+		{
+			return classnode.TypeID == AssetID.value();
+		}
+	}
+
+	return false;
+}
+
+bool UCompiler::IsAWindow(const UCodeLang::AssemblyNode& Node, const UCodeLang::ClassAssembly& Assembly)
+{
+	if (!WindowID.has_value())
+	{
+		if (auto node = Assembly.Find_Node((StringView)"Window", "UCodeGameEngineEditor"))
+		{
+			if (node->Get_Type() == UCodeLang::ClassType::Trait)
+			{
+				WindowID = node->Get_TraitData().TypeID;
+			}
+		}
+	}
+
+	if (Node.Get_Type() == UCodeLang::ClassType::Class)
+	{
+		const UCodeLang::Class_Data& classnode = Node.Get_ClassData();
+		bool hastrait = false;
+		for (auto& Item : classnode.InheritedTypes)
+		{
+			if (WindowID.has_value())
+			{
+				if (WindowID.value() == Item.TraitID)
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+bool UCompiler::IsWindowTrait(const UCodeLang::AssemblyNode& Node, const UCodeLang::ClassAssembly& Assembly)
+{
+	if (!WindowID.has_value())
+	{
+		if (auto node = Assembly.Find_Node((StringView)"Window", "UCodeGameEngineEditor"))
+		{
+			if (node->Get_Type() == UCodeLang::ClassType::Trait)
+			{
+				WindowID = node->Get_TraitData().TypeID;
+			}
+		}
+	}
+
+	if (Node.Get_Type() == UCodeLang::ClassType::Class)
+	{
+		const UCodeLang::Class_Data& classnode = Node.Get_ClassData();
+		
+		if (WindowID.has_value())
+		{
+			return classnode.TypeID == WindowID.value();
+		}
+	}
+
+	return false;
+}
+
+
+bool UCompiler::IsAExporter(const UCodeLang::AssemblyNode& Node, const UCodeLang::ClassAssembly& Assembly)
+{
+	if (!ExporterID.has_value())
+	{
+		if (auto node = Assembly.Find_Node((StringView)"Component", "UCodeGameEngineEditor"))
+		{
+			if (node->Get_Type() == UCodeLang::ClassType::Trait)
+			{
+				ExporterID = node->Get_TraitData().TypeID;
+			}
+		}
+	}
+
+	if (Node.Get_Type() == UCodeLang::ClassType::Class)
+	{
+		const UCodeLang::Class_Data& classnode = Node.Get_ClassData();
+		bool hastrait = false;
+		for (auto& Item : classnode.InheritedTypes)
+		{
+			if (ExporterID.has_value())
+			{
+				if (ExporterID.value() == Item.TraitID)
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+bool UCompiler::IsExportTrait(const UCodeLang::AssemblyNode& Node, const UCodeLang::ClassAssembly& Assembly)
+{
+	if (!ExporterID.has_value())
+	{
+		if (auto node = Assembly.Find_Node((StringView)"Component", "UCodeGameEngineEditor"))
+		{
+			if (node->Get_Type() == UCodeLang::ClassType::Trait)
+			{
+				ExporterID = node->Get_TraitData().TypeID;
+			}
+		}
+	}
+
+	if (Node.Get_Type() == UCodeLang::ClassType::Class)
+	{
+		const UCodeLang::Class_Data& classnode = Node.Get_ClassData();
+
+		if (ExporterID.has_value())
+		{
+			return classnode.TypeID == ExporterID.value();
+		}
+	}
+
+	return false;
+}
+
+
+
 String UCompiler::NewComponentTemplate(const StringView componentname)
 {
 	StringView Tab = "  ";
