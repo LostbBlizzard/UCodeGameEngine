@@ -271,9 +271,24 @@ int App::main(int argc, char* argv[])
 				build.Setings.Settings = std::move(settings);
 				#endif
 			}
-			
-			
-			return build.BuildProject() ? EXIT_SUCCESS : EXIT_FAILURE;
+			auto r = build.BuildProject();
+			if (r.IsError())
+			{
+				auto& err = r.GetError();
+
+				for (auto& Item : err.Errors)
+				{
+
+					std::cout << Item.filepath << ":" << Item.message;
+					if (Item.lineNumber.has_value())
+					{
+						std::cout << " On Line " << Item.lineNumber.value();
+					}
+					std::cout << '\n';
+				}
+			}
+
+			return r.IsValue() ? EXIT_SUCCESS : EXIT_FAILURE;
 		}
 
 

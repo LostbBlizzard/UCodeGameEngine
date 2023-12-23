@@ -984,7 +984,8 @@ template<typename T, typename E>
 class Result
 {
 public:
-	Result() {}
+	Result()
+		:_Base(E()){}
 	~Result() {}
 
 	Result(const T& Value)
@@ -1001,11 +1002,11 @@ public:
 
 	bool IsError() const
 	{
-		return _Base.template  Is<E>();
+		return _Base.template  IsType<E>();
 	}
 	bool IsValue() const
 	{
-		return _Base.template Is<T>();
+		return _Base.template IsType<T>();
 	}
 	E* IfError()
 	{
@@ -1027,19 +1028,19 @@ public:
 
 	const E& GetError() const
 	{
-		return _Base.template Get<E>();
+		return _Base.template GetType<E>();
 	}
 	const T& GetValue() const
 	{
-		return _Base.template Get<T>();
+		return _Base.template GetType<T>();
 	}
 	E& GetError()
 	{
-		return _Base.template Get<E>();
+		return _Base.template GetType<E>();
 	}
 	T& GetValue()
 	{
-		return _Base.template Get<T>();
+		return _Base.template GetType<T>();
 	}
 
 	T ValueOr(const T& Or)

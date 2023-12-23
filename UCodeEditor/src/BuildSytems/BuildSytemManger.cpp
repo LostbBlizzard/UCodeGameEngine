@@ -24,7 +24,7 @@ void RemoveFileInPath(const Path& dir_path)
 		}
 	}
 }
-bool BuildSytemManger::BuildProject()
+BuildSytemManger::BuildRet BuildSytemManger::BuildProject()
 {
 	if (auto Val = Setings.Settings.IfType<WindowsBuildSetings>())
 	{
@@ -59,11 +59,11 @@ void BuildSytemManger::Reset()
 {
 
 }
-bool BuildSytemManger::Build(const WindowsBuildSetings& setings)
+BuildSytemManger::BuildRet BuildSytemManger::Build(const WindowsBuildSetings& setings)
 {
 	Path OutDir = Path(Setings._OutDir.native() + Path::preferred_separator);
 	
-
+	
 	Path AddedPath;
 	{
 		AddedPath += "Windows";
@@ -93,6 +93,8 @@ bool BuildSytemManger::Build(const WindowsBuildSetings& setings)
 	const Path GameFilesDataPath = OutDir / Path(UCode::GameFilesData::FileDataName).native();
 
 	Path baseexepath;
+
+
 	if (setings.DebugBuild)
 	{
 		if (setings.architecture == WindowsBuildSetings::Architecture::x86_64)
@@ -118,37 +120,39 @@ bool BuildSytemManger::Build(const WindowsBuildSetings& setings)
 	}
 
 
+	//
+	Settings.AddSetting("target.platform", "windows");
+	Settings.AddSetting("target.bitmode",setings.architecture == WindowsBuildSetings::Architecture::x86_64 ? "64" : "32");
+	Settings.AddSetting("ucodelang.target","interpreter");
 
-	const auto ExeTepPath = AppFiles::ReadFileAsBytes(baseexepath);
-
+	//
+	
 	fs::create_directories(OutDir);
 	fs::create_directories(Platfromteppath);
 	fs::create_directories(Setings.TemporaryGlobalPath);
 
 	RemoveFileInPath(OutDir);
 
+
 	if (fs::exists(ExePath))
 	{
 		fs::remove(ExePath);
 	}
-	UCode::GameFiles::WriteBytes(ExeTepPath.Data(), ExeTepPath.Size(), ExePath);
+	const auto ExeTepPath = AppFiles::CopyFile(baseexepath, ExePath);
 	
 
 	const auto SerializerMode = UCode::USerializerType::Bytes;
-	BuildProjectGlobalWasGameData(GameFilesDataPath, SerializerMode);
-
-
-	return true;
+	return BuildProjectGameData(GameFilesDataPath, SerializerMode);
 }
-bool BuildSytemManger::Build(const LinuxBuildSetings& setings)
+BuildSytemManger::BuildRet BuildSytemManger::Build(const LinuxBuildSetings& setings)
 {
-	return false;
+	return Empty();
 }
-bool BuildSytemManger::Build(const MacOsBuildSetings& setings)
+BuildSytemManger::BuildRet BuildSytemManger::Build(const MacOsBuildSetings& setings)
 {
-	return false;
+	return Empty();
 }
-bool BuildSytemManger::BuildProjectGlobalWasGameData(const Path& GameFilesDataPath,USerializerType SerializerMode)
+BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& GameFilesDataPath,USerializerType SerializerMode)
 {
 	const Path ChachPath = Setings.TemporaryGlobalPath.native() + Path("Chache.data").native();
 	ExportChacheFile Chache;
@@ -159,17 +163,39 @@ bool BuildSytemManger::BuildProjectGlobalWasGameData(const Path& GameFilesDataPa
 	ExportEditorContext Export;
 	Export.AssetPath = Setings._InputDir;
 	Export.TemporaryGlobalPath = Setings.TemporaryGlobalPath;
+	Export.TemporaryPlatfromPathSpecificPath = Platfromteppath;
 	Export.ChachInfo = &Chache;
+	Export.settings = std::move(Settings);
 
 	fs::create_directories(Export.TemporaryGlobalPath);
 
 	Vector<ExportEditorReturn> ModulesRets;
+
+	Optional<ExportErrors> errors;
 	for (size_t i = 0; i < ModulesList.Size(); i++)
 	{
 		auto& Item = ModulesList[i];
 
+		auto r = std::move(Item->ExportEditor(Export));
+		if (r.IsError())
+		{
+			if (errors.has_value())
+			{
+				errors.value().Add(std::move(r.GetError()));
+			}
+			else
+			{
+				errors = std::move(r.GetError());
+			}
+		}
+		else {
+			ModulesRets.push_back(r.GetValue());
+		}
+	}
 
-		ModulesRets.push_back(std::move(Item->ExportEditor(Export)));
+	if (errors.has_value())
+	{
+		return errors.value();
 	}
 
 	ProjectData prj;
@@ -266,9 +292,9 @@ bool BuildSytemManger::BuildProjectGlobalWasGameData(const Path& GameFilesDataPa
 		fs::copy_file(GameFilesDataPath, "../UCodeApp" / Path(UCode::GameFilesData::FileDataName),fs::copy_options::overwrite_existing);
 		#endif
 	}
-	return true;
+	return Empty();
 }
-bool BuildSytemManger::Build(const WebBuildSetings& setings)
+BuildSytemManger::BuildRet BuildSytemManger::Build(const WebBuildSetings& setings)
 {
 	const Path GameFilesDataPath = Setings.TemporaryPlatfromPath / Path(UCode::GameFilesData::FileDataName).native();
 
@@ -281,7 +307,7 @@ bool BuildSytemManger::Build(const WebBuildSetings& setings)
 
 
 	const auto SerializerMode = UCode::USerializerType::Bytes;
-	BuildProjectGlobalWasGameData(GameFilesDataPath, SerializerMode);
+	BuildProjectGameData(GameFilesDataPath, SerializerMode);
 
 	{
 		const Path IndexPath = Setings._OutDir / Path(Setings._OutName).concat(".html").native();
@@ -293,9 +319,9 @@ bool BuildSytemManger::Build(const WebBuildSetings& setings)
 		fs::create_directory(Setings._OutDir / "data");
 	}
 
-	return false;
+	return Empty();
 }
-bool BuildSytemManger::Build(const AndroidBuildSetings& setings)
+BuildSytemManger::BuildRet BuildSytemManger::Build(const AndroidBuildSetings& setings)
 {
 	const Path ApkPath = Setings._OutDir / Path(Setings._OutName).concat(".apk").native();
 
@@ -315,7 +341,7 @@ bool BuildSytemManger::Build(const AndroidBuildSetings& setings)
 	//apk
 	fs::create_directories(ApkInfoDir / "assets");
 	{
-		BuildProjectGlobalWasGameData(ApkInfoDir / "assets" / UCode::GameFilesData::FileDataName, SerializerMode);
+		BuildProjectGameData(ApkInfoDir / "assets" / UCode::GameFilesData::FileDataName, SerializerMode);
 	}
 	fs::create_directories(ApkInfoDir / "lib");
 	{
@@ -381,14 +407,14 @@ bool BuildSytemManger::Build(const AndroidBuildSetings& setings)
 	}
 	zip_close(zip);
 
-	return false;
+	return Empty();
 }
-bool BuildSytemManger::Build(const IOSBuildSetings& setings)
+BuildSytemManger::BuildRet BuildSytemManger::Build(const IOSBuildSetings& setings)
 {
-	return false;
+	return Empty();
 }
-bool BuildSytemManger::Build(const CustomBuildSetings& setings)
+BuildSytemManger::BuildRet BuildSytemManger::Build(const CustomBuildSetings& setings)
 {
-	return false;
+	return Empty();
 }
 EditorEnd

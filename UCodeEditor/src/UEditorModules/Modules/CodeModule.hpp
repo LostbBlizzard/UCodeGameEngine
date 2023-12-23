@@ -27,7 +27,7 @@ public:
 
 
 	void FilesUpdated(const Vector<FileUpdateData>& paths) override;
-	Vector<ExportEditorReturn> ExportSystems(ExportEditorContext& Context) override;
+	Result<Vector<ExportEditorReturn>, ExportErrors> ExportSystems(const ExportEditorContext& Context) override;
 private:
 	Array<Unique_ptr<UEditorAssetFileData>,2> Assets;
 	Array<Unique_ptr<UEditorComponentData>,1> Components;

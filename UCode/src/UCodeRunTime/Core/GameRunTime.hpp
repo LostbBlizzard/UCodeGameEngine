@@ -219,12 +219,12 @@ public:
 	static GameRunTime* Current();
 private:	
 	bool _IsGameRuning;
+	Ref<Gamelibrary> _Library;
 	Vector<Compoent*> _StaticComponents;
 	RunTimeScene _RunTimeScene;
 	Vector<Unique_ptr<RunTimeScene>> _Scenes;
 	
 
-	Ref<Gamelibrary> _Library;
 	GameTime GameTime;
 	Time_point LastFixedUpdateTime;
 	f32 _FixedUpdateTimer;

@@ -70,7 +70,14 @@ bool UEditorAssetFileData::Draw(UEditorAssetDataConext& Data, const Path& path)
 		return false;
 	}
 }
-ExportEditorReturn UEditorModule::ExportEditor(ExportEditorContext& Context)
+
+size_t GetPageSizeE()
+{
+	return 4096;
+}
+
+
+Result<ExportEditorReturn, ExportErrors> UEditorModule::ExportEditor(ExportEditorContext& Context)
 {
 
 	namespace fs = std::filesystem;
@@ -123,26 +130,68 @@ ExportEditorReturn UEditorModule::ExportEditor(ExportEditorContext& Context)
 				{
 					outfile = AssetData->ExportFile(path, Exfile);
 				}
+				if (fs::exists(Exfile.Output)) {
+					auto bytes = UCode::GameFiles::ReadFileAsBytes(Exfile.Output);
+					UCode::GameFileIndex index;
+					index.FileOffset = V._Data.size();
+					index.FileFullName = Relat;
+					index.FileSize = bytes.Size();
 
-				auto bytes = UCode::GameFiles::ReadFileAsBytes(Exfile.Output);
+					if (outfile._UID.has_value())
+					{
+						IDMaps._Paths[outfile._UID.value()] = index.FileFullName;
+					}
+
+
+					V.Offsets.push_back(std::move(index));
+
+
+					for (size_t i = 0; i < bytes.Size(); i++)
+					{
+						auto& Item = bytes[i];
+
+						V._Data.push_back(Item);
+					}
+				}
+			}
+		}
+	}
+
+
+	auto v = ExportSystems(Context);
+
+	if (v.IsError() && v.GetError().Errors.size())
+	{
+		return v.GetError();
+	}
+	
+	if (v.IsValue()) {
+		for (auto& Item : v.GetValue())
+		{
+			UCode::GameFilesData v;
+			UCode::FileBuffer buffer;
+			UCode::GameFilesData::ReadFileKeepOpen(Item.OutputModuleFile, buffer, v);
+
+			for (auto& file : v.Offsets)
+			{
 				UCode::GameFileIndex index;
 				index.FileOffset = V._Data.size();
-				index.FileFullName = Relat;
-				index.FileSize = bytes.Size();
-				
-				if (outfile._UID.has_value()) 
-				{
-					IDMaps._Paths[outfile._UID.value()] = index.FileFullName;
-				}
+				index.FileFullName = file.FileFullName;
+				index.FileSize = file.FileSize;
 
 
 				V.Offsets.push_back(std::move(index));
 
-				
-				for (size_t i = 0; i < bytes.Size(); i++)
+				buffer.Set_FileReadIndex(file.FileOffset);
+
+				Vector<Byte> bytes;
+				bytes.resize(file.FileSize);
+
+				buffer.ReadBytes(bytes.data(), file.FileSize);
+				for (size_t i = 0; i < bytes.size(); i++)
 				{
 					auto& Item = bytes[i];
-				
+
 					V._Data.push_back(Item);
 				}
 			}

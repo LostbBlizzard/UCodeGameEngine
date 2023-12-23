@@ -53,6 +53,8 @@ public:
 
 	ExportFileRet ExportFile(const Path& path, const ExportFileContext& Item) override
 	{
+		std::filesystem::copy_file(path, Item.Output, std::filesystem::copy_options::overwrite_existing);
+	
 		UCode::Scene2dData V;
 		UCode::Scene2dData::FromFile(V, path);
 
@@ -60,7 +62,7 @@ public:
 		auto scenc = UCode::Scene2dData::LoadScene(&runtime,V);
 		UCode::Scene2dData::SaveScene(scenc,V, USerializerType::Bytes);
 
-		UCode::Scene2dData::ToFile(Item.Output, V, USerializerType::Bytes);
+		//UCode::Scene2dData::ToFile(Item.Output, V, USerializerType::Bytes);
 
 		ExportFileRet r;
 		r._UID = V._UID;

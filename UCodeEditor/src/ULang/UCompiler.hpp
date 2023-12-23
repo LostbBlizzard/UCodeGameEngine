@@ -19,6 +19,7 @@ public:
 		Path IntPath;
 		Path OutPath;
 		bool Editor = false;
+		bool Is32bitMode = sizeof(void*) == 4;
 		void Set(const RunTimeProjectData* Data)
 		{
 			InPath = Data->GetAssetsDir();

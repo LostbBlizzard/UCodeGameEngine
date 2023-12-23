@@ -1,12 +1,15 @@
 #pragma once
 #include "Types.hpp"
 #include "Serialization.hpp"
+#include "UEditorModules/UEditorModule.hpp"
 EditorStart
 class BuildSytemManger
 {
 public:	
+	struct Empty{};
+	using BuildRet = Result<Empty, ExportErrors>;
 	BuildSetings Setings;
-	bool BuildProject();
+	BuildSytemManger::BuildRet BuildProject();
 	void Reset();
 
 	struct BuildError
@@ -15,23 +18,26 @@ public:
 	};
 	Vector<BuildError> errors;
 private:
-	bool BuildProjectGlobalWasGameData(const Path& GameFilesDataPath, USerializerType SerializerMode);
+	BuildRet BuildProjectGameData(const Path& GameFilesDataPath, USerializerType SerializerMode);
 	Path Platfromteppath;
 
 	//Main
-	bool Build(const WindowsBuildSetings& setings);
-	bool Build(const LinuxBuildSetings& setings);
-	bool Build(const MacOsBuildSetings& setings);
+	BuildRet Build(const WindowsBuildSetings& setings);
+	BuildRet Build(const LinuxBuildSetings& setings);
+	BuildRet Build(const MacOsBuildSetings& setings);
 
 
 	//Secondary platform
-	bool Build(const WebBuildSetings& setings);
-	bool Build(const AndroidBuildSetings& setings);
-	bool Build(const IOSBuildSetings& setings);
+	BuildRet Build(const WebBuildSetings& setings);
+	BuildRet Build(const AndroidBuildSetings& setings);
+	BuildRet Build(const IOSBuildSetings& setings);
 
 
 	//Consoles,VR and whatever in the future will use the CustomBuildSetings
-	bool Build(const CustomBuildSetings& setings);
+	BuildRet Build(const CustomBuildSetings& setings);
+
+
+	ExportSettings Settings;
 };
 EditorEnd
 

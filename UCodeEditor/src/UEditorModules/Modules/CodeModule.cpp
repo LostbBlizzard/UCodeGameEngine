@@ -393,9 +393,12 @@ void CodeModule::BuildUCode(bool IsInEditor)
 		Threads->AddTask_t(UCode::TaskType::FileIO, std::move(OnOtherThread), {});
 	}
 }
-Vector<ExportEditorReturn> CodeModule::ExportSystems(ExportEditorContext& Context)
+
+Result<Vector<ExportEditorReturn>, ExportErrors> CodeModule::ExportSystems(const ExportEditorContext& Context)
 {
 	namespace fs = std::filesystem;
+
+	bool Is32bitmode = Context.settings.IfHasSettingStr("target.bitmode").value_or("32") == "32";
 
 	UCodeLang::CompilationErrors errs;
 	UCompiler::CompileData data;
@@ -403,37 +406,53 @@ Vector<ExportEditorReturn> CodeModule::ExportSystems(ExportEditorContext& Contex
 	data.Threads = nullptr;
 
 	data.InPath = Context.AssetPath;
-	data.IntPath = Context.TemporaryGlobalPath / "ulang" / "int";
-	data.OutPath = Context.TemporaryGlobalPath / "ulang" / Path(Path("UCode").native() + Path(UCodeLang::FileExt::LibWithDot).native());
+	data.IntPath = PathString(Context.TemporaryPlatfromPathSpecificPath / "ulang" / "int") + Path::preferred_separator;
 
+	data.OutPath = Context.TemporaryPlatfromPathSpecificPath / "ulang" / Path(Path("ucode").native() + Path(UCodeLang::FileExt::LibWithDot).native());
+	
 	
 	Path modoutfile = Context.TemporaryGlobalPath / "ulang.data";
 	ExportEditorReturn r;
 	r.OutputModuleFile = modoutfile;
 
-	UCompiler::CompileProject(data);
+	if (UCompiler::CompileProject(data)) {
 
-	UCode::GameFileIndex ind;
-	ind.FileFullName = UCode::ULangRunTime::MainFile;
-	ind.FileOffset = 0;
-	ind.FileSize = fs::file_size(data.OutPath);
+		UCode::GameFileIndex ind;
+		ind.FileFullName = UCode::ULangRunTime::MainFile;
+		ind.FileOffset = 0;
+		ind.FileSize = fs::file_size(data.OutPath);
 
-	UCode::GameFilesData files;
-	files.Offsets.push_back(std::move(ind));
+		UCode::GameFilesData files;
+		files.Offsets.push_back(std::move(ind));
 
 
-	{
-		auto bytes = UCode::GameFiles::ReadFileAsBytes(data.OutPath);
-
-		for (size_t i = 0; i < bytes.Size(); i++)
 		{
-			files._Data.push_back(bytes[i]);
-		}
-	}
-	UCode::GameFilesData::MakeFile(files, r.OutputModuleFile, USerializerType::Bytes);
+			auto bytes = UCode::GameFiles::ReadFileAsBytes(data.OutPath);
 
-	
-	return {r};
+			for (size_t i = 0; i < bytes.Size(); i++)
+			{
+				files._Data.push_back(bytes[i]);
+			}
+		}
+		UCode::GameFilesData::MakeFile(files, r.OutputModuleFile, USerializerType::Bytes);
+
+
+		return { {r} };
+	}
+	else
+	{
+		ExportErrors r;
+		r.Errors.reserve(errs.Get_ErrorCount());
+
+		for (auto& Item : errs.Get_Errors())
+		{
+			ExportError v;
+			
+			r.AddError(Item.File, Item._Msg);
+		}
+
+		return r;
+	}
 }
 
 EditorEnd

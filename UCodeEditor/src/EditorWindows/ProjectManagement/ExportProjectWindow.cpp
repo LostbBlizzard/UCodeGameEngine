@@ -257,8 +257,8 @@ void ExportProjectWindow::ShowWebExportSeting()
 void ExportProjectWindow::SetBuildData(UCodeEditor::Path& AssetsPath, UCodeEditor::RunTimeProjectData* ProjectInfo,BuildSetings::SettingsType Info)
 {
 	buildSytem.Setings._InputDir = AssetsPath;
-	buildSytem.Setings.TemporaryPlatfromPath = ProjectInfo->GetCachedDir().native() + Path(Path("Build")).native();
-	buildSytem.Setings.TemporaryGlobalPath = ProjectInfo->GetCachedDir().native() + Path(Path("Build") / Path("Global")).native();
+	buildSytem.Setings.TemporaryPlatfromPath = ProjectInfo->GetCachedDir().native() + Path(Path("build")).native();
+	buildSytem.Setings.TemporaryGlobalPath = ProjectInfo->GetCachedDir().native() + Path(Path("build") / Path("global")).native();
 	buildSytem.Setings._OutName = ProjectInfo->Get_ProjData()._ProjectName;
 	buildSytem.Setings.Settings = Info;
 }
