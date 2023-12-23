@@ -3,7 +3,7 @@ use ULang;
 
 
 //OpenedProject.hpp
-UCodeGameEngine:
+UCodeGameEngineEditor:
   $AssetPath export extern "c":
    export extern dynamic |ID[this&] -> uint32;
 
