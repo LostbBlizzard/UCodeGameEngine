@@ -3,8 +3,8 @@ _UID:
   - 45838975
 _Entitys:
   - _LocalPosition:
-      - 0
-      - 0
+      - -2.57705116
+      - -3.498173
       - 0
     _LocalRotation:
       - 0
@@ -34,8 +34,11 @@ _Entitys:
       - _TypeID: ULangScript
         _Data:
           _ScriptType: Script
-          Speed: 10
-          _Handle: 3119083968
+          Speed: 27
+          newpos:
+            X: 5
+            Y: 10
+          _Handle: 2431162480
     _Entitys:
       []
     _Name: "[UnNamedEntity]"

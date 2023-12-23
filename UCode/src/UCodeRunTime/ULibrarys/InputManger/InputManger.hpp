@@ -36,6 +36,7 @@ enum class CallBackType : Byte
 };
 using InputCallBackKey = Byte;
 constexpr InputCallBackKey NullCallBackKey = 0;
+//Should be a System.
 class InputManger final :private Compoent
 {
 private:
@@ -50,7 +51,7 @@ public:
 
 	static InputManger* GetInput(GameRunTime* e);
 	static InputManger* FindInput(const GameRunTime* e);
-
+	static InputManger* Current();
 	 
 	inline bool GetInputKey(InputKey input) const
 	{
@@ -72,6 +73,8 @@ public:
 		_CursorPosition = { x,y };
 	}
 	void Input_API_Set_Scroll(f32 x, f32 y);
+
+
 private:
 	struct CallBackData
 	{

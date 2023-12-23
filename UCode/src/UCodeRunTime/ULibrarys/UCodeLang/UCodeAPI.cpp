@@ -24,6 +24,8 @@ void UCodeAPI::MakeNewLib()
 {
 	_HasLib = true;
 	using namespace UCode;
+	UCodeLang::SandBoxedIOLink::Link(_UCodeAPILib);
+
 	
 	UCodeLangAutoLink(_UCodeAPILib, UCode)
 

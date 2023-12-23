@@ -41,6 +41,11 @@ InputManger* InputManger::FindInput(const GameRunTime* e)
 	auto item = e->Get_StaticComponent(index);
 	return (InputManger*)item;
 }
+
+InputManger* InputManger::Current()
+{
+	return InputManger::GetInput(GameRunTime::Current());
+}
 	
 
 
@@ -131,11 +136,11 @@ void InputManger::Input_API_Set_Scroll(f32 x, f32 y)
 }
 bool Input::IsKeyDown(InputKey Key)
 {
-	return false;
+	return InputManger::Current()->GetInputKey(Key);
 }
 Vec2 Input::GetMousePosition()
 {
-	return {};
+	return InputManger::Current()->Get_CursorPosition();
 }
 
 

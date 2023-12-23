@@ -9,8 +9,9 @@ $Script[Component]:
 
 
   //Called once every Frame.
+  Vec2 newpos = [5,10];
   |Update[this&] -> void:
-   var& pos = entity().worldposition2d();
+   var& pos = entity().localposition2d();
    var deltatime = Time::DeltaTime();
    
    if Input::IsKeyDown(InputKey::W):pos.Y += Speed * deltatime;
@@ -18,7 +19,5 @@ $Script[Component]:
 
    if Input::IsKeyDown(InputKey::D):pos.X += Speed * deltatime;
    if Input::IsKeyDown(InputKey::A):pos.X -= Speed * deltatime;
-
-
 
    //
