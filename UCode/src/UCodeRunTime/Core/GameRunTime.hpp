@@ -204,11 +204,11 @@ public:
 	UCodeGEForceinlne void SetStaticComponent(size_t key, Compoent* Value) { _StaticComponents[key] = Value; }
 	UCodeGEForceinlne void ReMoveStaticComponent(size_t key) { _StaticComponents[key] = nullptr; }
 	UCodeGEForceinlne Compoent* Get_StaticComponent(size_t key) const { return _StaticComponents[key]; }
-	UCodeGEForceinlne const Time::GameTime& Get_GameTime() const
+	UCodeGEForceinlne const GameTime& Get_GameTime() const
 	{
 		return GameTime;
 	}
-	UCodeGEForceinlne void Set_GameTime_FramesToDestroy(Time::Frame FramesToDestroy)
+	UCodeGEForceinlne void Set_GameTime_FramesToDestroy(Frame FramesToDestroy)
 	{
 		GameTime.FramesToDestroy = FramesToDestroy;
 	}
@@ -222,8 +222,8 @@ private:
 	
 
 	Ref<Gamelibrary> _Library;
-	Time::GameTime GameTime;
-	Time::Time_point LastFixedUpdateTime;
+	GameTime GameTime;
+	Time_point LastFixedUpdateTime;
 	f32 _FixedUpdateTimer;
 
 	

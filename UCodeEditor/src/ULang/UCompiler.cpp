@@ -26,6 +26,8 @@ bool UCompiler::CompileProject(const CompileData& Data)
 	const Path& intPath = Data.IntPath;
 	const Path& outlibPath = Data.OutPath;
 	
+	const Path Modulepath = InPath / UCodeLang::ModuleFile::FileNameWithExt;
+
 	Data.Error->Remove_Errors();
 	
 	UCodeLang::Compiler Compiler;
@@ -48,6 +50,53 @@ bool UCompiler::CompileProject(const CompileData& Data)
 		index.AddModueToList(AppFiles::GetFilePathByMove("source") / "NStandardLibrary" / UCodeLang::ModuleFile::FileNameWithExt);
 		update = true;
 	}
+	if (!HasModule(index, "UCodeGameEngine")) {
+		index.AddModueToList(AppFiles::GetFilePathByMove("source") / "UCodeGameEngine" / UCodeLang::ModuleFile::FileNameWithExt);
+		update = true;
+	}
+	if (!HasModule(index, "UCodeGameEngineEditor")) {
+		index.AddModueToList(AppFiles::GetFilePathByMove("source") / "UCodeGameEngineEditor" / UCodeLang::ModuleFile::FileNameWithExt);
+		update = true;
+	}
+
+	if (!fs::exists(Modulepath))
+	{
+		UCodeLang::ModuleFile m;
+		
+		m.ModuleName.AuthorName = "UEngineDev";
+		m.ModuleName.ModuleName = "Project";
+
+		{
+			UCodeLang::ModuleFile f;
+			Path modpath = AppFiles::GetFilePathByMove("source");
+			modpath /= "UCodeGameEngine";
+			modpath /= UCodeLang::ModuleFile::FileNameWithExt;
+
+			f.FromFile(&f, modpath);
+
+			UCodeLang::ModuleFile::ModuleDependencie dep;
+			dep.Identifier = f.ModuleName;
+			m.ModuleDependencies.push_back(std::move(dep));
+		}
+		{
+
+			UCodeLang::ModuleFile f;
+			Path modpath = AppFiles::GetFilePathByMove("source");
+			modpath /= "UCodeGameEngineEditor";
+			modpath /= UCodeLang::ModuleFile::FileNameWithExt;
+
+			f.FromFile(&f, modpath);
+
+
+			UCodeLang::ModuleFile::ModuleDependencie dep;
+
+			dep.Identifier = f.ModuleName;
+			m.ModuleDependencies.push_back(std::move(dep));
+		}
+
+		UCodeLang::ModuleFile::ToFile(&m, Modulepath);
+	}
+
 
 	if (update) {
 		UCodeLang::ModuleIndex::SaveModuleIndex(index);
@@ -183,6 +232,39 @@ bool UCompiler::IsComponentTrait(const UCodeLang::AssemblyNode& Node, const UCod
 	}
 
 	return false;
+}
+String UCompiler::NewComponentTemplate(const StringView componentname)
+{
+	StringView Tab = "  ";
+
+	String r;
+	r += "use ULang;\n";
+	r += "use UCodeGameEngine;\n";
+
+	r += "\n";
+
+	r += "$";
+	r += componentname;
+	r += "[Component]:\n\n";
+
+	r += Tab;
+	r+= "//Called once when the script is loaded.\n";
+	r += Tab;
+	r += "|Start[this&] -> void:\n";
+
+	r += Tab;
+	r += " //\n\n\n";
+
+	r += Tab;
+	r += "//Called once every Frame.\n";
+	r += Tab;
+	r += "|Update[this&] -> void:\n";
+
+	r += Tab;
+	r += " //\n";
+
+
+	return r;
 }
 EditorEnd
 

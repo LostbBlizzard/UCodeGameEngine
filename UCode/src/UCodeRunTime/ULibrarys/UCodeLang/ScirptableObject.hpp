@@ -1,6 +1,9 @@
 #pragma once
 #include "ULangRunTime.hpp"
 LangStart
+
+
+
 class ScirptableObject
 {
 private:
@@ -53,5 +56,26 @@ private:
 		_LangDestructor = Class.Get_ClassDestructor();
 	}
 };
+
+UCodeLangExportSymbol("UCodeGameEngine") UCodeLangEmbed(
+	R"(
+    $Asset trait:
+	  uintptr _Handle = 0;
+    ")");
+
+class AssetAPI
+{
+	static ScirptableObject& Cast(uintptr_t _Handle)
+	{
+		return *(ScirptableObject*)_Handle;
+	}
+	static const ScirptableObject& iCast(uintptr_t _Handle)
+	{
+		return *(const ScirptableObject*)_Handle;
+	}
+
+};
+
+
 LangEnd
 

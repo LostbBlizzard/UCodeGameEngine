@@ -73,21 +73,21 @@ GameRunTime::~GameRunTime()
 }
 void GameRunTime::Init()
 {
-	LastFixedUpdateTime = Time::clock::now();
+	LastFixedUpdateTime = clock::now();
 	_IsGameRuning = true;
 }
 void GameRunTime::GameUpdate()
 {
-	auto Now = Time::clock::now();
+	auto Now = clock::now();
 	auto delta_timeT = Now - LastFixedUpdateTime;
 
 	LastFixedUpdateTime = Now;
-	auto delta_timefsec = std::chrono::duration_cast<Time::fsec>(delta_timeT);
+	auto delta_timefsec = std::chrono::duration_cast<fsec>(delta_timeT);
 	f32 delta_time = delta_timefsec.count();
 
 	_FixedUpdateTimer += delta_time;
 	GameTime.UpateDelta = delta_time;
-	if (_FixedUpdateTimer > Time::GameTime::FixedTimeDelta)
+	if (_FixedUpdateTimer > GameTime::FixedTimeDelta)
 	{
 		_FixedUpdateTimer = 0;
 		DoFixedUpdate();
@@ -141,8 +141,8 @@ void GameRunTime::DestroyNullScenes()
 		Item->DestroyNullEntityAndCompoents();
 		if (Item->Get_IsDestroyed())
 		{
-			const Time::Frame FramesToDestroy = GameTime.FramesToDestroy;
-			Time::Frame& SceneFrame = (Time::Frame&)Item->_IsSceneDestroyed;
+			const Frame FramesToDestroy = GameTime.FramesToDestroy;
+			Frame& SceneFrame = (Frame&)Item->_IsSceneDestroyed;
 			if (SceneFrame >= FramesToDestroy)
 			{
 				it = _Scenes.erase(it);
@@ -197,7 +197,7 @@ void RunTimeScene::FixedUpdateEntitys()
 }
 void RunTimeScene::DestroyNullEntityAndCompoents()
 {
-	const Time::Frame FramesToDestroy = Get_RunTime()->Get_GameTime().FramesToDestroy;
+	const Frame FramesToDestroy = Get_RunTime()->Get_GameTime().FramesToDestroy;
 	for (auto it = _Entitys.begin(); it != _Entitys.end();)
 	{
 		auto& Item = *it;
@@ -208,7 +208,7 @@ void RunTimeScene::DestroyNullEntityAndCompoents()
 		{
 
 			
-			Time::Frame& EntityFrame = (Time::Frame&)Item->_IsDestroyed;
+			Frame& EntityFrame = (Frame&)Item->_IsDestroyed;
 			if (EntityFrame >= FramesToDestroy)
 			{
 

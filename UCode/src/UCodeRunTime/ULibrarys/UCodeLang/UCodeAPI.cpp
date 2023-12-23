@@ -4,6 +4,8 @@
 #include "../../../UCodeRunTime/Core/Entity.hpp"
 #include "../../../UCodeRunTime/ULibrarys/InputManger/InputManger.hpp"
 #include "../../../UCodeRunTime/ULibrarys/Loger.hpp"
+#include "../../../UCodeRunTime/ULibrarys/UCodeLang/API/Time.hpp"
+#include "../../../UCodeRunTime/ULibrarys/UCodeLang/ScirptableObject.hpp"
 //UCodeAutoLink include End
 LangStart
 bool UCodeAPI::_HasLib = false;
@@ -22,7 +24,7 @@ void UCodeAPI::MakeNewLib()
 {
 	_HasLib = true;
 	using namespace UCode;
-
+	
 	UCodeLangAutoLink(_UCodeAPILib, UCode)
 
 	{//Made by UCodeAutoLink 
@@ -69,6 +71,7 @@ void UCodeAPI::MakeNewLib()
 		using Debug__LogError0_ptr = void(*UCodeLangAPI)(const StringView); 
 		using Debug__LogFatalError_ptr = void(*UCodeLangAPI)(const String&); 
 		using Debug__LogFatalError0_ptr = void(*UCodeLangAPI)(const StringView); 
+		using Time__DeltaTime_ptr = float(*UCodeLangAPI)(); 
 		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:ComponentAPI:entity",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
@@ -604,6 +607,14 @@ void UCodeAPI::MakeNewLib()
 				Input.Set_Return();
 			
 			},(Debug__LogFatalError0_ptr)UCode::Debug::LogFatalError); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Time:DeltaTime",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				float Ret =UCode::Time::DeltaTime();
+				
+				Input.Set_Return<float>(Ret);
+			
+			},(Time__DeltaTime_ptr)UCode::Time::DeltaTime); 
 	}//Made by UCodeAutoLink End
 }
 LangEnd

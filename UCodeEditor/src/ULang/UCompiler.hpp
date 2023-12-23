@@ -39,5 +39,7 @@ public:
 
 	static bool IsAComponent(const UCodeLang::AssemblyNode& Node, const UCodeLang::ClassAssembly& Assembly);
 	static bool IsComponentTrait(const UCodeLang::AssemblyNode& Node, const UCodeLang::ClassAssembly& Assembly);
+	
+	static String NewComponentTemplate(const StringView componentname);
 };
 EditorEnd

@@ -162,7 +162,7 @@ private:
 
 	size_t UpdateTics = 0;
 	AssetLoader* _Loader =nullptr;
-	Time::clock::time_point LastFixedUpdateTime = {};
+	clock::time_point LastFixedUpdateTime = {};
 	Vector<Unique_ptr<Asset>> _Assets;
 };
 CoreEnd

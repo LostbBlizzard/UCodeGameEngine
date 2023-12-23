@@ -14,7 +14,7 @@ public:
 	i32 GetTimeInMS();
 	std::string GetTimeAsString();
 private:
-	Time::clock::time_point _STime,_TimerEnd;
+	clock::time_point _STime,_TimerEnd;
 
 };
 CoreEnd
