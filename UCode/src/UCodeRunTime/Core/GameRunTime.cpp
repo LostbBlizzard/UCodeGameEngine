@@ -6,6 +6,10 @@ constexpr StaticBooksIndex_t StaticBookSize = (StaticBooksIndex_t)StaticBooksInd
 constexpr StaticRunTimeComponentsIndex_t StaticRunTimeComponentsSize = (StaticRunTimeComponentsIndex_t)StaticRuntimeComponentsIndex::MaxValue;
 constexpr StaticSceneComponentsIndex_t StaticSceneComponentsSize = (StaticSceneComponentsIndex_t)StaticSceneComponentsIndex::MaxValue;
 
+
+thread_local GameRunTime* _GameRunTimeCurrent = nullptr;
+//thread_local Gamelibrary* _GamelibraryCurrent = nullptr;
+
 Gamelibrary::Gamelibrary() : _StaticSystems()
 {
 
@@ -28,8 +32,8 @@ void Gamelibrary::libraryUpdate()
 }
 Gamelibrary* Gamelibrary::Current()
 {
-	UCodeGEToDo();
-	return nullptr;
+	UCodeGEAssert(_GameRunTimeCurrent);
+	return _GameRunTimeCurrent->Get_Library_Edit();
 }
 void Gamelibrary::DestroyNullBook()
 {
@@ -47,8 +51,6 @@ void Gamelibrary::DestroyNullBook()
 }
 
 
-thread_local GameRunTime* _GameRunTimeCurrent = nullptr;
-thread_local Gamelibrary* _GamelibraryCurrent = nullptr;
 
 #define StartGameRunTimeContext() auto _OldGameRunTimeCurrent = _GameRunTimeCurrent;_GameRunTimeCurrent=this;
 #define EndGameRunTimeContext() _GameRunTimeCurrent = _OldGameRunTimeCurrent;
@@ -132,7 +134,8 @@ void GameRunTime::EndRunTime()
 
 GameRunTime* GameRunTime::Current()
 {
-	return nullptr;
+	UCodeGEAssert(_GameRunTimeCurrent);
+	return _GameRunTimeCurrent;
 }
 
 void GameRunTime::DoUpdate()
