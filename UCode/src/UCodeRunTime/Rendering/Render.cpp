@@ -171,10 +171,12 @@ void Render::EndRender()
 		glfwMakeContextCurrent(Win);
 	}
 
-	_Render->EndRender();
 	delete _Render;
 	_Render = nullptr;
 
-	glfwMakeContextCurrent(Old);
+	if (Win && Win != Old)
+	{
+		glfwMakeContextCurrent(Old);
+	}
 }
 RenderAPIEnd

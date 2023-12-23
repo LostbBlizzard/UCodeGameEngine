@@ -1223,9 +1223,15 @@ void GameEditorWindow::GameTab()
     }
 
     UpdateAndShowGameImg();
-   if (_WindowType == GameWindowType::ExternalWindow)
+    if (_WindowType == GameWindowType::ExternalWindow)
     {
-        ImGui::Text("No Signal...(Runing ExternalWindow)");
+        if (_IsRuningGame) {
+            ImGui::Text("(Runing ExternalWindow) Open the Window Called ExternalWindow");
+        }
+        else
+        {
+            ImGui::Text("Press play for ExternalWindow To Open");
+        }
     }
 }
 
@@ -1369,8 +1375,8 @@ void GameEditorWindow::LoadRender(bool MakeWin)
     {
         i32 Sx = (i32)_Size.X;
         i32 Sy = (i32)_Size.Y;
-        if (Sx <= 0) { Sx = 1; }
-        if (Sy <= 0) { Sy = 1; }
+        if (Sx <= 0) { Sx = 640;}
+        if (Sy <= 0) { Sy = 480; }
 
         _GameRender = std::make_unique <UCode::RenderAPI::Render>();
         auto Windata = UCode::RenderAPI::WindowData(Sx, Sy, "GameEditorWindow(ExternalWindow)");
@@ -1412,12 +1418,13 @@ void GameEditorWindow::InputEmuation()
 {
     if (_WindowType != GameWindowType::ExternalWindow)
     {
-        auto RunTime = _GameRunTime.get();
-        auto Render = _GameRender.get();
-
-
+       
         if (_IsGameWindowFocused)
         {
+            auto RunTime = _GameRunTime.get();
+            auto Render = _GameRender.get();
+
+
 
             ImGuiContext& g = *GImGui;
             ImGuiWindow* window = g.CurrentWindow;

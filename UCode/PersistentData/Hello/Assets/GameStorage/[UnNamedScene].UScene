@@ -3,8 +3,8 @@ _UID:
   - 45838975
 _Entitys:
   - _LocalPosition:
-      - -2.57705116
-      - -3.498173
+      - -7.87027311
+      - 0.174271449
       - 0
     _LocalRotation:
       - 0
@@ -23,9 +23,9 @@ _Entitys:
           Sprite:
             - 0
           Color2:
-            - 0.79411763
-            - 0.731375933
-            - 0.260813177
+            - 0.383966267
+            - 0.0548991673
+            - 0.0178212114
             - 1
           flipX: false
           flipY: false
@@ -34,11 +34,10 @@ _Entitys:
       - _TypeID: ULangScript
         _Data:
           _ScriptType: Script
-          Speed: 27
+          Speed: 10
           newpos:
             X: 5
             Y: 10
-          _Handle: 2431162480
     _Entitys:
       []
     _Name: "[UnNamedEntity]"
