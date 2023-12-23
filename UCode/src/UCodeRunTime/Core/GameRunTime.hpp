@@ -55,6 +55,8 @@ public:
 	UCodeGEForceinlne auto& Get_StaticBooks() { return _StaticSystems; }
 	UCodeGEForceinlne const auto& Get_StaticBooks() const { return _StaticSystems; }
 
+
+	static Gamelibrary* Current();
 private:
 	Vector<Unique_ptr<System>> _Systems;
 	Vector<System*> _StaticSystems;
@@ -143,6 +145,7 @@ public:
 	{
 		return _UID;
 	}
+
 private:
 	bool _IsSceneDestroyed;
 	GameRunTime* _RunTime;
@@ -213,7 +216,7 @@ public:
 		GameTime.FramesToDestroy = FramesToDestroy;
 	}
 
-	
+	static GameRunTime* Current();
 private:	
 	bool _IsGameRuning;
 	Vector<Compoent*> _StaticComponents;
