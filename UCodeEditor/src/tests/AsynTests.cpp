@@ -37,7 +37,7 @@ bool AsynTest_1_V(V_t XValue,V_t YValue)
 
 	UCode::Delegate<V_t,V_t,V_t> Func = [](V_t X,V_t Y)
 	{
-		std::this_thread::sleep_for(UCode::Time::fsec(1));
+		std::this_thread::sleep_for(UCode::fsec(1));
 		return X + Y;
 	};
 
@@ -81,7 +81,7 @@ bool AsynTest_2_V(V_t XValue, V_t YValue)
 
 	UCode::Delegate<V_t, V_t, V_t> Func = [](V_t X,V_t Y)
 	{
-		std::this_thread::sleep_for(UCode::Time::fsec(1));
+		std::this_thread::sleep_for(UCode::fsec(1));
 		return X + Y;
 	};
 	V_t RValue = XValue + YValue;
@@ -117,7 +117,7 @@ bool AsynTest_3()
 	int Value = 0;
 	UCode::Delegate<int, int, int> Func = [](int X, int Y)
 	{
-		std::this_thread::sleep_for(UCode::Time::fsec(1));
+		std::this_thread::sleep_for(UCode::fsec(1));
 		return X + Y;
 	};
 
@@ -146,7 +146,7 @@ bool AsynTest_4()
 	int Value = 0;
 	UCode::Delegate<int, int, int> Func = [](int X, int Y)
 	{
-		std::this_thread::sleep_for(UCode::Time::fsec(1));
+		std::this_thread::sleep_for(UCode::fsec(1));
 		return X + Y;
 	};
 
@@ -176,7 +176,7 @@ bool AsynTest_5()
 	int Value = 0;
 	UCode::Delegate<int, int, int> Func = [](int X, int Y)
 	{
-		std::this_thread::sleep_for(UCode::Time::fsec(1));
+		std::this_thread::sleep_for(UCode::fsec(1));
 		return X + Y;
 	};
 
@@ -213,7 +213,7 @@ bool AsynTest_6()
 	int Value = 0;
 	UCode::Delegate<int, int, int> Func = [](int X, int Y)
 	{
-		std::this_thread::sleep_for(UCode::Time::fsec(1));
+		std::this_thread::sleep_for(UCode::fsec(1));
 		return X + Y;
 	};
 
@@ -242,7 +242,7 @@ bool AsynTest_7()
 	int Value = 0;
 	UCode::Delegate<int, int, int> Func = [](int X, int Y)
 	{
-		std::this_thread::sleep_for(UCode::Time::fsec(1));
+		std::this_thread::sleep_for(UCode::fsec(1));
 		return X + Y;
 	};
 
@@ -271,7 +271,7 @@ bool AsynTest_8()
 	int Value = 0;
 	UCode::Delegate<int, int, int> Func = [](int X, int Y)
 	{
-		std::this_thread::sleep_for(UCode::Time::fsec(1));
+		std::this_thread::sleep_for(UCode::fsec(1));
 		return X + Y;
 	};
 

@@ -147,3 +147,19 @@ UCodeGameEngine::Internal:
   extern dynamic |Debug__LogError0[imut StringSpan Msg] -> void;
   extern dynamic |Debug__LogFatalError0[imut StringSpan Msg] -> void;
 
+
+//Time.hpp
+UCodeGameEngine:
+  $Time export extern "c":
+   export extern dynamic |DeltaTime[] -> float;
+
+
+
+
+//ScirptableObject.hpp
+UCodeGameEngine:
+  $Asset trait:
+      uintptr _Handle = 0;
+    
+
+

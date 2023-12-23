@@ -1,6 +1,6 @@
 #include "Timer.hpp"
 CoreStart
-typedef Time::clock clock_this;
+typedef clock clock_this;
 Timer::Timer()
 {
 	_STime = clock_this::now();
@@ -14,7 +14,7 @@ void Timer::EndTime()
 f32 Timer::GetTimeInSec()
 {
 	auto diff = _TimerEnd - _STime;
-	auto r = std::chrono::duration_cast<Time::fsec>(diff);
+	auto r = std::chrono::duration_cast<fsec>(diff);
 	return r.count();
 }
 

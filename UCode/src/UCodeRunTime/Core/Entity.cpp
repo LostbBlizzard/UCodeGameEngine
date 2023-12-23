@@ -91,8 +91,8 @@ void Entity::DestroyNullCompoents()
 		if (Item->Get_IsDestroyed())
 		{
 
-			const Time::Frame FramesToDestroy = NativeGameRunTime()->Get_GameTime().FramesToDestroy;
-			Time::Frame& EntityFrame = (Time::Frame&)Item->_IsDestroyed;
+			const Frame FramesToDestroy = NativeGameRunTime()->Get_GameTime().FramesToDestroy;
+			Frame& EntityFrame = (Frame&)Item->_IsDestroyed;
 			if (EntityFrame >= FramesToDestroy)
 			{
 				it = _Compoents.erase(it);

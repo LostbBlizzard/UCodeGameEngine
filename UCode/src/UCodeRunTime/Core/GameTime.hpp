@@ -2,10 +2,8 @@
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 #include <chrono>
 #include <UCodeRunTime/BasicTypes.hpp>
-#define TimeStart CoreStart namespace Time{
-#define TimeEnd CoreEnd }
 
-TimeStart
+CoreStart
 		
 using clock = std::chrono::high_resolution_clock;
 typedef std::chrono::duration<float> fsec;
@@ -27,4 +25,4 @@ public:
 };
 
 	
-TimeEnd
+CoreEnd

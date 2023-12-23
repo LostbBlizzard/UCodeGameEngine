@@ -95,11 +95,11 @@ constexpr size_t MaxToGarbage = 1;//The AssetManager is has a ref to the items.
 
 void AssetManager::GarbageCollect()
 {
-	auto Now = Time::clock::now();
+	auto Now = clock::now();
 	auto delta_timeT = Now - LastFixedUpdateTime;
 
 	LastFixedUpdateTime = Now;
-	auto delta_timefsec = std::chrono::duration_cast<Time::fsec>(delta_timeT);
+	auto delta_timefsec = std::chrono::duration_cast<fsec>(delta_timeT);
 	f32 delta_time = delta_timefsec.count();
 
 	GarbageCollect(delta_time);

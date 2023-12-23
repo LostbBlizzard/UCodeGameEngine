@@ -18,6 +18,7 @@
 
 #include "stb_image_write/stb_image_write.h"
 #include <Helper/StringHelper.hpp>
+#include "../../ULang/UCompiler.hpp"
 EditorStart
 namespace fs = std::filesystem;
 
@@ -330,7 +331,20 @@ void ProjectFilesWindow::ShowDirButtions()
                 Path("." + (UCode::String)UCodeLang::FileExt::SourceFile));
 
             std::ofstream NewScirpt (NewPath);
-            NewScirpt << "";
+            NewScirpt << UCompiler::NewComponentTemplate("Script");
+            NewScirpt.close();
+            //Go To TextEditor
+            UpdateDir();
+        }
+
+        if (ImGui::MenuItem("Make ULang File"))
+        {
+            Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("File").native(),
+                Path("." + (UCode::String)UCodeLang::FileExt::SourceFile));
+
+            std::ofstream NewScirpt(NewPath);
+            NewScirpt << "use ULang;\n";
+            NewScirpt << "use UCodeGameEngine;\n\n";
             NewScirpt.close();
             //Go To TextEditor
             UpdateDir();
