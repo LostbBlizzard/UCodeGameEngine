@@ -95,6 +95,24 @@ void ULangRunTime::OpenLibs(const Path& PathDir)
 ULangRunTime::ULangRunTime(Gamelibrary* e) :System(e), _State()
 {
 	_Interpreter.Init(&_State);
+	auto files = GameFiles::Get(e);
+
+	if (files->GameFileExist(MainFile))
+	{
+		auto v = files->ReadGameFileAsBytes(MainFile);
+
+		UCodeLang::UClib o;
+		UCodeLang::UClib::FromBytes(&o,UCodeLang::BytesView::Make(v.Data(),v.Size()));
+
+		Lib lib;
+		lib.Ptr = std::make_unique<UClib>(std::move(o));
+		lib.RunPtr = std::make_unique<RunTimeLib>();
+		lib.RunPtr->Init(lib.Ptr.get());
+		
+		AddLib(std::move(lib));
+	
+		ReLoadScripts();
+	}
 }
 
 

@@ -146,6 +146,8 @@ bool UCompiler::CompileProject(const CompileData& Data)
 		}
 	}
 
+	Compiler.Get_Settings().PtrSize =Data.Is32bitMode ? UCodeLang::IntSizes::Int32 : UCodeLang::IntSizes::Int64;
+
 	auto r = Compiler.CompileFiles_UseIntDir(pathData, External);
 
 

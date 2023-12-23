@@ -500,6 +500,21 @@ inline Path GameFiles::GetMovedFilesPathAndMake()
 	}
 	return p;
 }
+bool GameFiles::GameFileExist(const Path& path)
+{
+	if (_Data._Type == GameFilesData::Type::Redirect)
+	{
+		return fs::exists(_Data._RedirectDir.native() + path.native());
+	}
+	else if (_Data._Type == GameFilesData::Type::ThisFile)
+	{
+		return _Data.GetFile(path);
+	}
+	else
+	{
+		
+	}
+}
 GameFiles::GameFiles(Gamelibrary* lib, const GameFilesData& Data) :System(lib),_Data(Data), _DefaultShader(nullptr)
 {
 	if (lib->Get_StaticComponent(KeyIdex)) { Destroy(this); return; }

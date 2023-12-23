@@ -321,15 +321,15 @@ public:
 	Variant(const ThisType& source) noexcept
 	{
 		_Tag = source._Tag;
-		_Items = source._Items;
+		helper_type::copy(_Tag, &source._Items, &_Items);
 	}
 
 	Variant(ThisType&& source) noexcept
 	{
 		_Tag = source._Tag;
 		_Items = source._Items;
-		//
-		new (&source) ThisType();
+
+		helper_type::move(_Tag, &source._Items, &_Items);
 	}
 	template<typename T> Variant(const T& source) noexcept
 	{

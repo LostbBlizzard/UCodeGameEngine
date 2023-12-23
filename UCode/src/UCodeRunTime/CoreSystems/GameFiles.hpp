@@ -104,7 +104,7 @@ public:
 	//a folder were important files and defaults. 
 	static Path GetUCodeDir()
 	{
-		return ".UCode";
+		return ".ucode";
 	}
 
 	static bool PackDir(const Path& dirpath, const Path& outfile);
@@ -172,6 +172,7 @@ public:
 
 	Path GetMovedFilesPath();
 	Path GetMovedFilesPathAndMake();
+	bool GameFileExist(const Path& path);
 private:
 	GameFiles(Gamelibrary* lib, const GameFilesData& Data);
 	~GameFiles() override;

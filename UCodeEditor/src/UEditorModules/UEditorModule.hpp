@@ -59,11 +59,146 @@ struct ExportFileContext
 	Path Output;
 	Path ChashPath;
 };
+
+struct ExportSetting
+{
+	//target.bitmode:[64,32]
+	//target.platform[windows,linux,mac,other]
+	String Tag;
+	Optional<String> Value;
+
+
+
+	const Optional<bool> Asbool() const
+	{
+		if (Value.has_value())
+		{
+			auto& val = Value.value();
+			if (val == "true" || val == "false")
+			{
+				return val == "true";
+			}
+			return {};
+		}
+		return {};
+	}
+	const Optional<int> AsInt() const
+	{
+		if (Value.has_value())
+		{
+			char* endptr;
+			int result = strtol(Value.value().c_str(), &endptr, 10);
+			if (*endptr != '\0') {
+				return {};
+			}
+			return result;
+		}
+		return {};
+	}
+	const Optional<StringView> AsString() const
+	{
+		if (Value.has_value())
+		{
+			return Value.value();
+		}
+		return {};
+	}
+};
+
+struct ExportSettings
+{
+	Vector<ExportSetting> Settings;
+
+	const ExportSetting* IfHasSetting(const StringView tag) const
+	{
+		for (auto& Item : Settings)
+		{
+			if (Item.Tag == tag)
+			{
+				return &Item;
+			}
+		}
+		return nullptr;
+	}
+
+	Optional<int> IfHasSettingInt(const StringView tag) const
+	{
+		if (auto v = IfHasSetting(tag))
+		{
+			return v->AsInt();
+		}
+		return {};
+	}
+	Optional<bool> IfHasSettingBool(const StringView tag) const
+	{
+		if (auto v = IfHasSetting(tag))
+		{
+			return v->Asbool();
+		}
+		return {};
+	}
+	Optional<StringView> IfHasSettingStr(const StringView tag) const
+	{
+		if (auto v = IfHasSetting(tag))
+		{
+			return v->AsString();
+		}
+		return {};
+	}
+
+	ExportSetting* HasSetting(const StringView tag)
+	{
+		for (auto& Item : Settings)
+		{
+			if (Item.Tag == tag)
+			{
+				return &Item;
+			}
+		}
+		return nullptr;
+	}
+
+	void AddSetting(const StringView setting)
+	{
+
+		ExportSetting set;
+		set.Tag = setting;
+
+		Settings.push_back(std::move(set));
+	}
+	void AddSetting(const StringView setting, int value)
+	{
+		ExportSetting set;
+		set.Tag = setting;
+		set.Value = std::to_string(value);
+
+		Settings.push_back(std::move(set));
+	}
+	void AddSetting(const StringView setting, const StringView value)
+	{
+		ExportSetting set;
+		set.Tag = setting;
+		set.Value = value;
+
+		Settings.push_back(std::move(set));
+	}
+	void AddSetting(const StringView setting, bool value)
+	{
+		ExportSetting set;
+		set.Tag = setting;
+		set.Value = value ? "true" : "false";
+
+		Settings.push_back(std::move(set));
+	}
+};
+
 struct ExportEditorContext
 {
 	Path AssetPath;
 	Path TemporaryGlobalPath;
+	Path TemporaryPlatfromPathSpecificPath;
 	ExportChacheFile* ChachInfo = nullptr;
+	ExportSettings settings;
 };
 struct ExportEditorReturn
 {
@@ -242,6 +377,42 @@ public:
 
 using EditorModuleID = String;
 
+struct ExportError
+{
+	Path filepath;
+	String message;
+
+	Optional<size_t> lineNumber;
+};
+struct ExportErrors
+{
+	Vector<ExportError> Errors;
+	void Add(ExportErrors&& error)
+	{
+		for (auto& Item : error.Errors) 
+		{
+			Errors.push_back(std::move(Item));
+		}
+	}
+	void AddError(const Path& path,const StringView message)
+	{
+		ExportError v;
+		v.filepath = path;
+		v.message = message;
+
+		Errors.push_back(std::move(v));
+	}
+	void AddError(const Path& path, const StringView message,size_t LineNumber)
+	{
+		ExportError v;
+		v.filepath = path;
+		v.message = message;
+		v.lineNumber = LineNumber;
+
+		Errors.push_back(std::move(v));
+	}
+};
+
 class UEditorModule
 {
 public:
@@ -280,12 +451,12 @@ public:
 
 	}
 
-	virtual Vector<ExportEditorReturn> ExportSystems(ExportEditorContext& Context)
+	virtual Result<Vector<ExportEditorReturn>,ExportErrors> ExportSystems(const ExportEditorContext& Context)
 	{
 		return {};
 	}
 
-	ExportEditorReturn ExportEditor(ExportEditorContext& Context);
+	Result<ExportEditorReturn, ExportErrors> ExportEditor(ExportEditorContext& Context);
 	
 	Optional<size_t> GetAssetDataUsingExt(const Path& ExtWithDot);
 	Optional<size_t> GetComponentData(const UCode::UComponentsID& ID);
