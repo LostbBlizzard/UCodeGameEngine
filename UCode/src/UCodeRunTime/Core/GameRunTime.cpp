@@ -26,6 +26,11 @@ void Gamelibrary::libraryUpdate()
 
 	DestroyNullBook();
 }
+Gamelibrary* Gamelibrary::Current()
+{
+	UCodeGEToDo();
+	return nullptr;
+}
 void Gamelibrary::DestroyNullBook()
 {
 	for (auto it = _Systems.begin(); it != _Systems.end();)
@@ -40,6 +45,14 @@ void Gamelibrary::DestroyNullBook()
 		++it;
 	}
 }
+
+
+thread_local GameRunTime* _GameRunTimeCurrent = nullptr;
+thread_local Gamelibrary* _GamelibraryCurrent = nullptr;
+
+#define StartGameRunTimeContext() auto _OldGameRunTimeCurrent = _GameRunTimeCurrent;_GameRunTimeCurrent=this;
+#define EndGameRunTimeContext() _GameRunTimeCurrent = _OldGameRunTimeCurrent;
+
 GameRunTime::GameRunTime() :_IsGameRuning(false), _StaticComponents()
 , _FixedUpdateTimer(0), _RunTimeScene(this), _Library(Ref<Gamelibrary>::Create())
 {
@@ -78,6 +91,7 @@ void GameRunTime::Init()
 }
 void GameRunTime::GameUpdate()
 {
+	StartGameRunTimeContext();
 	auto Now = clock::now();
 	auto delta_timeT = Now - LastFixedUpdateTime;
 
@@ -106,12 +120,20 @@ void GameRunTime::GameUpdate()
 	{
 		_Library->libraryUpdate();
 	}
+	EndGameRunTimeContext();
 }
 void GameRunTime::EndRunTime()
 {
+	StartGameRunTimeContext();
 	_IsGameRuning = false;
 	DestroyAllScenes();
+	EndGameRunTimeContext();
 }	
+
+GameRunTime* GameRunTime::Current()
+{
+	return nullptr;
+}
 
 void GameRunTime::DoUpdate()
 {
@@ -133,6 +155,8 @@ void GameRunTime::DoFixedUpdate()
 }
 void GameRunTime::DestroyNullScenes()
 {
+	StartGameRunTimeContext();
+
 	_RunTimeScene.DestroyNullEntityAndCompoents();
 	for (auto it = _Scenes.begin(); it != _Scenes.end();)
 	{
@@ -154,6 +178,7 @@ void GameRunTime::DestroyNullScenes()
 
 		++it;
 	}
+	EndGameRunTimeContext();
 }
 void GameRunTime::DestroyAllScenes()
 {
