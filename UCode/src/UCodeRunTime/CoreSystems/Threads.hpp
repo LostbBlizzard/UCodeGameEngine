@@ -12,7 +12,8 @@
 #include "PackagedTask.hpp"
 CoreStart
 
-
+//This is the worst code I've ever written but it works
+//This abuses most features of C++ and its nuances
 using ThreadToRunID_t = int;
 struct ThreadToRunID
 {
@@ -134,7 +135,6 @@ struct RuningTaskData
 
 	Cancel OnCancel;
 	ThreadToRunID OnCancelToRun = NullThread;
-
 	struct FutureBlock
 	{
 		virtual ~FutureBlock()
@@ -240,10 +240,6 @@ struct AsynTask_t
 	using Cancel = Delegate<void>;
 	using SelfRet = ThisType&&;
 	
-	AsynTask_t(Future&& Item) noexcept
-	{
-		Set_Future(std::move(Item));
-	}
 	AsynTask_t() noexcept
 	{
 	
@@ -252,23 +248,38 @@ struct AsynTask_t
 		  _TaskID(Other._TaskID)
 	{
 		Other._TaskID = NullTaskID;
-	}
-
-	~AsynTask_t()
-	{
-		
-	}
-	ThisType& operator=(Future&& Item) noexcept
-	{
-		Set_Future(Item);
-		return *this;
-	}
+	}	
 	ThisType& operator=(ThisType&& Other) noexcept
 	{
 		_TaskID = Other._TaskID;
 		Other._TaskID = NullTaskID;
 		return *this;
 	}
+	~AsynTask_t()
+	{
+		if (_TaskID != NullTaskID) 
+		{
+			if (!HasOnDone(_TaskID)) {
+				RemoveCallID(_TaskID);
+			}
+		}
+	}
+		
+	/*
+	AsynTask_t(Future&& Item) noexcept
+	{
+		Set_Future(std::move(Item));
+	}
+	ThisType& operator=(Future&& Item) noexcept
+	{
+		Set_Future(Item);
+		return *this;
+	}
+	*/
+
+	AsynTask_t(const ThisType& Other) = delete;
+	ThisType& operator=(const ThisType& Other) = delete;
+
 
 	TaskProgress GetProgress()
 	{
@@ -452,9 +463,9 @@ struct AsynTask_t
 	}
 	T* TryGet()
 	{
-		if ( Get_Future()._Is_ready())
+		if (IsDone())
 		{
-			return   Get_Future().get();
+			return GetValue();
 		}
 		return nullptr;
 	}
@@ -463,7 +474,8 @@ struct AsynTask_t
 		auto V = TryGet();
 		if (V)
 		{
-			return *V;
+			T r = std::move(*V);
+			return r;
 		}
 		else
 		{
@@ -472,20 +484,48 @@ struct AsynTask_t
 	}
 	bool valid()
 	{
-		return Get_Future().valid();
+		if (Asyn_Map_Count(ID))
+		{
+			return Get_Future().valid();
+		}
+		else
+		{
+			return false;
+		}
 	}
 	void wait_for()
 	{
-		return Get_Future().wait_for();
+		if (Asyn_Map_Count(ID))
+		{
+			return Get_Future().wait_for();
+		}
+		else
+		{
+			return false;
+		}
 	}
 	void wait()
 	{
-		return  Get_Future().wait();
+		if (Asyn_Map_Count(ID)) 
+		{
+			Get_Future().wait();
+		}
 	}
 	bool IsDone()
 	{
 		using namespace std::chrono_literals;
-		return  Get_Future().wait_for(0s) == std::future_status::ready;
+		if (_TaskID == NullTaskID)
+		{
+			return false;
+		}
+
+		if (Asyn_Map_Count(_TaskID)) {
+			return  Get_Future().wait_for(0s) == std::future_status::ready;
+		}
+		else
+		{
+			UCodeGEUnreachable();
+		}
 	}
 	void CancelTask()
 	{
@@ -676,10 +716,6 @@ public:
 					AsynTask_t<R>::RemoveCallID(NewTasklID);
 				}
 			}
-			else
-			{
-				AsynTask_t<R>::RemoveCallID(NewTasklID);
-			}
 		};
 
 		AddTask(TaskType, std::move(NewPtr), TaskDependencies);
@@ -798,6 +834,7 @@ public:
 
 	static void TryCallCancel(TaskID ID)
 	{
+		Optional<AsynTask> tep;
 		LockDoneLock();
 		if (_Map.count(ID))
 		{
@@ -823,8 +860,8 @@ public:
 					};
 
 					_Map.erase(ID);
-
-					Threads::_GlobalThreads->AddTask_t(
+					//avoid double locking by using Destructor
+					tep = Threads::_GlobalThreads->AddTask_t(
 						V.ThreadToRun,
 						std::move(Func),
 						{}
@@ -835,6 +872,8 @@ public:
 		}
 		LockDoneUnLock();
 	}
+
+
 	template<typename T>
 	static bool TryCallOnDone(TaskID ID, T&& Move)
 	{
@@ -867,7 +906,7 @@ public:
 						LockDoneUnLock();
 					};
 
-					Threads::Get_Threads()->AddTask_t(
+					auto tep = Threads::Get_Threads()->AddTask_t(
 						V.ThreadToRun,
 						std::move(Func),
 						{}

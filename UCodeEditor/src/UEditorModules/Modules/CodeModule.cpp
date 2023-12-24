@@ -408,8 +408,10 @@ Result<Vector<ExportEditorReturn>, ExportErrors> CodeModule::ExportSystems(const
 	data.InPath = Context.AssetPath;
 	data.IntPath = PathString(Context.TemporaryPlatfromPathSpecificPath / "ulang" / "int") + Path::preferred_separator;
 
-	data.OutPath = Context.TemporaryPlatfromPathSpecificPath / "ulang" / Path(Path("ucode").native() + Path(UCodeLang::FileExt::LibWithDot).native());
+	auto outpathdir = Context.TemporaryPlatfromPathSpecificPath / "ulang";
+	data.OutPath = outpathdir / Path(Path("ucode").native() + Path(UCodeLang::FileExt::LibWithDot).native());
 	
+	std::filesystem::create_directories(outpathdir);
 	
 	Path modoutfile = Context.TemporaryGlobalPath / "ulang.data";
 	ExportEditorReturn r;
