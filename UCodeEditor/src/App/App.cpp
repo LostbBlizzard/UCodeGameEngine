@@ -96,6 +96,8 @@ int App::main(int argc, char* argv[])
 	namespace UC = UCode;
 	namespace UE = UCodeEditor;
 	int a = 0;
+
+	return UCodeEditor::Tests::RunTests();
 	#ifndef UCodeGEDebug
 	try
 #endif // DEBUG

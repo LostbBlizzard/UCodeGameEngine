@@ -1,0 +1,103 @@
+_Name: "[UnNamedScene]"
+_UID:
+  - 0
+_Entitys:
+  - _LocalPosition:
+      - 0.491608918
+      - 3.54141998
+      - 0
+    _LocalRotation:
+      - 0
+      - -0
+      - 0
+    _LocalScale:
+      - 1
+      - 1
+      - 1.14129269
+    _Compoents:
+      - _TypeID: SpriteRenderer
+        _Data:
+          Test: 1
+          Shader:
+            - 0
+          Sprite:
+            - 0
+          Color2:
+            - 0.383966267
+            - 0.0548991673
+            - 0.0178212114
+            - 1
+          flipX: false
+          flipY: false
+          DrawLayer: 0
+          DrawOrder: 0
+      - _TypeID: ULangScript
+        _Data:
+          _ScriptType: Script
+          Speed: 10
+          newpos:
+            X: 5
+            Y: 10
+    _Entitys:
+      []
+    _Name: "[UnNamedEntity]"
+  - _LocalPosition:
+      - 0
+      - 0
+      - 0
+    _LocalRotation:
+      - 0
+      - 0
+      - -131.97551
+    _LocalScale:
+      - 0.999999106
+      - 0.999998808
+      - 0.999999702
+    _Compoents:
+      - _TypeID: Camera
+        _Data:
+          Type: 0
+          ortho_size: 7
+          Fov: 90
+    _Entitys:
+      []
+    _Name: Cam
+  - _LocalPosition:
+      - 9.271698
+      - 3.92915964
+      - 0
+    _LocalRotation:
+      - 0
+      - -0
+      - 0
+    _LocalScale:
+      - 1
+      - 1
+      - 1.14129269
+    _Compoents:
+      - _TypeID: SpriteRenderer
+        _Data:
+          Test: 1
+          Shader:
+            - 0
+          Sprite:
+            - 0
+          Color2:
+            - 0.621841371
+            - 0.848101258
+            - 0.18608129
+            - 1
+          flipX: false
+          flipY: false
+          DrawLayer: 0
+          DrawOrder: 0
+      - _TypeID: ULangScript
+        _Data:
+          _ScriptType: Script
+          Speed: 10
+          newpos:
+            X: 5
+            Y: 10
+    _Entitys:
+      []
+    _Name: "[UnNamedEntity]"

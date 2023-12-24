@@ -1,0 +1,9 @@
+AuthorName:UEngineDev
+ModuleName:Project
+Version:0:0:0
+
+ForceImport:false
+RemoveUnSafe:false
+NameSpace:
+import LostbBlizzard::UCodeGameEngine[0:0:0];
+import LostbBlizzard::UCodeGameEngineEditor[0:0:0];

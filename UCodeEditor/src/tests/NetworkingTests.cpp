@@ -13,6 +13,7 @@ bool NetTest_1()
 	sever.Set_NewClient([&](UCode::TcpSever::Client& V)
 	{
 			Count++;
+			V.SendToClient("Hi Client");
 	});
 
 	sever.Set_GetBytes([&](UCode::TcpSever::Client& V,const UCode::BytesView bytes)
@@ -27,9 +28,11 @@ bool NetTest_1()
 	client.Set_OnConnet([&]()
 	{
 			Count++;
-
-			int B = 0xffff;
-			client.SendBytes(UCode::BytesView::Make((UCode::Byte*)B, sizeof(B)));
+			client.SendBytes("Hi Sever");
+	});
+	client.Set_OnConnetFail([&]()
+	{
+			client.Connet();
 	});
 	client.Set_GetBytes([&](const UCode::BytesView bytes)
 	{
@@ -40,10 +43,10 @@ bool NetTest_1()
 	client.Connet();
 
 
-	while (Count =! 4)
+	while (Count != 4)
 	{
-		client.Step();
 		sever.Step();
+		client.Step();
 	}
 
 	return Count == 4;

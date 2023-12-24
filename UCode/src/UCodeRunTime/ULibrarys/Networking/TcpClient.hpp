@@ -39,6 +39,10 @@ public:
 		SendBytes(BytesView::Make(Bytes.data(), Bytes.size()));
 	}
 	void SendBytes(const BytesView Bytes);
+	void SendBytes(const StringView Bytes)
+	{
+		SendBytes(BytesView::Make((Byte*)Bytes.data(), Bytes.size()));
+	}
 
 	void Set_OnConnet(OnConnet Value)
 	{
@@ -59,10 +63,11 @@ public:
 private:
 	Unique_ptr<MinimalSocket::tcp::TcpClient> _Base;
 	Vector<Byte> _RevecivedBytes;
-	OnConnet _OnConnet;
-	OnConnetFail _OnConnetFail;
-	OnGetBytes _GetBytes;
-	OnDisconnet _OnDisconnet;
+	Optional<OnConnet> _OnConnet;
+	Optional<OnConnetFail> _OnConnetFail;
+	Optional<OnGetBytes> _GetBytes;
+	Optional<OnDisconnet> _OnDisconnet;
+	bool _isConneted = false;
 };
 
 CoreEnd

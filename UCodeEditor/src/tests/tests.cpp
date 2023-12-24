@@ -2,6 +2,7 @@
 
 #include "NetworkingTests.hpp"
 #include "AsynTests.hpp"
+#include "ProjectTests.hpp"
 EditorTestStart
 using TestFunc = bool(*)();
 struct TestInfo
@@ -18,6 +19,11 @@ const TestInfo Tests[] =
 	{"AsynTest 3",AsynTest_3},
 	{"AsynTest 4",AsynTest_4},
 	{"AsynTest 5",AsynTest_5},
+
+	{"AsynTest 5",AsynTest_5},
+
+
+	{"Project Hello[PlayerMovment]",Project_Hello},
 };
 
 constexpr size_t TestCount = sizeof(Tests) / sizeof(Tests[0]);
