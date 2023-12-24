@@ -6,8 +6,7 @@ EditorStart
 class BuildSytemManger
 {
 public:	
-	struct Empty{};
-	using BuildRet = Result<Empty, ExportErrors>;
+	using BuildRet = Result<Path, ExportErrors>;
 	BuildSetings Setings;
 	BuildSytemManger::BuildRet BuildProject();
 	void Reset();

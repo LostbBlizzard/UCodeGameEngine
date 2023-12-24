@@ -26,7 +26,10 @@ public:
 		{
 			_Base->send(MinimalSocket::ConstBuffer{ (const char*)Value.Data(),Value.Size() });
 		}
-
+		void SendToClient(const StringView Value)
+		{
+			_Base->send(MinimalSocket::ConstBuffer{ (const char*)Value.data(),Value.size()});
+		}
 
 		//0 -> MaxClients -1
 		size_t Get_ClientIndex()
@@ -95,6 +98,13 @@ public:
 		SendToClientAll(BytesView::Make(Bytes.data(), Bytes.size()));
 	}
 	void SendToClientAll(const BytesView Value)
+	{
+		for (auto& Item : _Clients)
+		{
+			Item.SendToClient(Value);
+		}
+	}
+	void SendToClientAll(const StringView Value)
 	{
 		for (auto& Item : _Clients)
 		{

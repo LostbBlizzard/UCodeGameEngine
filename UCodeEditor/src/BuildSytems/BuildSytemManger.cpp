@@ -146,11 +146,11 @@ BuildSytemManger::BuildRet BuildSytemManger::Build(const WindowsBuildSetings& se
 }
 BuildSytemManger::BuildRet BuildSytemManger::Build(const LinuxBuildSetings& setings)
 {
-	return Empty();
+	return Path();
 }
 BuildSytemManger::BuildRet BuildSytemManger::Build(const MacOsBuildSetings& setings)
 {
-	return Empty();
+	return Path();
 }
 BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& GameFilesDataPath,USerializerType SerializerMode)
 {
@@ -292,7 +292,8 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 		fs::copy_file(GameFilesDataPath, "../UCodeApp" / Path(UCode::GameFilesData::FileDataName),fs::copy_options::overwrite_existing);
 		#endif
 	}
-	return Empty();
+	
+	return GameFilesDataPath;
 }
 BuildSytemManger::BuildRet BuildSytemManger::Build(const WebBuildSetings& setings)
 {
@@ -319,7 +320,7 @@ BuildSytemManger::BuildRet BuildSytemManger::Build(const WebBuildSetings& seting
 		fs::create_directory(Setings._OutDir / "data");
 	}
 
-	return Empty();
+	return Path();
 }
 BuildSytemManger::BuildRet BuildSytemManger::Build(const AndroidBuildSetings& setings)
 {
@@ -407,14 +408,14 @@ BuildSytemManger::BuildRet BuildSytemManger::Build(const AndroidBuildSetings& se
 	}
 	zip_close(zip);
 
-	return Empty();
+	return Path();
 }
 BuildSytemManger::BuildRet BuildSytemManger::Build(const IOSBuildSetings& setings)
 {
-	return Empty();
+	return Path();
 }
 BuildSytemManger::BuildRet BuildSytemManger::Build(const CustomBuildSetings& setings)
 {
-	return Empty();
+	return Path();
 }
 EditorEnd
