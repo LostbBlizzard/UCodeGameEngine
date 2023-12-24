@@ -512,7 +512,7 @@ bool GameFiles::GameFileExist(const Path& path)
 	}
 	else
 	{
-		
+		return false;
 	}
 }
 GameFiles::GameFiles(Gamelibrary* lib, const GameFilesData& Data) :System(lib),_Data(Data), _DefaultShader(nullptr)

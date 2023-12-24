@@ -20,9 +20,6 @@ const TestInfo Tests[] =
 	{"AsynTest 4",AsynTest_4},
 	{"AsynTest 5",AsynTest_5},
 
-	{"AsynTest 5",AsynTest_5},
-
-
 	{"Project Hello[PlayerMovment]",Project_Hello},
 };
 
@@ -36,7 +33,7 @@ int RunTests()
 	for (size_t i = 0; i < TestCount; i++)
 	{
 		auto& Item = Tests[i];
-		UCodeGELog("Runing Test" + (String)Item.TestName);
+		UCodeGELog("Runing Test " + (String)Item.TestName + " ");
 		bool Passed = Item.Func();
 
 		if (Passed)
@@ -53,7 +50,7 @@ int RunTests()
 
 	UCodeGELog( std::to_string(TestPassed) + "/" + std::to_string(TestCount) + " Tests Passed");
 
-	if (TestPassed == 0)
+	if (TestPassed == TestCount)
 	{
 		UCodeGELog("Tests Passed");
 	}
@@ -61,6 +58,6 @@ int RunTests()
 	{
 		UCodeGELog("Tests Fail")
 	}
-	return TestPassed == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
+	return TestPassed == TestCount ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 EditorTestEnd

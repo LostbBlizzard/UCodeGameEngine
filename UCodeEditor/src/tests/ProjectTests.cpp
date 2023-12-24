@@ -3,7 +3,7 @@
 #include "BuildSytems/BuildSytemManger.hpp"
 #include "UCodeRunTime/CoreSystems/StandardAssetLoader.hpp"
 #include "UCodeRunTime/App.hpp"
-
+#include "UCodeRunTime/ULibrarys/InputManger/InputManger.hpp"
 EditorTestStart
 
 
@@ -16,7 +16,7 @@ struct AppRuner
 public:
 	struct AppRunerCompoent :public UCode::Compoent
 	{
-		AppRuner* _This;
+		AppRuner* _This =nullptr;
 
 		AppRunerCompoent(UCode::Entity* entity):Compoent(entity,nullptr)
 		{
@@ -25,12 +25,12 @@ public:
 
 		void Start() override
 		{
-			_This->OnStart(*_This);
+			_This->OnStart(*_This, *this);
 		}
 
 		void Update() override
 		{
-			_This->OnUpdate(*_This);
+			_This->OnUpdate(*_This,*this);
 		}
 	};
 
@@ -44,6 +44,8 @@ public:
 			app.Init();
 			auto runtime = app.Get_RunTime();
 			auto Library = runtime->Get_Library_Edit();
+
+			run = runtime;
 
 			UCode::GameFiles* gamefiles = UCode::GameFiles::Init(Library, GameData);
 			gamefiles->SetFileBuffer(std::move(Buffer));
@@ -62,7 +64,8 @@ public:
 				auto& ScencData = r.value().Get_Value()->GetAssetAs<UCode::ScencAsset>()->_Base;
 				auto scenc = UCode::Scene2dData::LoadScene(runtime, ScencData);
 
-				scenc->NewEntity()->AddCompoent<AppRunerCompoent>();
+				auto apprun = scenc->NewEntity()->AddCompoent<AppRunerCompoent>();
+				apprun->_This = this;
 
 				app.Run();
 
@@ -75,12 +78,15 @@ public:
 		}
 		return false;
 	}
-
+	void CloseApp()
+	{
+		run->StopRunTime();
+	}
 	float MaxTimeOutSec = 15;
-	std::function<void(AppRuner& runer)> OnStart;
-	std::function<void(AppRuner& runer)> OnUpdate;
+	std::function<void(AppRuner& runer, AppRunerCompoent& run)> OnStart;
+	std::function<void(AppRuner& runer, AppRunerCompoent& run)> OnUpdate;
 
-
+	UCode::GameRunTime* run =nullptr;
 	UCode::GameFilesData GameData;
 	UCode::FileBuffer Buffer;
 	Optional<bool> RetState;
@@ -117,6 +123,54 @@ const Vector<variantmode>& GetThisOSSettings()
 	}
 	return val.value();
 }
+
+BuildSytemManger::BuildRet BuildProject(BuildSytemManger& v)
+{
+	BuildSytemManger::BuildRet r;
+	{
+		Path Projectpath = projectpaths / "Hello";
+		Path Projectout = outputprojectpath / "Hello";
+
+		UCode::GameFilesData AppFilesData;
+		auto _run = std::make_unique<UCode::GameRunTime>();
+		_run->Init();
+
+
+		//setup Opengl Context
+		auto _render = std::make_unique<UCode::RenderAPI::Render>();
+		_render->PreInit();
+
+		UCode::RenderAPI::WindowData windowdata;
+		windowdata.GenNewWindow = true;
+		_render->Init(windowdata, _run.get());
+
+		auto GameFiles = UCode::GameFiles::Init(_run->Get_Library_Edit(), AppFilesData);//This Can be Moved 
+
+		AppFiles::Init(_run->Get_Library_Edit());
+		r = v.BuildProject();
+
+		_render->EndRender();
+	}
+	return r;
+}
+BuildSetings GetBuildSettingForProject(String projectname,const variantmode& Item)
+{
+
+	Path Projectpath = projectpaths / projectname;
+	Path Projectout = outputprojectpath / projectname;
+
+
+	BuildSetings v;
+	v.Settings = Item.type;
+	v._InputDir = Projectpath / "Assets";
+	v._OutDir = Projectout / "out";
+	v.TemporaryGlobalPath = Projectout / "global";
+	v._OutName = projectname;
+	v.TemporaryPlatfromPath = Projectout / "platform";
+
+	return v;
+}
+
 bool Project_Hello()
 {
 	auto& lists = GetThisOSSettings();
@@ -124,32 +178,37 @@ bool Project_Hello()
 
 	for (auto& Item : lists) 
 	{
-		Path Projectpath = projectpaths / "Hello";
-		Path Projectout = outputprojectpath / "Hello";
 
 		BuildSytemManger v;
-		v.Setings.Settings = Item.type;
-		v.Setings._InputDir = Projectpath / "Assets";
-		v.Setings._OutDir = Projectout;
+		v.Setings = GetBuildSettingForProject("Hello",Item);
 
+		BuildSytemManger::BuildRet r = BuildProject(v);
 
-		const auto r = v.BuildProject();
-	
-		bool prjectbuild = r.IsValue();
-
-		if (prjectbuild)
+		if (r.IsValue())
 		{
 			auto& MainOut = r.GetValue();
 
 			AppRuner runer;
 			UCode::Entity* playerentity = nullptr;
-			runer.OnStart = [&](AppRuner& _this) -> void
+			UCode::Vec2 startpos = {};
+			float time = 2;
+			runer.OnStart = [&](AppRuner& _this, AppRuner::AppRunerCompoent& run) -> void
 			{
+					playerentity = run.Get_Scene()->Get_Entitys()[0].get();
+					startpos = playerentity->worldposition2d();
 					int a = 0;
 			};
-			runer.OnUpdate = [&](AppRuner& _this) -> void
+			runer.OnUpdate = [&](AppRuner& _this, AppRuner::AppRunerCompoent& run) -> void
 			{
-
+					auto in = UCode::InputManger::GetInput(run.GetGameRunTime());
+					in->Input_API_SetInput(true, UCode::InputKey::W);
+					
+					time -= run.GetGameRunTime()->Get_GameTime().UpateDelta;
+					if (time <= 0)
+					{
+						_this.RetState = startpos != playerentity->worldposition2d();
+						_this.CloseApp();
+					}
 					int a = 0;
 			};
 

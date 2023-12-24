@@ -97,7 +97,7 @@ bool AsynTest_2_V(V_t XValue, V_t YValue)
 bool AsynTest_1()
 {
 	return
-		AsynTest_1_V<int>(5, 10);
+		AsynTest_1_V<int>(5, 10) &&
 		AsynTest_1_V<UCode::String>("Hello", "World");
 		//AsynTest_1_VMove<int>(5,19) &&
 		//AsynTest_1_VMove<UCode::String>(UCode::String("Good bye"), UCode::String("World"));
@@ -152,7 +152,6 @@ bool AsynTest_4()
 
 	UCode::Delegate<void, int> DoneFunc = [&](int&& value)
 	{
-		//std::this_thread::sleep_until(UCode::Time::Time_point(UCode::Time::fsec(1)));
 		Value = value;
 		WasSet = true;
 	};

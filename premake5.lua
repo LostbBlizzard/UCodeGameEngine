@@ -167,7 +167,11 @@ end
 function linkUCode(HasULangCompiler,IsPubMode)    
 
     filter { "system:Windows" }
-      links {"Ws2_32.lib"}
+      links {"Ws2_32.lib","GlfwWin"}
+      dependson {"GlfwWin"}
+      includedirs{
+       "Dependencies/GLFW",
+      }
               
     filter { "system:Windows","architecture:x86"}
       links {"glew32s.lib","Opengl32.lib"}
@@ -184,15 +188,6 @@ function linkUCode(HasULangCompiler,IsPubMode)
       linkoptions {"-s USE_PTHREADS=1","-sUSE_GLFW=3"}
      
 
-    filter { "system:Windows"}
-      files {
-       "Dependencies/GLFW/include/**.h", 
-       "Dependencies/GLFW/src/**.c",
-      }
-
-      includedirs{
-       "Dependencies/GLFW",
-      }
     filter { "system:Windows" }
       defines {"_GLFW_WIN32"}
     
@@ -244,8 +239,7 @@ function linkUCode(HasULangCompiler,IsPubMode)
       dependson {"UCodeLangNoCompiler"}
      end
 
-     dependson {
-      "GLFW","glm", 
+     dependson {"glm", 
       "box2d","yaml-cpp","stb_image","stb_image_write","Imgui",
       "MinimalSocket",
      }
@@ -970,7 +964,24 @@ group "Dependencies"
       "Dependencies/%{prj.name}/src/**.hpp",
     }
 
+  project "GlfwWin"
+    location "Dependencies/GLFW"
+    kind "StaticLib"
+    language "C++" 
 
+    targetdir ("Output/GLFW/" .. OutDirPath)
+    objdir ("Output/int/GLFW/" .. OutDirPath)
+
+    filter { "system:Windows"}
+      defines {"_GLFW_WIN32"}
+      files {
+       "Dependencies/GLFW/include/**.h", 
+       "Dependencies/GLFW/src/**.c",
+      }
+
+      includedirs{
+       "Dependencies/GLFW",
+      }
 
 function executeorexit(str)
  exit = os.execute(str)
