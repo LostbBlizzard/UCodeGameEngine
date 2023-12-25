@@ -1,2 +1,0 @@
-CodeEditorPath: code
-OpenCodeEditorFileArg: "{ProjectDir} --goto {FilePath}:{LineNumber}:{Column} "
