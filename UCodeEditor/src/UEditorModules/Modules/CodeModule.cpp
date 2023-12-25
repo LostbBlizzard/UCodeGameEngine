@@ -333,9 +333,13 @@ void CodeModule::BuildUCode(bool IsInEditor)
 
 				Threads->RunOnOnMainThread([data,ok,app, MovedErrs = std::move(_Errs)]()
 					{
-						auto Win = app->Get_Window<ConsoleWindow>();
-						LogErrors(Win, MovedErrs);
-						Win->FocusWindow();
+						if (!ok) {
+							auto Win = app->Get_Window<ConsoleWindow>();
+							LogErrors(Win, MovedErrs);
+							Win->FocusWindow();
+						}
+
+						
 						RuningTasksInfo::ReMoveTask(RuningTask::Type::BuildingUCodeFiles);
 
 
