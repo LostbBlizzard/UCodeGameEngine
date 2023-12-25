@@ -15,3 +15,4 @@ Makefile
 /UCodeEditor/UFiles.data
 /UCodeEditor/imgui.ini
 UCodeEditor/UFiles/bin
+/UCode/PersistentData
