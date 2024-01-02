@@ -16,3 +16,5 @@ Makefile
 /UCodeEditor/imgui.ini
 UCodeEditor/UFiles/bin
 /UCode/PersistentData
+.vscode
+*.code-workspace
