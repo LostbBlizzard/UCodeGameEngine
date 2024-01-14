@@ -78,8 +78,8 @@ void SpriteRenderer::OnDraw()
 	Vec2 size = Scale;
 	Vec2 Rotation = Entity->worldrotation2d();
 	
-	AssetRendering::DrawQuad2dData Data(pos - Vec2(size.X/2, size.Y/2), size, Rotation);
-	
+	//AssetRendering::DrawQuad2dData Data(pos - Vec2(size.X/2, size.Y/2), size, Rotation);
+	AssetRendering::DrawQuad2dData Data(pos, size, Rotation);
 
 	Data.Spr = sprite;
 	Data.color = color;

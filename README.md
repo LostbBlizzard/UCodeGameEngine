@@ -1,6 +1,21 @@
-# UCodeGameEngine
- A GameEngine that specializes big sandbox like games with low level Control.
 
+<div align="center" style="display:grid;place-items:center;">
+<p>
+    <a target="_blank"><img width="100" src="MyEngineLogo.png" alt="Logo"></a>
+</p>
+
+<h1>MyEngine</h1>
+
+A Simple and Highly extendable Game Engine with the goal of supporting the highest number of target platforms.
+
+<div align=left>
+
+## Whats 'UCode'
+
+If you look around you may see the word UCode every.
+UCode is the old name old this project the name was changed because of the
+logo and to separated from [UCodeLang](https://github.com/LostbBlizzard/UCodeLang)(The language made for this engine and other frameworks) 
+and I can't be bothered to rename all of words UCode.
 
 # Build
 
