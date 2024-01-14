@@ -231,6 +231,7 @@ void GameEditorWindow::SceneEditorTab()
     
 
     auto Viewportsize = ImGui::GetContentRegionAvail();
+    auto p = ImGui::GetCursorPos();
 
     if (_WindowType != GameWindowType::EditorWindow)
     {
@@ -292,13 +293,9 @@ void GameEditorWindow::SceneEditorTab()
             ImGuizmo::SetOrthographic(_SceneCamera->Get_CamType() ==UCode::Camera2d::CamType::Orthographic);
             ImGuizmo::BeginFrame();
 
-
-            ImGuiIO& io = ImGui::GetIO();
-            auto tep = ImGui::GetCurrentWindow()->Rect().GetTL();
-            
-            
-
-            ImGuizmo::SetRect(tep.x, tep.y, Viewportsize.x, Viewportsize.y);
+            auto tep= ImGui::GetWindowPos();
+        
+            ImGuizmo::SetRect(tep.x,(- tep.x/2.5), Viewportsize.x, Viewportsize.y);
 
             auto vm =_SceneCamera->Get_ViewMatrix();
             auto pm =_SceneCamera->Get_ProjectionMatrix();
@@ -318,8 +315,23 @@ void GameEditorWindow::SceneEditorTab()
             }
         }
     }
-
-     _GameRender->Draw(runtime->Get_DrawData(),_SceneCamera);
+   {
+        for (auto& Item : _GameRunTime->Get_Scenes())
+        {
+            for (auto& Item : Item->Get_Entitys())
+            {
+                if (Item->GetCompent<UCode::Camera2d>())
+                {
+                    UCode::RenderRunTime2d::DrawQuad2dData data = { Item->localposition2d(),{1,1},{0,90} };
+                    data.color.A = 0.05f;
+                   // data.Spr = AppFiles::GetSprite(AppFiles::sprite::Scene2dData);
+                    runtime->DrawQuad2d(data);
+                }
+            }
+        }
+    }
+     _GameRender->Draw(runtime->Get_DrawData(),_SceneCamera); 
+  
     size_t SceneTex = _SceneCamera->Get_Buffer().Get_TextureId();
 
 
