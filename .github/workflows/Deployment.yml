@@ -38,6 +38,11 @@ jobs:
       - name: Run Premake install
         run: ./InstallTools.bat
 
+      - name: update version
+        run: |
+         echo ${{ inputs.VersionNumber }} > ./version.txt
+         ./premake.bat updateversion
+
       - name: Run Premake
         run: ./VS_2019.bat
 
@@ -70,6 +75,11 @@ jobs:
      - name: Run Premake install
        run: ./premake.sh install
 
+     - name: update version
+       run: |
+         echo ${{ inputs.VersionNumber }} > ./version.txt
+         ./premake.bat updateversion
+     
      - name: Run Premake
        run: ./GNU_Make.sh
 
@@ -84,13 +94,40 @@ jobs:
          retention-days: 1
 
   build-MacOS:
-    runs-on: ubuntu-latest
-    if: 'false'
+    runs-on: macos-latest
+    if: 'false' # I Dont have a Mac to test out builds
 
     steps:
-      - name: Build MacOS
-        run: echo "Build"
+     - uses: actions/checkout@v3
+       with:
+         submodules: 'true'
 
+     - name: Make a scripts executable
+       run: |
+        chmod +x ./GNU_Make.sh
+        chmod +x ./premake.sh
+         
+     - name: Run Premake install
+       run: ./premake.sh install
+
+     - name: update version
+       run: |
+         echo ${{ inputs.VersionNumber }} > ./version.txt
+         ./premake.bat updateversion
+     
+     - name: Run Premake
+       run: ./GNU_Make.sh
+
+     - name: Build 64 bit
+       run: ./premake.sh buildeditorpublished
+
+     - name: Archive Output
+       uses: actions/upload-artifact@v3
+       with:
+         name: Output_MacOS
+         path: Output/
+         retention-days: 1  
+  
   build-Web:  
     runs-on: ubuntu-latest
     if: 'false'
