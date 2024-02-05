@@ -8,7 +8,7 @@ on:
       - master
       
 jobs:
-  msbuild-build:
+  msbuild-windows-build:
     runs-on: windows-latest
 
     steps:
@@ -52,7 +52,7 @@ jobs:
     - name: Run Tests 32 bit
       run: ./premake.bat test32
   
-  gmake-build:
+  gmake-linux-build:
     runs-on: ubuntu-latest
 
 
@@ -72,13 +72,6 @@ jobs:
     - name: Run Premake
       run: ./GNU_Make.sh
     
-    - name: Restore cached objs
-      id: cache-objs-restore
-      uses: actions/cache/restore@v3
-      with:
-        path: ./Output
-        key: ${{ runner.os }}-1
-
     - name: Build 64 bit
       run: ./premake.sh buildeditor
 
@@ -92,15 +85,33 @@ jobs:
     - name: RunTests for 64 bit
       run: ./premake.sh test
 
-  clang-build:
-    runs-on: ubuntu-latest  
+  clang-macos-build:
+    runs-on: macos-latest
     if: 'false'
     
     steps:
-      - name: TODO
-        run: echo "TODO"
+    - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
 
-  web-build:
+    - name: Make a scripts executable
+      run: |
+       chmod +x ./GNU_Make.sh
+       chmod +x ./premake.sh
+
+    - name: Run Premake install
+      run: ./premake.sh install
+
+    - name: Run Premake
+      run: ./GNU_Make.sh
+    
+    - name: Build 64 bit
+      run: ./premake.sh buildeditor
+
+    - name: RunTests for 64 bit
+      run: ./premake.sh test
+
+  gmake-wasm-build:
     runs-on: ubuntu-latest 
     if: 'false'
 
@@ -108,7 +119,7 @@ jobs:
       - name: TODO
         run: echo "TODO"
 
-  android-build:
+  clang-android-build:
     runs-on: ubuntu-latest 
     if: 'false'
 
@@ -116,7 +127,7 @@ jobs:
       - name: TODO
         run: echo "TODO"
 
-  ios-build:
+  clang-ios-build:
     runs-on: ubuntu-latest 
     if: 'false'
 

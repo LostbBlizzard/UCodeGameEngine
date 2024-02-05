@@ -1285,7 +1285,7 @@ newaction {
 }
 newaction {
     trigger = "updateversion",
-    description = "build the installer",
+    description = "updates version numbers",
     execute = function ()
         
     end
