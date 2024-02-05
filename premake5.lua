@@ -1101,7 +1101,7 @@ newaction {
     execute = function ()
         
         if os.istarget("linux") then
-          executeorexit("make UCodeEditor -j4")
+          executeorexit("make UCodeEditor -j(nproc)")
         end
 
         if os.istarget("windows") then
@@ -1109,7 +1109,7 @@ newaction {
         end
         
         if os.istarget("macosx") then
-          executeorexit("make UCodeEditor -j4")
+          executeorexit("make UCodeEditor -j(nproc)")
         end
     end
 }
@@ -1118,7 +1118,7 @@ newaction {
     description = "installs compiler tool/librarys for wasm",
     execute = function ()
        
-        executeorexit("emmake make UCodeApp config=published_web -j4")
+        executeorexit("emmake make UCodeApp config=published_web -j(nproc)")
         
     end
 }
@@ -1127,7 +1127,7 @@ newaction {
     description = "installs compiler tool/librarys for wasm",
     execute = function ()
        
-        executeorexit("emmake make UCodeAppPub config=published_web -j4")
+        executeorexit("emmake make UCodeAppPub config=published_web -j(nproc)")
         
     end
 }
@@ -1138,7 +1138,7 @@ newaction {
     execute = function ()
         
         if os.istarget("linux") then
-          executeorexit("make UCodeEditor -j4")
+          executeorexit("make UCodeEditor -j(nproc)")
         end
 
         if os.istarget("windows") then
@@ -1146,7 +1146,7 @@ newaction {
         end
         
         if os.istarget("macosx") then
-          executeorexit("make UCodeEditor -j4")
+          executeorexit("make UCodeEditor -j(nproc)")
         end
     end
 }
@@ -1158,7 +1158,7 @@ newaction {
     execute = function ()
         
         if os.istarget("linux") then
-          executeorexit("make UCodeEditor config=published_linux64 -j4")
+          executeorexit("make UCodeEditor config=published_linux64 -j(nproc)")
         end
 
         if os.istarget("windows") then
@@ -1166,7 +1166,7 @@ newaction {
         end
         
         if os.istarget("macosx") then
-          executeorexit("make UCodeEditor -j4")
+          executeorexit("make UCodeEditor -j(nproc)")
         end
     end
 }
@@ -1176,7 +1176,7 @@ newaction {
     execute = function ()
         
         if os.istarget("linux") then
-          executeorexit("make UCodeEditor config=published_linux32 -j4")
+          executeorexit("make UCodeEditor config=published_linux32 -j(nproc)")
         end
 
         if os.istarget("windows") then
@@ -1235,7 +1235,7 @@ newaction {
         print("----installing emscripten for " .. os.target())
         
         if os.istarget("linux") then
-          executeorexit("make config=publish_linux64 -j4")
+          executeorexit("make config=publish_linux64 -j(nproc)")
         end
 
         if os.istarget("windows") then
