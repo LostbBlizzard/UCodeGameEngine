@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "UCodeGameEngine"
-#define MyAppVersion "0.1"
+#define MyAppVersion "#VersionMajor#.#VersionMinor#.#VersionPatch#"
 #define MyAppPublisher "LostbBlizzard"
 #define MyAppURL "https://github.com/LostbBlizzard/UCodeGameEngine"
 #define MyAppExeName "UCodeEditor.exe"
@@ -10,7 +10,7 @@
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{1CA82B81-B465-41F7-9FFE-7DF174047519}
+AppId={{1CA82BG1-B475-45F7-9FFE-6DF654047519}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
