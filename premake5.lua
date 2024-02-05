@@ -1283,7 +1283,13 @@ newaction {
         end
     end
 }
----tools
+newaction {
+    trigger = "updateversion",
+    description = "build the installer",
+    execute = function ()
+        
+    end
+}--tools
 newaction {
     trigger = "updateucodelinks",
     description = "updated the ucode bindings",
