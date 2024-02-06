@@ -90,12 +90,24 @@ jobs:
 
   gmake-wasm-build:
     runs-on: ubuntu-latest 
-    if: 'false'
 
     steps:
-      - name: TODO
-        run: echo "TODO"
+    - name: Make a scripts executable
+      run: |
+       chmod +x ./GNU_Make.sh
 
+    - name: Run Premake Install
+      uses: mymindstorm/setup-emsdk@v13
+
+    - name: Run Premake
+      run: ./GNU_Make.sh
+    
+    - name: Build Wasm Debug
+      run: ./premake.sh web_build
+
+    - name: Build Wasm Pub
+      run: ./premake.sh buildwasmpub
+      
   clang-android-build:
     runs-on: ubuntu-latest 
     if: 'false'
