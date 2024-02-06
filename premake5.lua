@@ -23,11 +23,7 @@ workspace "UCodeGameEngine"
    end
 
    if os.host() == "macosx" then
-      if os.is64bit() then
-       defaultplatform "MacOS"
-      else
-       defaultplatform "MacOS"
-      end
+    defaultplatform "macosx"
    end
 
    OutDirPath ="%{cfg.platform}/%{cfg.buildcfg}"
