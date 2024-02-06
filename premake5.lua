@@ -1030,7 +1030,13 @@ newaction {
         end
         
         if os.istarget("macosx") then
-
+           
+          print("----downloading glfw Packages")
+         
+          executeorexit("brew install glfw")
+          
+          print("----installing tools completed");
+ 
         end
     end
 }
