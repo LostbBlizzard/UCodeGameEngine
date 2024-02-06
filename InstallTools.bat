@@ -1,1 +1,1 @@
-././Dependencies/bin/premake/premake5 install
+premake.bat install
