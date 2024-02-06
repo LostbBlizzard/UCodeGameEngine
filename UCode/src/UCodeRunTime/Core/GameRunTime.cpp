@@ -14,7 +14,7 @@ Gamelibrary::Gamelibrary() : _StaticSystems()
 {
 
 	_StaticSystems.resize(StaticBookSize);
-	for (size_t i = 0; i < StaticBookSize; i++){_StaticSystems[i] = nullptr;}
+	for (size_t i = 0; i < StaticBookSize; i++) { _StaticSystems[i] = nullptr; }
 }
 Gamelibrary::~Gamelibrary()
 {
@@ -61,15 +61,15 @@ GameRunTime::GameRunTime() :_IsGameRuning(false), _StaticComponents()
 	_FixedUpdateTimer = 0;
 
 	_Library->Set_LibraryOwner(this);
-	
+
 	_StaticComponents.resize(StaticRunTimeComponentsSize);
-	for (size_t i = 0; i < StaticRunTimeComponentsSize; i++){_StaticComponents[i] = nullptr;}
+	for (size_t i = 0; i < StaticRunTimeComponentsSize; i++) { _StaticComponents[i] = nullptr; }
 }
 GameRunTime::GameRunTime(Ref<Gamelibrary> Library) :_IsGameRuning(false), _StaticComponents()
-,_FixedUpdateTimer(0), _RunTimeScene(this), _Library(Library)
+, _FixedUpdateTimer(0), _RunTimeScene(this), _Library(Library)
 {
 	_StaticComponents.resize(StaticRunTimeComponentsSize);
-	for (size_t i = 0; i < StaticRunTimeComponentsSize; i++){_StaticComponents[i] = nullptr;}
+	for (size_t i = 0; i < StaticRunTimeComponentsSize; i++) { _StaticComponents[i] = nullptr; }
 
 
 	if (_Library->HasNoLibraryOwner())
@@ -102,7 +102,7 @@ void GameRunTime::GameUpdate()
 	f32 delta_time = delta_timefsec.count();
 
 	_FixedUpdateTimer += delta_time;
-	GameTime.UpateDelta = delta_time;
+	_GameTime.UpateDelta = delta_time;
 	if (_FixedUpdateTimer > GameTime::FixedTimeDelta)
 	{
 		_FixedUpdateTimer = 0;
@@ -130,7 +130,7 @@ void GameRunTime::EndRunTime()
 	_IsGameRuning = false;
 	DestroyAllScenes();
 	EndGameRunTimeContext();
-}	
+}
 
 GameRunTime* GameRunTime::Current()
 {
@@ -168,7 +168,7 @@ void GameRunTime::DestroyNullScenes()
 		Item->DestroyNullEntityAndCompoents();
 		if (Item->Get_IsDestroyed())
 		{
-			const Frame FramesToDestroy = GameTime.FramesToDestroy;
+			const Frame FramesToDestroy = _GameTime.FramesToDestroy;
 			Frame& SceneFrame = (Frame&)Item->_IsSceneDestroyed;
 			if (SceneFrame >= FramesToDestroy)
 			{
@@ -187,8 +187,8 @@ void GameRunTime::DestroyAllScenes()
 {
 	_Scenes.clear();
 }
-RunTimeScene::RunTimeScene(GameRunTime* RunTime) :_IsSceneDestroyed(false),_RunTime(RunTime), _StaticComponents()
-,_Managed(this)
+RunTimeScene::RunTimeScene(GameRunTime* RunTime) :_IsSceneDestroyed(false), _RunTime(RunTime), _StaticComponents()
+, _Managed(this)
 {
 
 	_StaticComponents.resize(StaticSceneComponentsSize);
@@ -200,7 +200,7 @@ RunTimeScene::~RunTimeScene()
 	_IsSceneDestroyed = true;
 	for (size_t i = 0; i < _Entitys.size(); i++)
 	{
-		auto& Item = _Entitys[i]; 
+		auto& Item = _Entitys[i];
 		Entity::Destroy(Item.get());
 	}
 	DestroyNullEntityAndCompoents();
@@ -215,7 +215,7 @@ void RunTimeScene::UpdateEntitys()
 }
 void RunTimeScene::FixedUpdateEntitys()
 {
-	
+
 	for (size_t i = 0; i < _Entitys.size(); i++)
 	{
 		auto& Item = _Entitys[i];
@@ -235,7 +235,7 @@ void RunTimeScene::DestroyNullEntityAndCompoents()
 		if (Item->Get_IsDestroyed())
 		{
 
-			
+
 			Frame& EntityFrame = (Frame&)Item->_IsDestroyed;
 			if (EntityFrame >= FramesToDestroy)
 			{
@@ -265,8 +265,8 @@ void RunTimeScene::MoveEntity(UCode::Entity* EntityToMove, UCode::RunTimeScene* 
 
 	auto& SceneEntitys = Scene->Get_Entitys();
 	auto& ThisEntitylist = EntityToMove->NativeParent() ? EntityToMove->NativeParent()->NativeGetEntitys() : SceneEntitys;
-	
-	
+
+
 	Unique_ptr<Entity> EntityAsPtr;
 	for (auto it = ThisEntitylist.begin(); it != ThisEntitylist.end();)
 	{
@@ -287,7 +287,7 @@ void RunTimeScene::MoveEntity(UCode::Entity* EntityToMove, UCode::RunTimeScene* 
 
 	EntityToMove->EditorAPI_Set_Scene(MoveNextTo);
 
-	if (EntityAsPtr) 
+	if (EntityAsPtr)
 	{
 		SceneEntitys.push_back(std::move(EntityAsPtr));
 	}

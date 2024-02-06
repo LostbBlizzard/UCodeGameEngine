@@ -23,7 +23,7 @@ struct FileOutInfo
 			File.close();
 		}
 	}
-	
+
 	std::wostream& OutStream()
 	{
 		if (!File.is_open())
@@ -54,9 +54,9 @@ public:
 	void write(const plog::Record& record) override
 	{
 		std::wostream& Output = std::wcout;
-		#if UCodeGEDebug
+#if UCodeGEDebug
 		PushToStream(Output, record);
-		#endif // DEBUG
+#endif // DEBUG
 		if (!LogerFileOutInfo.Loger_FileOutput.empty())
 		{
 			PushToStream(LogerFileOutInfo.OutStream(), record);
@@ -69,19 +69,19 @@ public:
 		tm t;
 		plog::util::localtime_s(&t, &record.getTime().time);
 
-		Output << t.tm_year + 1900 << PLOG_NSTR("/") << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_mon + 1 << PLOG_NSTR("/") << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_mday << PLOG_NSTR(";");
-		Output << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_hour << PLOG_NSTR(":") << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_min << PLOG_NSTR(":") << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_sec << PLOG_NSTR(".") << std::setfill(PLOG_NSTR('0')) << std::setw(3) << static_cast<int> (record.getTime().millitm) << PLOG_NSTR(";");
+		//Output << t.tm_year + 1900 << PLOG_NSTR("/") << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_mon + 1 << PLOG_NSTR("/") << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_mday << PLOG_NSTR(";");
+		//Output << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_hour << PLOG_NSTR(":") << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_min << PLOG_NSTR(":") << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_sec << PLOG_NSTR(".") << std::setfill(PLOG_NSTR('0')) << std::setw(3) << static_cast<int> (record.getTime().millitm) << PLOG_NSTR(";");
 
 		Output << "]";
 
-		
-		#if !PublishMode
+
+#if !PublishMode
 		Output
 			<< "~" << record.getFunc()
 			//<< " -file: '" << record.getFile() << "'"
 			<< ":" << record.getLine() << "";
-		#endif	
-		
+#endif	
+
 		Output << ":\"";
 		Output << record.getMessage() << "\"";
 
@@ -93,13 +93,13 @@ public:
 void Loger::Log(const StringView& Msg, LogType Type)
 {
 	InitCheck();
-    PLOG(GetPlogType(Type)) << Msg;
+	PLOG(GetPlogType(Type)) << Msg;
 
 }
 void Loger::Init()
-{   
+{
 	static  IAppender O;
-    plog::init(plog::debug,&O);
+	plog::init(plog::debug, &O);
 }
 void Loger::SetLogOutfile(const Path& Str)
 {
