@@ -108,7 +108,7 @@ jobs:
       run: ./GNU_Make.sh
     
     - name: Build Wasm Debug
-      run: ./premake.sh web_build
+      run: ./premake.sh buildwasm
 
     - name: Build Wasm Pub
       run: ./premake.sh buildwasmpub
