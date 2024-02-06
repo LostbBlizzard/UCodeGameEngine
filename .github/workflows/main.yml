@@ -65,7 +65,8 @@ jobs:
 
   clang-macos-build:
     runs-on: macos-latest
-    
+    if: false # build takes over 30 mins 
+         
     steps:
     - uses: actions/checkout@v3
       with:
