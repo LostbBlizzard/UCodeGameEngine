@@ -800,6 +800,14 @@ group "Dependencies"
       "Dependencies/UCodeLang/UCodeLang",
       "Dependencies/UCodeLang/UCodelangCL",
       }
+      
+   filter { "configurations:Published","system:Windows"}
+    kind ("WindowedApp")
+   
+   filter { "configurations:Release","system:Windows"}
+    kind ("WindowedApp")
+
+
 
   project "glslang"
     location "Dependencies/%{prj.name}"
