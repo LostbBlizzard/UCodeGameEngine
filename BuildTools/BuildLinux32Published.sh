@@ -1,1 +1,0 @@
-make confg=published_linux32 -j
