@@ -1,7 +1,7 @@
 #pragma once
 #include "APINameSpace.hpp"
 #include "UCodeLang/RunTime/ReflectionStl.hpp"
-#include "../../Typedefs.hpp";
+#include "../../Typedefs.hpp"
 UCodeAPIEditorStart
 
 UCodeLangExportSymbol("UCodeGameEngineEditor") UCodeLangEmbed(
