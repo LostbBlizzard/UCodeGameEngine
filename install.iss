@@ -29,7 +29,7 @@ OutputBaseFilename=UCodeGameEngineSetup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
-SetupIconFile=Logo.ico
+SetupIconFile=UCodeGameEngineLogo.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

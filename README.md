@@ -1,7 +1,7 @@
 
 <div align="center" style="display:grid;place-items:center;">
 <p>
-    <a target="_blank"><img width="100" src="MyEngineLogo.png" alt="Logo"></a>
+    <a target="_blank"><img width="100" src="UCodeGameEngine.png" alt="Logo"></a>
 </p>
 
 <h1>UCodeEngine</h1>
