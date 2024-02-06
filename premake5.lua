@@ -180,7 +180,7 @@ function linkUCode(HasULangCompiler,IsPubMode)
       links {"glew64s.lib","Opengl32.lib"}
              
     filter { "platforms:linux64" }
-      links {"GL","GLEW","GLFW"}
+      links {"GL","GLEW","glfw"}
 
     filter { "platforms:Web" }
       kind "ConsoleApp"   
