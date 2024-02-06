@@ -1283,11 +1283,111 @@ newaction {
         end
     end
 }
+
+function readAll(file)
+    local f = assert(io.open(file, "rb"))
+    local content = f:read("*all")
+    f:close()
+    return content
+end
+function mysplit(inputstr, sep)
+        if sep == nil then
+                sep = "%s"
+        end
+        local t={}
+        for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+                table.insert(t, str)
+        end
+        return t
+end
+
+function replacetextinfile(file_path, stringtomatch, replacement)
+    local file = io.open(file_path, "r")  
+    if not file then
+        print("Error: File not found or unable to open.")
+        return
+    end
+
+    local content = file:read("*a")  
+    file:close()  
+    
+    local modified_content = content:gsub(stringtomatch, replacement)
+
+    local new_file = io.open(file_path, "w")
+    if not new_file then
+        print("Error: Unable to write to file.")
+        return
+    end
+    new_file:write(modified_content)
+    new_file:close()
+end
+
+function isdigit(char)
+
+ if char == '0' or char == '1' or char == '2'
+    or  char == '3' or char == '4' or char == '5'
+    or char == '6' or char == '6' or char == '7' or char == '8'
+    or char == '8' or char == '9' 
+ then
+    return true
+ else
+    return false
+ end 
+
+end
+
+function keeponlyfirstnumberpart(str)
+   local r = ""
+
+   for i=1, string.len(str) do 
+    
+    local cha = str:sub(i,i)--lua cant index strings? why
+
+    if not isdigit(cha) then
+        break
+    end
+
+    r = r .. cha
+   end
+
+   return r
+end 
+
 newaction {
     trigger = "updateversion",
     description = "updates version numbers",
     execute = function ()
-        
+        local major = "0"
+        local minor = "0"
+        local patch = "0"
+
+        local veriontext = readAll("version.txt")
+        local verionspit = mysplit(veriontext,".");
+
+        major = verionspit[1]
+
+        major = verionspit[2]
+
+        patch = keeponlyfirstnumberpart(verionspit[3])
+
+        print("updating source files to " .. major .. "." .. minor .. "." .. patch)
+
+        --UDefs.hpp
+        replacetextinfile("UCode/src/UCodeRunTime/UDefs.hpp","#define UCodeGEMajor 0","#define UCodeGEMajor " .. major)
+        replacetextinfile("UCode/src/UCodeRunTime/UDefs.hpp","#define UCodeGEMinor 0","#define UCodeGEMinor " .. minor)
+        replacetextinfile("UCode/src/UCodeRunTime/UDefs.hpp","#define UCodeGEPatch 1","#define UCodeGEPatch " .. patch)
+
+        --install.sh
+        replacetextinfile("./install.sh","#VersionMajor#",major)
+        replacetextinfile("./install.sh","#VersionMinor#",minor)
+        replacetextinfile("./install.sh","#VersionPatch#",patch)
+
+        --install.iss
+        replacetextinfile("./install.iss","#VersionMajor#",major)
+        replacetextinfile("./install.iss","#VersionMinor#",minor)
+        replacetextinfile("./install.iss","#VersionPatch#",patch)
+
+
     end
 }--tools
 newaction {
