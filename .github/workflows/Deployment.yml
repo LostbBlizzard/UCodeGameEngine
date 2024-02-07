@@ -276,7 +276,7 @@ jobs:
           cp Output_Windows/UCodeApp/Win32/Published/UCodeAppPub.exe UCodeEditor/UFiles/bin/UCAppWinPub86X32.exe
        
       - name: install inno
-        run: ./premake.sh installinno
+        run: ./premake.bat installinno
 
       - name: update version
         run: |
@@ -284,7 +284,7 @@ jobs:
          ./premake.bat updateversion
 
       - name: build installer
-        run: ./premake.sh buildinstaller
+        run: ./premake.bat buildinstaller
 
       - name: Upload Installer Asset
         uses: actions/upload-release-asset@v1
