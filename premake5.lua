@@ -415,7 +415,7 @@ project "UCodeEditor"
    
    dependson {
    "UCodeApp",
-   "UCodePub",
+   "UCodeAppPub",
    "FileWatcher",
    "glslang",
    "SPIRV-Cross",
