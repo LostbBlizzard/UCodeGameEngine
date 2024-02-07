@@ -1265,7 +1265,7 @@ newaction {
     execute = function ()
         
         if os.istarget("linux") then
-          executeorexit("./Output/UCodeEditor/Linux64/linux64/Published/UCodeEditor pack ./UCodeEditor/UFiles ./Output/UFiles.data")
+          executeorexit("./Output/UCodeEditor/linux64/Published/UCodeEditor pack ./UCodeEditor/UFiles ./Output/UFiles.data")
         end
 
         if os.istarget("windows") then
@@ -1273,7 +1273,7 @@ newaction {
         end
         
         if os.istarget("macosx") then
-           executeorexit("./Output/UCodeEditor/macosx/linux64/Published/UCodeEditor pack ./UCodeEditor/UFiles ./Output/UFiles.data")
+           executeorexit("./Output/UCodeEditor/macosx/Published/UCodeEditor pack ./UCodeEditor/UFiles ./Output/UFiles.data")
         end
     end
 }
