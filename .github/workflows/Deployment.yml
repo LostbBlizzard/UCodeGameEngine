@@ -286,9 +286,6 @@ jobs:
       - name: build installer
         run: ./premake.sh buildinstaller
 
-      - name: set url
-        run: type "{UploadUrl}={value}" >> "$GITHUB_ENV"
-      
       - name: Upload Installer Asset
         uses: actions/upload-release-asset@v1
         env:
