@@ -178,7 +178,9 @@ jobs:
           ./premake.sh updateversion
 
       - name: Pack Editor Ufiles
-        run: ./premake.sh package_editor
+        run: | 
+         chmod +x ./Output/UCodeEditor/linux64/Published/UCodeEditor
+         ./premake.sh package_editor
 
       - name: Create Release
         id: create_release
