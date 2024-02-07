@@ -171,7 +171,9 @@ jobs:
           cp Output_Windows/UCodeApp/Win32/Published/UCodeApp.exe UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe
           cp Output_Windows/UCodeApp/Win32/Published/UCodeAppPub.exe UCodeEditor/UFiles/bin/UCAppWinPub86X32.exe
             
-
+      - name: Run Premake install # because some libs are shared
+        run: ./premake.sh install
+      
       - name: update version
         run: |
           echo ${{ inputs.VersionNumber }} > ./version.txt
