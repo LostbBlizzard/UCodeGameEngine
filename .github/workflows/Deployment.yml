@@ -167,10 +167,12 @@ jobs:
             cp Output_Linux/UCodeApp/linux64/Published/UCodeAppPub UCodeEditor/UFiles/bin/UCAppLinuxPub86X64.exe
  
       - name: update version
-         run: |
+        run: |
           echo ${{ inputs.VersionNumber }} > ./version.txt
-          ./premake.bat updateversion
-     
+          ./premake.sh updateversion
+
+      - name: Pack Editor Ufiles
+        run: ./premake.sh package_editor
 
       - name: Create Release
         id: create_release
@@ -193,7 +195,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: Output/UCodeEditor/Win64/Published/UFiles.data
+          asset_path: Output/Published/UFiles.data
           asset_name: UFiles.data
           asset_content_type: application/octet-stream
 
