@@ -1,8 +1,7 @@
 #include "App.hpp"
 #include "UCodeRunTime/UDefs.hpp"
 
-#if PUBLISHED || RELASE
-#if UCodeGEWindows
+#if (PUBLISHED || RELASE) && UCodeGEWindows
 
 #include <Windows.h>
 
@@ -42,7 +41,6 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR szCmdLine, int i
 	free(argv);
 	return exit;
 }
-#endif 
 #else
 int main(int argc, char* argv[])
 {

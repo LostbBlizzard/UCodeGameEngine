@@ -56,7 +56,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Output_Windows
-          path: Output/
+          path: |
+           Output/
+           !Output/int
           retention-days: 1
   
   build-Linux:
@@ -90,7 +92,9 @@ jobs:
        uses: actions/upload-artifact@v3
        with:
          name: Output_Linux
-         path: Output/
+         path: |
+          Output/
+          !Output/int
          retention-days: 1
 
   build-MacOS:
@@ -162,6 +166,11 @@ jobs:
             cp Output_Linux/UCodeApp/linux64/Published/UCodeApp UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64.exe
             cp Output_Linux/UCodeApp/linux64/Published/UCodeAppPub UCodeEditor/UFiles/bin/UCAppLinuxPub86X64.exe
  
+      - name: update version
+         run: |
+          echo ${{ inputs.VersionNumber }} > ./version.txt
+          ./premake.bat updateversion
+     
 
       - name: Create Release
         id: create_release
@@ -207,7 +216,18 @@ jobs:
           asset_path: Output/UCodeEditor/linux64/Published/UCodeEditor
           asset_name: LinuxUCodeEditor
           asset_content_type: application/octet-stream
+      
+      - name: Upload Install.sh Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./install.sh
+          asset_name: install.sh
+          asset_content_type: application/octet-stream
   
+
   BuildWindowsInstaller:
     needs: [deployment-GitHub]
     runs-on: windows-latest
