@@ -97,19 +97,17 @@ int App::main(int argc, char* argv[])
 	namespace UE = UCodeEditor;
 	int a = 0;
 
-	#ifndef UCodeGEDebug
+#ifndef UCodeGEDebug
 	try
 #endif // DEBUG
 
 	{
-		
+
 		//while (true);
-		
+
 		UC::String StrV;
 		for (size_t i = 1; i < argc; i++)
 		{
-			char v;
-			std::cin >> v;
 			StrV += String_view(argv[i]);
 			if (i + 1 < argc)
 			{
@@ -117,12 +115,12 @@ int App::main(int argc, char* argv[])
 			}
 		}
 		UC::StringView Str = StrV;
-		#if UCodeGEDebug
+#if UCodeGEDebug
 		if (Str == "--RunTests")
 		{
 			return UCodeEditor::Tests::RunTests();
 		}
-		#endif // DEBUG
+#endif // DEBUG
 		if (StringHelper::StartsWith(Str, "pack"))
 		{
 			Str = Str.substr(sizeof("pack"));
@@ -169,7 +167,7 @@ int App::main(int argc, char* argv[])
 
 				exitcode = zip_create(pout.generic_string().c_str(), FileNamesptr.data(), FileNamesptr.size()) == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 			}
-			
+
 
 			return exitcode;
 		}
@@ -188,7 +186,7 @@ int App::main(int argc, char* argv[])
 			Path project = GetPath(Str);
 
 			Path target = GetPath(Str);
-			
+
 			UE::BuildSytemManger build;
 
 
@@ -250,27 +248,27 @@ int App::main(int argc, char* argv[])
 			}
 			else
 			{
-				#if UCodeGEWindows
+#if UCodeGEWindows
 				UE::WindowsBuildSetings settings;
 
 
 				build.Setings.Settings = std::move(settings);
-				#elif UCodeGELinux
+#elif UCodeGELinux
 				UE::LinuxBuildSetings settings;
 
 
 				build.Setings.Settings = std::move(settings);
-				#elif UCodeGEMacOS
+#elif UCodeGEMacOS
 				UE::MacOsBuildSetings settings;
 
 
 				build.Setings.Settings = std::move(settings);
-				#elif UCodeGEWasm
+#elif UCodeGEWasm
 				UE::WebBuildSetings settings;
 
 
 				build.Setings.Settings = std::move(settings);
-				#endif
+#endif
 			}
 			auto r = build.BuildProject();
 			if (r.IsError())
@@ -290,7 +288,7 @@ int App::main(int argc, char* argv[])
 			}
 
 			return r.IsValue() ? EXIT_SUCCESS : EXIT_FAILURE;
-		}
+			}
 
 
 		UC::String ProPath = "";
@@ -299,12 +297,12 @@ int App::main(int argc, char* argv[])
 		UE::EditorApp app = UE::EditorApp();
 		app.Run(ProPath);
 		return EXIT_SUCCESS;
-	}
+		}
 
-	#ifndef UCodeGEDebug
+#ifndef UCodeGEDebug
 	catch (const std::exception& ex)
 	{
-		UC::Loger::Log( (UC::String)"App crashed :" + (UC::String)ex.what(), UC::LogType::Fatal);
+		UC::Loger::Log((UC::String)"App crashed :" + (UC::String)ex.what(), UC::LogType::Fatal);
 
 		while (true)
 		{
@@ -313,6 +311,6 @@ int App::main(int argc, char* argv[])
 
 		return EXIT_FAILURE;
 	}
-	#endif // DEBUG
+#endif // DEBUG
 
-}
+	}
