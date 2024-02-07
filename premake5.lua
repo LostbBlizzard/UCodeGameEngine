@@ -1,3 +1,5 @@
+require "vscode"
+
 workspace "UCodeGameEngine"
    configurations { "Debug", "Release","Published" }
    platforms { "Win32", "Win64","linux32","linux64","macosx","Web","Android","IOS"}
