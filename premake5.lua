@@ -1263,15 +1263,15 @@ newaction {
     execute = function ()
         
         if os.istarget("linux") then
-          --executeorexit("make config=publish_linux64 -j4")
+          executeorexit("./Output/UCodeEditor/Linux64/linux64/Published/UCodeEditor pack ./UCodeEditor/UFiles ./Output/UFiles.data")
         end
 
         if os.istarget("windows") then
-          executeorexit("Output\\UCodeEditor\\Win64\\Published\\UCodeEditor.exe zip Output\\UCodeEditor\\Win64\\Published Output\\UCodeEditor\\Win64\\UCodeGameEngine.zip")
+          executeorexit("Output\\UCodeEditor\\Win64\\Published\\UCodeEditor.exe pack UCodeEditor\\UFiles Output/UFiles.data")
         end
         
         if os.istarget("macosx") then
-
+           executeorexit("./Output/UCodeEditor/macosx/linux64/Published/UCodeEditor pack ./UCodeEditor/UFiles ./Output/UFiles.data")
         end
     end
 }
