@@ -141,8 +141,59 @@ jobs:
       - name: Build Web
         run: echo "Build"
 
-  deployment-GitHub:
+  BuildWindowsInstaller:
     needs: [build-Windows,build-Linux]
+    runs-on: windows-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+      
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
+
+      - name: MoveOutputs
+        run: |
+            mkdir -p Output/UCodeEditor/Win64/Published
+            mkdir -p Output/UCodeEditor/linux64/Published
+            mkdir -p UCodeEditor/UFiles/bin
+            cp Output_Windows/UCodeEditor/Win64/Published/UCodeEditor.exe Output/UCodeEditor/Win64/Published/UCodeEditor.exe
+            cp Output_Windows/UCodeApp/Win64/Published/UCodeApp.exe UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe
+            cp Output_Windows/UCodeApp/Win64/Published/UCodeAppPub.exe UCodeEditor/UFiles/bin/UCAppWinPub86X64.exe
+            cp Output_Linux/UCodeEditor/linux64/Published/UCodeEditor Output/UCodeEditor/linux64/Published/UCodeEditor
+            cp Output_Linux/UCodeApp/linux64/Published/UCodeApp UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64.exe
+            cp Output_Linux/UCodeApp/linux64/Published/UCodeAppPub UCodeEditor/UFiles/bin/UCAppLinuxPub86X64.exe
+
+      - name: Move Outputs 32 bit
+        if: ${{ inputs.IsPreRelease == false}}
+        run: |
+          mkdir -p Output/UCodeEditor/Win32/Published
+          cp Output_Windows/UCodeEditor/Win32/Published/UCodeEditor.exe Output/UCodeEditor/Win32/Published/UCodeEditor.exe
+          cp Output_Windows/UCodeApp/Win32/Published/UCodeApp.exe UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe
+          cp Output_Windows/UCodeApp/Win32/Published/UCodeAppPub.exe UCodeEditor/UFiles/bin/UCAppWinPub86X32.exe
+       
+      - name: install inno
+        run: ./premake.bat installinno
+
+      - name: update version
+        run: |
+         echo ${{ inputs.VersionNumber }} > ./version.txt
+         ./premake.bat updateversion
+
+      - name: build installer
+        run: ./premake.bat buildinstaller
+ 
+      - name: Archive Output
+        uses: actions/upload-artifact@v3
+        with:
+         name: Output_Installer
+         path: Output/UCodeGameEngineSetup.exe
+         retention-days: 1  
+  
+
+  deployment-GitHub:
+    needs: [BuildWindowsInstaller]
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -239,60 +290,15 @@ jobs:
           asset_name: install.sh
           asset_content_type: application/octet-stream
 
-      - name: save release url
-        run: echo "GITHUBUPLOADURL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV 
-
-
-  BuildWindowsInstaller:
-    needs: [deployment-GitHub]
-    runs-on: windows-latest
-    environment: production
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: 'true'
-      
-      - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v3
-
-      - name: MoveOutputs
-        run: |
-            mkdir -p Output/UCodeEditor/Win64/Published
-            mkdir -p Output/UCodeEditor/linux64/Published
-            mkdir -p UCodeEditor/UFiles/bin
-            cp Output_Windows/UCodeEditor/Win64/Published/UCodeEditor.exe Output/UCodeEditor/Win64/Published/UCodeEditor.exe
-            cp Output_Windows/UCodeApp/Win64/Published/UCodeApp.exe UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe
-            cp Output_Windows/UCodeApp/Win64/Published/UCodeAppPub.exe UCodeEditor/UFiles/bin/UCAppWinPub86X64.exe
-            cp Output_Linux/UCodeEditor/linux64/Published/UCodeEditor Output/UCodeEditor/linux64/Published/UCodeEditor
-            cp Output_Linux/UCodeApp/linux64/Published/UCodeApp UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64.exe
-            cp Output_Linux/UCodeApp/linux64/Published/UCodeAppPub UCodeEditor/UFiles/bin/UCAppLinuxPub86X64.exe
-
-      - name: Move Outputs 32 bit
-        if: ${{ inputs.IsPreRelease == false}}
-        run: |
-          mkdir -p Output/UCodeEditor/Win32/Published
-          cp Output_Windows/UCodeEditor/Win32/Published/UCodeEditor.exe Output/UCodeEditor/Win32/Published/UCodeEditor.exe
-          cp Output_Windows/UCodeApp/Win32/Published/UCodeApp.exe UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe
-          cp Output_Windows/UCodeApp/Win32/Published/UCodeAppPub.exe UCodeEditor/UFiles/bin/UCAppWinPub86X32.exe
-       
-      - name: install inno
-        run: ./premake.bat installinno
-
-      - name: update version
-        run: |
-         echo ${{ inputs.VersionNumber }} > ./version.txt
-         ./premake.bat updateversion
-
-      - name: build installer
-        run: ./premake.bat buildinstaller
-
       - name: Upload Installer Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: $GITHUBUPLOADURL # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: Output/UCodeGameEngineSetup.exe
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: Output_Installer
           asset_name: UCodeGameEngineSetup.exe
           asset_content_type: application/octet-stream
+  
+     
  
