@@ -50,6 +50,7 @@ jobs:
         run: ./premake.bat buildeditorpublished
 
       - name: Build 32 bit
+        if: ${{ inputs.IsPreRelease == false}}
         run: ./premake.bat buildeditor32published
 
       - name: Archive Output
@@ -153,19 +154,24 @@ jobs:
       - name: MoveOutputs
         run: |
             mkdir -p Output/UCodeEditor/Win64/Published
-            mkdir -p Output/UCodeEditor/Win32/Published
             mkdir -p Output/UCodeEditor/linux64/Published
             mkdir -p UCodeEditor/UFiles/bin
             cp Output_Windows/UCodeEditor/Win64/Published/UCodeEditor.exe Output/UCodeEditor/Win64/Published/UCodeEditor.exe
-            cp Output_Windows/UCodeEditor/Win32/Published/UCodeEditor.exe Output/UCodeEditor/Win32/Published/UCodeEditor.exe
             cp Output_Windows/UCodeApp/Win64/Published/UCodeApp.exe UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe
-            cp Output_Windows/UCodeApp/Win32/Published/UCodeApp.exe UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe
             cp Output_Windows/UCodeApp/Win64/Published/UCodeAppPub.exe UCodeEditor/UFiles/bin/UCAppWinPub86X64.exe
-            cp Output_Windows/UCodeApp/Win32/Published/UCodeAppPub.exe UCodeEditor/UFiles/bin/UCAppWinPub86X32.exe
             cp Output_Linux/UCodeEditor/linux64/Published/UCodeEditor Output/UCodeEditor/linux64/Published/UCodeEditor
             cp Output_Linux/UCodeApp/linux64/Published/UCodeApp UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64.exe
             cp Output_Linux/UCodeApp/linux64/Published/UCodeAppPub UCodeEditor/UFiles/bin/UCAppLinuxPub86X64.exe
- 
+
+      - name: Move Outputs 32 bit
+        if: ${{ inputs.IsPreRelease == false}}
+        run: |
+          mkdir -p Output/UCodeEditor/Win32/Published
+          cp Output_Windows/UCodeEditor/Win32/Published/UCodeEditor.exe Output/UCodeEditor/Win32/Published/UCodeEditor.exe
+          cp Output_Windows/UCodeApp/Win32/Published/UCodeApp.exe UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe
+          cp Output_Windows/UCodeApp/Win32/Published/UCodeAppPub.exe UCodeEditor/UFiles/bin/UCAppWinPub86X32.exe
+            
+
       - name: update version
         run: |
           echo ${{ inputs.VersionNumber }} > ./version.txt
@@ -228,7 +234,10 @@ jobs:
           asset_path: ./install.sh
           asset_name: install.sh
           asset_content_type: application/octet-stream
-  
+
+      - name: save release url
+        run: echo "GITHUBUPLOADURL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV 
+
 
   BuildWindowsInstaller:
     needs: [deployment-GitHub]
@@ -245,19 +254,23 @@ jobs:
       - name: MoveOutputs
         run: |
             mkdir -p Output/UCodeEditor/Win64/Published
-            mkdir -p Output/UCodeEditor/Win32/Published
             mkdir -p Output/UCodeEditor/linux64/Published
             mkdir -p UCodeEditor/UFiles/bin
             cp Output_Windows/UCodeEditor/Win64/Published/UCodeEditor.exe Output/UCodeEditor/Win64/Published/UCodeEditor.exe
-            cp Output_Windows/UCodeEditor/Win32/Published/UCodeEditor.exe Output/UCodeEditor/Win32/Published/UCodeEditor.exe
             cp Output_Windows/UCodeApp/Win64/Published/UCodeApp.exe UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe
-            cp Output_Windows/UCodeApp/Win32/Published/UCodeApp.exe UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe
             cp Output_Windows/UCodeApp/Win64/Published/UCodeAppPub.exe UCodeEditor/UFiles/bin/UCAppWinPub86X64.exe
-            cp Output_Windows/UCodeApp/Win32/Published/UCodeAppPub.exe UCodeEditor/UFiles/bin/UCAppWinPub86X32.exe
             cp Output_Linux/UCodeEditor/linux64/Published/UCodeEditor Output/UCodeEditor/linux64/Published/UCodeEditor
             cp Output_Linux/UCodeApp/linux64/Published/UCodeApp UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64.exe
-            cp Output_Linux/UCodeApp/linux64/Published/UCodeAppPub UCodeEditor/UFiles/bin/UCAppLinuxPub86X64.exe 
+            cp Output_Linux/UCodeApp/linux64/Published/UCodeAppPub UCodeEditor/UFiles/bin/UCAppLinuxPub86X64.exe
 
+      - name: Move Outputs 32 bit
+        if: ${{ inputs.IsPreRelease == false}}
+        run: |
+          mkdir -p Output/UCodeEditor/Win32/Published
+          cp Output_Windows/UCodeEditor/Win32/Published/UCodeEditor.exe Output/UCodeEditor/Win32/Published/UCodeEditor.exe
+          cp Output_Windows/UCodeApp/Win32/Published/UCodeApp.exe UCodeEditor/UFiles/bin/UCAppWinDebug86X32.exe
+          cp Output_Windows/UCodeApp/Win32/Published/UCodeAppPub.exe UCodeEditor/UFiles/bin/UCAppWinPub86X32.exe
+       
       - name: install inno
         run: ./premake.sh installinno
 
@@ -268,13 +281,16 @@ jobs:
 
       - name: build installer
         run: ./premake.sh buildinstaller
-        
+
+      - name: set url
+        run: type "{UploadUrl}={value}" >> "$GITHUB_ENV"
+      
       - name: Upload Installer Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          upload_url: $GITHUBUPLOADURL # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
           asset_path: Output/UCodeGameEngineSetup
           asset_name: UCodeGameEngineSetup
           asset_content_type: application/octet-stream
