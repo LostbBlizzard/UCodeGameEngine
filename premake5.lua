@@ -1259,11 +1259,29 @@ newaction {
         end
     end
 }
+
+function Copydir(Src,Out)
+ 
+ if os.istarget("windows") then
+    excuteorexit("xcopy /Q /E /Y /I " .. src .. " " .. Out)
+ else
+    excuteorexit("cp -rf " .. src .. " " .. Out)
+ end
+
+end
+
 newaction {
     trigger = "package_editor",
     description = "installs compiler tool/librarys for wasm",
     execute = function ()
         
+    
+        Copydir("./UCodeAPI/GameEngine ./UCodeEditor/UFiles/source/UCodeGameEngine") 
+        Copydir("./UCodeAPI/GameEngineEditor ./UCodeEditor/UFiles/source/UCodeGameEngineEditor")
+        Copydir("./UCodeAPI/Dependencies/UCodeLang/UCodeAPI/StandardLibrary ./UCodeEditor/UFiles/source/StandardLibrary")
+        Copydir("./UCodeAPI/Dependencies/UCodeLang/UCodeAPI/NStandardLibrary ./UCodeEditor/UFiles/source/NStandardLibrary") 
+        
+
         if os.istarget("linux") then
           executeorexit("./Output/UCodeEditor/linux64/Published/UCodeEditor pack ./UCodeEditor/UFiles ./Output/UFiles.data")
         end

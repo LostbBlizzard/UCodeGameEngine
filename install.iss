@@ -40,14 +40,15 @@ Source: "Output\UCodeEditor\Win64\Published\UFiles.data"; DestDir: "{app}\bin"; 
 Source: "LICENSE.txt"; DestDir: "{app}\bin";
 
 [UninstallDelete]
-Type: files; Name: "{app}\imgui.ini"
+Type: files; Name: "{app}\bin\imgui.ini"
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\bin\{#MyAppExeName}"
+Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\bin\{#MyAppExeName}"; Tasks: desktopicon;
 
 [Tasks]
 Name: envPath; Description: "Add to PATH variable" 
-
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; 
 [Code]
 const EnvironmentKey = 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
 
