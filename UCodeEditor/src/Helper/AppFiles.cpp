@@ -38,7 +38,7 @@ const String TexturePaths[]{
 
     "art/caret-forward-outline.png",        // Paused_Blue
     "art/caret-forward-circle-outline.png", // Paused_Green
-    "art/MyEngineLogo.png",              // AppIcon
+    "art/UCodeEngineLogo.png",              // AppIcon
     "art/windows-icon.png",
     "art/web-icon.png",
     "art/android-icon.png" // 20
