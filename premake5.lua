@@ -430,7 +430,9 @@ project "UCodeEditor"
      "%{prj.name}/src/**.c",
      "%{prj.name}/src/**.h",
      "%{prj.name}/src/**.cpp",
-     "%{prj.name}/src/**.hpp", 
+     "%{prj.name}/src/**.hpp",
+     "%{prj.name}/resource.h",
+     "%{prj.name}/UCodeEditor.rc" 
    }
    includedirs{"%{prj.name}/src"}
    removefiles{"%{prj.name}/src/OtherLibrarys/ImGuizmo/example/**"}
