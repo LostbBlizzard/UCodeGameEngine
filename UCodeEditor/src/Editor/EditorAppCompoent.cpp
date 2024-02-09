@@ -577,6 +577,44 @@ void EditorAppCompoent::OnFilesDropedOnWindow(Vector<StringView> filespaths)
     }
 }
 
+DontWaitInputKey EditorAppCompoent::AddDontWaitForInput()
+{
+    auto newval = _NextDontWaitKey;
+    _NextDontWaitKey++;
+
+    if (_ListDontWaitKeys.size() == 0)
+    {
+        WaitForInput(false);
+    }
+
+    _ListDontWaitKeys.push_back(newval);
+
+
+
+    return newval;
+}
+
+void EditorAppCompoent::RemoveWaitForInput(DontWaitInputKey key)
+{
+    for (size_t i = 0; i < _ListDontWaitKeys.size(); i++)
+    {
+        auto& Item = _ListDontWaitKeys[i];
+
+        if (Item == key)
+        {
+            _ListDontWaitKeys.erase(_ListDontWaitKeys.begin() + i);
+            
+            if (_ListDontWaitKeys.size() == 0)
+            {
+                WaitForInput(true);
+            }
+            
+            return;
+        }
+    }
+    UCodeGEUnreachable();
+}
+
 void EditorAppCompoent::OnDraw()
 {
     

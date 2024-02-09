@@ -31,6 +31,8 @@ struct UndoData
 	Delegate<void, UndoData&> _RedoCallBack;
 	Delegate<void, UndoData&> _UndoRemoved;
 };
+
+using DontWaitInputKey = int;
 class EditorAppCompoent :public UCode::Renderer2d
 {
 public:
@@ -96,7 +98,13 @@ public:
 	}
 
 	void OnFilesDropedOnWindow(Vector<StringView> filespaths);
+
+	std::function<void(bool)> SetWaitForInput;
+	DontWaitInputKey AddDontWaitForInput();
+	void RemoveWaitForInput(DontWaitInputKey key);
 private:
+	DontWaitInputKey _NextDontWaitKey = {};
+	Vector<DontWaitInputKey> _ListDontWaitKeys;
 
 	//CompoentStuff
 	void OnDraw() override;
@@ -122,7 +130,10 @@ private:
 	}
 	
 
-
+	void WaitForInput(bool Value)
+	{
+		SetWaitForInput(Value);
+	}
 	
 	
 	Vector<Unique_ptr<EditorWindow>> _EditorWindows;
