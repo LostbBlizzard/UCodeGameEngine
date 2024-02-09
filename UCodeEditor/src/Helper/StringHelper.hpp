@@ -13,7 +13,17 @@ public:
 	}
 
 
+
+	//Update Flliter to use Fuzzy find
 	static bool Fllter(const String& filter, const String& ToCheck);
+
+	//Update Flliter to use Fuzzy find
+	template<typename T> 
+	static void Fllter(const String& filter, Span<T>& list, std::function<String(const T&)> onitem)
+	{
+
+	}
+
 
 	static bool Replace(String& str, const String& from, const String& to);
 };
