@@ -16,6 +16,19 @@
 #include <UCodeRunTime/BasicTypes.hpp>
 #include <UCodeRunTime/ULibrarys/Math_Library.hpp>
 RenderAPIStart
+
+void OpenGlRender::glfwfiledrop(GLFWwindow* window, int count, const char** paths)
+{
+	int i;
+	Vector<StringView> r;
+	r.resize(count);
+	for (i = 0; i < count; i++)
+	{
+		r[i] = StringView(paths[i]);
+	}
+
+    OpenGlRender::GetOpenGlRender(window)->_windowdata._filedroped(r);
+}
 OpenGlRender::OpenGlRender(GameRunTime *run)
 {
     RunTime = run;
@@ -95,6 +108,11 @@ void OpenGlRender::Init(WindowData windowdata)
         }
 
         glfwMakeContextCurrent(window);
+
+        if (_windowdata._filedroped)
+        {
+            glfwSetDropCallback(window, glfwfiledrop);
+        }
 
         if (_windowdata.ImGui_Init)
         {

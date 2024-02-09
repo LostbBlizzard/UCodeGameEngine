@@ -50,6 +50,7 @@ public:
 private:
 	
 	static void glfwerror_callback(int error, const char* description);
+	static void glfwfiledrop(GLFWwindow* window, int count, const char** paths);
 	WindowData _windowdata;
 	GLFWwindow* window;
 	i32  oldwindowWidth, oldwindowHeight;
