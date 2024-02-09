@@ -56,7 +56,7 @@ private:
 	Unique_ptr<UCode::RenderAPI::Render> _GameRender;
 	bool _IsGameWindowFocused = false, _ShowingGameStats =false;
 	int _ShowingGameStatslocation = 0;
-	
+	Optional<int> _DontWaitInputKey;
 	
 
 	//

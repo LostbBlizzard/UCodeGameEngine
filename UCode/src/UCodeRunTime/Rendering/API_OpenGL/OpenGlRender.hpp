@@ -41,6 +41,11 @@ public:
 		return window;
 	}
 	void SetWindowIcon(const Texture& tex);
+	void SetWaitForEvents(bool Value)
+	{
+		_windowdata.UpdateAppIfInputUpdate = Value;
+	}
+
 	void _DrawOpenGl(RenderRunTime2d::DrawData& Data,Camera2d* cam);
 	
 	static void SetStyle_WoodLandDay(ImGuiStyle* dst = nullptr);

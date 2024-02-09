@@ -35,6 +35,13 @@ GameEditorWindow::~GameEditorWindow()
     if (_SceneData) {
         delete _SceneData;
     }
+
+
+    if (_DontWaitInputKey.has_value())
+    {
+        Get_App()->RemoveWaitForInput(_DontWaitInputKey.value());
+        _DontWaitInputKey.reset();
+    }
 }
 void GameEditorWindow::UpdateWindow()
 {
@@ -1253,6 +1260,12 @@ void GameEditorWindow::OnPlayScene()
     
     UnLoadRender();
     LoadRender(_WindowType == GameWindowType::ExternalWindow);
+    
+    
+    if (!_DontWaitInputKey.has_value())
+    {
+        _DontWaitInputKey = Get_App()->AddDontWaitForInput();
+    }
 }
 void GameEditorWindow::OnStopPlaying()
 {
@@ -1265,6 +1278,12 @@ void GameEditorWindow::OnStopPlaying()
         _SceneDataAsRunTiime = ShowScene;
     }
     LoadRender(false);
+    
+    if (_DontWaitInputKey.has_value())
+    {
+        Get_App()->RemoveWaitForInput(_DontWaitInputKey.value());
+        _DontWaitInputKey.reset();
+    }
 }
 void GameEditorWindow::UpdateAndShowGameImg()
 {
