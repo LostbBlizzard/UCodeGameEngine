@@ -16,6 +16,7 @@
 #include "UEditorModules/UEditorModule.hpp"
 #include "Helper/Tasks.hpp"
 #include "UEditorModules/Modules/CodeModule.hpp"
+#include "Helper/StringHelper.hpp"
 EditorStart
 
 
@@ -557,6 +558,25 @@ void  EditorAppCompoent::EndDockSpace()
     ImGui::End();//EndDockSpace
 }
 
+void EditorAppCompoent::OnFilesDropedOnWindow(Vector<StringView> filespaths)
+{
+    if (_RunTimeProjectData.Is_ProjLoaded())
+    {
+        if (!_DropedFiles.has_value())
+        {
+            Vector<String> tep;
+            tep.resize(filespaths.size());
+
+            for (size_t i = 0; i < filespaths.size(); i++)
+            {
+                tep[i] = String(filespaths[i]);
+            }
+
+            _DropedFiles = std::move(tep);
+        }
+    }
+}
+
 void EditorAppCompoent::OnDraw()
 {
     
@@ -588,6 +608,109 @@ void EditorAppCompoent::OnDraw()
 
     bool Hi = true;
     BeginDockSpace(&Hi);
+
+    if (_DropedFiles.has_value())
+    {
+        auto& files = _DropedFiles.value();
+
+        bool open = true;
+        const char* windowname = "droped files window";
+
+        static bool OnDropedMovefile = false;
+        static String Sreach = "";
+        static String lastvalue = "";
+        if (ImGui::BeginPopupModal(windowname,nullptr))
+        {
+            auto assets = _RunTimeProjectData.GetAssetsDir();
+            Vector<String> filepaths;
+            {
+                
+                std::filesystem::recursive_directory_iterator it(assets);
+
+                // Iterate over all directories and print their names
+                for (const auto& entry : it) {
+                    if (entry.is_directory()) {
+                       filepaths.push_back(entry.path().generic_string());
+                    }
+                }
+
+                filepaths.push_back(assets.generic_string());
+            }
+
+            ImGuIHelper::InputText("Search", Sreach);
+            ImGui::Separator();
+            
+            String comboname = "Assets" + FileHelper::ToRelativePath(assets.parent_path().generic_string(),lastvalue).generic_string();
+                    
+            if (ImGui::BeginCombo("Select Directory", comboname.c_str(), ImGuiComboFlags_NoArrowButton))
+            {
+                for (size_t i = 0; i < filepaths.size(); i++)
+                {
+                    const auto& Item = filepaths[i];
+
+                    String name = "Assets" + FileHelper::ToRelativePath(assets.parent_path().generic_string(), Item).generic_string();
+                    
+                    if (StringHelper::Fllter(Sreach, name))
+                    {
+                    
+                        bool is_selected = (Item == lastvalue);
+
+                        if (ImGui::Selectable(name.c_str(), is_selected))
+                        {
+                            lastvalue = Item;
+                        }
+                        if (is_selected)
+                        {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+                }
+                ImGui::EndCombo();
+            }
+            ImGui::Separator();
+
+            bool haspickeddir = lastvalue.size() != 0;
+
+            ImGui::Checkbox("Move files",&OnDropedMovefile);
+            ImGui::SameLine();
+
+            ImGui::BeginDisabled(!haspickeddir);
+            
+            if (ImGui::Button("Select"))
+            {
+                for (auto& Item : files)
+                {
+                    Path outpath = FileHelper::GetNewFileName(assets.generic_string() + Path(Item).filename().generic_string());
+                    if (OnDropedMovefile)
+                    {
+                        std::filesystem::rename(Item, outpath);
+                    }
+                    else
+                    {
+                        std::filesystem::copy_file(Item, outpath);
+                    }
+                }
+
+                _DropedFiles = {};
+                ImGui::CloseCurrentPopup();
+            }
+            
+            ImGui::EndDisabled();
+            ImGui::SameLine();
+
+            if (ImGui::Button("Close")) 
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+
+            ImGui::EndPopup();
+        }
+        else
+        {
+            ImGui::OpenPopup(windowname);
+        }
+    }
 
 
     {

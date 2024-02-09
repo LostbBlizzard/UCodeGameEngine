@@ -94,6 +94,8 @@ public:
 	{
 		return _ProjectFiles;
 	}
+
+	void OnFilesDropedOnWindow(Vector<StringView> filespaths);
 private:
 
 	//CompoentStuff
@@ -141,7 +143,7 @@ private:
 	Vector<UndoData> _Undos;
 	Vector<UndoData> _Redos;
 	ProjectFiles _ProjectFiles;
-	
+	Optional<Vector<String>> _DropedFiles;
 
 	void SaveApp();
 	void OnAppEnded();

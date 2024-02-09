@@ -3,6 +3,7 @@
 #include <UCodeRunTime/BasicTypes.hpp>
 RenderAPIStart
 
+using OnFileDroped = void(*)(Vector<StringView>);
 struct WindowData
 {
 public:
@@ -14,7 +15,8 @@ public:
 	void* shared_window =nullptr;
 	bool SetUpInputs = true;
 	bool UpdateAppIfInputUpdate =false;
-	
+	OnFileDroped _filedroped = nullptr;
+
 	WindowData(i32 w, i32 h, String name) :width(w), height(h), WindowName(name)
 	{
 

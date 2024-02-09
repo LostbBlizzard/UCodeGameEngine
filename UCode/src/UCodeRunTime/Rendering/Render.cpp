@@ -5,6 +5,8 @@
 #include <Imgui/backends/imgui_impl_opengl3.h>
 
 RenderAPIStart
+
+
 Render::Render()
 {
 	_Render = nullptr;
@@ -29,7 +31,10 @@ void Render::Init(WindowData windowdata,GameRunTime* gameruntime)
 	_WindowData = windowdata;
 	//SetCallBacks
 
-	
+	if (windowdata._filedroped)
+	{
+
+	}
 }
 
 void Render::ImGuiNewFrame()

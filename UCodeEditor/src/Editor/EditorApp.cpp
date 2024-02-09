@@ -26,7 +26,12 @@ void EditorApp::Run(const String& ProjPath)
     winData.WindowName = "EditorApp";
     winData.SetUpInputs = false;
     //winData.UpdateAppIfInputUpdate = true; 
-    
+    static EditorAppCompoent* app =nullptr;
+    winData._filedroped = [](Vector< StringView > paths)
+    {
+            app->OnFilesDropedOnWindow(paths);
+    };
+
     UCode::GameFilesData AppFilesData;
 
     _App.Init(winData, AppFilesData);
@@ -36,6 +41,7 @@ void EditorApp::Run(const String& ProjPath)
     UCode::Camera2d* APPCam = AppEntity->AddCompoent<UCode::Camera2d>();
     EditorAppCompoent* APP = AppEntity->AddCompoent<EditorAppCompoent>();
     
+    app = APP;
 
     APP->Init(ProjPath);
     
