@@ -10,7 +10,8 @@ UCodeLangExportSymbol("UCodeGameEngineEditor") UCodeLangEmbed(
 	  uintptr _Handle = 0;
     ")");
 
-UCodeLangExportSymbol("UCodeGameEngineEditor") struct ExportContext
+
+struct ExportContext
 {
 	const UCodeLang::ULangPathView AssetPath();
 

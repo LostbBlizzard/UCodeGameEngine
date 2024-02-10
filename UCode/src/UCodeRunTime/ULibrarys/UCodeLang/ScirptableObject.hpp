@@ -63,6 +63,15 @@ UCodeLangExportSymbol("UCodeGameEngine") UCodeLangEmbed(
 	  uintptr _Handle = 0;
     ")");
 
+UCodeLangExportSymbol("UCodeGameEngine") UCodeLangEmbed(
+	R"(
+    $MenuItem<(Size)> tag:
+	  char[/Size] MenuName;
+      |new[this&,char[/Size] name]:
+       MenuName = name;
+    ")");
+
+
 class AssetAPI
 {
 	static ScirptableObject& Cast(uintptr_t _Handle)
