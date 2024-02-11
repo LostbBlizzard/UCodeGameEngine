@@ -148,8 +148,7 @@ private:
 	}
 	
 	
-	Vector<Unique_ptr<EditorWindow>> _EditorWindows;
-	Vector<EditorWindowData> _AllWindowsData;
+	Vector<Unique_ptr<EditorWindow>> _EditorWindows;	
 	i8 NextWindowId;
 
 	void ShowMainMenuBar();

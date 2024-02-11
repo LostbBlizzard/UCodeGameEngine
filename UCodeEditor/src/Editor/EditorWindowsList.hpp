@@ -6,8 +6,17 @@ EditorStart
 class EditorWindowsList
 {
 public:
+	struct NewMenu 
+	{ 
+		const StringView Name;
+		NewMenu(StringView name)
+			:Name(name)
+		{
+		}
+	};
+	struct EndMenu {};
 	
-	const static EditorWindowData* EditorWindows;
+	const static Variant<EditorWindowData,NewMenu,EndMenu>* EditorWindows;
 	const static size_t EditorWindows_Size;
 };
 EditorEnd

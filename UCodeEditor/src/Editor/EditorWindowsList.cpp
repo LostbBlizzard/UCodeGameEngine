@@ -16,30 +16,40 @@
 #include <EditorWindows/BasicWindows/DebugingWindow.hpp>
 EditorStart
 
-EditorWindowData Data2[] =
+Variant<EditorWindowData, EditorWindowsList::NewMenu, EditorWindowsList::EndMenu> Data2[] =
 {
 	//OpenProjectWindow  Must be first Item because 
 	//EditorAppCompoent will load this  Data2[0] when app starts 
 
+	EditorWindowsList::NewMenu("Other"),
+
 	OpenProjectWindow::GetEditorData(),
-	
+	UserSettingsWindow::GetEditorData(),
+
+	EditorWindowsList::EndMenu(),
+
+	EditorWindowsList::NewMenu("Core"),
+
 	InspectWindow::GetEditorData(),
 	GameEditorWindow::GetEditorData(),
 	ProjectFilesWindow::GetEditorData(),
 	ConsoleWindow::GetEditorData(),
 	ProjectWindow::GetEditorData(),
-
-	DebugingWindow::GetEditorData(),
-
 	ExportProjectWindow::GetEditorData(),
-	ShaderGraphWindow::GetEditorData(),
 
-	UCodeGraph::GetEditorData(),
+	EditorWindowsList::EndMenu(),
+	
+	EditorWindowsList::NewMenu("Specialized"),
+	
+	DebugingWindow::GetEditorData(),
+	ShaderGraphWindow::GetEditorData(),
+	//UCodeGraph::GetEditorData(),
 	GitWindow::GetEditorData(),
 	LibraryWindow::GetEditorData(),
-	UserSettingsWindow::GetEditorData(),
+	
+	EditorWindowsList::EndMenu(),
 };
-const EditorWindowData* EditorWindowsList::EditorWindows = Data2;
+const Variant<EditorWindowData,EditorWindowsList::NewMenu,EditorWindowsList::EndMenu>* EditorWindowsList::EditorWindows = Data2;
 const size_t EditorWindowsList::EditorWindows_Size = sizeof(Data2) / sizeof(EditorWindowData);
 
 
