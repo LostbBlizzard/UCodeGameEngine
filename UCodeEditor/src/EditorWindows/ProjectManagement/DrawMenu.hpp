@@ -58,8 +58,8 @@ Optional<size_t> DrawMenu(const Span<T> items, StringView(*getname)(const T&))
                 else
                 {
                     tep = String(ItemScope.value());
-                    ImGui::EndMenu();
-                    myboollist.push_back(lastopen ? ImGui::BeginMenu(tep.c_str()) : false);
+                    //ImGui::EndMenu();
+                    //myboollist.push_back(lastopen ? ImGui::BeginMenu(tep.c_str()) : false);
                 }
                 mysplitstr.push_back(ItemScope.value());
             }
@@ -69,13 +69,13 @@ Optional<size_t> DrawMenu(const Span<T> items, StringView(*getname)(const T&))
 
                 if (MenuScopelist[i])
                 {
-                    ImGui::EndMenu();
+                    //ImGui::EndMenu();
                 }
             }
             else if (ItemScope.has_value())
             {
                 tep = String(ItemScope.value());
-                myboollist.push_back(lastopen ? ImGui::BeginMenu(tep.c_str()) : false);
+                //myboollist.push_back(lastopen ? ImGui::BeginMenu(tep.c_str()) : false);
                 mysplitstr.push_back(ItemScope.value());
             }
 
@@ -100,7 +100,8 @@ Optional<size_t> DrawMenu(const Span<T> items, StringView(*getname)(const T&))
                     }
                 }
 
-                tep = FirstName;
+                //tep = FirstName;
+                tep = Item_MenuName;
                 if (ImGui::MenuItem(tep.c_str()))
                 {
                     ClickedIndex = i;
@@ -114,7 +115,7 @@ Optional<size_t> DrawMenu(const Span<T> items, StringView(*getname)(const T&))
     for (size_t i = 0; i < MenuScopelist.size(); i++)
     {
         if (MenuScopelist[i]) {
-            ImGui::EndMenu();
+            //ImGui::EndMenu();
         }
     }
 

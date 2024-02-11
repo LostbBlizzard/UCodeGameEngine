@@ -2,7 +2,7 @@
 
 
 #include "../UEditorModule.hpp"
-
+#include "UCodeLang/UCodeLang.hpp"
 
 EditorStart
 class CodeModule :public UEditorModule
@@ -24,6 +24,7 @@ public:
 	}
 
 	static void BuildUCode(bool IsInEditor);
+	static const Vector<const UCodeLang::AssemblyNode*>& GetAllVaildCompoents();
 
 
 	void FilesUpdated(const Vector<FileUpdateData>& paths) override;

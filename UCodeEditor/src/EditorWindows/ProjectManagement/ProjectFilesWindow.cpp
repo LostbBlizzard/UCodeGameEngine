@@ -390,6 +390,7 @@ void ProjectFilesWindow::ShowDirButtions()
 
             }
 
+            auto currentulangkey = Get_App()->GetULangAssemblyID();
             auto ULang = UCode::ULangRunTime::Get(Get_App()->GetGameRunTime()->Get_Library_Edit());
 
             struct ScriptMenuInfo
@@ -398,68 +399,80 @@ void ProjectFilesWindow::ShowDirButtions()
                 const UCodeLang::AssemblyNode* node = nullptr;
             };
 
-            Vector<ScriptMenuInfo> MenuInfo;
-            {
-                const UCodeLang::ClassAssembly& CurrentAssembly = ULang->Get_Assembly();
+           thread_local Vector<ScriptMenuInfo> MenuInfo;
+           thread_local Optional<ULangAssemblyID> Myulangkey;
+           {
+               bool isoutofdate = Myulangkey.has_value() ? currentulangkey != Myulangkey.value() : true;
+               if (isoutofdate) 
+               {
+                   Myulangkey = currentulangkey;
+                   const UCodeLang::ClassAssembly& CurrentAssembly = ULang->Get_Assembly();
 
-                for (auto& Item : CurrentAssembly.Classes)
-                {
+                   for (auto& Item : CurrentAssembly.Classes)
+                   {
 
-                    Optional<const UCodeLang::UsedTags*> tagsop;
+                       Optional<const UCodeLang::UsedTags*> tagsop;
 
-                    if (Item->Get_Type() == UCodeLang::ClassType::Class)
-                    {
-                        auto& nod = Item->Get_ClassData();
+                       if (Item->Get_Type() == UCodeLang::ClassType::Class)
+                       {
+                           auto& nod = Item->Get_ClassData();
 
-                        tagsop = &nod.Attributes;
-                    }
+                           tagsop = &nod.Attributes;
+                       }
 
-                    if (tagsop.has_value())
-                    {
-                        const UCodeLang::UsedTags& tags = *tagsop.value();
+                       if (tagsop.has_value())
+                       {
+                           const UCodeLang::UsedTags& tags = *tagsop.value();
 
-                        for (auto& tag : tags.Attributes)
-                        {
-                            const auto& nod = CurrentAssembly.Find_Node(tag.TypeID);
-                            if (StringHelper::StartsWith(nod->FullName, "UCodeGameEngine:MenuItem"))
-                            {
-                                StringView menuname = StringView((const char*)tag._Data.Get_Data(), tag._Data.Size);
+                           for (auto& tag : tags.Attributes)
+                           {
+                               const auto& nod = CurrentAssembly.Find_Node(tag.TypeID);
+                               if (StringHelper::StartsWith(nod->FullName, "UCodeGameEngine:MenuItem"))
+                               {
+                                   StringView menuname = StringView((const char*)tag._Data.Get_Data(), tag._Data.Size);
 
-                                bool hasItem = false;
+                                   bool hasItem = false;
 
-                                for (auto& Item : MenuInfo)
-                                {
-                                    if (Item.MenuName == menuname)
-                                    {
-                                        hasItem = true;
-                                        break;
-                                    }
-                                }
+                                   for (auto& Item : MenuInfo)
+                                   {
+                                       if (Item.MenuName == menuname)
+                                       {
+                                           hasItem = true;
+                                           break;
+                                       }
+                                   }
 
-                                if (!hasItem) {
-                                    ScriptMenuInfo info;
-                                    info.MenuName = menuname;
-                                    info.node = nod;
-                                    MenuInfo.push_back(info);
-                                }
+                                   if (!hasItem) {
+                                       ScriptMenuInfo info;
+                                       info.MenuName = menuname;
+                                       info.node = nod;
+                                       MenuInfo.push_back(info);
+                                   }
 
-                            }
-                        }
-                    }
-                }
+                               }
+                           }
+                       }
+                   }
 
-                //sort by name
-                std::sort(MenuInfo.begin(), MenuInfo.end(), [](ScriptMenuInfo& A, ScriptMenuInfo& B)
-                {
-                    return A.MenuName.compare(B.MenuName) < 0;
-                });
+                   //sort by name
+                   std::sort(MenuInfo.begin(), MenuInfo.end(), [](ScriptMenuInfo& A, ScriptMenuInfo& B)
+                   {
+                          return A.MenuName.compare(B.MenuName) < 0;
+                   });
+               }
             }
 
             ImGui::Separator();
 
 
 
-            Optional<size_t> ClickedIndex = DrawMenu<ScriptMenuInfo>(spanof(MenuInfo), [](const ScriptMenuInfo& Item) -> StringView {return Item.MenuName; });
+            Optional<size_t> ClickedIndex = DrawMenu<ScriptMenuInfo>(spanof(MenuInfo), [](const ScriptMenuInfo& Item) -> StringView {return StringView(Item.MenuName); });
+            if (ClickedIndex.has_value())
+            {
+                auto& Script = MenuInfo[ClickedIndex.value()];
+
+
+            }
 
             ImGui::EndMenu();
         }

@@ -379,6 +379,8 @@ void CodeModule::BuildUCode(bool IsInEditor)
 									{
 										ULang->ReLoadScripts();
 									}
+
+									app->UpdateUAssemblyKey();
 								}
 
 							}
@@ -396,6 +398,40 @@ void CodeModule::BuildUCode(bool IsInEditor)
 
 		Threads->AddTask_t(UCode::TaskType::FileIO, std::move(OnOtherThread), {});
 	}
+}
+
+const Vector<const UCodeLang::AssemblyNode*>& CodeModule::GetAllVaildCompoents()
+{
+	auto app = EditorAppCompoent::GetCurrentEditorAppCompoent();
+
+	thread_local Vector<const UCodeLang::AssemblyNode*> vaildcompoents;
+	thread_local Optional<ULangAssemblyID> myassemblykey;
+
+	auto assemblykey = app->GetULangAssemblyID();
+
+	bool isoutofdate = myassemblykey.has_value() ? assemblykey != myassemblykey.value() : false;
+
+	if (isoutofdate) 
+	{
+		vaildcompoents.clear();
+		myassemblykey = assemblykey;
+
+		auto ULang = UCode::ULangRunTime::Get(app->GetGameRunTime()->Get_Library_Edit());
+		auto& Assembly = ULang->Get_Assembly();
+
+		for (const auto& Item : Assembly.Classes)
+		{
+			if (Item->Get_Type() == UCodeLang::ClassType::Class)
+			{
+				if (UCompiler::IsAComponent(*Item, Assembly))
+				{
+					vaildcompoents.push_back(Item.get());
+				}
+			}
+		}
+	}
+
+	return vaildcompoents;
 }
 
 Result<Vector<ExportEditorReturn>, ExportErrors> CodeModule::ExportSystems(const ExportEditorContext& Context)
