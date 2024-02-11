@@ -14,6 +14,7 @@
 #include <stack>
 #include "UEditorModules/UEditorModule.hpp"
 #include "ULang/UCompiler.hpp"
+#include "UEditorModules/Modules/CodeModule.hpp"
 EditorStart
 
 
@@ -334,24 +335,19 @@ void Inspect_Compoent2d::ShowAddCompoenList(UCode::Entity* item)
                 {
                     ImGui::Separator();
 
-                    auto ULang = UCode::ULangRunTime::Get(item->NativeGameRunTime()->Get_Library_Edit());
-                    auto& Assembly = ULang->Get_Assembly();
-
-
-                    for (const auto& Item : Assembly.Classes)
+                    const Vector<const UCodeLang::AssemblyNode*>& vaildcompoents = CodeModule::GetAllVaildCompoents();
+                    
+                    for (const auto& Item : vaildcompoents)
                     {
-                        if (Item->Get_Type() == UCodeLang::ClassType::Class) 
+                        if (Item->Get_Type() == UCodeLang::ClassType::Class)
                         {
-                            if (UCompiler::IsAComponent(*Item, Assembly))
+                            auto Spr = Inspect_Compoent2d::GetCompoentSprite(UCode::ULangScript::Get_TypeID());
+                            ImGuIHelper::Image(Spr, Size);
+                            ImGui::SameLine();
+                            if (ImGui::Button(Item->FullName.size() ? Item->FullName.c_str() : "##"))
                             {
-                                auto Spr = Inspect_Compoent2d::GetCompoentSprite(UCode::ULangScript::Get_TypeID());
-                                ImGuIHelper::Image(Spr, Size);
-                                ImGui::SameLine();
-                                if (ImGui::Button(Item->FullName.size() ? Item->FullName.c_str() : "##"))
-                                {
-                                    auto script = item->AddCompoent<UCode::ULangScript>();
-                                    script->LoadScript(Item.get());
-                                }
+                                auto script = item->AddCompoent<UCode::ULangScript>();
+                                script->LoadScript(Item);
                             }
                         }
                     }

@@ -585,25 +585,25 @@ private:
 template<typename T>
 Span<T> spanof(Vector<T>& base, size_t offset = 0, size_t count = -1)
 {
-	return Span<T>::Make(base.data() + offset, count);
+	return Span<T>::Make(base.data() + offset, count == -1 ? base.size() : std::min(base.size(),count));
 }
 
 template<typename T>
 const Span<T> spanof(const Vector<T>& base, size_t offset = 0, size_t count = -1)
 {
-	return Span<T>::Make(base.data() + offset, count);
+	return Span<T>::Make(base.data() + offset, count == -1 ? base.size() : std::min(base.size(),count));
 }
 
 template<typename T,uintptr_t Size>
 Span<T> spanof(Array<T,Size>& base, size_t offset = 0, size_t count = -1)
 {
-	return Span<T>::Make(base.data() + offset, count);
+	return Span<T>::Make(base.data() + offset, count == -1 ? base.size() : std::min(base.size(),count));
 }
 
 template<typename T,uintptr_t Size>
 const Span<T> spanof(const Array<T,Size>& base, size_t offset = 0, size_t count = -1)
 {
-	return Span<T>::Make(base.data() + offset, count);
+	return Span<T>::Make(base.data() + offset, count == -1 ? base.size() : std::min(base.size(),count) );
 }
 
 template<typename T,typename X>
@@ -631,6 +631,8 @@ auto filter(const Span<T> base,bool(*get)(const T&))
 	r.func = get;
 	return r;
 }
+
+template<typename T>
 void reduce()
 {
 

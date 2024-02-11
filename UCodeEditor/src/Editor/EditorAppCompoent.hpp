@@ -33,6 +33,7 @@ struct UndoData
 };
 
 using DontWaitInputKey = int;
+using ULangAssemblyID = int;
 class EditorAppCompoent :public UCode::Renderer2d
 {
 public:
@@ -102,10 +103,21 @@ public:
 	std::function<void(bool)> SetWaitForInput;
 	DontWaitInputKey AddDontWaitForInput();
 	void RemoveWaitForInput(DontWaitInputKey key);
+	
+	//will change when ULang runtime reloads
+	ULangAssemblyID GetULangAssemblyID()
+	{
+		return _AssemblyKey;
+	}
+
+	void UpdateUAssemblyKey()
+	{
+		_AssemblyKey++;
+	}
 private:
 	DontWaitInputKey _NextDontWaitKey = {};
 	Vector<DontWaitInputKey> _ListDontWaitKeys;
-
+	ULangAssemblyID _AssemblyKey = {};
 	//CompoentStuff
 	void OnDraw() override;
 	
