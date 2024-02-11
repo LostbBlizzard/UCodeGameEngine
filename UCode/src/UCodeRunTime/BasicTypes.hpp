@@ -582,9 +582,61 @@ private:
 	size_t _Size;
 };
 
+template<typename T>
+Span<T> spanof(Vector<T>& base, size_t offset = 0, size_t count = -1)
+{
+	return Span<T>::Make(base.data() + offset, count);
+}
+
+template<typename T>
+const Span<T> spanof(const Vector<T>& base, size_t offset = 0, size_t count = -1)
+{
+	return Span<T>::Make(base.data() + offset, count);
+}
+
+template<typename T,uintptr_t Size>
+Span<T> spanof(Array<T,Size>& base, size_t offset = 0, size_t count = -1)
+{
+	return Span<T>::Make(base.data() + offset, count);
+}
+
+template<typename T,uintptr_t Size>
+const Span<T> spanof(const Array<T,Size>& base, size_t offset = 0, size_t count = -1)
+{
+	return Span<T>::Make(base.data() + offset, count);
+}
+
+template<typename T,typename X>
+Vector<T> map(const Span<T> base,X(*get)(const T&))
+{
+	Vector<T> r;
+	r.resize(base.Size());
+	for (size_t i = 0; i < base.Size(); i++)
+	{
+		r[i] = base[i];
+	}
+	return r;
+}
+
+template<typename T>
+auto filter(const Span<T> base,bool(*get)(const T&))
+{
+	struct filterreturn
+	{
+		const Span<T> base;
+		bool(*get)(const T&) func;
+	};
+	filterreturn r;
+	r.base = base;
+	r.func = get;
+	return r;
+}
+void reduce()
+{
+
+}
 
 template<typename T> using Weak_ptr = std::weak_ptr<T>;//this need it's own implementation
-
 
 template<typename T>
 using Unique_ptr = std::unique_ptr<T>;
