@@ -21,15 +21,12 @@ EditorStart
 
 
 constexpr const float MaxAutoTimer = 30;
-
-#define OpenProjectWindow EditorWindowsList::EditorWindows[0]
+#define OpenProjectWindow EditorWindowsList::EditorWindows[1].GetType<EditorWindowData>()
 EditorAppCompoent::EditorAppCompoent(UCode::Entity* entity) :
     UCode::Renderer2d(entity, nullptr),
     NextWindowId(0)
 {
-    AppFiles::Init(GetGameRunTime()->Get_Library_Edit());
-    
-   
+    AppFiles::Init(GetGameRunTime()->Get_Library_Edit()); 
 
 
     _This = this;
@@ -62,12 +59,7 @@ void EditorAppCompoent::Init(const Path& projDir)
     }
 
     ImGuIHelper_Asset::AssetManager = AssetS;
-    ImGuIHelper_Asset::ProjectData = Get_RunTimeProjectData();
-    for (size_t i = 0; i < EditorWindowsList::EditorWindows_Size; i++)
-    {
-        auto& Item = EditorWindowsList::EditorWindows[i];
-        _AllWindowsData.push_back(Item);
-    }
+    ImGuIHelper_Asset::ProjectData = Get_RunTimeProjectData(); 
    
     if (!std::filesystem::exists("imgui.ini"))
     {
@@ -308,14 +300,40 @@ void  EditorAppCompoent::ShowMainMenuBar()
             if (ImGui::BeginMenu("Add New windows"))
             {
 
-                for (auto Item : _AllWindowsData)
+                String tep;
+                Vector<bool> stack;
+                for (size_t i = 0; i < EditorWindowsList::EditorWindows_Size; i++)
                 {
-                    if (ImGui::Button(Item.GetName().c_str()))
+                    auto& Item = EditorWindowsList::EditorWindows[i];
+                   
+                    if (auto item = Item.IfType<EditorWindowsList::NewMenu>())
                     {
-                        NewEditorWindowData Data = NewEditorWindowData(this);
-                        MakeNewWindow(Item, Data);
+                        tep = item->Name;
+                        stack.push_back(ImGui::BeginMenu(tep.c_str()));
+                    }
+                    else if (Item.IsType<EditorWindowsList::EndMenu>())
+                    {
+                        if (stack.size() ? stack.back() == true : true) {
+                            ImGui::EndMenu();
+                        }
+                    }
+                    else if (auto val = Item.IfType<EditorWindowData>()) 
+                    {
+                        if (stack.size() ? stack.back() == true : true) 
+                        {
+                            if (ImGui::MenuItem(val->GetName().c_str()))
+                            {
+                                NewEditorWindowData Data = NewEditorWindowData(this);
+                                MakeNewWindow(*val, Data);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        UCodeGEUnreachable();
                     }
                 }
+                
 
                 ImGui::EndMenu();
             }
@@ -449,15 +467,19 @@ void  EditorAppCompoent::LoadWindowsPref()
     for (size_t i = 0; i < data._Windows.size(); i++)
     {
         const auto& Item = data._Windows[i];
-        EditorWindowData* window = nullptr;
+        const EditorWindowData* window = nullptr;
 
-
-        for (auto& WItem : _AllWindowsData)
+        for (size_t i = 0; i < EditorWindowsList::EditorWindows_Size; i++)
         {
-            if (WItem.GetName() == Item._Windowid)
+            if (EditorWindowsList::EditorWindows[i].IsType<EditorWindowData>()) 
             {
-                window = &WItem;
-                break;
+                auto& WItem = EditorWindowsList::EditorWindows[i].GetType<EditorWindowData>();
+
+                if (WItem.GetName() == Item._Windowid)
+                {
+                    window = &WItem;
+                    break;
+                }
             }
         }
         if (window == nullptr) { continue; }
