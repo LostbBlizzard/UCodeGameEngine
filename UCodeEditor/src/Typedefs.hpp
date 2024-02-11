@@ -32,7 +32,7 @@ using Vector = UC::Vector<T>;
 
 template<typename T>
 using Span = UC::Span<T>;
-
+	
 template<typename T, size_t Size>
 using Array = UC::Array<T, Size>;
 
@@ -110,4 +110,24 @@ using Variant = UC::Variant<T...>;
 #define UCODE_EDITOR_NODISCARD UCodeGameEngineNoDiscard
 
 
+template<typename T>
+Span<T> spanof(Vector<T>& base, size_t offset = 0, size_t count = -1)
+{
+	return UC::spanof<T>(base, offset, count);
+}
+template<typename T>
+const Span<T> spanof(const Vector<T>& base, size_t offset = 0, size_t count = -1)
+{
+	return UC::spanof<T>(base, offset, count);
+}
+template<typename T,uintptr_t Size>
+Span<T> spanof(Array<T,Size>& base, size_t offset = 0, size_t count = -1)
+{
+	return UC::spanof<T,Size>(base, offset, count);
+}
+template<typename T,uintptr_t Size>
+const Span<T> spanof(const Array<T,Size>& base, size_t offset = 0, size_t count = -1)
+{
+	return UC::spanof<T,Size>(base, offset, count);
+}
 EditorEnd
