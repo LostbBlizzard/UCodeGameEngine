@@ -212,27 +212,27 @@ void  EditorAppCompoent::ShowMainMenuBar()
             ImGui::Text(ProjText);
             if (IsOpenInProject)
             {
-                if (ImGui::Button("Save Project", ButtionSize))
+                if (ImGui::MenuItem("Save Project"))
                 {
                     SaveApp();
                 }
-                if (ImGui::Button("Close Project", ButtionSize))
+                if (ImGui::MenuItem("Close Project"))
                 {
                     EndProject();
                 }
-                if (ImGui::Button("Export Project", ButtionSize))
+                if (ImGui::MenuItem("Export Project"))
                 {
                     Get_Window<ExportProjectWindow>();
                 }
             }
 
             ImGui::Separator();
-            if (ImGui::Button("Make New Project", ButtionSize))//Move This to OpenProjectWindow
+            if (ImGui::MenuItem("Make New Project"))//Move This to OpenProjectWindow
             {
                 NewEditorWindowData DataForWindow(this);
                 MakeNewWindow(OpenProjectWindow, DataForWindow);
             }
-            if (ImGui::Button("Open Project", ButtionSize))
+            if (ImGui::MenuItem("Open Project"))
             {
                 auto DirInfo = FileHelper::OpenDirFromUser();
                 if (DirInfo.Result == FileHelper::OpenFileResult::OKAY)
@@ -247,7 +247,7 @@ void  EditorAppCompoent::ShowMainMenuBar()
 
             }
           
-            if (ImGui::Button("Quit", ButtionSize))
+            if (ImGui::MenuItem("Quit"))
             {
                 StopEditor();
             }
@@ -258,7 +258,6 @@ void  EditorAppCompoent::ShowMainMenuBar()
         {
             if (ImGui::MenuItem("Undo","CTRL+Z",nullptr,_Undos.size()))
             {
-
                 Undo();
             }
             if (ImGui::MenuItem("Redo","CTRL+Y",nullptr,_Redos.size()))
@@ -291,11 +290,6 @@ void  EditorAppCompoent::ShowMainMenuBar()
 
                 ImGui::EndMenu();
             }
-
-
-
-
-
 
             if (ImGui::BeginMenu("Add New windows"))
             {
@@ -340,13 +334,11 @@ void  EditorAppCompoent::ShowMainMenuBar()
             ImGui::Separator();
             for (auto& Window : _EditorWindows)
             {
-                if (Window) {
+                if (Window)
+                {
                     if (ImGui::BeginMenu(Window->Get_ImGuiName().c_str()))
                     {
-
-
-
-                        if (ImGui::Button("Remove Window"))
+                        if (ImGui::MenuItem("Remove Window"))
                         {
                             ReMoveEditorWindow(Window.get());
                         }
