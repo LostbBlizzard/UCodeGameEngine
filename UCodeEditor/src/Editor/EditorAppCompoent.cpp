@@ -700,7 +700,7 @@ void EditorAppCompoent::OnDraw()
                 {
                     const auto& Item = filepaths[i];
 
-                    String name = "Assets" + FileHelper::ToRelativePath(assets.parent_path().generic_string(), Item).generic_string();
+                    String name = "Assets" + FileHelper::ToRelativePath((Path)assets.parent_path().generic_string(), (Path)Item).generic_string();
                     
                     if (StringHelper::Fllter(Sreach, name))
                     {
