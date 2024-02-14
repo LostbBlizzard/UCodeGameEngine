@@ -692,7 +692,7 @@ void EditorAppCompoent::OnDraw()
             ImGuIHelper::InputText("Search", Sreach);
             ImGui::Separator();
             
-            String comboname = "Assets" + FileHelper::ToRelativePath(assets.parent_path().generic_string(),lastvalue).generic_string();
+            String comboname = "Assets" + FileHelper::ToRelativePath(assets.parent_path(),lastvalue).generic_string();
                     
             if (ImGui::BeginCombo("Select Directory", comboname.c_str(), ImGuiComboFlags_NoArrowButton))
             {
@@ -700,7 +700,7 @@ void EditorAppCompoent::OnDraw()
                 {
                     const auto& Item = filepaths[i];
 
-                    String name = "Assets" + FileHelper::ToRelativePath((Path)assets.parent_path().generic_string(), (Path)Item).generic_string();
+                    String name = "Assets" + FileHelper::ToRelativePath(assets.parent_path(), (Path)Item).generic_string();
                     
                     if (StringHelper::Fllter(Sreach, name))
                     {
