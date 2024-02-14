@@ -1271,9 +1271,9 @@ newaction {
 function Copydir(Src,Out)
  
  if os.istarget("windows") then
-    excuteorexit("xcopy /Q /E /Y /I " .. src .. " " .. Out)
+    excuteorexit("xcopy /Q /E /Y /I " .. Src .. " " .. Out)
  else
-    excuteorexit("cp -rf " .. src .. " " .. Out)
+    excuteorexit("cp -rf " .. Src .. " " .. Out)
  end
 
 end
