@@ -1284,10 +1284,10 @@ newaction {
     execute = function ()
         
     
-        Copydir("./UCodeAPI/GameEngine ./UCodeEditor/UFiles/source/UCodeGameEngine") 
-        Copydir("./UCodeAPI/GameEngineEditor ./UCodeEditor/UFiles/source/UCodeGameEngineEditor")
-        Copydir("./UCodeAPI/Dependencies/UCodeLang/UCodeAPI/StandardLibrary ./UCodeEditor/UFiles/source/StandardLibrary")
-        Copydir("./UCodeAPI/Dependencies/UCodeLang/UCodeAPI/NStandardLibrary ./UCodeEditor/UFiles/source/NStandardLibrary") 
+        Copydir("./UCodeAPI/GameEngine","./UCodeEditor/UFiles/source/UCodeGameEngine") 
+        Copydir("./UCodeAPI/GameEngineEditor","./UCodeEditor/UFiles/source/UCodeGameEngineEditor")
+        Copydir("./UCodeAPI/Dependencies/UCodeLang/UCodeAPI/StandardLibrary","./UCodeEditor/UFiles/source/StandardLibrary")
+        Copydir("./UCodeAPI/Dependencies/UCodeLang/UCodeAPI/NStandardLibrary","./UCodeEditor/UFiles/source/NStandardLibrary") 
         
 
         if os.istarget("linux") then
