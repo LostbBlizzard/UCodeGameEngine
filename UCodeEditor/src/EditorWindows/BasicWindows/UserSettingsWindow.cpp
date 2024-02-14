@@ -48,6 +48,14 @@ void UserSettingsWindow::UpdateWindow()
 
 	if (ImGui::BeginTabBar("##Editor_tabs", ImGuiTabBarFlags_None))
 	{
+		if (ImGui::BeginTabItem("Application"))
+		{
+			ImGuIHelper::BoolEnumField("Auto Update", Settings.allowautoudate);
+
+			ImGui::EndTabItem();
+		}
+		
+		
 		if (ImGui::BeginTabItem("CodeEditor"))
 		{
 			ImGuIHelper::InputPath("CodeEditor", Settings.CodeEditorPath, {}, ImGuIHelper::InputPathType::File, Span<String>(&RunableFilesExt[0], RunableFilesExtCount));
