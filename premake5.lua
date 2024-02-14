@@ -431,9 +431,15 @@ project "UCodeEditor"
      "%{prj.name}/src/**.h",
      "%{prj.name}/src/**.cpp",
      "%{prj.name}/src/**.hpp",
+    }
+
+   filter {"system:Windows"}
+    files {
      "%{prj.name}/resource.h",
      "%{prj.name}/UCodeEditor.rc" 
-   }
+    }
+
+   filter {}
    includedirs{"%{prj.name}/src"}
    removefiles{"%{prj.name}/src/OtherLibrarys/ImGuizmo/example/**"}
    
