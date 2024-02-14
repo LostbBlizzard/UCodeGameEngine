@@ -190,6 +190,8 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v3
+        with:
+         submodules: 'true'
 
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v3
