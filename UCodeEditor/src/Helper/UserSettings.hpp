@@ -6,6 +6,7 @@ class UserSettings
 public:
 	String CodeEditorPath;
 	String OpenCodeEditorFileArg;
+	bool allowautoudate = true;
 
 	static inline const char* FilePathArg = "{FilePath}";
 	static inline const char* FileLineNumberArg = "{LineNumber}";

@@ -42,6 +42,7 @@ bool UserSettings::ToFile(const Path& path,const UserSettings& Value)
 	USerializer Output(USerializerType::Readable);
 	Output.Write("CodeEditorPath",Value.CodeEditorPath);
 	Output.Write("OpenCodeEditorFileArg", Value.OpenCodeEditorFileArg);
+	Output.Write("AutoUpdate", Value.allowautoudate);
 
 	return Output.ToFile(path, false);
 }
@@ -62,8 +63,15 @@ bool UserSettings::FromFile(const Path& path, UserSettings& Value)
 
 
 		UDeserializer Input; Input.SetYAMLString(Text);
+
+		auto& yaml = Input.Get_TextReader();
+
 		Input.ReadType("CodeEditorPath", Value.CodeEditorPath, Value.CodeEditorPath);
 		Input.ReadType("OpenCodeEditorFileArg", Value.OpenCodeEditorFileArg, Value.OpenCodeEditorFileArg);
+		
+		if (yaml["AutoUpdate"]) {
+			Input.ReadType("AutoUpdate", Value.allowautoudate);
+		}
 		return true;
 	}
 	return false;
