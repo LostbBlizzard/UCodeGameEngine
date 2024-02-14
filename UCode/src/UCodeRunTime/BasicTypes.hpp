@@ -624,7 +624,7 @@ auto filter(const Span<T> base,bool(*get)(const T&))
 	struct filterreturn
 	{
 		const Span<T> base;
-		bool(*)(const T&) func;
+		bool(*func)(const T&);
 	};
 	filterreturn r;
 	r.base = base;
