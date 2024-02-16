@@ -1015,25 +1015,6 @@ class Bounds3dInt
 template<typename R, typename... Pars>
 using Delegate = std::function<R(Pars...)>;
 
-struct Version
-{
-	u64 Major;
-	u64 Minor;
-	u64 Revision;
-	Version()
-	{
-		Major = 0;
-		Minor = 0;
-		Revision = 0;
-	}
-	Version(u64 major, u64 minor, u64 revision)
-	{
-		Major = major;
-		Minor = minor;
-		Revision = revision;
-	}
-};
-
 template<typename T, typename E>
 class Result
 {

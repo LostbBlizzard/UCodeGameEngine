@@ -3,6 +3,7 @@
 #include "UCodeRunTime/BasicTypes.hpp"
 #include <UCodeRunTime/ULibrarys/AssetManagement/UID.hpp>
 #include <cstring>
+#include "UCodeRunTime/BasicTypes/Version.hpp"
 CoreStart
 
 //Not By default this will be useing little  Endian
@@ -197,7 +198,7 @@ public:
 	{
 		WriteType(Value.Major);
 		WriteType(Value.Minor);
-		WriteType(Value.Revision);
+		WriteType(Value.Patch);
 	}
 	
 
@@ -500,7 +501,7 @@ public:
 	{
 		ReadType(Out.Major, Out.Major);
 		ReadType(Out.Minor, Out.Minor);
-		ReadType(Out.Revision, Out.Revision);
+		ReadType(Out.Patch, Out.Patch);
 	}
 	
 private:

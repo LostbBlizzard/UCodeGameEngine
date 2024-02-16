@@ -350,6 +350,30 @@ void  EditorAppCompoent::ShowMainMenuBar()
 
             ImGui::EndMenu();
         }
+
+        if (ImGui::BeginMenu("Help"))
+        {
+            if (ImGui::MenuItem("Geting Started"))
+            {
+
+            }
+
+            if (ImGui::MenuItem("Documentation"))
+            {
+
+            }
+            
+            if (ImGui::MenuItem("Forums"))
+            {
+
+            }
+
+            if (ImGui::MenuItem("Bugreport/Issue"))
+            {
+
+            }
+            ImGui::EndMenu();
+        }
         ImGui::EndMainMenuBar();
     }
 }
