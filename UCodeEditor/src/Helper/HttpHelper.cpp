@@ -11,7 +11,7 @@ Optional<String> HttpHelper::DonloadString(const Url& host, const Url& file)
 {
 #if UCodeGEWindows 
 	String Cmd = "curl.exe";
-#elif
+#else
 	String Cmd = "curl";
 #endif
 
