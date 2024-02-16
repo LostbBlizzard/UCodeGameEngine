@@ -74,16 +74,15 @@ bool WindowDrawAPI::Field(const StringView FieldName, double& Value)
     return ImGuIHelper::f64Field(GetCString(FieldName), Value);
 }
 
-bool WindowDrawAPI::Field(const StringView FieldName, void* Value, UCodeLang::ReflectionCustomTypeID id)
+bool WindowDrawAPI::Field(const StringView FieldName, void* Value, uintptr_t idtype)
 {
-    return false;
+    return bool();
 }
 
-bool WindowDrawAPI::FieldRawView(const StringView FieldName, void* Value, UCodeLang::ReflectionCustomTypeID id)
+bool WindowDrawAPI::FieldRawView(const StringView FieldName, void* Value, uintptr_t idtype)
 {
-    return false;
+    return bool();
 }
-
 
 
 bool WindowDrawAPI::iField(const StringView FieldName,const uint8_t& Value)
@@ -190,12 +189,12 @@ bool WindowDrawAPI::iField(const StringView FieldName, const double& Value)
     return r;
 }
 
-bool WindowDrawAPI::iField(const StringView FieldName, const void* Value, UCodeLang::ReflectionCustomTypeID id)
+bool WindowDrawAPI::iField(const StringView FieldName, const void* Value, uintptr_t id)
 {
     return false;
 }
 
-bool WindowDrawAPI::iFieldRawView(const StringView FieldName, const void* Value, UCodeLang::ReflectionCustomTypeID id)
+bool WindowDrawAPI::iFieldRawView(const StringView FieldName, const void* Value, uintptr_t id)
 {
     return false;
 }
