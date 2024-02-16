@@ -5,13 +5,17 @@ CoreStart
 
 struct Version
 {
-	int Major = 0;
-	int Minor = 0;
-	int Patch = 0;
+	u32 Major = 0;
+	u32 Minor = 0;
+	u32 Patch = 0;
 
 	constexpr Version(int major,int minor,int patch)
 		:Major(major),Minor(minor),Patch(patch)
 	{
+	}
+	constexpr Version()
+	{
+
 	}
 
 	static constexpr Version CurrentUCodeVersion()
