@@ -65,7 +65,7 @@ void ConsoleWindow::UpdateWindow()
             {
                 _LookingAtLog = &Item;
             }
-            if (ImGui::IsMouseDoubleClicked(0))
+            if (ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
             {
                 if (Item._OnOpen.has_value())
                 {
