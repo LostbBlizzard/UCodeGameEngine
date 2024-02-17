@@ -11,6 +11,10 @@
 #include "../Helper/FileHelper.hpp"
 #include "../Helper/UserSettings.hpp"
 
+#if UCodeGEWindows
+#include <Windows.h>
+#endif
+
 #if UCodeGEDebug
 #include "tests/tests.hpp"
 #endif // DEBUG
@@ -294,16 +298,30 @@ int App::main(int argc, char* argv[])
 		}
 		else if (StringHelper::StartsWith(Str, "uninstall"))
 		{
-			Path exepath = argv[0];
+			Path exepath = std::filesystem::absolute(argv[0]);
 			
 			#if UCodeGEWindows
 			auto unstallerpath = UE::FileHelper::GetEditorGlobalDirectory() / "unins000.exe";
 			
 			UC::String cmd = unstallerpath.generic_string();
 
-			std::filesystem::rename(exepath, exepath.generic_string() + ".exe");
+			cmd += " /VERYSILENT";
 
 			system(cmd.c_str());
+
+			Path removeexepath = UE::FileHelper::GetEditorGlobalDirectory() / "remov_exe.bat";
+		
+			UC::String batfiletxt = "ping 127.0.0.1 -n 1 > nul \n";
+			batfiletxt += "del \"" + removeexepath.generic_string() + "\" \n";
+			batfiletxt += "del \"" + exepath.generic_string() + "\" \n";
+			batfiletxt += "DEL /F /Q /S " + UE::FileHelper::GetEditorGlobalDirectory().generic_string();
+			batfiletxt += "\* \n";
+			batfiletxt += "for /D %%i in (" + UE::FileHelper::GetEditorGlobalDirectory().generic_string() + ") do RD /S /Q \"%%i\"";
+
+			UC::GameFiles::Writetext(batfiletxt,removeexepath);
+
+			Path c = "open";
+			ShellExecute(NULL, c.c_str(), removeexepath.c_str(),NULL, NULL, SW_HIDE);
 			return EXIT_SUCCESS;
 			#else
 
