@@ -68,6 +68,11 @@ public:
 
 	static void OpenExe(const Path& path,const String& Args);
 	static void OpenExeSubProcess(const Path& path, const String& Args);
+
+	static Path GetEditorGlobalDirectory();
+	static Path GetEditorGlobalPackageDownloads();
+	static Path GetEditorGlobalBin();
+	static Path GetEditorGlobalCacheDirectory();
 private:
 	static void Setfilters(const FileTypesOptions_t& filetypes, String&  filterList);
 };

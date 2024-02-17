@@ -17,7 +17,15 @@
 #if UCodeGEWindows
 #include <Windows.h>
 #include <shellapi.h>
+#include <shlobj.h>
 #endif // DEBUG
+
+#if UCodeGEPosix
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+#endif
+
 namespace fs = std::filesystem;
 EditorStart
 
@@ -201,6 +209,71 @@ void FileHelper::OpenExeSubProcess(const Path& path, const String& Args)
 {
 	String SysCall = path.generic_string() + " " + Args;
 	system(SysCall.c_str());
+}
+
+Path FileHelper::GetEditorGlobalDirectory()
+{
+	#if UCodeGEWindows
+	WCHAR my_documents[MAX_PATH];
+    HRESULT result = SHGetFolderPathW(0, CSIDL_PROFILE, 0, 0,my_documents);
+
+    if (SUCCEEDED(result)) 
+    {
+        Path DocPath = my_documents;
+    
+        DocPath /= ".ucodegameengine";
+
+        if (!std::filesystem::exists(DocPath)) {
+            std::filesystem::create_directory(DocPath);
+        }
+
+        return DocPath;
+    }
+    else
+    {
+        return "";
+    }
+    #elif UCodeGEPosix
+    struct passwd *pw = getpwuid(getuid());
+
+    const char *homedir = pw->pw_dir;
+    Path DocPath = homedir;
+    DocPath /= ".ucodegameengine";
+    if (!std::filesystem::exists(DocPath)) {
+            std::filesystem::create_directory(DocPath);
+    }
+    return DocPath;
+	#endif
+}
+
+Path FileHelper::GetEditorGlobalPackageDownloads()
+{
+	auto Path = GetEditorGlobalDirectory() / "packages";
+
+	if (!std::filesystem::exists(Path)) {
+		std::filesystem::create_directory(Path);
+	}
+	return Path;
+}
+
+Path FileHelper::GetEditorGlobalBin()
+{
+	auto Path = GetEditorGlobalDirectory() / "bin";
+
+	if (!std::filesystem::exists(Path)) {
+		std::filesystem::create_directory(Path);
+	}
+	return Path;
+}
+
+Path FileHelper::GetEditorGlobalCacheDirectory()
+{
+	auto Path = GetEditorGlobalDirectory() / "cache";
+
+	if (!std::filesystem::exists(Path)) {
+		std::filesystem::create_directory(Path);
+	}
+	return Path;
 }
 
 void FileHelper::Setfilters(const FileHelper::FileTypesOptions_t& filetypes, String&  filterList)
