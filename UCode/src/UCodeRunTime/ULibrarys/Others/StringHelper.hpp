@@ -6,13 +6,27 @@ class StringHelper
 {
 public:
 
-	static Vector<StringView> Split(const StringView Base, const StringView spliter)
+	template<typename T>
+	static bool StartWith(const StringViewBase<T> Base,const StringViewBase<T> ToMatch)
 	{
-		Vector<StringView> r;
-		Split(Base, spliter, r);
+		if (ToMatch.size() > Base.size()) { return false; }
+
+		for (size_t i = 0; i < ToMatch.size(); i++)
+		{
+			if (Base[i] != ToMatch[i]) { return false; }
+		}
+		return true;
+	}
+
+	template<typename T>
+	static Vector< StringViewBase<T> > Split_t(const StringViewBase<T> Base, const StringViewBase<T> spliter)
+	{
+		Vector< StringViewBase<T> > r;
+		Split_t<T>(Base, spliter, r);
 		return r;
 	}
-	static void Split(const StringView Base, const StringView spliter, Vector<StringView>& out)
+	template<typename T>
+	static void Split_t(const StringViewBase<T> Base, const StringViewBase<T> spliter, Vector< StringViewBase<T> >& out)
 	{
 		out.clear();
 
@@ -29,7 +43,7 @@ public:
 
 				if (splitercount == spliter.size())
 				{
-					StringView n = Base.substr(startindex, i - splitstart);
+					StringViewBase<T> n = Base.substr(startindex, i - splitstart);
 
 					out.push_back(n);
 					splitercount = 0;
@@ -44,11 +58,35 @@ public:
 
 		if (out.size())
 		{
-			StringView n = Base.substr(splitstart, Base.size() - splitstart);
+			StringViewBase<T> n = Base.substr(splitstart, Base.size() - splitstart);
 
 			out.push_back(n);
 
 		}
+	}
+	static void Split(const StringViewBase<char> Base, const StringViewBase<char> spliter, Vector< StringViewBase<char> >& out)
+	{
+		return Split_t<char>(Base, spliter, out);
+	}
+	static Vector< StringViewBase<char> > Split(const StringViewBase<char> Base, const StringViewBase<char> spliter)
+	{
+		return Split_t<char>(Base, spliter);
+	}
+	static void Split(const StringViewBase<utf8> Base, const StringViewBase<utf8> spliter, Vector< StringViewBase<utf8> >& out)
+	{
+		return Split_t<utf8>(Base, spliter, out);
+	}
+	static Vector< StringViewBase<utf8> > Split(const StringViewBase<utf8> Base, const StringViewBase<utf8> spliter)
+	{
+		return Split_t<utf8>(Base, spliter);
+	}
+	static void Split(const StringViewBase<utf16> Base, const StringViewBase<utf16> spliter, Vector< StringViewBase<utf16> >& out)
+	{
+		return Split_t<utf16>(Base, spliter, out);
+	}
+	static Vector< StringViewBase<utf16> > Split(const StringViewBase<utf16> Base, const StringViewBase<utf16> spliter)
+	{
+		return Split_t<utf16>(Base, spliter);
 	}
 };
 CoreEnd

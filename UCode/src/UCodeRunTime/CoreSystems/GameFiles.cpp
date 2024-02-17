@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <sstream>
 #include <UCodeRunTime/ULibrarys/Serialization/Bit_Implementation/AsssetPtr.hpp>
-
+#include <UCodeRunTime/ULibrarys/Others/StringHelper.hpp>
 
 
 #if UCodeGEWindows
@@ -736,6 +736,12 @@ AsynTask_t<String> GameFiles::AsynReadFileString(const Path& path)
 	return threads->AddTask_t(TaskType::File_Input, std::move(V), {});
 }
 
+bool ismovedvaild(const Path& OutPath,const GameFileIndex* Val)
+{
+return std::filesystem::exists(OutPath)
+				&& Val->FileSize == std::filesystem::file_size(OutPath);	
+}
+
 Path GameFiles::GetGameFilePathByMove(const Path& path)
 {
 	if (_Data._Type == GameFilesData::Type::ThisFile)
@@ -744,8 +750,31 @@ Path GameFiles::GetGameFilePathByMove(const Path& path)
 
 		if (auto Val = _Data.GetFile(path))
 		{
-			auto Bits = ReadGameFileAsBytes(path);
-			GameFiles::WriteBytes(Bits.Data(),Bits.Size(),OutPath);
+			if (!ismovedvaild(OutPath,Val)) 
+			{
+				std::filesystem::create_directories(Path(OutPath).parent_path());
+				auto Bits = ReadGameFileAsBytes(path);
+				GameFiles::WriteBytes(Bits.Data(), Bits.Size(), OutPath);
+			}
+		}
+		else //most likely a folder 
+		{
+			for (auto& Item : _Data.Offsets)
+			{
+				bool issubfile = StringHelper::StartWith((PathSpan)Item.FileFullName.native(),(PathSpan)path.native());
+
+				if (issubfile)
+				{
+					auto OutPathfile = OutPath + Item.FileFullName.native().substr(path.native().size());
+
+					if (!ismovedvaild(OutPathfile, &Item))
+					{
+						std::filesystem::create_directories(Path(OutPathfile).parent_path());
+						auto Bits = ReadGameFileAsBytes(Item.FileFullName);
+						GameFiles::WriteBytes(Bits.Data(), Bits.Size(), OutPathfile);	
+					}
+				}
+			}
 		}
 
 		return OutPath;

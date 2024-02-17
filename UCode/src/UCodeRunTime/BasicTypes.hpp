@@ -184,22 +184,28 @@ using UnorderedMap = std::unordered_map<Key, T>;
 template<typename T>
 using Vector = std::vector<T>;
 
-using String =std::string;
-using StringView = std::string_view;
+template<typename T>
+using StringBase =std::basic_string<T>;
 
-using String8 = std::basic_string<utf8>;
-using String8View = std::basic_string_view<utf8>;
+template<typename T>
+using StringViewBase = std::basic_string_view<T>;
 
-using String16 = std::basic_string<utf16>;
-using String16View = std::basic_string_view<utf16>;
+using String = StringBase<char>;
+using StringView = StringViewBase<char>;
 
-using String32 = std::basic_string<utf32>;
-using String32View = std::basic_string_view<utf32>;
+using String8 = StringBase<utf8>;
+using String8View = StringViewBase<utf8>;
+
+using String16 = StringBase<utf16>;
+using String16View = StringViewBase<utf16>;
+
+using String32 = StringBase<utf32>;
+using String32View = StringViewBase<utf32>;
 
 using Path = std::filesystem::path;
 using PathChar = Path::value_type;
-using PathString = std::filesystem::path::string_type;
-using PathSpan = std::basic_string_view<PathChar>;
+using PathString = StringBase<PathChar>;
+using PathSpan = StringViewBase<PathChar>;
 
 
 using PathString = std::filesystem::path::string_type;
