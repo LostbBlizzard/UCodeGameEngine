@@ -7,6 +7,9 @@
 #include "../BuildSytems/BuildSytemManger.hpp"
 
 #include "zip.h"
+#include "../Helper/NetworkHelper.hpp"
+#include "../Helper/FileHelper.hpp"
+#include "../Helper/UserSettings.hpp"
 
 #if UCodeGEDebug
 #include "tests/tests.hpp"
@@ -288,16 +291,71 @@ int App::main(int argc, char* argv[])
 			}
 
 			return r.IsValue() ? EXIT_SUCCESS : EXIT_FAILURE;
-			}
+		}
 
 
 		UC::String ProPath = "";
 		if (argc > 1) { ProPath = argv[1]; }
 
 		UE::EditorApp app = UE::EditorApp();
-		app.Run(ProPath);
-		return EXIT_SUCCESS;
+		//app.Run(ProPath);
+
+		{
+			bool allowsautoupdate =UE::UserSettings::GetSettings().allowautoudate;
+
+			if (allowsautoupdate)
+			{
+				auto vop = UE::NetworkHelper::GetNewestVersion();
+				if (vop.has_value())
+				{
+					auto v = vop.value();
+
+					//auto current = UE::Version::CurrentUCodeVersion();
+					auto current = UE::Version(0, 0, 0);
+					bool isversionbiger = current < v;
+
+					if (isversionbiger)
+					{
+						auto changelog = UE::NetworkHelper::GetNewestChangeLog();
+					
+						#if UCodeGEWindows
+						auto installer = UE::NetworkHelper::GetNewestWindowInstall();
+						#else 
+						auto installer = UE::NetworkHelper::GetNewestUnixInstallPath();
+						#endif
+						
+						if (changelog.has_value() && installer.has_value())
+						{
+							auto change = changelog.value();
+							auto in = installer.value();
+
+							UC::GameFiles::Writetext(change, "changelog.md");
+
+							
+							#if UCodeGEWindows
+							auto exe = in.generic_string() + ".exe";
+							std::filesystem::rename(in, exe);
+							installer = {};
+
+							UE::FileHelper::OpenExeSubProcess(exe, "/VERYSILENT");
+							#else
+
+							#endif
+							int a = 0;
+						}
+
+						if (installer.has_value())
+						{
+							std::filesystem::remove(installer.value());
+						}
+
+					}
+
+				}
+			}
 		}
+		return EXIT_SUCCESS;
+	}
 
 #ifndef UCodeGEDebug
 	catch (const std::exception& ex)
