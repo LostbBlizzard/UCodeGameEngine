@@ -292,7 +292,23 @@ int App::main(int argc, char* argv[])
 
 			return r.IsValue() ? EXIT_SUCCESS : EXIT_FAILURE;
 		}
+		else if (StringHelper::StartsWith(Str, "uninstall"))
+		{
+			Path exepath = argv[0];
+			
+			#if UCodeGEWindows
+			auto unstallerpath = UE::FileHelper::GetEditorGlobalDirectory() / "unins000.exe";
+			
+			UC::String cmd = unstallerpath.generic_string();
 
+			std::filesystem::rename(exepath, exepath.generic_string() + ".exe");
+
+			system(cmd.c_str());
+			return EXIT_SUCCESS;
+			#else
+
+			#endif
+		}
 
 		UC::String ProPath = "";
 		if (argc > 1) { ProPath = argv[1]; }
