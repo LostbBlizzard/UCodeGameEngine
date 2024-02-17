@@ -328,3 +328,23 @@ jobs:
           asset_path: changelog.md
           asset_name: changelog.md
           asset_content_type: application/octet-stream
+
+      - name: Upload Windows Version to Itch
+      - uses: manleydev/butler-publish-itchio-action@master
+        env:
+          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+          CHANNEL: windows
+          ITCH_GAME: ucodegameengine 
+          ITCH_USER: Lost blizzard          
+          PACKAGE: UCodeGameEngineSetup.exe    
+          VERSION: ${{ inputs.VersionNumber }}
+          
+      - name: Upload Linux Version to Itch
+      - uses: manleydev/butler-publish-itchio-action@master
+        env:
+          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+          CHANNEL: linux
+          ITCH_GAME: ucodegameengine          
+          ITCH_USER: Lost blizzard           
+          PACKAGE: install.sh
+          VERSION: ${{ inputs.VersionNumber }}
