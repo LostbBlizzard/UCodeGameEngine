@@ -154,8 +154,8 @@ jobs:
             cp Output_Windows/UCodeApp/Win64/Published/UCodeApp.exe UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe
             cp Output_Windows/UCodeApp/Win64/Published/UCodeAppPub.exe UCodeEditor/UFiles/bin/UCAppWinPub86X64.exe
             cp Output_Linux/UCodeEditor/linux64/Published/UCodeEditor Output/UCodeEditor/linux64/Published/UCodeEditor
-            cp Output_Linux/UCodeApp/linux64/Published/UCodeApp UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64.exe
-            cp Output_Linux/UCodeApp/linux64/Published/UCodeAppPub UCodeEditor/UFiles/bin/UCAppLinuxPub86X64.exe
+            cp Output_Linux/UCodeApp/linux64/Published/UCodeApp UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64
+            cp Output_Linux/UCodeApp/linux64/Published/UCodeAppPub UCodeEditor/UFiles/bin/UCAppLinuxPub86X64
 
       - name: Move Outputs 32 bit
         if: ${{ inputs.IsPreRelease == false}}
@@ -172,6 +172,17 @@ jobs:
         run: |
          echo ${{ inputs.VersionNumber }} > ./version.txt
          ./premake.bat updateversion
+
+      - name: Build API bindings
+        run: |
+          Output_Windows/UCodeLangCl/Win64/Published/uclang cppdirtoulangvm ./UCode/src ./UCode/src/UCodeRunTime/ULibrarys/UCodeLang/UCodeAPI.cpp ./UCodeAPI/GameEngine/src/API.uc 
+          Output_Windows/UCodeLangCl/Win64/Published/uclang cppdirtoulangvm ./UCodeEditor/src/ULang/API ./UCodeEditor/src/ULang/EditorLink.cpp ./UCodeAPI/GameEngineEditor/src/API.uc 
+
+      - name: Pack Editor Ufiles
+        run: ./premake.bat package_editor
+      
+      - name: copy new UFiles.data
+        run: cp -f Output/UFiles.data Output/UCodeEditor/Win64/Published/UFiles.data
 
       - name: build installer
         run: ./premake.bat buildinstaller
@@ -205,8 +216,8 @@ jobs:
             cp Output_Windows/UCodeApp/Win64/Published/UCodeApp.exe UCodeEditor/UFiles/bin/UCAppWinDebug86X64.exe
             cp Output_Windows/UCodeApp/Win64/Published/UCodeAppPub.exe UCodeEditor/UFiles/bin/UCAppWinPub86X64.exe
             cp Output_Linux/UCodeEditor/linux64/Published/UCodeEditor Output/UCodeEditor/linux64/Published/UCodeEditor
-            cp Output_Linux/UCodeApp/linux64/Published/UCodeApp UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64.exe
-            cp Output_Linux/UCodeApp/linux64/Published/UCodeAppPub UCodeEditor/UFiles/bin/UCAppLinuxPub86X64.exe
+            cp Output_Linux/UCodeApp/linux64/Published/UCodeApp UCodeEditor/UFiles/bin/UCAppLinuxDebug86X64
+            cp Output_Linux/UCodeApp/linux64/Published/UCodeAppPub UCodeEditor/UFiles/bin/UCAppLinuxPub86X64
 
       - name: Move Outputs 32 bit
         if: ${{ inputs.IsPreRelease == false}}
@@ -218,6 +229,11 @@ jobs:
             
       - name: Run Premake install # because some libs are shared
         run: ./premake.sh install
+      
+      - name: Build API bindings
+        run: |
+          Output_Linux/UCodeLangCl/linux64/Published/uclang cppdirtoulangvm ./UCode/src ./UCode/src/UCodeRunTime/ULibrarys/UCodeLang/UCodeAPI.cpp ./UCodeAPI/GameEngine/src/API.uc 
+          Output_Linux/UCodeLangCl/linux64/Published/uclang cppdirtoulangvm ./UCodeEditor/src/ULang/API ./UCodeEditor/src/ULang/EditorLink.cpp ./UCodeAPI/GameEngineEditor/src/API.uc 
       
       - name: update version
         run: |
