@@ -128,6 +128,7 @@ int App::main(int argc, char* argv[])
 			return UCodeEditor::Tests::RunTests();
 		}
 #endif // DEBUG
+		bool argupdatepassed = false;
 		if (StringHelper::StartsWith(Str, "pack"))
 		{
 			Str = Str.substr(sizeof("pack"));
@@ -299,10 +300,10 @@ int App::main(int argc, char* argv[])
 		else if (StringHelper::StartsWith(Str, "uninstall"))
 		{
 			Path exepath = std::filesystem::absolute(argv[0]);
-			
+
 			#if UCodeGEWindows
 			auto unstallerpath = UE::FileHelper::GetEditorGlobalDirectory() / "unins000.exe";
-			
+
 			UC::String cmd = unstallerpath.generic_string();
 
 			cmd += " /VERYSILENT";
@@ -310,7 +311,7 @@ int App::main(int argc, char* argv[])
 			system(cmd.c_str());
 
 			Path removeexepath = UE::FileHelper::GetEditorGlobalDirectory() / "remov_exe.bat";
-		
+
 			UC::String batfiletxt = "ping 127.0.0.1 -n 1 > nul \n";
 			batfiletxt += "del \"" + removeexepath.generic_string() + "\" \n";
 			batfiletxt += "del \"" + exepath.generic_string() + "\" \n";
@@ -318,26 +319,33 @@ int App::main(int argc, char* argv[])
 			batfiletxt += "\* \n";
 			batfiletxt += "for /D %%i in (" + UE::FileHelper::GetEditorGlobalDirectory().generic_string() + ") do RD /S /Q \"%%i\"";
 
-			UC::GameFiles::Writetext(batfiletxt,removeexepath);
+			UC::GameFiles::Writetext(batfiletxt, removeexepath);
 
 			Path c = "open";
-			ShellExecute(NULL, c.c_str(), removeexepath.c_str(),NULL, NULL, SW_HIDE);
+			ShellExecute(NULL, c.c_str(), removeexepath.c_str(), NULL, NULL, SW_HIDE);
 			return EXIT_SUCCESS;
 			#else
 
 			#endif
 		}
+		else if (StringHelper::StartsWith(Str, "update"))
+		{
+			argupdatepassed = true;
+		}
 
 		UC::String ProPath = "";
 		if (argc > 1) { ProPath = argv[1]; }
 
-		UE::EditorApp app = UE::EditorApp();
-		app.Run(ProPath);
+		if (argupdatepassed ==false)
+		{
+			UE::EditorApp app = UE::EditorApp();
+			app.Run(ProPath);
+		}
 
 		{
 			bool allowsautoupdate =UE::UserSettings::GetSettings().allowautoudate;
 
-			if (allowsautoupdate || UE::UserSettings::updateonclose)
+			if (allowsautoupdate || (UE::UserSettings::updateonclose || argupdatepassed))
 			{
 				auto vop = UE::NetworkHelper::GetNewestVersion();
 				if (vop.has_value())
