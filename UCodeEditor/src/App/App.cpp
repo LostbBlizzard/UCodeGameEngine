@@ -344,6 +344,10 @@ int App::main(int argc, char* argv[])
 
 		{
 			bool allowsautoupdate =UE::UserSettings::GetSettings().allowautoudate;
+			
+			#if UCodeGEDebug
+			allowsautoupdate = false;
+			#endif
 
 			if (allowsautoupdate || (UE::UserSettings::updateonclose || argupdatepassed))
 			{
