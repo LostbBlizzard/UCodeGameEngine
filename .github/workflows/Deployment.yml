@@ -330,6 +330,7 @@ jobs:
           asset_content_type: application/octet-stream
 
       - name: Upload Windows Version to Itch
+        if: ${{ inputs.IsPreRelease == false}}
         uses: manleydev/butler-publish-itchio-action@master
         env:
           BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
@@ -340,6 +341,7 @@ jobs:
           VERSION: ${{ inputs.VersionNumber }}
           
       - name: Upload Linux Version to Itch
+        if: ${{ inputs.IsPreRelease == false}}
         uses: manleydev/butler-publish-itchio-action@master
         env:
           BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
