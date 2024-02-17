@@ -17,6 +17,22 @@ public:
 		}
 		return true;
 	}
+	
+	template<typename T>
+	static bool EndWith(const StringViewBase<T> string, const StringViewBase<T>  MatchString)
+	{
+		if (string.size() < MatchString.size()) { return false; }
+		
+		for (size_t i = 0; i < MatchString.size(); i++)
+		{
+			if (string[string.size() -1 - i] != MatchString[MatchString.size()-1 - i])
+			{
+				return false;
+				break;
+			}
+		}
+		return true;
+	}
 
 	template<typename T>
 	static Vector< StringViewBase<T> > Split_t(const StringViewBase<T> Base, const StringViewBase<T> spliter)
@@ -30,7 +46,6 @@ public:
 	{
 		out.clear();
 
-		size_t startindex = 0;
 		size_t splitstart = 0;
 		size_t splitercount = 0;
 		for (size_t i = 0; i < Base.size(); i++)
@@ -43,7 +58,7 @@ public:
 
 				if (splitercount == spliter.size())
 				{
-					StringViewBase<T> n = Base.substr(startindex, i - splitstart);
+					StringViewBase<T> n = Base.substr(splitstart, i - splitstart);
 
 					out.push_back(n);
 					splitercount = 0;
@@ -56,7 +71,7 @@ public:
 			}
 		}
 
-		if (out.size())
+		if (out.size() && !EndWith(Base,spliter))
 		{
 			StringViewBase<T> n = Base.substr(splitstart, Base.size() - splitstart);
 
