@@ -21,7 +21,7 @@ Variant<EditorWindowData, EditorWindowsList::NewMenu, EditorWindowsList::EndMenu
 	//OpenProjectWindow  Must be first Item because 
 	//EditorAppCompoent will load this  Data2[0] when app starts 
 
-	EditorWindowsList::NewMenu("Other"),
+	EditorWindowsList::NewMenu("User/Editor"),
 
 	OpenProjectWindow::GetEditorData(),
 	UserSettingsWindow::GetEditorData(),
@@ -39,6 +39,7 @@ Variant<EditorWindowData, EditorWindowsList::NewMenu, EditorWindowsList::EndMenu
 
 	EditorWindowsList::EndMenu(),
 	
+	/*
 	EditorWindowsList::NewMenu("Specialized"),
 	
 	DebugingWindow::GetEditorData(),
@@ -48,6 +49,7 @@ Variant<EditorWindowData, EditorWindowsList::NewMenu, EditorWindowsList::EndMenu
 	LibraryWindow::GetEditorData(),
 	
 	EditorWindowsList::EndMenu(),
+	*/
 };
 const Variant<EditorWindowData,EditorWindowsList::NewMenu,EditorWindowsList::EndMenu>* EditorWindowsList::EditorWindows = Data2;
 const size_t EditorWindowsList::EditorWindows_Size = sizeof(Data2) / sizeof(EditorWindowData);
