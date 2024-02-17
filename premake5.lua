@@ -1271,6 +1271,9 @@ newaction {
 function Copydir(Src,Out)
  
  if os.istarget("windows") then
+    Src = replace(Src,"/","\\")
+    Out = replace(Out,"/","\\")
+
     executeorexit("xcopy /Q /E /Y /I " .. Src .. " " .. Out)
  else
     executeorexit("cp -rf " .. Src .. " " .. Out)
@@ -1337,6 +1340,10 @@ function mysplit(inputstr, sep)
                 table.insert(t, str)
         end
         return t
+end
+
+function replace(content,stringtomatch, replacement)
+return content:gsub(stringtomatch, replacement)
 end
 
 function replacetextinfile(file_path, stringtomatch, replacement)
