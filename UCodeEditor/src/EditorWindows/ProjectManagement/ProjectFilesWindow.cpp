@@ -68,7 +68,7 @@ void ProjectFilesWindow::UpdateWindow()
             bool CantGoBack = _LookingAtDir == AssetsDir;
 
             ImGui::BeginDisabled(CantGoBack);
-            if (ImGui::Button("Back folder"))
+            if (ImGui::Button("Back"))
             {
 
                 Path oldpath = _LookingAtDir.value();
@@ -77,15 +77,65 @@ void ProjectFilesWindow::UpdateWindow()
             }
             ImGui::EndDisabled();
 
+            ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ItemSpacing, { 2,4});
+
             ImGui::SameLine();
 
-            ImGui::Text("FindFile:");   ImGui::SameLine();
-            if (ImGuIHelper::InputText("##", _FindFileName))
+          
+            ImGui::PushID(&_LookingAtDir);
+            ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+            bool v = ImGuIHelper::InputText("", _FindFileName);
+            ImGui::PopItemWidth();
+            ImGui::PopID();
+
+           if (v)
             {
                 Viewer.SetFindString(_FindFileName);
                 UpdateDir();
             }
-            ImGui::Text("Dir:%s", _LookingAtDirReadable.generic_string().c_str());
+            auto str = _LookingAtDirReadable.generic_string();
+
+            static Vector<StringView> list;
+            StringHelper::Split(str, "/",list);
+            String itemstr;
+
+            Optional<size_t> ClickedIndex;
+            for (size_t i = 0; i < list.size(); i++)
+            {
+                auto& Item = list[i];
+                itemstr = Item;
+                
+                ImGui::PushID(&Item);
+
+                auto s = ImGui::CalcTextSize(itemstr.c_str());
+                auto roundsize = 10;
+                bool onclick = ImGui::Button(itemstr.c_str(),{ std::ceilf(s.x / roundsize) * roundsize + 10,0});
+                ImGui::PopID();
+               
+                if (i + 1 < list.size())
+                {
+                    ImGui::SameLine();
+                }
+
+                if (onclick)
+                {
+                    ClickedIndex = i;
+                }
+            }
+            ImGui::PopStyleVar();
+         
+            if (ClickedIndex.has_value())
+            {
+                Path oldpath = _LookingAtDir.value();
+                for (size_t i = 0; i < (list.size() - ClickedIndex.value() - 1); i++)
+                {
+                    oldpath = oldpath.parent_path().parent_path().generic_u8string() + '/';
+                }
+
+                 _LookingAtDir = oldpath;
+                UpdateDir();
+            }
+
             ImGui::Separator();
         }
         //ImGui::Columns(2);
@@ -672,10 +722,9 @@ void ProjectFilesWindow::UpdateDir()
     
     Path path = _LookingAtDir.value();
 
-    if (!_LookingAtDir.has_value()) 
-    {   
-        _LookingAtDirReadable = FileHelper::ToRelativePath(Get_ProjectData()->Get_ProjectDir(), _LookingAtDir.value());
-    }
+       
+    _LookingAtDirReadable = FileHelper::ToRelativePath(Get_ProjectData()->Get_ProjectDir(), _LookingAtDir.value());
+    
 
     if (fs::exists(path))
     {
