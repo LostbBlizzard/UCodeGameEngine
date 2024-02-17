@@ -107,7 +107,7 @@ void UserSettingsWindow::UpdateWindow()
 				else
 				{
 					auto v = Newist.value();
-					//if (v > Version::CurrentUCodeVersion())
+					if (v > Version::CurrentUCodeVersion())
 					{
 						String s = "New Update ";
 						s += v.ToString();
@@ -121,7 +121,7 @@ void UserSettingsWindow::UpdateWindow()
 							this->Get_App()->GetGameRunTime()->EndRunTime();
 						}
 					}
-					//else
+					else
 					{
 						ImGui::Text("No Update Available");
 						ImGui::SameLine();
