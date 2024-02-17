@@ -298,20 +298,19 @@ int App::main(int argc, char* argv[])
 		if (argc > 1) { ProPath = argv[1]; }
 
 		UE::EditorApp app = UE::EditorApp();
-		//app.Run(ProPath);
+		app.Run(ProPath);
 
 		{
 			bool allowsautoupdate =UE::UserSettings::GetSettings().allowautoudate;
 
-			if (allowsautoupdate)
+			if (allowsautoupdate || UE::UserSettings::updateonclose)
 			{
 				auto vop = UE::NetworkHelper::GetNewestVersion();
 				if (vop.has_value())
 				{
 					auto v = vop.value();
 
-					//auto current = UE::Version::CurrentUCodeVersion();
-					auto current = UE::Version(0, 0, 0);
+					auto current = UE::Version::CurrentUCodeVersion();
 					bool isversionbiger = current < v;
 
 					if (isversionbiger)

@@ -39,6 +39,7 @@ EditorAppCompoent::~EditorAppCompoent()
 }
 
 Optional< Unique_Bytes> bytes;
+Optional<String> ChangeLogtext;
 
 void EditorAppCompoent::Init(const Path& projDir)
 {
@@ -65,6 +66,13 @@ void EditorAppCompoent::Init(const Path& projDir)
     {
         AppFiles::CopyFile("presets/imgui.ini", "imgui.ini");
         ImGui::LoadIniSettingsFromDisk("imgui.ini");
+    }
+
+    if (std::filesystem::exists("changelog.md"))
+    {
+       ChangeLogtext = UCode::GameFiles::ReadFileAsString("changelog.md");
+
+       std::filesystem::remove("changelog.md");
     }
 
     if (!OpenProject(projDir))
@@ -684,6 +692,20 @@ void EditorAppCompoent::OnDraw()
 
     bool Hi = true;
     BeginDockSpace(&Hi);
+
+    if (ImGui::BeginPopupModal("ChangeLog"))
+    {
+        auto& changelog = ChangeLogtext.value();
+        ImGui::Text(changelog.c_str());
+        ImGui::EndPopup();
+    }
+    else
+    {
+        if (ChangeLogtext.has_value())
+        {
+            ImGui::OpenPopup("ChangeLog");
+       }
+    }
 
     if (_DropedFiles.has_value())
     {

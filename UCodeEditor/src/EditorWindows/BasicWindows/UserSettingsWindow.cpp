@@ -2,6 +2,8 @@
 #include "Helper/UserSettings.hpp"
 #include "Helper/ImGuIHelper.hpp"
 #include <UCodeRunTime/Rendering/API_OpenGL/OpenGlRender.hpp>
+#include "Helper/NetworkHelper.hpp"
+#include "Editor/EditorAppCompoent.hpp"
 EditorStart
 UserSettingsWindow::UserSettingsWindow(const NewEditorWindowData& windowdata) : EditorWindow(windowdata)
 {
@@ -50,6 +52,90 @@ void UserSettingsWindow::UpdateWindow()
 	{
 		if (ImGui::BeginTabItem("Application"))
 		{
+			{
+				String str = "Application Verion : " + Version::CurrentUCodeVersion().ToString();
+				ImGui::Text(str.c_str());
+			}
+			
+			{
+				String str = "Application Build : ";
+				#if UCodeGEWindows
+				str += "Windows";
+				#endif
+				
+				#if UCodeGELinux
+				str += "Linux";
+				#endif
+				
+				#if UCodeGEMacOS
+				str += "MacOS";
+				#endif
+
+				str += "";
+
+				if (sizeof(size_t) == 4)
+				{
+					str += "32";
+				}
+				else
+				{
+					str += "64";
+				}
+
+				ImGui::Text(str.c_str());
+			}
+
+			if (Settings.allowautoudate == false)
+			{
+				thread_local bool isgetingit = false;
+				thread_local Optional<Version> Newist;
+
+				if (!Newist.has_value() && isgetingit == false)
+				{
+					isgetingit = true;
+					UCode::Threads::Get_Threads()->AddTask(UCode::TaskType::NetWorkIO, []()
+					{
+						Newist = NetworkHelper::GetNewestVersion().value_or(Version::CurrentUCodeVersion());
+						isgetingit = false;
+					}, {});
+				}
+
+				if (isgetingit)
+				{
+					ImGui::Text("Checking for New Update...");
+				}
+				else
+				{
+					auto v = Newist.value();
+					//if (v > Version::CurrentUCodeVersion())
+					{
+						String s = "New Update ";
+						s += v.ToString();
+						s += " is Available";
+
+						ImGui::Text(s.c_str());
+						ImGui::SameLine();
+						if (ImGui::Button("Update"))
+						{
+							UserSettings::updateonclose = true;
+							this->Get_App()->GetGameRunTime()->EndRunTime();
+						}
+					}
+					//else
+					{
+						ImGui::Text("No Update Available");
+						ImGui::SameLine();
+						if (ImGui::Button("try again"))
+						{
+							Newist = {};
+						}
+					}
+
+				}
+			}
+
+			ImGui::Separator();
+		
 			ImGuIHelper::BoolEnumField("Auto Update", Settings.allowautoudate);
 
 			ImGui::EndTabItem();

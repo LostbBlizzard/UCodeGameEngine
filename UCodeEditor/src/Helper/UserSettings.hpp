@@ -7,6 +7,7 @@ public:
 	String CodeEditorPath;
 	String OpenCodeEditorFileArg;
 	bool allowautoudate = true;
+	inline static bool updateonclose = false;
 
 	static inline const char* FilePathArg = "{FilePath}";
 	static inline const char* FileLineNumberArg = "{LineNumber}";
