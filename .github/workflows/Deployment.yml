@@ -182,7 +182,7 @@ jobs:
         run: ./premake.bat package_editor
       
       - name: copy new UFiles.data
-        run: cp -f Output/UFiles.data Output/UCodeEditor/Win64/Published/UFiles.data
+        run: cp -Force Output/UFiles.data Output/UCodeEditor/Win64/Published/UFiles.data
 
       - name: build installer
         run: ./premake.bat buildinstaller
