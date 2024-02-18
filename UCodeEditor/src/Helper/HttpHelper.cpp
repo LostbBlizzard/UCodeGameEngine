@@ -1,6 +1,7 @@
 #include "HttpHelper.hpp"
 #include <fstream>
 #include "FileHelper.hpp"
+#include <sstream>
 EditorStart 
 
 Path newtepfilepath()

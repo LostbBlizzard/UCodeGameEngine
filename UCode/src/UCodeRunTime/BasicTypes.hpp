@@ -210,14 +210,6 @@ using PathSpan = StringViewBase<PathChar>;
 
 using PathString = std::filesystem::path::string_type;
 
-CoreEnd
-
-
-#include "UCodeRunTime/ULibrarys/Loger.hpp"
-
-
-CoreStart
-
 template<typename T>
 struct Vec2_t
 {
