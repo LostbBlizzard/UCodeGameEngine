@@ -10,5 +10,5 @@
 - [added droping files on window](https://github.com/LostbBlizzard/UCodeGameEngine/commit/995d64fc67fe60f64f86d4650d5b64bf4416bd6d)
 
 -- Changes
-
+- [Copy Entity will copy into clipboard and not just in memory for that window]()
 -- Removed Features
