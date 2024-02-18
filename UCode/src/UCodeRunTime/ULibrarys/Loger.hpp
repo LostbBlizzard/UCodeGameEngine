@@ -1,9 +1,8 @@
 #pragma once
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 
-#include <plog/Log.h>
 #include "UCodeRunTime/BasicTypes.hpp"
-
+#include "plog/Log.h"
 
 #include "UCodeLang/LangCore/LangDef.hpp"
 CoreStart
@@ -42,7 +41,10 @@ public:
 			return plog::Severity::info;
 		}
 	}
-	
+	using String = std::string;
+	using StringView = std::string_view;
+	using Path = std::filesystem::path;
+
 	static void Log(const String& Msg, LogType Type = LogType::Default)
 	{
 		Log(StringView(Msg),Type);
@@ -67,6 +69,12 @@ public:
 	};
 	static void SetLogOutfile(const Path& Str);
 	
+	using ListnerCallBack = Delegate<void,StringView>;
+	using CallBackKey = int;
+	
+	//Callback will allways be on main thread
+	static CallBackKey AddListener(ListnerCallBack callback);
+	static void RemoveListener(CallBackKey key);
 private:
 	
 	inline static bool IsInit = false;

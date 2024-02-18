@@ -248,11 +248,10 @@ project "UCode"
    location "UCode"
    kind "StaticLib"
    language "C++"
-
+   defines {"DebugMode"}
    
    targetdir ("Output/%{prj.name}/" .. OutDirPath)
    objdir ("Output/int/%{prj.name}/" .. OutDirPath)
-   
    
    files { 
      "%{prj.name}/src/**.c",
@@ -345,10 +344,10 @@ project "UCodeApp"
 
 
    filter { "configurations:Published","system:Windows"}
-    kind ("WindowedApp")
+    --kind ("WindowedApp")
    
    filter { "configurations:Release","system:Windows"}
-    kind ("WindowedApp")
+    --kind ("WindowedApp")
 
 project "UCodeAppPub"
    location "UCodeApp"
