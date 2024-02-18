@@ -64,7 +64,7 @@ void ProjectWindow::UpdateWindow()
 	{
 		UCode::ScencPtr Ptr;
 		Ptr = ProjectData2.StartScene;
-		if (ImGuIHelper_Asset::AsssetField("Start Scenc", Ptr))
+		if (ImGuIHelper_Asset::AsssetField("Start Scene", Ptr))
 		{
 			UpdateValue = true;
 

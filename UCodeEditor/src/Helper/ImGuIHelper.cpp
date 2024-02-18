@@ -29,7 +29,7 @@ bool ImGuIHelper::ImageButton(const void* id, UCode::Sprite* Sprite, const ImVec
 	ImVec2 uv1;
 	ImTextureID texid = (ImTextureID)(size_t)Sprite->Get_texture()->Get_RendererID();
 	GetSpriteUV( Sprite, uvo, uv1);
-	return ImGui::ImageButtonEx(ImGui::GetID(id), texid, ButtionSize, uvo, uv1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
+	return ImGui::ImageButtonEx(ImGui::GetID(id), texid, ButtionSize, uvo, uv1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1),ImGuiButtonFlags_::ImGuiButtonFlags_MouseButtonLeft);
 }
 void ImGuIHelper::GetSpriteUV(UCode::Sprite* Sprite, ImVec2& uvo, ImVec2& uv1)
 {
@@ -885,34 +885,35 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 	bool ok = false;
 	ImGui::SameLine();
 
-	ImGui::PushID(object);
-	bool r = ImGui::BeginCombo("", Name.c_str());
+	static bool someid = false;
+	bool r = ImGui::BeginCombo("##oiwj", Name.c_str());
 	if (r)
 	{
 		static String V;
 		static bool t = false;
 		
+		
 		ImGui::PushID(&t);
+        ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.96);
 		ImGuIHelper::InputText("",V);
+		ImGui::PopItemWidth();
 		ImGui::PopID();
 
-		ImGui::SameLine();
-		static bool ListMode = false;
-		ImGuIHelper::BoolEnumField("List",ListMode);
-
+		//ImGui::SameLine();
+		static bool ListMode = true;
+		//ImGuIHelper::BoolEnumField("List",ListMode);
+		
+	
 		ImGui::Separator();
-		ImGui::Columns(1, 0, false);
+		//ImGui::Columns(1, 0, false);
 
 		uintptr_t ptr = (uintptr_t)ObjectList;
 
 
 		for (size_t i = 0; i < ObjectListSize; i++)
 		{
-			ImGui::PushID(ptr);
 			
 			ok = DrawObject(object,(void*)ptr, ListMode,V);
-
-			ImGui::PopID();
 
 			ptr += (uintptr_t)ItemObjectSize;
 
@@ -925,7 +926,6 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 	
 		ImGui::EndCombo();
 	}
-	ImGui::PopID();
 
 	
 
