@@ -336,7 +336,7 @@ jobs:
           BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
           CHANNEL: windows
           ITCH_GAME: ucodegameengine 
-          ITCH_USER: Lost blizzard          
+          ITCH_USER: lost-blizzard          
           PACKAGE: UCodeGameEngineSetup.exe    
           VERSION: ${{ inputs.VersionNumber }}
           
@@ -347,6 +347,6 @@ jobs:
           BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
           CHANNEL: linux
           ITCH_GAME: ucodegameengine          
-          ITCH_USER: Lost blizzard           
+          ITCH_USER: lost-blizzard           
           PACKAGE: install.sh
           VERSION: ${{ inputs.VersionNumber }}
