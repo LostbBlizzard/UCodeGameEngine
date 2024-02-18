@@ -23,37 +23,20 @@ const ExportProjectWindow::PlatformsData PlatformsData_[] =
 	{"IOS",ExportProjectWindow::Platforms::iOS,AppFiles::sprite::IOS_Platform,"This Makes An IOS App."},
 
 
-	{"Dedicated Server",ExportProjectWindow::Platforms::Dedicated_Server,AppFiles::sprite::Sever_Platform,"This Makes An Windowless App."},
-	{"Custom",ExportProjectWindow::Platforms::Custom,AppFiles::sprite::Uility_image,"Use a Custom Exporter"},
+	//{"Dedicated Server",ExportProjectWindow::Platforms::Dedicated_Server,AppFiles::sprite::Sever_Platform,"This Makes An Windowless App."},
+	//{"Custom",ExportProjectWindow::Platforms::Custom,AppFiles::sprite::Uility_image,"Use a Custom Exporter"},
 	{"UCodeEditor",ExportProjectWindow::Platforms::UCodeEditor,AppFiles::sprite::UCodeEditor_Platform,"This Makes An UPugin"},
 };
 constexpr size_t PlatfromSize = sizeof(PlatformsData_) / sizeof(PlatformsData_[0]);
 
 
-bool IsDone = false;
 
 void ExportProjectWindow::UpdateWindow()
 {
 	bool _Building = RuningTasksInfo::HasTaskRuning(RuningTask::Type::BuildingProject);
 	if (_Building)
-	{
-		
-		if (IsDone)
-		{
-		
-			ImGui::Text("Building Project...");
-			//if (V == std::future_status::ready)
-			{
-				auto ProjectInfo = Get_ProjectData();
-				auto OutputPath = ProjectInfo->GetOutDir();
-				FileHelper::OpenPathinFiles(OutputPath);
-				RuningTasksInfo::ReMoveTask(RuningTask::Type::BuildingProject);
-			}
-		}
-		else
-		{
-			ImGui::Text("Please wait The Project Is Being Bult in a other window");
-		}
+	{	
+		ImGui::Text("Project Is Being Exported");
 
 		ImGuIHelper::ShowOnMiddleLoadingIndicatorCircle("Loading");
 
@@ -146,22 +129,18 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 	WindowsBuildSetings& Info = WinSettings;
 
 	static const Vector<ImGuIHelper::EnumValue<WindowsBuildSetings::Architecture>> ArchitectureValues
-	{ 
+	{
 		#if UCodeGEWindows
 		{"current cpu",WindowsBuildSetings::Architecture::Native},
 		#endif
 		{"x86_64",WindowsBuildSetings::Architecture::x86_64},
 		{"x86",WindowsBuildSetings::Architecture::x86},
-		
+
 		//{"Arm64",WindowsBuildSetings::Architecture::Arm64},
 		//{"Arm",WindowsBuildSetings::Architecture::Arm32},
 	};
 
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
-	ImGuIHelper::BoolEnumField("DebugBuild", Info.DebugBuild);
-
-	ImGuIHelper::EnumField("Architecture", Info.architecture,ArchitectureValues);
-
 	if (ImGui::Button("Export", { ImGui::GetContentRegionAvail().x,20 }))
 	{
 		auto ProjectInfo = Get_ProjectData();
@@ -172,24 +151,55 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 
 		BuildSetings::SettingsType Copy = Info;
 		SetBuildData(AssetsPath, ProjectInfo, Copy);
-		
+
 		RuningTask V;
 		V.TaskType = RuningTask::Type::BuildingProject;
 		RuningTasksInfo::AddTask(V);
 
-		Delegate<void> Func = [buildSytem = &buildSytem]()
+		Delegate<void> Func = [Threads,buildSytem = &buildSytem]()
 		{
-			buildSytem->BuildProject();
+			  auto r = buildSytem->BuildProject();
+		
+			  
+			  Delegate<void> Func2 = [r]()
+				  {
+					  RuningTasksInfo::ReMoveTask(RuningTask::Type::BuildingProject);
+					  if (r.IsError())
+					  {
+						  auto& error = r.GetError();
+
+						  String Msg;
+						  for (auto& Item : error.Errors)
+						  {
+							  Msg.clear();
+							
+							  Msg += "Export Error:";
+							  Msg += "(" + Item.filepath.generic_string();
+							  if (Item.lineNumber.has_value())
+							  {
+								  Msg += ":";
+								  Msg += std::to_string(Item.lineNumber.value());
+							  }
+							  Msg  += "):";
+							  Msg += Item.message;
+
+							  UCodeGEError(Msg);
+						  }
+					  }
+					  else
+					  {
+						  FileHelper::OpenPathinFiles(r.GetValue());
+					  }
+				  };
+			  Threads->AddTask_t(UCode::TaskType::Main, std::move(Func2), {});
 		};
 
-		//_Task = Threads->AddTask_t(UCode::TaskType::FileIO,std::move(Func), {});
-		Func();
-
-		IsDone = true;
+		_Task = Threads->AddTask_t(UCode::TaskType::FileIO, std::move(Func), {});
 	}
 
-	
-	
+	ImGuIHelper::BoolEnumField("DebugBuild", Info.DebugBuild);
+
+	ImGuIHelper::EnumField("Architecture", Info.architecture, ArchitectureValues);
 }
 
 void ExportProjectWindow::ShowLinuxExportSeting()
@@ -198,6 +208,14 @@ void ExportProjectWindow::ShowLinuxExportSeting()
 	ImGui::SameLine();
 	ImGui::Text("Linux");
 
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+	ImGui::BeginDisabled(true);
+	if (ImGui::Button("Export", { ImGui::GetContentRegionAvail().x,20 }))
+	{
+
+
+	}
+	ImGui::EndDisabled();
 }
 
 void ExportProjectWindow::ShowMacOsExportSeting()
@@ -205,6 +223,16 @@ void ExportProjectWindow::ShowMacOsExportSeting()
 	ImGuIHelper::Image(AppFiles::sprite::Mac_Platform, { 20,20 });
 	ImGui::SameLine();
 	ImGui::Text("MaxOS");
+	
+	
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+	ImGui::BeginDisabled(true);
+	if (ImGui::Button("Export", { ImGui::GetContentRegionAvail().x,20 }))
+	{
+
+
+	}
+	ImGui::EndDisabled();
 }
 
 void ExportProjectWindow::ShowWebExportSeting()
@@ -215,6 +243,7 @@ void ExportProjectWindow::ShowWebExportSeting()
 
 	WebBuildSetings& Info = webSettings;
 
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 
 	ImGui::BeginDisabled(true);
 	if (ImGui::Button("Export", { ImGui::GetContentRegionAvail().x,20 }))
@@ -272,7 +301,9 @@ void ExportProjectWindow::ShowAndroidExportSeting()
 
 	AndroidBuildSetings& Info = androidSettings;
 
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 	
+	ImGui::BeginDisabled(true);
 	if (ImGui::Button("Export", { ImGui::GetContentRegionAvail().x,20 }))
 	{
 		auto ProjectInfo = Get_ProjectData();
@@ -304,7 +335,7 @@ void ExportProjectWindow::ShowAndroidExportSeting()
 			UCode::TaskType::FileIO,
 			std::move(Func), {});
 	}
-	
+	ImGui::EndDisabled();
 
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 }
@@ -314,6 +345,14 @@ void ExportProjectWindow::ShowIosExportSeting()
 	ImGuIHelper::Image(AppFiles::sprite::IOS_Platform, { 20,20 });
 	ImGui::SameLine();
 	ImGui::Text("Ios");
+	
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+
+	ImGui::BeginDisabled(true);
+	if (ImGui::Button("Export", { ImGui::GetContentRegionAvail().x,20 }))
+	{
+	}
+	ImGui::EndDisabled();
 }
 
 void ExportProjectWindow::ShowSeverExportSeting()
@@ -322,6 +361,8 @@ void ExportProjectWindow::ShowSeverExportSeting()
 	ImGui::SameLine();
 	ImGui::Text("Sever");
 
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+	
 	ImGui::BeginDisabled(true);
 	if (ImGui::Button("Export", { ImGui::GetContentRegionAvail().x,20 }))
 	{
@@ -336,6 +377,8 @@ void ExportProjectWindow::ShowUCodeEditorExportSeting()
 	ImGui::SameLine();
 	ImGui::Text("UCodeEditor");
 
+	ImGui::Dummy(ImVec2(0.0f, 20.0f));
+	
 	ImGui::BeginDisabled(true);
 	if (ImGui::Button("Export",{ImGui::GetContentRegionAvail().x,20}))
 	{
