@@ -133,14 +133,20 @@ void GameEditorWindow::Scenehierarchy()
 
 void GameEditorWindow::SetCopy(const UCode::Scene2dData::Entity_Data Entity)
 {
-    _HasCopy = true;
-    _CopyedEntity = Entity;
+
+    USerializer V(USerializerType::YAML);
+    V.Write("UData", Entity);
+    V.Write("UType", "Entity");
+
+    auto copytext = V.Get_TextMaker().c_str();
+
+    ImGui::SetClipboardText(copytext);
 }
 
 void GameEditorWindow::SetCopy(const UCode::Entity* Entity)
 {
     UCode::Scene2dData::Entity_Data v;
-    UCode::Scene2dData::SaveEntityData(Entity, v, USerializerType::Fastest);
+    UCode::Scene2dData::SaveEntityData(Entity, v, USerializerType::YAML);
     SetCopy(v);
 }
 
@@ -563,9 +569,28 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
             e->NativeName() = UnNamedEntity;
             e->worldposition(_SceneCameraData._Pos);
         }
-        if (ImGui::MenuItem("Paste-Entity","Ctrl+V",nullptr, _HasCopy))
+
+        auto clipboard =  ImGui::GetClipboardText();
+        bool isclipboardentity = false;
+
+        auto tep = YAML::Load(clipboard);
+
+        if (tep.IsMap()) 
         {
+            isclipboardentity = (bool)tep["UType"];
+            if (isclipboardentity)
+            {
+                isclipboardentity = tep["UType"].as<String>("") == "Entity" && (bool)tep["UData"];
+            }
+        }
+
+        if (ImGui::MenuItem("Paste-Entity","Ctrl+V",nullptr,isclipboardentity))
+        {
+            auto& DataNode = tep["UData"];
+
             auto pastedentity = Item->NewEntity();
+            UCode::Scene2dData::Entity_Data _CopyedEntity = DataNode.as<UCode::Scene2dData::Entity_Data>(UCode::Scene2dData::Entity_Data());
+
             UCode::Scene2dData::LoadEntity(pastedentity, _CopyedEntity);
 
 
