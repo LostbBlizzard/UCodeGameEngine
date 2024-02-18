@@ -881,40 +881,24 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 	ImGuIHelper::Image(Sprite, { 20,20 });
 	auto winwidth = ImGui::GetWindowWidth();
 
-	ImGui::SameLine();
-
-	ImGui::Text(Name.c_str());
 	
-	ImGui::SameLine();
-	
-
-	ImGui::PushID((uintptr_t)object+1);
-
-	static void* ObjectFinderPtr = nullptr;
-	bool v = ImGui::Button("...");
-
-	ImGui::PopID();
-
-	String Pop = "Object Finder";
-	Pop += std::to_string((uintptr_t)object);
-	ImGuiID ObjID = ImGui::GetID(object);
-	if (v)
-	{
-		ObjectFinderPtr = object;
-		ImGui::OpenPopup(ObjID);
-	}
-	
-	bool open = true;
 	bool ok = false;
+	ImGui::SameLine();
 
-	if (ImGui::BeginPopupEx(ObjID, 0))
+	ImGui::PushID(object);
+	bool r = ImGui::BeginCombo("", Name.c_str());
+	if (r)
 	{
 		static String V;
-		ImGuIHelper::InputText("Find", V);
-
+		static bool t = false;
 		
+		ImGui::PushID(&t);
+		ImGuIHelper::InputText("",V);
+		ImGui::PopID();
+
+		ImGui::SameLine();
 		static bool ListMode = false;
-		ImGuIHelper::BoolEnumField("List Mode",ListMode);
+		ImGuIHelper::BoolEnumField("List",ListMode);
 
 		ImGui::Separator();
 		ImGui::Columns(1, 0, false);
@@ -938,10 +922,12 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 			}
 		}
 
-
-		
-		ImGui::EndPopup();
+	
+		ImGui::EndCombo();
 	}
+	ImGui::PopID();
+
+	
 
 	return ok;
 }
