@@ -70,8 +70,7 @@ private:
 	ImVec2 ImgeVecPos;
 	ImVec2 ImgeVecSize;
 
-	bool _HasCopy = false;
-	UCode::Scene2dData::Entity_Data _CopyedEntity;
+	
 	void SetCopy(const UCode::Scene2dData::Entity_Data Entity);
 	void SetCopy(const UCode::Entity* Entity);
 
