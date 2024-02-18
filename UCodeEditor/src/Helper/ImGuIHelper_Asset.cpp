@@ -219,7 +219,12 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 				{
 					ImGuIHelper::Image(AppFiles::sprite::Scene2dData, { 20,20 });
 					ImGui::SameLine();
-					if (ImGui::Selectable(Name.c_str(), Value.Get_UID() == obj->_UID))
+				
+					//ImGui::PushID(Object);
+					r = ImGui::Selectable(Name.c_str(), Value.Get_UID() == obj->_UID);
+					//ImGui::PopID();
+					
+					if (r)
 					{
 						Value = obj->_UID;
 						r = true;
@@ -227,18 +232,14 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 				}
 				else
 				{
-					ImGui::PushID(obj);
 					auto NewName = Name;
-					if (ImGuIHelper::ImageButton(obj, AppFiles::sprite::Scene2dData, { 30,30 }))
+					ImGui::Text(NewName.c_str());
+					if (ImGuIHelper::ImageButton(obj +NewName.size(), AppFiles::sprite::Scene2dData, {30,30}))
 					{
 						Value = obj->_UID;
 						r = true;
 					}
-					ImGui::PopID();
-					ImGui::Text(NewName.c_str());
-				}
-				//ImGui::SameLine();
-				ImGui::NextColumn();
+				}	
 			}
 
 			return r;
