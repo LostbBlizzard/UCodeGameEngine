@@ -25,18 +25,29 @@ void ConsoleWindow::UpdateWindow()
         ImGui::SetWindowFocus();
    }
 
-    if (ImGui::Button("ClearLogs"))
+    ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ItemSpacing, { 2,4});
+
+
+    if (ImGui::Button("Clear"))
     {
         ClearLogs();
     }
     ImGui::SameLine();
-   
-
-    ImGuIHelper::InputText("Filter", _filter);
+      
+    
+    ImGui::PushID(_FocusWindow);
+    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+    ImGuIHelper::InputText("", _filter);
+    ImGui::PopItemWidth();
+    ImGui::PopID();
 
     ImGui::Separator();
 
-    ImGui::BeginGroup();
+
+
+    ImGui::BeginChild("child_2", { 0, ImGui::GetContentRegionAvail().y -100}, false, ImGuiWindowFlags_HorizontalScrollbar);
+    
+    Optional<size_t> RemoveItem;
     for (auto& Item : _Items)
     {
         ImVec4 Color;
@@ -65,33 +76,71 @@ void ConsoleWindow::UpdateWindow()
             {
                 _LookingAtLog = &Item;
             }
-            if (ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
+
+            if (ImGui::IsItemHovered())
             {
-                if (Item._OnOpen.has_value())
+                if (ImGui::IsMouseDoubleClicked(0))
                 {
-                    Item._OnOpen.value()(*this, Item);
+                    if (Item._OnOpen.has_value())
+                    {
+                        Item._OnOpen.value()(*this, Item);
+                    }
                 }
             }
+                if (ImGui::BeginPopupContextItem("On"))
+                {
+                    if (ImGui::MenuItem("Copy"))
+                    {
+                        ImGui::SetClipboardText(Item.MoreText.c_str());
+                    }
+                    if (ImGui::MenuItem("Remove"))
+                    {
+                        RemoveItem = &Item - _Items.data();
+                    }
+                    
 
+                    ImGui::EndPopup();
+                }
+            
             ImGui::PopStyleColor();
             ImGui::PopID();
         }
     }
-    ImGui::EndGroup();
+    ImGui::EndChild();
 
+    if (RemoveItem)
+    {
+        if (_LookingAtLog == &_Items[RemoveItem.value()])
+        {
+            _LookingAtLog = nullptr;
+        }
+        _Items.erase(_Items.begin() + RemoveItem.value());
+   }
+   
     ImGui::Separator();
-    ImGuIHelper::InputText("Input", _ConsoleIn); ImGui::SameLine();
     if (ImGui::Button("Send"))
     {
         Log Data;
         Data.Text =  _ConsoleIn;
         Data._Type = LogType::ConsoleInput;//TODO Add With ULang StringInput
+        Data.MoreText = _ConsoleIn;
         AddLog(Data);
         _ConsoleIn.clear();
     }
-    if (_LookingAtLog != nullptr) 
+    
+    ImGui::SameLine();
+    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+    ImGui::PushID(&_filter);
+    ImGuIHelper::InputText("", _ConsoleIn);
+    ImGui::PopID();
+    ImGui::PopItemWidth();
+
+    ImGui::PopStyleVar();
+
+    if (_LookingAtLog != nullptr)
     {
         ImGui::Separator();
+        ImGui::BeginChild("child_3", { 0, 0 }, false, ImGuiWindowFlags_HorizontalScrollbar);
 
         ImVec4 Color;
         switch (_LookingAtLog->_Type)
@@ -113,7 +162,7 @@ void ConsoleWindow::UpdateWindow()
         ImGui::TextColored(Color, _LookingAtLog->Text.c_str());
         ImGui::TextColored(Color, _LookingAtLog->MoreText.c_str());
 
-       
+
         if (_LookingAtLog->_OnOpen.has_value())
         {
             bool OnCicked = ImGui::Button("Open", { 0,20 });
@@ -121,7 +170,8 @@ void ConsoleWindow::UpdateWindow()
                 _LookingAtLog->_OnOpen.value()(*this, *_LookingAtLog);
             }
         }
-           
+
+        ImGui::EndChild();
     }
 }
 
