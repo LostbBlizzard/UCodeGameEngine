@@ -199,10 +199,10 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 	}
 
 	ProjectData prj;
-	if (!ProjectData::ReadFromFile(Path(Export.AssetPath).native() + Path("../").native() + Path(ProjectData::FileName).native(), prj))
+	if (!ProjectData::ReadFromFile(Path(Export.AssetPath).parent_path() / Path(ProjectData::FileName).native(), prj))
 	{
 		auto e = ExportErrors();
-		e.AddError(Export.AssetPath.parent_path().concat(ProjectData::FileName),"unable open able to read and parse file");
+		e.AddError(Export.AssetPath.parent_path() / ProjectData::FileName,"unable open able to read and parse file");
 		return e;
 	}
 
