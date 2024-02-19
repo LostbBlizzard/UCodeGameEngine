@@ -3,75 +3,68 @@
 #include "Helper/ImGuIHelper_Asset.hpp"
 UCodeAPIEditorStart
 
-const char* GetCString(const StringView Val)
-{
-    thread_local std::string str;
 
-    str = Val;
-
-    return str.c_str();
-}
 
 bool WindowDrawAPI::Field(const StringView FieldName, uint8_t& Value)
 {
-    return ImGuIHelper::uInt8Field(GetCString(FieldName), Value);
+    return ImGuIHelper::uInt8Field(FieldName, Value);
 }
 bool WindowDrawAPI::Field(const StringView FieldName, uint16_t& Value)
 {
-    return ImGuIHelper::uInt16Field(GetCString(FieldName), Value);
+    return ImGuIHelper::uInt16Field(FieldName, Value);
 }
 bool WindowDrawAPI::Field(const StringView FieldName, uint32_t& Value)
 {
-    return ImGuIHelper::uInt32Field(GetCString(FieldName), Value);
+    return ImGuIHelper::uInt32Field(FieldName, Value);
 }
 bool WindowDrawAPI::Field(const StringView FieldName, uint64_t& Value)
 {
-    return ImGuIHelper::uInt64Field(GetCString(FieldName), Value);
+    return ImGuIHelper::uInt64Field(FieldName, Value);
 }
 
 bool WindowDrawAPI::Field(const StringView FieldName, int8_t& Value)
 {
-    return ImGuIHelper::Int8Field(GetCString(FieldName), Value);
+    return ImGuIHelper::Int8Field(FieldName, Value);
 }
 bool WindowDrawAPI::Field(const StringView FieldName, int16_t& Value)
 {
-    return ImGuIHelper::Int16Field(GetCString(FieldName), Value);
+    return ImGuIHelper::Int16Field(FieldName, Value);
 }
 bool WindowDrawAPI::Field(const StringView FieldName, int32_t& Value)
 {
-    return ImGuIHelper::Int32Field(GetCString(FieldName), Value);
+    return ImGuIHelper::Int32Field(FieldName, Value);
 }
 bool WindowDrawAPI::Field(const StringView FieldName, int64_t& Value)
 {
-    return ImGuIHelper::Int64Field(GetCString(FieldName), Value);
+    return ImGuIHelper::Int64Field(FieldName, Value);
 }
 bool WindowDrawAPI::Fieldptr(const StringView FieldName, uintptr_t& Value)
 {
-    return ImGuIHelper::InputSize_t(GetCString(FieldName),&Value);
+    return ImGuIHelper::InputSize_t(FieldName,&Value);
 }
 bool WindowDrawAPI::Fieldptr(const StringView FieldName, intptr_t& Value)
 {
     if (sizeof(void*) == 4)
     {
-        return ImGuIHelper::Int32Field(GetCString(FieldName), *(i32*)&Value);
+        return ImGuIHelper::Int32Field(FieldName, *(i32*)&Value);
     }
     else
     {
-        return ImGuIHelper::Int64Field(GetCString(FieldName), *(i64*)&Value);
+        return ImGuIHelper::Int64Field(FieldName, *(i64*)&Value);
     }
 }
 bool WindowDrawAPI::Field(const StringView FieldName, bool& Value)
 {
-    return ImGuIHelper::BoolEnumField(GetCString(FieldName), Value);
+    return ImGuIHelper::BoolEnumField(FieldName, Value);
 }
 
 bool WindowDrawAPI::Field(const StringView FieldName, float& Value)
 {
-    return ImGuIHelper::f32Field(GetCString(FieldName), Value);
+    return ImGuIHelper::f32Field(FieldName, Value);
 }
 bool WindowDrawAPI::Field(const StringView FieldName, double& Value)
 {
-    return ImGuIHelper::f64Field(GetCString(FieldName), Value);
+    return ImGuIHelper::f64Field(FieldName, Value);
 }
 
 bool WindowDrawAPI::Field(const StringView FieldName, void* Value, uintptr_t idtype)

@@ -2,6 +2,16 @@
 #include "Imgui/imgui_internal.h"
 #include <Imgui/misc/cpp/imgui_stdlib.h>
 EditorStart
+const char* ImGuIHelper::ToCStr(const StringView text)
+{
+	thread_local String str;
+	str = text;
+	return str.c_str();
+}
+const char* ImGuIHelper::ToCStr(const String& text)
+{
+	return text.c_str();
+}
 void ImGuIHelper::Image(UCode::Texture* texture, const ImVec2& ButtionSize)
 {
 	texture->TryUploadTexToGPU();
@@ -137,6 +147,29 @@ bool ImGuIHelper::InputPath(const char* label, String& buffer, ImGuiInputTextFla
 
 	return R;
 }
+bool ImGuIHelper::InputText(const StringView label, String& buffer, ImGuiInputTextFlags flags)
+{
+	return InputText(ToCStr(label),buffer,flags);
+}
+bool ImGuIHelper::MultLineText(const StringView label, String& buffer, ImVec2 Size, ImGuiInputTextFlags flags)
+{
+	return MultLineText(ToCStr(label),buffer,Size,flags);
+}
+bool ImGuIHelper::TreeNode(const void* id, const StringView label, UCode::Sprite* Sprite)
+{
+	return TreeNode(id,ToCStr(label), Sprite);
+}
+
+bool ImGuIHelper::InputPath(const StringView label, String& buffer, ImGuiInputTextFlags flags, InputPathType PathType, Span<String> Extension)
+{
+	return InputPath(ToCStr(label), buffer, flags, PathType,Extension);
+}
+bool ImGuIHelper::InputPath(const StringView label, Path& buffer, ImGuiInputTextFlags flags, InputPathType PathType, Span<String> Extension)
+{
+	return InputPath(ToCStr(label), buffer, flags, PathType,Extension);
+}
+
+
 bool ImGuIHelper::InputPath(const char* label, Path& buffer, ImGuiInputTextFlags flags, InputPathType PathType, Span<String> Extension)
 {
 	String TepStr = buffer.generic_string();
@@ -178,7 +211,12 @@ ImGuIHelper::TreeNodeText ImGuIHelper::TreeNode(const void* id, String&  buffer,
 	return TreeNode(id,buffer);
 }
 
- bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
+bool ImGuIHelper::TreeNode(const void* id, StringView label, AppFiles::sprite Sprite)
+{
+	return ImGuIHelper::TreeNode(id, ToCStr(label), Sprite);
+}
+
+bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 {
 	ImGui::Text(FieldName);
 	ImGui::SameLine();
