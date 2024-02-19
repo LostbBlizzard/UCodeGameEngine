@@ -142,6 +142,7 @@ BuildSytemManger::BuildRet BuildProject(BuildSytemManger& v)
 
 		UCode::RenderAPI::WindowData windowdata;
 		windowdata.GenNewWindow = false;
+		windowdata.ImGui_Init = false;
 		_render->Init(windowdata, _run.get());
 
 		auto GameFiles = UCode::GameFiles::Init(_run->Get_Library_Edit(), AppFilesData);//This Can be Moved 

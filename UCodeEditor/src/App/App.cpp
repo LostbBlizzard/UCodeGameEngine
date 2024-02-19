@@ -357,7 +357,8 @@ int App::main(int argc, char* argv[])
 				_render->PreInit();
 
 				UCode::RenderAPI::WindowData windowdata;
-				windowdata.GenNewWindow = true;
+				windowdata.GenNewWindow = false;
+				windowdata.ImGui_Init = false;
 				_render->Init(windowdata, _run.get());
 
 				{
@@ -405,7 +406,7 @@ int App::main(int argc, char* argv[])
 					outfilepath += relpath;
 				
 					std::filesystem::create_directories(outfilepath.parent_path());
-					std::filesystem::copy(filepath, outfilepath);
+					std::filesystem::copy(filepath, outfilepath,std::filesystem::copy_options::overwrite_existing);
 				}
 			}
 			else if (r.IsValue())
