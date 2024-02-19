@@ -208,8 +208,7 @@ int App::main(int argc, char* argv[])
 
 			auto oldstr = Str;
 			Path target = GetPath(Str);
-			
-			
+		
 			if (!target.empty())
 			{
 				auto tep = target.generic_string();
@@ -303,12 +302,17 @@ int App::main(int argc, char* argv[])
 #endif
 			}
 			UE::Optional<Path> CopyToPath;
-
+			bool printoutputpath = false;
+			
 			{
 				auto t = GetPath(Str);
 				if (t == "-o")
 				{
 					CopyToPath = GetPath(Str);
+				}
+				else if (t == "-p")
+				{
+					printoutputpath = true;
 				}
 			}
 
@@ -408,7 +412,7 @@ int App::main(int argc, char* argv[])
 					std::filesystem::copy(filepath, outfilepath,std::filesystem::copy_options::overwrite_existing);
 				}
 			}
-			else if (r.IsValue())
+			else if (r.IsValue() && printoutputpath)
 			{
 				std::cout << r.GetValue().parent_path();
 			}
