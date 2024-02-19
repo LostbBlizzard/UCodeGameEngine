@@ -16,9 +16,9 @@ public:
 	{
 		return Text((StringView)text);
 	}
+	static const char* ToCStr(const StringView text);
+	static const char* ToCStr(const String& text);
 
-
-	
 	struct TreeNodeText
 	{
 		bool NodeOpen, TextUpdate;
@@ -42,12 +42,21 @@ public:
 
 	static bool TreeNode(const void* id, const char* label, UCode::Sprite* Sprite);
 
+	static bool InputText(const StringView label, String& buffer, ImGuiInputTextFlags flags = 0);
+	static bool MultLineText(const StringView label, String& buffer, ImVec2 Size, ImGuiInputTextFlags flags = 0);
+
+	static bool TreeNode(const void* id, const StringView label, UCode::Sprite* Sprite);
+
+
 	enum class InputPathType
 	{
 		Any,
 		File,
 		Dir,
 	};
+	static bool InputPath(const StringView label, String& buffer, ImGuiInputTextFlags flags = 0, InputPathType PathType = InputPathType::Any, Span<String> Extension = {});
+	static bool InputPath(const StringView label, Path& buffer, ImGuiInputTextFlags flags = 0, InputPathType PathType = InputPathType::Any, Span<String> Extension = {});
+
 
 	static bool InputPath(const char* label, String& buffer, ImGuiInputTextFlags flags = 0, InputPathType PathType = InputPathType::Any, Span<String> Extension = {});
 	static bool InputPath(const char* label, Path& buffer, ImGuiInputTextFlags flags = 0, InputPathType PathType = InputPathType::Any, Span<String> Extension = {});
@@ -64,6 +73,7 @@ public:
 		return  TreeNode(id, buffer, AppFiles::GetSprite(Sprite));
 	}
 
+	static bool TreeNode(const void* id, StringView label, AppFiles::sprite Sprite);
 
 	static bool ToggleField(const char* FieldName, bool& Value);
 
@@ -78,8 +88,8 @@ public:
 
 	static bool uInt64Field(const char* FieldName, u64& Value);
 	static bool uInt32Field(const char* FieldName, u32& Value);
-	static bool uInt16Field(const char* FieldName,u16& Value);
-	static bool uInt8Field(const char* FieldName,u8& Value);
+	static bool uInt16Field(const char* FieldName, u16& Value);
+	static bool uInt8Field(const char* FieldName, u8& Value);
 
 	static bool CharField(const char* FieldName, char& Value);
 
@@ -92,6 +102,100 @@ public:
 	static bool f64Field(const char* FieldName, f64& Value);
 
 	static bool DrawOrdeField(const char* FieldName, unsigned char& Value);
+
+
+	static bool ToggleField(StringView FieldName, bool& Value)
+	{
+		return ToggleField(ToCStr(FieldName), Value);
+	}
+
+	static bool Vec2Field(StringView FieldName, UCode::Vec2& Value)
+	{
+		return Vec2Field(FieldName, Value);
+	}
+	static bool Vec2Field(StringView FieldName, UCode::Vec2i& Value)
+	{
+		return Vec2Field(FieldName, Value);
+	}
+	static bool Vec3Field(StringView FieldName, UCode::Vec3& Value)
+	{
+		return Vec3Field(FieldName, Value);
+	}
+	static bool Vec3Field(StringView FieldName, UCode::Vec3i& Value)
+	{
+		return Vec3Field(FieldName, Value);
+	}
+	static bool ColorField(StringView FieldName, UCode::ColorRGBA& Value)
+	{
+		return ColorField(ToCStr(FieldName), Value);
+	}
+	static bool ColorField(StringView FieldName, UCode::ColorRGB& Value)
+	{
+		return ColorField(ToCStr(FieldName), Value);
+	}
+	static bool ColorField(StringView FieldName, UCode::Color32& Value)
+	{	
+		return ColorField(ToCStr(FieldName), Value);
+	}
+	static bool ColorField(StringView FieldName, UCode::Color24& Value)
+	{
+		return ColorField(ToCStr(FieldName), Value);
+	}
+
+	static bool uInt64Field(StringView FieldName, u64& Value)
+	{
+		return uInt64Field(ToCStr(FieldName), Value);
+	}
+	static bool uInt32Field(StringView FieldName, u32& Value)
+	{
+		return uInt32Field(ToCStr(FieldName), Value);
+	}
+	static bool uInt16Field(StringView FieldName,u16& Value)
+	{
+		return uInt16Field(ToCStr(FieldName), Value);
+	}
+	static bool uInt8Field(StringView FieldName,u8& Value)
+	{
+		return uInt8Field(ToCStr(FieldName), Value);
+	}
+	
+	static bool CharField(StringView FieldName, char& Value)
+	{
+		return CharField(ToCStr(FieldName), Value);
+	}
+	static bool Int64Field(StringView FieldName, i64& Value)
+	{
+		return Int64Field(ToCStr(FieldName), Value);
+	}
+	static bool Int32Field(StringView FieldName, i32& Value)
+	{
+		return Int32Field(ToCStr(FieldName), Value);
+	}
+
+	static bool Int16Field(StringView FieldName, i16& Value)
+	{
+		return Int16Field(ToCStr(FieldName), Value);
+	}
+
+	static bool Int8Field(StringView FieldName, i8& Value)
+	{
+		return Int8Field(ToCStr(FieldName), Value);
+	}
+
+	static bool f32Field(StringView FieldName, f32& Value)
+	{
+		return f32Field(ToCStr(FieldName), Value);
+	}
+
+	static bool f64Field(StringView FieldName, f64& Value)
+	{
+		return f64Field(ToCStr(FieldName), Value);
+	}
+
+	static bool DrawOrdeField(StringView FieldName, unsigned char& Value)
+	{
+		return DrawOrdeField(ToCStr(FieldName), Value);
+	}
 
 
 	template<typename T>
@@ -110,7 +214,10 @@ public:
 		return EnumField<bool>(label, Value, BoolEnumValues, sizeof(BoolEnumValues) / sizeof(BoolEnumValues[1]));
 	}
 
-	
+	static UCODE_EDITOR_FORCEINLINE bool BoolEnumField(const StringView label, bool& Value)
+	{
+		return BoolEnumField(ToCStr(label), Value);
+	}
 
 	struct EnumValue2
 	{
@@ -334,6 +441,10 @@ public:
 
 	static bool InputSize_t(const char* label, size_t* v, int step = 1, int step_fast = 100, ImGuiInputTextFlags flags = 0);
 
+	static bool InputSize_t(const StringView label, size_t* v, int step = 1, int step_fast = 100, ImGuiInputTextFlags flags = 0)
+	{
+		return InputSize_t(label, v, step, step_fast, flags);
+	}
 	template<typename T>
 	static bool DrawVector(const char* label, Vector<T>& Buffer)
 	{
