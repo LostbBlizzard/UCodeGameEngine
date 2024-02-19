@@ -199,7 +199,12 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 	}
 
 	ProjectData prj;
-	ProjectData::ReadFromFile(Path(Export.AssetPath).native() + Path("../").native() + Path(ProjectData::FileName).native(), prj);
+	if (!ProjectData::ReadFromFile(Path(Export.AssetPath).native() + Path("../").native() + Path(ProjectData::FileName).native(), prj))
+	{
+		auto e = ExportErrors();
+		e.AddError(Export.AssetPath.parent_path().concat(ProjectData::FileName),"unable open able to read and parse file");
+		return e;
+	}
 
 
 	auto Uidmappath = UCode::GameFilesData::GetUCodeDir() / UCode::StandardAssetLoader::UIdMap::FileWithDot;
@@ -214,7 +219,7 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 			if (ModulesRets.size())
 			{
 				UCode::GameFilesData data;
-				if (UCode::GameFilesData::ReadFile(Item.OutputModuleFile, data)) 
+				if (UCode::GameFilesData::ReadFile(Item.OutputModuleFile, data))
 				{
 
 					size_t OffsetToAdd = GameData._Data.size();
@@ -225,11 +230,11 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 						{
 							UCode::StandardAssetLoader::UIdMap myidmap;
 							UDeserializer deserializer;
-							deserializer.SetBytes(BytesView::Make(&data._Data[Item.FileOffset],Item.FileSize));
+							deserializer.SetBytes(BytesView::Make(&data._Data[Item.FileOffset], Item.FileSize));
 
 							myidmap.Deserialize(deserializer);
 
-							for (auto& Item : myidmap._Paths) 
+							for (auto& Item : myidmap._Paths)
 							{
 								IDMap._Paths[Item.first] = std::move(Item.second);
 							}
@@ -249,6 +254,24 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 					memcpy(GameData._Data.data() + OffsetToAdd, data._Data.data(), MyDataSize);
 				}
 			}
+		}
+
+		if (!IDMap._Paths.count(prj.StartScene))
+		{
+			ExportError error;
+
+			if (!errors.has_value())
+			{
+				errors = ExportErrors();
+			}
+
+			error.message = "Cant find Start Scene. it may be removed or not set.";
+			errors.value().Errors.push_back(std::move(error));
+		}
+		
+		if (errors.has_value())
+		{
+			return errors.value();
 		}
 
 		{
@@ -272,7 +295,9 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 
 				GameData._Data.push_back(Item);
 			}
+
 		}
+
 
 		ExportChacheFile::ToFile(ChachPath, Chache);
 
@@ -287,9 +312,9 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 		GameData.SceneToLoadOnPlay = prj.StartScene;
 
 		UCode::GameFilesData::MakeFile(GameData, GameFilesDataPath, SerializerMode);
-		
+
 		#if UCodeGEDebug
-		fs::copy_file(GameFilesDataPath, "../UCodeApp" / Path(UCode::GameFilesData::FileDataName),fs::copy_options::overwrite_existing);
+		fs::copy_file(GameFilesDataPath, "../UCodeApp" / Path(UCode::GameFilesData::FileDataName), fs::copy_options::overwrite_existing);
 		#endif
 	}
 	

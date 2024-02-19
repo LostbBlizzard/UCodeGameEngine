@@ -487,10 +487,8 @@ Result<Vector<ExportEditorReturn>, ExportErrors> CodeModule::ExportSystems(const
 		r.Errors.reserve(errs.Get_ErrorCount());
 
 		for (auto& Item : errs.Get_Errors())
-		{
-			ExportError v;
-			
-			r.AddError(Item.File, Item._Msg);
+		{	
+			r.AddError(Item.File, Item._Msg,Item.Line);
 		}
 
 		return r;

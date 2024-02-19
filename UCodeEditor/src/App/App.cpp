@@ -193,6 +193,19 @@ int App::main(int argc, char* argv[])
 			Str = Str.substr(sizeof("build"));
 			Path project = GetPath(Str);
 
+			bool isvaildproject = false;
+
+			if (std::filesystem::exists(project) && std::filesystem::is_directory(project))
+			{
+				isvaildproject = std::filesystem::exists(project / UE::ProjectData::FileName);
+			}
+
+			if (!isvaildproject)
+			{
+				std::cerr << "Project path \"" << project << "\" must be a directory of a vaild UCodeGameEngine Project\n";
+				return EXIT_FAILURE;
+			}
+
 			Path target = GetPath(Str);
 
 			UE::BuildSytemManger build;
@@ -278,6 +291,34 @@ int App::main(int argc, char* argv[])
 				build.Setings.Settings = std::move(settings);
 #endif
 			}
+			UE::Optional<Path> CopyToPath;
+
+			{
+				auto t = GetPath(Str);
+				if (t == "-o")
+				{
+					CopyToPath = GetPath(Str);
+				}
+			}
+
+			if (CopyToPath.has_value()) 
+			{
+				auto& copyto = CopyToPath.value();
+
+
+				if (!std::filesystem::exists(copyto))
+				{
+					std::filesystem::create_directories(copyto);
+				}
+				else
+				{
+					if (!std::filesystem::is_directory(copyto)) {
+						std::cerr << "Output path \"" << copyto <<  "\" must be a directory\n";
+					
+						return EXIT_FAILURE;
+					}
+				}
+			}
 			auto r = build.BuildProject();
 			if (r.IsError())
 			{
@@ -286,13 +327,42 @@ int App::main(int argc, char* argv[])
 				for (auto& Item : err.Errors)
 				{
 
-					std::cout << Item.filepath << ":" << Item.message;
-					if (Item.lineNumber.has_value())
+					if (Item.filepath.has_value())
 					{
-						std::cout << " On Line " << Item.lineNumber.value();
+						std::cerr << "(";
+						std::cerr << Item.filepath.value();
+						
+						if (Item.lineNumber.has_value())
+						{
+							std::cerr << Item.lineNumber.value();
+						}
+						
+						std::cerr << "):";
 					}
-					std::cout << '\n';
+					std::cerr << Item.message;	
+					std::cerr << '\n';
 				}
+			}
+
+			if (r.IsValue() && CopyToPath.has_value())
+			{
+				auto& srcpath = r.GetValue().parent_path();
+				auto& outpath = CopyToPath.value();
+
+				using recursive_directory_iterator = std::filesystem::recursive_directory_iterator;
+				for (const auto& dirEntry : recursive_directory_iterator(srcpath))
+				{
+					auto filepath = dirEntry.path();
+					auto relpath = filepath.native().substr(srcpath.native().size());
+					auto outfilepath = outpath / relpath;
+				
+					std::filesystem::create_directories(outfilepath.parent_path());
+					std::filesystem::copy(filepath, outfilepath);
+				}
+			}
+			else if (r.IsValue())
+			{
+				std::cout << r.GetValue().parent_path();
 			}
 
 			return r.IsValue() ? EXIT_SUCCESS : EXIT_FAILURE;
