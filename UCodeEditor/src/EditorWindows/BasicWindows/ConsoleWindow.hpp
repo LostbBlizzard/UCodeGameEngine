@@ -1,6 +1,7 @@
 #pragma once
 #include <EditorWindows/EditorWindow.hpp>
 #include <Editor/EditorNamespace.hpp>
+#include <UCodeRunTime/ULibrarys/Loger.hpp>
 EditorStart
 
 
@@ -47,5 +48,6 @@ private:
 	String _ConsoleIn;
 	Log* _LookingAtLog;
 	bool _FocusWindow = false;
+	UCode::Loger::CallBackKey logkey;
 };
 EditorEnd

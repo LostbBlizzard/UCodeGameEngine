@@ -164,7 +164,7 @@ Loger::CallBackKey Loger::AddListener(ListnerCallBack callback)
 
 	CallBackItem item;
 	item.key = newcallbackkey;
-	item.key = newcallbackkey;
+	item.callback = callback;
 
 	CallBacksItems.push_back(std::move(item));
 
