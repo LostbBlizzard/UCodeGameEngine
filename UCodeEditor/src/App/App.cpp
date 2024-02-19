@@ -128,7 +128,6 @@ int App::main(int argc, char* argv[])
 			return UCodeEditor::Tests::RunTests();
 		}
 #endif // DEBUG
-		Str = "build C:/CoolStuff/CoolGameStuff/UCode/NoNameGame/NoNameGame -o Test";
 		bool argupdatepassed = false;
 		if (StringHelper::StartsWith(Str, "pack"))
 		{
