@@ -66,7 +66,7 @@ public:
 	void write(const plog::Record& record) override
 	{
 		#if DebugMode
-		std::wostream& Output = std::wcout;
+		std::wostream& Output = std::wcerr;
 		PushToStream(Output, record);
 		#endif // DEBUG
 	
