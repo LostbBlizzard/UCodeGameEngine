@@ -10,7 +10,7 @@
 #include "../Helper/NetworkHelper.hpp"
 #include "../Helper/FileHelper.hpp"
 #include "../Helper/UserSettings.hpp"
-
+#include "../Helper/AppFiles.hpp"
 #if UCodeGEWindows
 #include <Windows.h>
 #endif
@@ -128,6 +128,7 @@ int App::main(int argc, char* argv[])
 			return UCodeEditor::Tests::RunTests();
 		}
 #endif // DEBUG
+		Str = "build C:/CoolStuff/CoolGameStuff/UCode/NoNameGame/NoNameGame -o Test";
 		bool argupdatepassed = false;
 		if (StringHelper::StartsWith(Str, "pack"))
 		{
@@ -206,13 +207,24 @@ int App::main(int argc, char* argv[])
 				return EXIT_FAILURE;
 			}
 
+			auto oldstr = Str;
 			Path target = GetPath(Str);
-
-			UE::BuildSytemManger build;
-
-
+			
+			
 			if (!target.empty())
 			{
+				auto tep = target.generic_string();
+				if (tep[0] == '-')
+				{
+					Str = oldstr;
+					target.clear();
+				}
+			}
+		
+			UE::BuildSytemManger build;
+
+			if (!target.empty())
+			{		
 				if (target == "windows")
 				{
 					UE::WindowsBuildSetings settings;
@@ -319,7 +331,42 @@ int App::main(int argc, char* argv[])
 					}
 				}
 			}
-			auto r = build.BuildProject();
+			{
+				build.Setings._InputDir = project / "Assets";
+				build.Setings._OutDir = UE::ProjectManger::GetProjectCachedDir(project).native() + Path("output").native();
+				build.Setings.TemporaryPlatfromPath = UE::ProjectManger::GetProjectCachedDir(project).native() + Path("build").native();
+				build.Setings.TemporaryGlobalPath = UE::ProjectManger::GetProjectCachedDir(project).native() + (Path("build") / "global").native();
+			
+				UE::ProjectData proj;
+
+				UE::ProjectData::ReadFromFile(project / UE::ProjectData::FileName,proj);
+				build.Setings._OutName = proj._ProjectName;
+			} 
+			
+			UE::BuildSytemManger::BuildRet r;
+			{
+				UC::Gamelibrary lib;
+				UE::AppFiles::Init(&lib);
+
+				
+				auto _run = std::make_unique<UCode::GameRunTime>();
+				_run->Init();
+
+				//setup Opengl Context
+				auto _render = std::make_unique<UCode::RenderAPI::Render>();
+				_render->PreInit();
+
+				UCode::RenderAPI::WindowData windowdata;
+				windowdata.GenNewWindow = true;
+				_render->Init(windowdata, _run.get());
+
+				{
+					r = build.BuildProject();
+				}
+
+				_render->EndRender();
+			}
+			
 			if (r.IsError())
 			{
 				auto& err = r.GetError();
@@ -354,7 +401,8 @@ int App::main(int argc, char* argv[])
 				{
 					auto filepath = dirEntry.path();
 					auto relpath = filepath.native().substr(srcpath.native().size());
-					auto outfilepath = outpath / relpath;
+					auto outfilepath = outpath;
+					outfilepath += relpath;
 				
 					std::filesystem::create_directories(outfilepath.parent_path());
 					std::filesystem::copy(filepath, outfilepath);
