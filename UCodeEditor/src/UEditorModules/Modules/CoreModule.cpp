@@ -38,13 +38,11 @@ public:
             bool OnDropable = ImGui::SetDragDropPayload(DragAndDropType_Scene2dPathType, &Value, sizeof(Path*));
             if (OnDropable)
             {
-                String Text = "Drop Scene Here?";
-                ImGui::Text(Text.c_str());
+                ImGuIHelper::Text(StringView("Drop Scene Here?"));
             }
             else
             {
-                String Text = "Draging Scene";
-                ImGui::Text(Text.c_str());
+                ImGuIHelper::Text(StringView("Draging Scene"));
             }
 
             ImGui::EndDragDropSource();

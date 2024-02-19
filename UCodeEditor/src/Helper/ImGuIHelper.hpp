@@ -8,6 +8,17 @@ EditorStart
 class ImGuIHelper
 {
 public:
+	static void Text(const StringView text)
+	{
+		ImGui::TextUnformatted(text.data(), text.data() + text.size());
+	}
+	static void Text(const String& text)
+	{
+		return Text((StringView)text);
+	}
+
+
+	
 	struct TreeNodeText
 	{
 		bool NodeOpen, TextUpdate;
@@ -618,7 +629,7 @@ public:
 	{
 		auto r = DrawValue<T>(Item);
 		ImGui::SameLine();
-		ImGui::Text(label);
+		ImGuIHelper::Text(label);
 		return r;
 	}
 	template<typename T> static bool DrawValue(T* Item)
@@ -811,7 +822,7 @@ public:
 		const void* ObjectList, size_t ObjectListSize,size_t ItemObjectSize,
 		ObjectFieldFuncPtr DrawObject, const String& Name = "Put/Name/Here")
 	{
-		ImGui::Text(Label);
+		ImGuIHelper::Text(StringView(Label));
 		ImGui::SameLine();
 		return DrawObjectField(Sprite, object, ObjectList, ObjectListSize, ItemObjectSize, DrawObject, Name);
 	}

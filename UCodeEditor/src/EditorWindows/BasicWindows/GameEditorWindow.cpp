@@ -464,7 +464,7 @@ void GameEditorWindow::ShowSceneData()
     DropSceneFromPath();
     if (ImGui::BeginPopupContextItem())
     {
-        ImGui::Text("RunTime options");
+        ImGuIHelper::Text(StringView("RunTime options"));
         ImGui::Separator();
         if (ImGui::MenuItem("Add New Scene"))
         {
@@ -554,7 +554,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
 
     if (ImGui::BeginPopupContextItem())
     {
-        ImGui::Text("Scene options");
+        ImGuIHelper::Text(StringView("Scene options"));
         ImGui::Separator();
         if (ImGui::MenuItem("Rename"))
         {
@@ -667,12 +667,12 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
         if (OnDropable)
         {
             String Text = "Drop " + SceneName + "Here?";
-            ImGui::Text(Text.c_str());
+            ImGuIHelper::Text(Text);
         }
         else
         {
             String Text = "Draging " + SceneName;
-            ImGui::Text(Text.c_str());
+            ImGuIHelper::Text(Text);
         }
 
         ImGui::EndDragDropTarget();
@@ -685,12 +685,12 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
         if (OnDropable)
         {
             String Text = "Drop " + SceneName + " Here?";
-            ImGui::Text(Text.c_str());
+            ImGuIHelper::Text(Text);
         }
         else
         {
             String Text = "Draging " + SceneName;
-            ImGui::Text(Text.c_str());
+            ImGuIHelper::Text(Text);
         }
 
         ImGui::EndDragDropSource();
@@ -904,12 +904,12 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
         if (OnDropable)
         {
             String Text = "Drop " + EntityName + " Here?";
-            ImGui::Text(Text.c_str());
+            ImGuIHelper::Text(Text);
         }
         else
         {
             String Text = "Draging " + EntityName;
-            ImGui::Text(Text.c_str());
+            ImGuIHelper::Text(Text);
         }
 
         ImGui::EndDragDropSource();
@@ -921,7 +921,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
     {
         if (ImGui::BeginChild("PickComponent"))
         {
-            ImGui::Text("Pick Component");
+            ImGuIHelper::Text((StringView("Pick Component")));
             auto& Assembly = UCode::ULangRunTime::Get(Get_GameLib())->Get_Assembly();
 
             for (auto& Item2 : _PickComponent.value())
@@ -948,7 +948,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
 
     if (ImGui::BeginPopupContextItem("SomeThing"))
     {
-        ImGui::Text("Entity2d options");
+        ImGuIHelper::Text(StringView("Entity2d options"));
         ImGui::Separator();
         if (ImGui::MenuItem("Inspect"))
         {
@@ -1100,7 +1100,7 @@ void GameEditorWindow::ShowlibraryBookData(UCode::System* Item)
 }
 void GameEditorWindow::ShowRunTimeGameLibrary()
 {
-    ImGui::Text("Add Stuff here");
+    ImGuIHelper::Text(StringView("Add Stuff here"));
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
 
@@ -1262,7 +1262,7 @@ void GameEditorWindow::GameTab()
     
     if (ImGui::BeginPopup(CantPlayScenePopName))
     {
-        ImGui::Text("Cant Play Scene Try Saveing the Scene To A File. then Opening it");
+        ImGuIHelper::Text(StringView("Cant Play Scene Try Saveing the Scene To A File. then Opening it"));
         ImGui::EndPopup();
     }
 
@@ -1270,11 +1270,11 @@ void GameEditorWindow::GameTab()
     if (_WindowType == GameWindowType::ExternalWindow)
     {
         if (_IsRuningGame) {
-            ImGui::Text("(Runing ExternalWindow) Open the Window Called ExternalWindow");
+            ImGuIHelper::Text(StringView("(Runing ExternalWindow) Open the Window Called ExternalWindow"));
         }
         else
         {
-            ImGui::Text("Press play for ExternalWindow To Open");
+            ImGuIHelper::Text(StringView("Press play for ExternalWindow To Open"));
         }
     }
 }

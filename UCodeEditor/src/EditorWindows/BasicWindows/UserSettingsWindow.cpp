@@ -54,7 +54,7 @@ void UserSettingsWindow::UpdateWindow()
 		{
 			{
 				String str = "Application Verion : " + Version::CurrentUCodeVersion().ToString();
-				ImGui::Text(str.c_str());
+				ImGuIHelper::Text(str);
 			}
 			
 			{
@@ -82,7 +82,7 @@ void UserSettingsWindow::UpdateWindow()
 					str += "64";
 				}
 
-				ImGui::Text(str.c_str());
+				ImGuIHelper::Text(str);
 			}
 
 			if (Settings.allowautoudate == false)
@@ -102,7 +102,7 @@ void UserSettingsWindow::UpdateWindow()
 
 				if (isgetingit)
 				{
-					ImGui::Text("Checking for New Update...");
+					ImGuIHelper::Text(StringView("Checking for New Update..."));
 				}
 				else
 				{
@@ -113,7 +113,7 @@ void UserSettingsWindow::UpdateWindow()
 						s += v.ToString();
 						s += " is Available";
 
-						ImGui::Text(s.c_str());
+						ImGuIHelper::Text(StringView(s));
 						ImGui::SameLine();
 						if (ImGui::Button("Update"))
 						{
@@ -123,7 +123,7 @@ void UserSettingsWindow::UpdateWindow()
 					}
 					else
 					{
-						ImGui::Text("No Update Available");
+						ImGuIHelper::Text(StringView("No Update Available"));
 						ImGui::SameLine();
 						if (ImGui::Button("try again"))
 						{
@@ -172,7 +172,7 @@ void UserSettingsWindow::UpdateWindow()
 
 					ImGui::PushID(&Item);
 
-					ImGui::Text(Item.EditorName); ImGui::SameLine();
+					ImGuIHelper::Text(StringView(Item.EditorName)); ImGui::SameLine();
 
 					bool B = ImGui::Button("Select"); ImGui::SameLine();
 

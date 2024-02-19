@@ -233,7 +233,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 				else
 				{
 					auto NewName = Name;
-					ImGui::Text(NewName.c_str());
+					ImGuIHelper::Text(NewName);
 					if (ImGuIHelper::ImageButton(obj +NewName.size(), AppFiles::sprite::Scene2dData, {30,30}))
 					{
 						Value = obj->_UID;

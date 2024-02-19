@@ -215,9 +215,9 @@ void  EditorAppCompoent::ShowMainMenuBar()
         {
            
 
-            const char* ProjText = IsOpenInProject ? "Project Stuff" : "No Project Is Loaded";
+            StringView ProjText = IsOpenInProject ? StringView("Project Stuff") : StringView("No Project Is Loaded");
 
-            ImGui::Text(ProjText);
+            ImGuIHelper::Text(ProjText);
             if (IsOpenInProject)
             {
                 if (ImGui::MenuItem("Save Project"))
@@ -696,7 +696,7 @@ void EditorAppCompoent::OnDraw()
     if (ImGui::BeginPopupModal("ChangeLog"))
     {
         auto& changelog = ChangeLogtext.value();
-        ImGui::Text(changelog.c_str());
+        ImGuIHelper::Text(changelog);
         ImGui::EndPopup();
     }
     else
@@ -817,9 +817,9 @@ void EditorAppCompoent::OnDraw()
         {
             if (ImGui::Begin("Runing Tasks"))
             {
-                ImGui::Text("Task Name 1");
-                ImGui::Text("Task Name 2");
-                ImGui::Text("Task Name 3");
+                ImGuIHelper::Text(StringView("Task Name 1"));
+                ImGuIHelper::Text(StringView("Task Name 2"));
+                ImGuIHelper::Text(StringView("Task Name 3"));
 
                 ImGui::End();
             }
