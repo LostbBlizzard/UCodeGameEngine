@@ -65,14 +65,14 @@ void OpenProjectWindow::UpdateWindow()
     {
         ImGui::Columns(2);
         {
-            ImGui::Text("Projects List");
+            ImGuIHelper::Text(StringView("Projects List"));
             auto& Projects = GetProjects()->_Projects;
             for (auto it = Projects.begin(); it != Projects.end();)
             {
                 const auto& Item = *it;
 
                 ImGui::Separator();
-                ImGui::Text(Item._Name.c_str()); ImGui::SameLine();
+                ImGuIHelper::Text(StringView(Item._Name)); ImGui::SameLine();
                 
                 ImGui::PushID(&Item);
                 bool a = ImGui::Button("OpenProject", ButtonSize);

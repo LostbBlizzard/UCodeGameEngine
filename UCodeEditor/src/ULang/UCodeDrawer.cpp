@@ -201,7 +201,7 @@ bool UCodeDrawer::DrawClass(void* Pointer, const UCodeLang::Class_Data& Class, c
 }
 bool UCodeDrawer::DrawField(void* Pointer, const char* FieldName, const UCodeLang::ReflectionTypeInfo& Type, const UCodeLang::ClassAssembly& Assembly)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 	return DrawType(Pointer, Type, Assembly);
 }

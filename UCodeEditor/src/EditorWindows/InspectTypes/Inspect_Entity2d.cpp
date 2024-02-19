@@ -231,7 +231,7 @@ void Inspect_Compoent2d::DrawCompoentButtion(UCode::Compoent* Item, EditorAppCom
     }
     if (ImGui::BeginPopupContextItem())
     {
-        ImGui::Text(CompoentName);  ImGui::SameLine(); ImGui::Text("options");
+        ImGuIHelper::Text(StringView(CompoentName));  ImGui::SameLine(); ImGuIHelper::Text(StringView("options"));
         ImGui::Separator();
         if (ImGui::MenuItem("Inspect"))
         {
@@ -259,7 +259,7 @@ void Inspect_Compoent2d::DrawCompoentButtion(UCode::Compoent* Item, EditorAppCom
         }
         else
         {
-            ImGui::Text("[Cannot Draw Compoent Propertys]");
+            ImGuIHelper::Text(StringView("[Cannot Draw Compoent Propertys]"));
         }
 
         ImGui::TreePop();

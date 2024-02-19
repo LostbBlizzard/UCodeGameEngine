@@ -35,7 +35,7 @@ public:
 		//src_flags |= ImGuiDragDropFlags_::ImGuiDragDropFlags_AcceptBeforeDelivery;
 		if (ImGui::BeginDragDropSource(src_flags))
 		{
-			ImGui::Text("Moving .uc");
+			ImGuIHelper::Text(StringView("Moving .uc"));
 			auto Tep = &path;
 			ImGui::SetDragDropPayload(DragAndDropType_ULangFilePath,&Tep, sizeof(const Path*));
 			ImGui::EndDragDropSource();

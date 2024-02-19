@@ -173,7 +173,7 @@ void ProjectFilesWindow::UpdateWindow()
                 {
                     const String _String = "Move Entity To " + _LookingAtDirReadable.generic_string();
 
-                    ImGui::Text(_String.c_str());
+                    ImGuIHelper::Text(_String);
                     const UCode::Entity* DropItem = *(UCode::Entity**)payload->Data;
                     if (payload->IsDelivery())
                     {
@@ -193,7 +193,7 @@ void ProjectFilesWindow::UpdateWindow()
                 {
                     const String _String = "Save Scene To " + _LookingAtDirReadable.generic_string();
 
-                    ImGui::Text(_String.c_str());
+                    ImGuIHelper::Text(_String);
                     const UCode::RunTimeScene* DropItem = *(UCode::RunTimeScene**)payload->Data;
                     if (payload->IsDelivery())
                     {
@@ -231,7 +231,7 @@ void ProjectFilesWindow::UpdateWindow()
         if (ImGui::BeginPopup(ColorSpiteName))
         {
 
-            ImGui::Text("Color Sprite");
+            ImGuIHelper::Text(StringView("Color Sprite"));
             ImGuIHelper::InputText("File Name",FileName);
             ImGui::ColorPicker4("Color", &Color.R);
 
@@ -653,7 +653,7 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
     if (ImGui::BeginPopupContextItem("Test"))
     {
        
-        ImGui::Text("File options");
+        ImGuIHelper::Text(StringView("File options"));
         ImGui::Separator();
     
         if (ImGui::MenuItem("delete file"))
@@ -709,7 +709,7 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
     }
     else 
     {
-        ImGui::Text(NewName.c_str());
+        ImGuIHelper::Text(NewName);
     }
     ImGui::PopID();
     ImGui::PopStyleColor();

@@ -480,7 +480,7 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 			for (size_t i = 0; i < Size; i++)
 			{
 				String Lable = "Item:" + std::to_string(i);
-				ImGui::Text(Lable.c_str());
+				ImGuIHelper::Text(Lable);
 
 				
 				bool RemoveItem = false;
@@ -759,7 +759,7 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 	 {
 		 if (ValuesSize == 0)
 		 {
-			 ImGui::Text("Cant show EnumField because there is no EnumValues");
+			 ImGuIHelper::Text(StringView("Cant show EnumField because there is no EnumValues"));
 			 return false;
 		 }
 		 current_item = &Values[0];

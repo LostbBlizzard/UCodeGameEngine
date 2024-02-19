@@ -37,7 +37,7 @@ void ExportProjectWindow::UpdateWindow()
 	bool _Building = RuningTasksInfo::HasTaskRuning(RuningTask::Type::BuildingProject);
 	if (_Building)
 	{	
-		ImGui::Text("Project Is Being Exported");
+		ImGuIHelper::Text((StringView("Project Is Being Exported")));
 
 		ImGuIHelper::ShowOnMiddleLoadingIndicatorCircle("Loading");
 
@@ -50,7 +50,7 @@ void ExportProjectWindow::UpdateWindow()
 
 	ImGui::Columns(2);
 
-	ImGui::Text("Platforms");
+	ImGuIHelper::Text(StringView("Platforms"));
 
 	for (size_t i = 0; i < PlatfromSize; i++)
 	{
@@ -70,7 +70,7 @@ void ExportProjectWindow::UpdateWindow()
 		}
 
 		ImGui::SameLine();
-		ImGui::Text(Item.Name);
+		ImGuIHelper::Text(StringView(Item.Name));
 		
 
 	}
@@ -161,7 +161,7 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 {
 	ImGuIHelper::Image(AppFiles::sprite::Windows_Platform, { 20,20 });
 	ImGui::SameLine();
-	ImGui::Text("Windows");
+	ImGuIHelper::Text(StringView("Windows"));
 
 	WindowsBuildSetings& Info = WinSettings;
 
@@ -217,7 +217,7 @@ void ExportProjectWindow::ShowLinuxExportSeting()
 {
 	ImGuIHelper::Image(AppFiles::sprite::Linux_Platform, { 20,20 });
 	ImGui::SameLine();
-	ImGui::Text("Linux");
+	ImGuIHelper::Text(StringView("Linux"));
 
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 	ImGui::BeginDisabled(true);
@@ -233,7 +233,7 @@ void ExportProjectWindow::ShowMacOsExportSeting()
 {
 	ImGuIHelper::Image(AppFiles::sprite::Mac_Platform, { 20,20 });
 	ImGui::SameLine();
-	ImGui::Text("MaxOS");
+	ImGuIHelper::Text(StringView("MaxOS"));
 	
 	
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
@@ -250,7 +250,7 @@ void ExportProjectWindow::ShowWebExportSeting()
 {
 	ImGuIHelper::Image(AppFiles::sprite::Web_Platform, { 20,20 });
 	ImGui::SameLine();
-	ImGui::Text("Webgl");
+	ImGuIHelper::Text(StringView("Webgl"));
 
 	WebBuildSetings& Info = webSettings;
 
@@ -308,7 +308,7 @@ void ExportProjectWindow::ShowAndroidExportSeting()
 
 	ImGuIHelper::Image(AppFiles::sprite::Android_Platform, { 20,20 });
 	ImGui::SameLine();
-	ImGui::Text("Android");
+	ImGuIHelper::Text(StringView("Android"));
 
 	AndroidBuildSetings& Info = androidSettings;
 
@@ -355,7 +355,7 @@ void ExportProjectWindow::ShowIosExportSeting()
 {
 	ImGuIHelper::Image(AppFiles::sprite::IOS_Platform, { 20,20 });
 	ImGui::SameLine();
-	ImGui::Text("Ios");
+	ImGuIHelper::Text(StringView("Ios"));
 	
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 
@@ -370,7 +370,7 @@ void ExportProjectWindow::ShowSeverExportSeting()
 {
 	ImGuIHelper::Image(AppFiles::sprite::Sever_Platform, { 20,20 });
 	ImGui::SameLine();
-	ImGui::Text("Sever");
+	ImGuIHelper::Text(StringView("Sever"));
 
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 	
@@ -386,7 +386,7 @@ void ExportProjectWindow::ShowUCodeEditorExportSeting()
 {
 	ImGuIHelper::Image(AppFiles::sprite::UCodeEditor_Platform, { 20,20 });
 	ImGui::SameLine();
-	ImGui::Text("UCodeEditor");
+	ImGuIHelper::Text(StringView("UCodeEditor"));
 
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 	

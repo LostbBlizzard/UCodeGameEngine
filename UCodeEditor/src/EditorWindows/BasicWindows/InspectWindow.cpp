@@ -36,7 +36,7 @@ EditorWindow* InspectWindow::MakeWin(const NewEditorWindowData& windowdata)
 }
 void InspectWindow::DrawText(const char* text)
 {
-	ImGui::Text(text);
+	ImGuIHelper::Text(StringView(text));
 }
 bool InspectWindow::Buttion(const char* FieldName)
 {
