@@ -507,7 +507,7 @@ void OpenGlRender::Init()
     {
         auto v = GLVersionV();
 
-        UCodeGELog("initializing OpenGl:" << v);
+        UCodeGELog("[ConsoleWindowSkip]:initializing OpenGl:" << v);
     }
 
     i32 Maxtexureslots;

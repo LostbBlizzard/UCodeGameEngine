@@ -8,10 +8,31 @@ EditorStart
 
 ConsoleWindow::ConsoleWindow(const NewEditorWindowData& windowdata):EditorWindow(windowdata), _LookingAtLog(nullptr)
 {
-    
+    logkey = UCode::Loger::AddListener([this](StringView Msg)
+    {
+        bool shouldoutput = !StringHelper::Contains<char>(Msg, "[ConsoleWindowSkip]");
+
+        if (shouldoutput) 
+        {
+            ConsoleWindow::Log log;
+            log.Text = Msg;
+
+            if (StringHelper::Contains<char>(Msg, "Error")) 
+            {
+                log._Type = LogType::Error;
+            }
+            else if (StringHelper::Contains<char>(Msg, "Warning"))
+            {
+                log._Type = LogType::Warning; 
+            }
+
+            this->AddLog(log);
+        }
+    });
 }
 ConsoleWindow::~ConsoleWindow()
 {
+    UCode::Loger::RemoveListener(logkey);
 }
  constexpr ImVec4 ConsoleInput_Color = { 1,1,1,1 };
     constexpr ImVec4 Log_Color = {1,1,1,1};

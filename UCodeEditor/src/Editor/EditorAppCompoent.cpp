@@ -670,7 +670,7 @@ void EditorAppCompoent::OnDraw()
         {
             _AutoSaveTimer = MaxAutoTimer;
             SaveApp();
-            UCodeGELog("Auto Saved");
+            UCodeGELog("[ConsoleWindowSkip]:Auto Saved");
         }
         else
         {

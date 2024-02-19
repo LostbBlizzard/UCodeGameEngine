@@ -19,6 +19,24 @@ public:
 	}
 	
 	template<typename T>
+	static bool Contains(const StringBase<T>& string, const StringViewBase<T> MatchString)
+	{
+		return  Contains(String_view(string), String_view(MatchString));
+	}
+	
+	template<typename T>
+	static bool Contains(const StringViewBase<T> string, const StringViewBase<T> MatchString)
+	{
+		if (string.find(MatchString) != std::string::npos) {
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	template<typename T>
 	static bool EndWith(const StringViewBase<T> string, const StringViewBase<T>  MatchString)
 	{
 		if (string.size() < MatchString.size()) { return false; }

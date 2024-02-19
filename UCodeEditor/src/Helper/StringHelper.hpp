@@ -36,5 +36,17 @@ public:
 	{	
 		return UCode::StringHelper::Split(Base, spliter,out);
 	}
+
+	template<typename T>
+	static bool Contains(const UCode::StringBase<T>& string, const UCode::StringViewBase<T> MatchString)
+	{
+		return  UCode::StringHelper::Contains<T>(string, MatchString);
+	}
+	
+	template<typename T>
+	static bool Contains(const UCode::StringViewBase<T> string, const UCode::StringViewBase<T> MatchString)
+	{
+		return  UCode::StringHelper::Contains<T>(string, MatchString);
+	}
 };
 EditorEnd
