@@ -121,6 +121,42 @@ EditorWindow* ExportProjectWindow::MakeWin(const NewEditorWindowData& windowdata
 {
 	return new ExportProjectWindow(windowdata);
 }
+
+void OnBuildProjecDone(BuildSytemManger::BuildRet r)
+{
+	RuningTasksInfo::ReMoveTask(RuningTask::Type::BuildingProject);
+	if (r.IsError())
+	{
+		auto& error = r.GetError();
+
+		String Msg;
+		for (auto& Item : error.Errors)
+		{
+			Msg.clear();
+
+			Msg += "Export Error:";
+			if (Item.filepath.has_value()) 
+			{
+				Msg += "(" + Item.filepath.value().generic_string();
+				if (Item.lineNumber.has_value())
+				{
+					Msg += ":";
+					Msg += std::to_string(Item.lineNumber.value());
+				}
+				Msg += "):";
+			}
+			Msg += Item.message;
+
+			UCodeGEError(Msg);
+		}
+	}
+	else
+	{
+		FileHelper::OpenPathinFiles(r.GetValue().parent_path());
+	}
+
+}
+
 void ExportProjectWindow::ShowWindowsExportSeting()
 {
 	ImGuIHelper::Image(AppFiles::sprite::Windows_Platform, { 20,20 });
@@ -164,33 +200,7 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 			  
 			  Delegate<void> Func2 = [r]()
 				  {
-					  RuningTasksInfo::ReMoveTask(RuningTask::Type::BuildingProject);
-					  if (r.IsError())
-					  {
-						  auto& error = r.GetError();
-
-						  String Msg;
-						  for (auto& Item : error.Errors)
-						  {
-							  Msg.clear();
-							
-							  Msg += "Export Error:";
-							  Msg += "(" + Item.filepath.generic_string();
-							  if (Item.lineNumber.has_value())
-							  {
-								  Msg += ":";
-								  Msg += std::to_string(Item.lineNumber.value());
-							  }
-							  Msg  += "):";
-							  Msg += Item.message;
-
-							  UCodeGEError(Msg);
-						  }
-					  }
-					  else
-					  {
-						  FileHelper::OpenPathinFiles(r.GetValue());
-					  }
+					  OnBuildProjecDone(r);
 				  };
 			  Threads->AddTask_t(UCode::TaskType::Main, std::move(Func2), {});
 		};

@@ -379,9 +379,9 @@ using EditorModuleID = String;
 
 struct ExportError
 {
-	Path filepath;
 	String message;
 
+	Optional<Path> filepath;
 	Optional<size_t> lineNumber;
 };
 struct ExportErrors
@@ -408,6 +408,13 @@ struct ExportErrors
 		v.filepath = path;
 		v.message = message;
 		v.lineNumber = LineNumber;
+
+		Errors.push_back(std::move(v));
+	}
+	void AddError(const StringView message)
+	{
+		ExportError v;
+		v.message = message;
 
 		Errors.push_back(std::move(v));
 	}
