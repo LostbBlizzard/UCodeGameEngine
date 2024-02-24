@@ -32,7 +32,15 @@ public:
 
 	UCODE_EDITOR_NODISCARD static Path GetProjectPrefsDir(const Path&  ProjectDir);
 
-	UCODE_EDITOR_NODISCARD static bool MakeNewProject(const Path&  Dir, const String&  ProjectName);
+	enum class ProjectType
+	{
+		Empty,
+		PlugIn,
+		ExternalProjectType,
+	};
+
+
+	UCODE_EDITOR_NODISCARD static bool MakeNewProject(const Path&  Dir, const String&  ProjectName,ProjectType ProjectType,Optional<String> ExternalProjectID);
 };
 EditorEnd
 

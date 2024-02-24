@@ -1,6 +1,8 @@
 #pragma once
 #include <EditorWindows/BasicWindows/GameEditorWindow.hpp>
+
 #include <Helper/ImGuIHelper.hpp>
+#include <ProjectManagement/ProjectManger.hpp>
 EditorStart
 class OpenProjectWindow :public EditorWindow
 {
@@ -38,6 +40,14 @@ public:
 	State _State;
 	Path ProjectDir;
 	String NewProjectName;
+	
+	struct ProjectTemplateInfo
+	{
+		ProjectManger::ProjectType _ProjectType;
+		String ExternalProjectID;
+
+	};
+	ProjectTemplateInfo templateinfo;
 private:
 	inline static Unique_ptr<ProjectsPath> _ThisProjects;
 	
