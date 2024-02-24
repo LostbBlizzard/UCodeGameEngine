@@ -139,7 +139,7 @@ Result<ExportEditorReturn, ExportErrors> UEditorModule::ExportEditor(ExportEdito
 
 					if (outfile._UID.has_value())
 					{
-						IDMaps._Paths[outfile._UID.value()] = index.FileFullName;
+						IDMaps._Paths.AddValue(outfile._UID.value(),index.FileFullName);
 					}
 
 
@@ -339,7 +339,7 @@ bool ExportChacheFile::FromBytes(const BytesView& bytes, ExportChacheFile& file)
 		bits.ReadType(V1.FileLastUpdated, V1.FileLastUpdated);
 		bits.ReadType(V1.FileHash, V1.FileHash);
 
-		file.Info[Path(V0).native()] = V1;
+		file.Info.AddValue(Path(V0).native(),V1);
 	}
 
 	return true;

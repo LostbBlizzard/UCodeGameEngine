@@ -69,6 +69,15 @@ public:
 	{
 		return _ClassName;
 	}
+
+	void** Get_UObjPtr()
+	{
+		return &_UObj;
+	}
+ 	const UCodeLang::Class_Data** Get_ClassDataPtr()
+	{
+		return &_ClassData;
+	}
 private:
 	const UCodeLang::ClassMethod* _LangConstructor = nullptr;
 	const UCodeLang::ClassMethod* _LangDestructor = nullptr;

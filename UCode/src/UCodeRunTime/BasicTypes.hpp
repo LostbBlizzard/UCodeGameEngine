@@ -20,6 +20,9 @@
 
 #include "BasicTypes/Variant.hpp"
 #include "UCodeRunTime/ULibrarys/AssetManagement/UID.hpp"
+#include "BasicTypes/NeverNullPtr.hpp"
+#include "BasicTypes/UnorderedMap.hpp"
+
 CoreStart
 
 
@@ -177,9 +180,6 @@ using ColorRGBA= Color;
 
 template<typename T>
 using Optional = std::optional<T>;
-
-template<typename Key, typename T>
-using UnorderedMap = std::unordered_map<Key, T>;
 
 template<typename T>
 using Vector = std::vector<T>;

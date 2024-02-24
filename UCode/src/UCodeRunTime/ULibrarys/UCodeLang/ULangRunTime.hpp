@@ -35,6 +35,15 @@ public:
 		Unique_ptr<UCodeLang::RunTimeLib> RunPtr;
 		LibID _ID;
 	};
+	using ScriptInfoKey = uintptr_t;
+	struct ScriptInfo
+	{
+		void** ObjPtr = nullptr;
+		const UCodeLang::Class_Data** ScriptType;
+		std::function<void(const UCodeLang::AssemblyNode* nod)> SetScriptType;
+		std::function<void* ()> PreReload;
+		std::function<void(void*)> PostReload;
+	};
 
 	bool HotReLoadScripts();
 	void ReLoadScripts();
@@ -95,6 +104,19 @@ public:
 	void RemoveLib(LibID ID);
 	Lib& GetLib(LibID ID);
 
+	ScriptInfoKey AddScript(ScriptInfo&& val)
+	{
+		auto newkey = _ScriptNextID;
+		_ScriptNextID++;
+
+		_ScriptInfo.AddValue(newkey,std::move(val));
+		return newkey;
+	}
+	void RemoveScript(ScriptInfoKey key)
+	{
+		_ScriptInfo.erase(key);
+	}
+
 	inline static const char* MainFile = "bin/ucode.lib";
 private:
 	ULangRunTime(Gamelibrary* e);
@@ -104,15 +126,15 @@ private:
 	void Remove(ULangScript* Script);
 
 
-	
-
 	Vector<Lib> Libs;
 	Vector<ULangScript*> _Scripts;
+	UnorderedMap<ScriptInfoKey,ScriptInfo> _ScriptInfo;
 	//
 	
 	UCodeLang::RunTimeLangState _State;
 	UCodeLang::Interpreter _Interpreter;
 	LibID _NextID = 0;
+	ScriptInfoKey _ScriptNextID = 0;
 	//
 	MemData _MemData;
 	static UComponentData type_Data;

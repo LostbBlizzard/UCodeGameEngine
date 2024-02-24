@@ -132,6 +132,7 @@ void ScirptableObject::UnLoadScript()
     _LangDestructor = nullptr;
     _LangConstructor = nullptr;
 }
+
 void ScirptableObject::SaveTo(ScirptableObjectData& out, USerializerType type) const
 {
     out._ObjectType = _ClassName;
