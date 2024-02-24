@@ -457,8 +457,6 @@ void CodeModule::FilesUpdated(const Vector<FileUpdateData>& paths)
 {
 	bool IsUCodeFileUpdated = false;
 
-	auto& Files = EditorAppCompoent::GetCurrentEditorAppCompoent()->GetPrjectFiles();
-	auto AssetDir = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetAssetsDir();
 	for (auto& Item : paths)
 	{
 		auto ext = Item.path.extension();
@@ -466,24 +464,6 @@ void CodeModule::FilesUpdated(const Vector<FileUpdateData>& paths)
 		{
 			IsUCodeFileUpdated = true;
 			break;
-		}
-		else if (ext == UCode::ScirptableObjectData::FileExtDot)
-		{
-			if (Item.type == ChangedFileType::FileUpdated)
-			{
-				auto v = Files.FindAssetFile(AssetDir / Item.path);
-				if (v.has_value())
-				{
-					auto& ItemV = Files._AssetFiles[v.value()];
-
-					ItemV._File->FileUpdated();
-
-				}
-			}
-			else if (Item.type == ChangedFileType::FileRemoved)
-			{
-				//TODO add remove
-			}
 		}
 	}
 
