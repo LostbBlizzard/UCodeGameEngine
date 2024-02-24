@@ -18,6 +18,7 @@
 #include "EditorWindows/BasicWindows/ConsoleWindow.hpp"
 #include "ULang/UCodeDrawer.hpp"
 #include "EditorWindows/DragAndDropNames.hpp"
+#include "UCodeRunTime/ULibrarys/UCodeLang/ScirptableObject.hpp"
 EditorStart
 
 class UCodeAssetFile :public UEditorAssetFileData
@@ -218,6 +219,112 @@ public:
 
 };
 
+class ScriptableAssetFile :public UEditorAssetFileData
+{
+public:
+	ScriptableAssetFile()
+	{
+		FileExtWithDot = UC::ScirptableObjectData::FileExtDot;
+		CanHaveLiveingAssets = true;
+	}
+
+	class Liveing :public UEditorAssetFile
+	{
+	public:
+		UC::ScirptableObjectData _Data;
+		UC::ScirptableObject _Object;
+		Liveing()
+		{
+
+		}
+
+		void Init(const UEditorAssetFileInitContext& Context) override
+		{
+			if (!UC::ScirptableObjectData::FromFile(_Data, FileFullPath))
+			{
+				UCodeGEError("Opening Asset for " << FileFullPath << " Failed");
+			}
+			_Object.LoadScript(_Data);
+		}
+		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override
+		{
+			USerializerType type = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->Get_ProjData()._SerializeType;
+
+			_Object.SaveTo(_Data, type);
+
+			if (!UC::ScirptableObjectData::ToFile(FileFullPath, _Data, type))
+			{
+				UCodeGEError("Saveing Asset for " << FileFullPath << " Failed");
+			}
+
+		}
+		bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override
+		{
+			return ImGuIHelper::ImageButton(Item.ObjectPtr, AppFiles::sprite::ScirptableObjectFile, *(ImVec2*)&Item.ButtionSize);;
+		}
+		void DrawInspect(const UEditorAssetDrawInspectContext& Item) override
+		{
+			ImGui::BeginDisabled(true);
+
+
+			ImGuIHelper::Image(AppFiles::sprite::ScirptableObjectFile, { 20 ,20 });
+			ImGui::SameLine();
+
+			String tep = "ScirptableObject/";
+			tep += _Object.GetClassName();
+			Item.Drawer->StringField("Type", tep);
+
+			String tep2 = FileFullPath.filename().replace_extension("").generic_string();
+			Item.Drawer->StringField("Name", tep2);
+
+
+			ImGui::EndDisabled();
+
+			ImGui::Separator();
+
+			//
+			if (!_Object.HasScript())
+			{
+				if (_Object.HasClass())
+				{
+					//_Object.ReLoad();
+					return;
+				}
+				auto& Assembly = UC::UCodeRunTimeState::Get_Current()->Get_Assembly();
+
+
+				for (const auto& Item : Assembly.Classes)
+				{
+					if (Item->Get_Type() == UCodeLang::ClassType::Class)
+					{
+						if (UCompiler::IsAAsset(*Item, Assembly))
+						{
+							if (ImGui::MenuItem(Item->FullName.size() ? Item->FullName.c_str() : "noname"))
+							{
+								_Object.LoadScript(Item.get());
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				auto& Assembly = UC::UCodeRunTimeState::Get_Current()->Get_Assembly();
+				void* Ptr = _Object.Get_UObj();
+				auto ClassType = _Object.Get_ClassData();
+
+				UCodeDrawer::DrawClass(Ptr, *ClassType, Assembly);
+			}
+			//
+		}
+	};
+
+	virtual Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
+	{
+		return Unique_ptr<UEditorAssetFile>(new Liveing());
+	}
+
+};
 
 
 CodeModule::CodeModule()
@@ -238,6 +345,7 @@ void CodeModule::Init()
 	{
 		Assets[0] = std::move(Unique_ptr<UEditorAssetFileData>(new UCodeAssetFile()));
 		Assets[1] = std::move(Unique_ptr<UEditorAssetFileData>(new UColorAssetFile()));
+		Assets[2] = std::move(Unique_ptr<UEditorAssetFileData>(new ScriptableAssetFile()));
 	}
 
 	{
