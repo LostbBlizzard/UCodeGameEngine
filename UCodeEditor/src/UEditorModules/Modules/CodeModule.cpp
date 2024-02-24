@@ -227,15 +227,20 @@ public:
 	{
 		FileExtWithDot = UC::ScirptableObjectData::FileExtDot;
 		CanHaveLiveingAssets = true;
+		CallLiveingAssetsWhenUpdated = true;
 	}
 
 	class Liveing :public UEditorAssetFile
 	{
 	public:
-		UC::ScirptableObjectData _Data;
 		UC::ScirptableObject _Object;
-		Optional<UC::ULangRunTime::ScriptInfoKey> _ScriptKey = {};
+		
+		UC::ScirptableObjectData _Data;
 		UC::ScirptableObjectData _ReloadBufferObject;
+		UC::ScirptableObjectData _InFile;
+			
+		Optional<UC::ULangRunTime::ScriptInfoKey> _ScriptKey = {};
+		bool justsaved = false;
 		Liveing()
 		{
 
@@ -254,6 +259,7 @@ public:
 				UCodeGEError("Opening Asset for " << FileFullPath << " Failed");
 			}
 			_Object.LoadScript(_Data);
+			_InFile = _Data;
 
 			UC::ULangRunTime::ScriptInfo info;
 			info.ObjPtr = _Object.Get_UObjPtr();
@@ -275,17 +281,40 @@ public:
 
 			_ScriptKey = UC::UCodeRunTimeState::Get_Current()->AddScript(std::move(info));
 		}
-		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override
+		virtual void FileUpdated()
 		{
-			USerializerType type = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->Get_ProjData()._SerializeType;
-
-			_Object.SaveTo(_Data, type);
-
-			if (!UC::ScirptableObjectData::ToFile(FileFullPath, _Data, type))
+			if (justsaved)
 			{
-				UCodeGEError("Saveing Asset for " << FileFullPath << " Failed");
+				justsaved = false;
+				return;
 			}
 
+			if (!UC::ScirptableObjectData::FromFile(_Data, FileFullPath))
+			{
+				UCodeGEError("Opening Asset for " << FileFullPath << " Failed");
+			}
+			_Object.LoadScript(_Data);
+			_InFile = _Data;
+		}
+		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override
+		{
+
+			USerializerType type = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->Get_ProjData()._SerializeType;
+			_Object.SaveTo(_Data, type);
+		
+			bool hasdiff = _Data._DataSerializeType != _InFile._DataSerializeType
+				|| _Data._ObjectType != _InFile._ObjectType
+				|| _Data._Data != _InFile._Data;
+
+			if (hasdiff) 
+			{
+				_InFile = _Data;
+				if (!UC::ScirptableObjectData::ToFile(FileFullPath, _Data, type))
+				{
+					UCodeGEError("Saveing Asset for " << FileFullPath << " Failed");
+				}
+				justsaved = true;
+			}
 		}
 		bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override
 		{
@@ -428,12 +457,33 @@ void CodeModule::FilesUpdated(const Vector<FileUpdateData>& paths)
 {
 	bool IsUCodeFileUpdated = false;
 
+	auto& Files = EditorAppCompoent::GetCurrentEditorAppCompoent()->GetPrjectFiles();
+	auto AssetDir = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetAssetsDir();
 	for (auto& Item : paths)
 	{
-		if (Item.path.extension() == UCodeLang::FileExt::SourceFileWithDot)
+		auto ext = Item.path.extension();
+		if (ext == UCodeLang::FileExt::SourceFileWithDot)
 		{
 			IsUCodeFileUpdated = true;
 			break;
+		}
+		else if (ext == UCode::ScirptableObjectData::FileExtDot)
+		{
+			if (Item.type == ChangedFileType::FileUpdated)
+			{
+				auto v = Files.FindAssetFile(AssetDir / Item.path);
+				if (v.has_value())
+				{
+					auto& ItemV = Files._AssetFiles[v.value()];
+
+					ItemV._File->FileUpdated();
+
+				}
+			}
+			else if (Item.type == ChangedFileType::FileRemoved)
+			{
+				//TODO add remove
+			}
 		}
 	}
 

@@ -16,6 +16,7 @@ struct ScirptableObjectData
 	UID _UID;
 	String _ObjectType;
 	String _Data;	
+	USerializerType _DataSerializeType = USerializerType::Default;
 };
 
 class ScirptableObject
@@ -84,7 +85,7 @@ private:
 	void GetCallBinds()
 	{
 		auto& Class = *_ClassData;
-		_LangConstructor = Class.Get_ClassInit();
+		_LangConstructor = Class.Get_ClassConstructor();
 		_LangDestructor = Class.Get_ClassDestructor();
 	}
 };

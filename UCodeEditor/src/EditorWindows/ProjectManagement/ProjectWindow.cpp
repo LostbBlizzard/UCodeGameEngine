@@ -51,7 +51,7 @@ void ProjectWindow::UpdateWindow()
 
 	static const ImGuIHelper::EnumValue<USerializerType> Values[] =
 	{
-		{"Bytes",USerializerType::Bytes},
+		{"Bytes",USerializerType::BytesSafeMode},
 		{"YAML",USerializerType::YAML},
 	};
 	constexpr size_t Values_Count = sizeof(Values) / sizeof(Values[0]);
