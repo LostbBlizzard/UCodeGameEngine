@@ -169,6 +169,14 @@ public:
 			break;
 		}
 	}
+	bool HasField(const char* FieldName) const
+	{
+		if (_Type == USerializerType::YAML)
+		{
+			return (bool)_YamlReader[FieldName];
+		}
+		return true;
+	}
 
 	void SetBytesPtr(Unique_Bytes&& Bits)
 	{

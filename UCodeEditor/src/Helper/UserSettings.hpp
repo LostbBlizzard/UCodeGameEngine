@@ -1,5 +1,6 @@
 #pragma once
 #include "Typedefs.hpp"
+#include "Plugin/UPlugin.hpp"
 EditorStart
 class UserSettings
 {
@@ -8,6 +9,7 @@ public:
 	String OpenCodeEditorFileArg;
 	bool allowautoudate = true;
 	inline static bool updateonclose = false;
+	Vector<UPluginID> GloballyActivePlugins;
 
 	static inline const char* FilePathArg = "{FilePath}";
 	static inline const char* FileLineNumberArg = "{LineNumber}";

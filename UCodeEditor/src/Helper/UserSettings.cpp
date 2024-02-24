@@ -43,6 +43,7 @@ bool UserSettings::ToFile(const Path& path,const UserSettings& Value)
 	Output.Write("CodeEditorPath",Value.CodeEditorPath);
 	Output.Write("OpenCodeEditorFileArg", Value.OpenCodeEditorFileArg);
 	Output.Write("AutoUpdate", Value.allowautoudate);
+	Output.Write("GlobalPlugins", Value.GloballyActivePlugins);
 
 	return Output.ToFile(path, false);
 }
@@ -71,6 +72,10 @@ bool UserSettings::FromFile(const Path& path, UserSettings& Value)
 		
 		if (yaml["AutoUpdate"]) {
 			Input.ReadType("AutoUpdate", Value.allowautoudate);
+		}
+
+		if (yaml["GlobalPlugins"]) {
+			Input.ReadType("GlobalPlugins", Value.GloballyActivePlugins);
 		}
 		return true;
 	}

@@ -7,7 +7,7 @@
 //File exts
 #include <EditorWindows/OtherTypes/RawEntityData.hpp>
 #include <EditorWindows/OtherTypes/ImageData.hpp>
-#include <ULang/UPlugin.hpp>
+#include "Plugin/UPlugin.hpp"
 #include <EditorWindows/OtherTypes/ColorData.hpp>
 #include <UCodeRunTime/ULibrarys/AssetManagement/SceneData.hpp>
 #include <UCodeLang/LangCore/FileHelper.hpp>

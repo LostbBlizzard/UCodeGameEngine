@@ -27,8 +27,11 @@ void ProjectData::ToBits(USerializer& output, const ProjectData& data)
 {
 	output.Write("_ProjectName", data._ProjectName);
 	output.Write("_CompanyName", data._CompanyName);
+	output.Write("_Verson", data._Version);
+	
 	output.Write("_SerializeType", *(USerializerType_t*)&data._SerializeType);
 	output.Write("_StartScene", data.StartScene);
+	output.Write("_Plugins", data._Plugins);
 }
 
 bool ProjectData::ReadFromFile(const Path& Path, ProjectData& Out)
@@ -46,7 +49,19 @@ void ProjectData::FromBits(UDeserializer& input, ProjectData& Out)
 {
 	input.ReadType("_ProjectName", Out._ProjectName, Out._ProjectName);
 	input.ReadType("_CompanyName", Out._CompanyName, Out._CompanyName);
+	
+	if (input.HasField("_Verson"))
+	{
+		input.ReadType("_Verson", Out._Version, Out._Version);
+	}
+	
+
 	input.ReadType("_SerializeType", *(USerializerType_t*)&Out._SerializeType, *(USerializerType_t*)&Out._SerializeType);
 	input.ReadType("_StartScene",Out.StartScene, Out.StartScene);
+
+	if (input.HasField("_Plugins"))
+	{
+		input.ReadType("_Plugins", Out._Plugins, Out._Plugins);
+	}
 }
 EditorEnd
