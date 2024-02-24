@@ -207,21 +207,21 @@ struct UCodeRunTimeState
 {
 public:
 
-	template<typename... Args> static void LangCall(const UCodeLang::ClassMethod& Func, Args&&... parameters)
+	template<typename... Args> static void LangCall(const UCodeLang::ClassMethod* Func, Args&&... parameters)
 	{
 		if (Has_Current()) 
 		{
 			Get_Current()->LangCall(Func, parameters...);
 		}
 	}
-	template<typename... Args> static void LangThisCall(const UCodeLang::ClassMethod& Func, void* This, Args&&... parameters)
+	template<typename... Args> static void LangThisCall(const UCodeLang::ClassMethod* Func, void* This, Args&&... parameters)
 	{
 		if (Has_Current())
 		{
-			Get_Current()->LangThisCall(This,Func, parameters...);
+			Get_Current()->LangThisCall(Func,This, parameters...);
 		}
 	}
-	template<typename T, typename... Args> static T R_LangCall(const UCodeLang::ClassMethod& Func, Args&&... parameters)
+	template<typename T, typename... Args> static T R_LangCall(const UCodeLang::ClassMethod* Func, Args&&... parameters)
 	{
 		if (Has_Current())
 		{
@@ -229,7 +229,7 @@ public:
 		}
 		return {};
 	}
-	template<typename T, typename... Args> static T R_LangThisCall(const UCodeLang::ClassMethod& Func, void* This, Args&&... parameters)
+	template<typename T, typename... Args> static T R_LangThisCall(const UCodeLang::ClassMethod* Func, void* This, Args&&... parameters)
 	{
 		if (Has_Current())
 		{
@@ -239,7 +239,10 @@ public:
 	}
 
 	static UCodeGEForceinlne void Set_Current(ULangRunTime* Value){Current = Value;}
-	static UCodeGEForceinlne ULangRunTime* Get_Current() { return Current; }
+	static UCodeGEForceinlne ULangRunTime* Get_Current() {
+		UCodeLangAssert(Current);
+		return Current;
+	}
 	static UCodeGEForceinlne bool Has_Current(){return  Get_Current();}
 private:
 	inline static thread_local ULangRunTime* Current = nullptr;
