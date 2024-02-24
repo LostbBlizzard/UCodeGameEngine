@@ -580,9 +580,32 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
         Data.path = path;
         Data.type = Type;
         Info.Ptr->FileUpdate(Data);
-    }
 
-   
+        
+        if (Type == ChangedFileType::FileUpdated)
+        {
+            auto& Files = EditorAppCompoent::GetCurrentEditorAppCompoent()->GetPrjectFiles();
+            auto AssetDir = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetAssetsDir();
+
+            for (auto& Item : Info.Ptr->GetAssetData())
+            {
+
+                if (Item->FileExtWithDot == path.extension().generic_string()
+                    && Item->CallLiveingAssetsWhenUpdated)
+                {
+                    auto v = Files.FindAssetFile(AssetDir / path);
+                    if (v.has_value())
+                    {
+                        auto& ItemV = Files._AssetFiles[v.value()];
+
+                        ItemV._File->FileUpdated();
+                    }
+                }
+            }
+        }
+
+    }
+ 
 }
 void EditorAppCompoent::Undo()
 {
