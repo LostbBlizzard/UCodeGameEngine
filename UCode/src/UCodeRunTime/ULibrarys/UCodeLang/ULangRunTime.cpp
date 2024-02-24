@@ -32,6 +32,14 @@ bool ULangRunTime::HotReLoadScripts()
 
 void ULangRunTime::ReLoadScripts()
 {
+	thread_local Vector<void*> info;
+	info.clear();
+	info.reserve(_ScriptInfo.size());
+
+	for (auto& Item : _ScriptInfo)
+	{
+		info.push_back(Item.second.PreReload());
+	}
 	_State.ClearRunTimeState();
 	
 	for (auto& Item : Libs)
@@ -41,6 +49,17 @@ void ULangRunTime::ReLoadScripts()
 	_State.AddLib(UCodeAPI::Get());
 	
 	_State.LinkLibs();
+
+
+	size_t ind = 0;
+	for (auto& Item : _ScriptInfo)
+	{
+		auto& infoItem = info[ind];
+
+		Item.second.PostReload(infoItem);
+
+		ind++;
+	}	
 
 	for (size_t i = 0; i < _Scripts.size(); i++)
 	{

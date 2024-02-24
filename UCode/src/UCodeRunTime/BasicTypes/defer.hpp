@@ -24,6 +24,6 @@ private:
 
 #define TOKENPASTE(x, y) x ## y
 #define TOKENPASTE2(x, y) TOKENPASTE(x, y)
-#define UCodeGEDefer(Func) Defer TOKENPASTE2(DeferredCall,__COUNTER__) ={ [&](){Func;} };
+#define UCodeGEDefer(Func) UCode::Defer TOKENPASTE2(DeferredCall,__COUNTER__) ={ [&](){Func;} };
 
 CoreEnd

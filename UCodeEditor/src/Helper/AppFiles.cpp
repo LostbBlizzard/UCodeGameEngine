@@ -166,8 +166,8 @@ UC::Texture *AppFiles::GetTexture(texture tex)
                             .ContinueOnMainThread(
                                 [id](Unique_ptr<UC::Texture> &&Val)
                                 {
-                                    _textures.AddValue(id,Val.release());
-                                    _loadtextures.AddValue(id,true);
+                                    _textures.GetOrAdd(id, {}) = Val.release();
+                                    _loadtextures.GetOrAdd(id,{}) = true;
 
                                     return std::move(Val);
                                 });
@@ -259,7 +259,7 @@ UC::Sprite *AppFiles::GetSprite(sprite tex)
     if (_sprites.HasValue(id))
     {
         const SpriteInfo &info = SpriteInfos[id];
-        if (_loadtextures.GetValue((texture_t)info.tex))
+        if (_loadtextures.GetOrAdd((texture_t)info.tex,false))
         {
             auto tex = GetTexture(info.tex);
 
