@@ -264,7 +264,7 @@ public:
 				};
 			info.PreReload = [this]()
 				{	
-					_Object.SaveTo(_ReloadBufferObject,USerializerType::YAML);
+					_Object.SaveTo(_ReloadBufferObject,USerializerType::BytesSafeMode);
 					_Object.UnLoadScript();
 					return nullptr;
 				};

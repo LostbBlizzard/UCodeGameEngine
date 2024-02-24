@@ -19,6 +19,7 @@ enum class USerializerType : USerializerType_t
 {
 	Bytes,
 	YAML,
+	BytesSafeMode = YAML,
 
 	Default = YAML,
 	Fastest = Bytes,
