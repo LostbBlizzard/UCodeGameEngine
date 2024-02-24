@@ -2,7 +2,6 @@
 #include <Imgui/imgui.h>
 #include <Imgui/imgui_internal.h>
 
-#include <ProjectManagement/ProjectManger.hpp>
 #include <Helper/FileHelper.hpp>
 #include <Editor/EditorApp.hpp>
 #include <filesystem>
@@ -140,6 +139,26 @@ void OpenProjectWindow::UpdateWindow()
 
         ImGuIHelper::InputText("New Project Name:", NewProjectName);
 
+        thread_local Vector<ImGuIHelper::EnumValue<ProjectTemplateInfo>> Val;
+        {
+            thread_local bool v = false;
+            if (v == false)
+            {
+                v = true;
+
+                ProjectTemplateInfo info2;
+                info2._ProjectType = ProjectManger::ProjectType::Empty;
+                Val.push_back(ImGuIHelper::EnumValue<ProjectTemplateInfo>("Basic",std::move(info2)));
+ 
+                info2 = ProjectTemplateInfo();
+                info2._ProjectType = ProjectManger::ProjectType::PlugIn;
+                Val.push_back(ImGuIHelper::EnumValue<ProjectTemplateInfo>("Plugin",std::move(info2)));
+           
+                //TODO show TemplateProject Info
+            }
+        }
+        ImGuIHelper::EnumField("Project Template:",templateinfo, Val);
+
         if (ImGui::Button("Back", ButtonSize))
         {
             _State = State::ProjectList;
@@ -147,7 +166,9 @@ void OpenProjectWindow::UpdateWindow()
         ImGui::SameLine();
         if (ImGui::Button("Create Project", ButtonSize))
         {
-            if (ProjectManger::MakeNewProject(ProjectDir, NewProjectName))
+            if (ProjectManger::MakeNewProject(ProjectDir, NewProjectName,templateinfo._ProjectType,
+                templateinfo._ProjectType == ProjectManger::ProjectType::ExternalProjectType ? templateinfo.ExternalProjectID : Optional<String>() 
+            ))
             {
                 auto* ProjData = GetProjects();
                 

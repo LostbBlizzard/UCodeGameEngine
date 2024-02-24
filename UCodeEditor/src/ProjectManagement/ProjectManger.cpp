@@ -39,7 +39,7 @@ Path ProjectManger::GetProjectPrefsDir(const Path&  ProjectDir)
 	return ProjectDir.native() + Path("Prefs").native() + Path::preferred_separator;
 }
 
-bool ProjectManger::MakeNewProject(const Path& Dir, const String& ProjectName)
+bool ProjectManger::MakeNewProject(const Path& Dir, const String& ProjectName,ProjectType ProjectType,Optional<String> ExternalProjectID)
 {
 
 	ProjectData Data = ProjectData();
@@ -50,50 +50,67 @@ bool ProjectManger::MakeNewProject(const Path& Dir, const String& ProjectName)
 	const Path ProjectDir_s = Dir.native() + Path(ProjectName).native() + Path::preferred_separator;
 	const Path ProjectDataPath_s = GetProjectDataPath(ProjectDir_s);
 	
-
-
-	
-
 	if (fs::create_directory(ProjectDir_s))
 	{
 		if (!ProjectData::WriteToFile(ProjectDataPath_s, Data)) { return false; }
 		const fs::path AssetsDir = GetProjectAssetsDir(ProjectDir_s);
+
 		if (fs::create_directory(AssetsDir))
 		{
 
-			//Just for Organization
-			fs::create_directory(AssetsDir / "Packages");
-			
-			fs::create_directory(AssetsDir / "Source");
-			fs::create_directory(AssetsDir / "Source" / "Libraries");
+			if (ProjectType == ProjectType::Empty)
+			{
 
+				//Just for Organization	
+				fs::create_directory(AssetsDir / "Source");
+				fs::create_directory(AssetsDir / "Source" / "Libraries");
 
-			fs::create_directory(AssetsDir / "Audio");
-			fs::create_directory(AssetsDir / "Audio" / "Music");
-			fs::create_directory(AssetsDir / "Audio" / "Sounds");
+				fs::create_directory(AssetsDir / "Audio");
+				fs::create_directory(AssetsDir / "Audio" / "Music");
+				fs::create_directory(AssetsDir / "Audio" / "Sounds");
 
-			fs::create_directory(AssetsDir / "Art");
-			fs::create_directory(AssetsDir / "Art" / "Fonts");
-			fs::create_directory(AssetsDir / "Art" / "Shaders");
-			
-			fs::create_directory(AssetsDir / "GameStorage");
-			fs::create_directory(AssetsDir / "GameData");
+				fs::create_directory(AssetsDir / "Art");
+				fs::create_directory(AssetsDir / "Art" / "Fonts");
+				fs::create_directory(AssetsDir / "Art" / "Shaders");
 
+				fs::create_directory(AssetsDir / "GameStorage");
+				fs::create_directory(AssetsDir / "GameData");
 
-			fs::create_directory(AssetsDir / "EditorTools");
+				fs::create_directory(AssetsDir / "EditorTools");
+			}
+			else if (ProjectType == ProjectType::PlugIn)
+			{
+				fs::create_directory(AssetsDir / "Source");
+				fs::create_directory(AssetsDir / "Source" / "Libraries");
+
+				fs::create_directory(AssetsDir / "Art");
+				
+				fs::create_directory(AssetsDir / "EditorTools");
+			}
+			else if (ProjectType == ProjectType::ExternalProjectType)
+			{
+				auto& ProjectTypeID = ExternalProjectID.value();
+
+			}
+			else
+			{
+				UCodeGEUnreachable();
+			}
+	
+			{
+				String gitnore;
+
+				gitnore += "Cache \n";
+				gitnore += "Prefs \n";
+				std::ofstream out(Path(ProjectDir_s.native() + Path(".gitignore").native()));
+				out << gitnore;
+				out.close();
+			}
 		}
 
-		{
-			String gitnore;
-
-			gitnore += "Cache \n";
-			gitnore += "Prefs \n";
-			std::ofstream out(Path(ProjectDir_s.native() + Path(".gitignore").native()));
-			out << gitnore;
-			out.close();
-		}
+		return true;
 	}
-	return true;
+	
 }
 
 EditorEnd
