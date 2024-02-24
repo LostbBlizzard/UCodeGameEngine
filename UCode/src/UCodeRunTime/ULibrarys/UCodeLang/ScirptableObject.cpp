@@ -19,12 +19,23 @@ void ScirptableObjectData::PushData(USerializer& node) const
     }
 }
 
+
 bool ScirptableObjectData::FromString(ScirptableObjectData& out, UDeserializer& text)
 {
     text.ReadType("_UID", out._UID, out._UID);
     text.ReadType("_ObjectType", out._ObjectType, out._ObjectType);
-    text.ReadType("_Data", out._Data, out._Data);
-	return true;
+
+    if (text.Get_Mode() == USerializerType::YAML)
+    {
+        auto& yaml = text.Get_TextReader();
+        auto datastr = yaml["_Data"];
+        out._Data = ToString(datastr);
+    }
+    else 
+    {
+        text.ReadType("_Data", out._Data, out._Data);
+    }
+    return true;
 }
 
 bool ScirptableObjectData::FromFile(ScirptableObjectData& out, const Path& Path)
@@ -71,14 +82,42 @@ void ScirptableObject::LoadScript(const UCodeLang::AssemblyNode* scriptnode)
     }
 }
 void ScirptableObject::LoadScript(const ScirptableObjectData& out)
-{ 
+{   
     if (_ClassData)
     {
         UnLoadScript();
     } 
-    
-    GetCallBinds();
-	UCodeGEToDo();
+ 
+    auto runstate = UCodeRunTimeState::Get_Current();
+    auto node = runstate->Get_Assembly().Find_Node(out._ObjectType);
+
+    if (node)
+    {
+        _ClassData = &node->Get_ClassData();
+        _ClassName = node->FullName;
+
+        UCodeLang::ReflectionTypeInfo type;
+        type._Type = UCodeLang::ReflectionTypes::CustomType;
+        type._CustomTypeID = _ClassData->TypeID;
+
+        _UObj = runstate->Lang_Malloc(runstate->Get_Assembly().GetSize(type, sizeof(void*) == 4).value());
+
+
+        GetCallBinds();
+        if (_LangConstructor)
+        {
+            runstate->LangThisCall(_LangConstructor, _UObj);
+      
+        }
+
+        UDeserializer deserializer;
+        deserializer.SetData(BytesView((Byte*)out._Data.data(),out._Data.size()));
+        ULangHelper::Deserialize(deserializer, _UObj, type, runstate->Get_Assembly(), sizeof(void*) == 4);
+    }
+    else
+    {
+
+    }
 }
 void ScirptableObject::UnLoadScript()
 {

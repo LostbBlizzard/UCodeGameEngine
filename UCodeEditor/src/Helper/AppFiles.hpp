@@ -68,6 +68,7 @@ public:
 		MoreData =Null,
 		TxtFile = Uility_image,
 		GlslFile = Uility_image,
+		ScirptableObjectFile=Uility_image,
 
 		UCodeEditor_Platform = UPugin,
 

@@ -538,7 +538,7 @@ void ProjectFilesWindow::ShowDirButtions()
 
                 data._UID = Get_ProjectData()->GetNewUID();
 
-                Path pathout = FileHelper::GetNewFileName(_LookingAtDir.value() / Script.node->Name);
+                Path pathout = FileHelper::GetNewFileName(_LookingAtDir.value() / Script.node->Name,UC::ScirptableObjectData::FileExtDot);
 
                 if (!UC::ScirptableObjectData::ToFile(pathout, data, SaveType))
                 {

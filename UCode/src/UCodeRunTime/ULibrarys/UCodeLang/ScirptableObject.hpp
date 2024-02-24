@@ -64,6 +64,11 @@ public:
 	void SaveTo(ScirptableObjectData& out, USerializerType type) const;
 	void LoadScript(const ScirptableObjectData& obj);
 	void UnLoadScript();
+	
+	auto& GetClassName() const
+	{
+		return _ClassName;
+	}
 private:
 	const UCodeLang::ClassMethod* _LangConstructor = nullptr;
 	const UCodeLang::ClassMethod* _LangDestructor = nullptr;
