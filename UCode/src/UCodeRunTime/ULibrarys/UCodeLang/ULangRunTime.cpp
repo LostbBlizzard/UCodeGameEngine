@@ -97,6 +97,7 @@ ULangRunTime::ULangRunTime(Gamelibrary* e) :System(e), _State()
 	_Interpreter.Init(&_State);
 	auto files = GameFiles::Get(e);
 
+	UCodeRunTimeState::Set_Current(this);
 	if (files->GameFileExist(MainFile))
 	{
 		auto v = files->ReadGameFileAsBytes(MainFile);
@@ -160,6 +161,7 @@ ULangRunTime::~ULangRunTime()
 		auto Item = _Scripts[i];
 		Item->UnLoad();
 	}
+	UCodeRunTimeState::Set_Current(nullptr);
 }
 
 void ULangRunTime::Add(ULangScript* Script)

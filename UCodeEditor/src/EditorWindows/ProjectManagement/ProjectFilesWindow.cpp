@@ -20,6 +20,7 @@
 #include <Helper/StringHelper.hpp>
 #include "../../ULang/UCompiler.hpp"
 #include "UCodeRunTime/ULibrarys/UCodeLang/ULangRunTime.hpp"
+#include "UCodeRunTime/ULibrarys/UCodeLang/ScirptableObject.hpp"
 #include "DrawMenu.hpp"
 EditorStart
 namespace fs = std::filesystem;
@@ -500,7 +501,7 @@ void ProjectFilesWindow::ShowDirButtions()
                                        if (!hasItem) {
                                            ScriptMenuInfo info;
                                            info.MenuName = menuname;
-                                           info.node = nod;
+                                           info.node = Item.get();
                                            MenuInfo.push_back(info);
                                        }
 
@@ -526,8 +527,24 @@ void ProjectFilesWindow::ShowDirButtions()
             if (ClickedIndex.has_value())
             {
                 auto& Script = MenuInfo[ClickedIndex.value()];
+                auto SaveType = Get_ProjectData()->Get_ProjData()._SerializeType;
 
+                UC::ScirptableObjectData data;
+                UC::ScirptableObject obj;
 
+                obj.LoadScript(Script.node);
+                
+                obj.SaveTo(data,SaveType);
+
+                data._UID = Get_ProjectData()->GetNewUID();
+
+                Path pathout = FileHelper::GetNewFileName(_LookingAtDir.value() / Script.node->Name);
+
+                if (!UC::ScirptableObjectData::ToFile(pathout, data, SaveType))
+                {
+                    UCodeGEError("Unable to save Asset at " << pathout);
+                }
+               
             }
 
             ImGui::EndMenu();

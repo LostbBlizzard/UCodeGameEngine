@@ -2,7 +2,21 @@
 #include "ULangRunTime.hpp"
 LangStart
 
+struct ScirptableObjectData
+{
+	inline static const char* FileExt = "UScirptableObject";
+	inline static const char* FileExtDot = ".UScirptableObject";
 
+	void PushData(USerializer& node) const;
+	static bool FromString(ScirptableObjectData& out, UDeserializer& text);
+
+	static bool FromFile(ScirptableObjectData& out, const Path& Path);
+	static bool ToFile(const Path& path, ScirptableObjectData& data, USerializerType Type);
+
+	UID _UID;
+	String _ObjectType;
+	String _Data;	
+};
 
 class ScirptableObject
 {
@@ -45,7 +59,11 @@ public:
 	{
 		return _UObj;
 	}
-	void LoadScript(const UCodeLang::Class_Data* ClassData);
+	void LoadScript(const UCodeLang::AssemblyNode* scriptnode);
+
+	void SaveTo(ScirptableObjectData& out, USerializerType type) const;
+	void LoadScript(const ScirptableObjectData& obj);
+	void UnLoadScript();
 private:
 	const UCodeLang::ClassMethod* _LangConstructor = nullptr;
 	const UCodeLang::ClassMethod* _LangDestructor = nullptr;
