@@ -41,9 +41,7 @@ UCODE_EDITOR_NODISCARD Unique_Bytes UPlugin::ToBits(const UPlugin& Data)
 {
 	BitMaker bit;
 	bit.WriteType(UPluginSIGNATURE);
-	bit.WriteType(Data.PluginName);
-	bit.WriteType(Data.PluginVersion);
-	bit.WriteType(Data.BuildNumber);
+	bit.WriteType(Data.PluginID);
 
 	bit.WriteType((BitMaker::SizeAsBits)Data.Offsets.size());
 	for (auto& Item : Data.Offsets)
@@ -74,10 +72,7 @@ UCODE_EDITOR_NODISCARD bool UPlugin::FromBits(const BytesView input, UPlugin& Da
 			return false;
 		}
 	}
-	bit.ReadType(Data.PluginName, Data.PluginName);
-	bit.ReadType(Data.PluginVersion, Data.PluginVersion);
-	bit.ReadType(Data.BuildNumber, Data.BuildNumber);
-
+	bit.ReadType(Data.PluginID, Data.PluginID);	
 	BitMaker::SizeAsBits Count = 0;
 	bit.ReadType(Count, Count);
 	Data.Offsets.reserve(Count);

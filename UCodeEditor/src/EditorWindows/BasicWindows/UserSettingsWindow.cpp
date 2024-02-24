@@ -4,6 +4,7 @@
 #include <UCodeRunTime/Rendering/API_OpenGL/OpenGlRender.hpp>
 #include "Helper/NetworkHelper.hpp"
 #include "Editor/EditorAppCompoent.hpp"
+#include "Plugin/ImGuiHelper_UPlugin.hpp"
 EditorStart
 UserSettingsWindow::UserSettingsWindow(const NewEditorWindowData& windowdata) : EditorWindow(windowdata)
 {
@@ -139,8 +140,9 @@ void UserSettingsWindow::UpdateWindow()
 			ImGuIHelper::BoolEnumField("Auto Update", Settings.allowautoudate);
 
 			ImGui::EndTabItem();
-		}
-		
+
+			ImGuiHelper_UPlugin::DrawUPluginFieldVector("Active Global Plugins",Settings.GloballyActivePlugins);
+		}	
 		
 		if (ImGui::BeginTabItem("CodeEditor"))
 		{

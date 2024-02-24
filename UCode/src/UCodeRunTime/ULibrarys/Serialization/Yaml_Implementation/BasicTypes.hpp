@@ -2,6 +2,8 @@
 #include <yaml-cpp/yaml.h>
 #include <UCodeRunTime/BasicTypes.hpp>
 #include <UCodeRunTime/ULibrarys/AssetManagement/UID.hpp>
+
+
 namespace YAML {
 	template<> struct convert<UCode::Vec2> {
 		static Node encode(const UCode::Vec2& rhs) {
@@ -214,6 +216,25 @@ namespace YAML {
 		}
 	};
 
+	template<> struct convert<UCode::Version> {
+		static Node encode(const UCode::Version& rhs) {
+			Node node;
+			node.push_back(rhs.Major);
+			node.push_back(rhs.Minor);
+			node.push_back(rhs.Patch);
+			return node;
+		}
 
+		static bool decode(const Node& node, UCode::Version& rhs) {
+			if (!node.IsSequence() || node.size() != 3) {
+				return false;
+			}
+
+			rhs.Major = node[0].as<UCode::u32>();
+			rhs.Minor = node[1].as<UCode::u32>();
+			rhs.Patch = node[2].as<UCode::u32>();
+			return true;
+		}
+	};
 	
 }

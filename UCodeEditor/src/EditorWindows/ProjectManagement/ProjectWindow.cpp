@@ -3,6 +3,7 @@
 #include "Helper/ImGuIHelper_Asset.hpp"
 #include "Editor/EditorAppCompoent.hpp"
 #include "UCodeRunTime/ULibrarys/AssetManagement/CoreAssets.hpp"
+#include "Plugin/ImGuiHelper_UPlugin.hpp"
 EditorStart
 
 ProjectWindow::ProjectWindow(const NewEditorWindowData& windowdata) : EditorWindow(windowdata)
@@ -72,6 +73,8 @@ void ProjectWindow::UpdateWindow()
 			ProjectData2.StartScene = Ptr.Get_UID();
 		}
 	}
+
+	ImGuiHelper_UPlugin::DrawUPluginFieldVector("Plugins", ProjectData2._Plugins);
 
 	if (UpdateValue)
 	{

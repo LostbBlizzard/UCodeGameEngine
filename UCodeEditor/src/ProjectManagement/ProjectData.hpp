@@ -5,15 +5,20 @@
 #include <Editor/EditorNamespace.hpp>
 #include <Typedefs.hpp>
 #include <Serialization.hpp>
+#include "Plugin/UPlugin.hpp"
 EditorStart
 class ProjectData
 {
 public:
 	String _ProjectName;
 	String _CompanyName;
+	Version _Version;
+
 	USerializerType _SerializeType= USerializerType::Default;
 	
 	UID StartScene;
+	Vector<UPluginID> _Plugins;
+
 
 	inline static const char* FileName = "UProjectData.data";
 
