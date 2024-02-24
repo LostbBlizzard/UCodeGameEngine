@@ -1034,7 +1034,7 @@ inline void SetTaskData_Cancel(TaskID id, Delegate<void> &&Value, ThreadToRunID 
 template <typename T>
 void Asyn_SetFuture(TaskID id, std::future<T> &&val)
 {
-	Threads::_Map.GetValue(id).SetFuture(std::move(val));
+	Threads::_Map.GetOrAdd(id, {}).SetFuture(std::move(val));
 }
 
 template <typename T>

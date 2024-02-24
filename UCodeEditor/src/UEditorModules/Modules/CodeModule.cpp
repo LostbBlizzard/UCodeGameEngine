@@ -19,6 +19,7 @@
 #include "ULang/UCodeDrawer.hpp"
 #include "EditorWindows/DragAndDropNames.hpp"
 #include "UCodeRunTime/ULibrarys/UCodeLang/ScirptableObject.hpp"
+#include "UCodeRunTime/BasicTypes/defer.hpp"
 EditorStart
 
 class UCodeAssetFile :public UEditorAssetFileData
@@ -234,6 +235,7 @@ public:
 		UC::ScirptableObjectData _Data;
 		UC::ScirptableObject _Object;
 		Optional<UC::ULangRunTime::ScriptInfoKey> _ScriptKey = {};
+		UC::ScirptableObjectData _ReloadBufferObject;
 		Liveing()
 		{
 
@@ -260,18 +262,15 @@ public:
 				{
 					_Object.LoadScript(nod);
 				};
-			info.PreReload = []()
+			info.PreReload = [this]()
 				{	
-					auto r = new UC::ScirptableObjectData();
-					return r;
+					_Object.SaveTo(_ReloadBufferObject,USerializerType::YAML);
+					_Object.UnLoadScript();
+					return nullptr;
 				};
-			info.PostReload = [](void* ptr)
+			info.PostReload = [this](void* ptr)
 				{
-					auto r = (UC::ScirptableObjectData*)ptr;
-					//use defer
-
-
-					delete r;
+					_Object.LoadScript(_ReloadBufferObject);
 				};
 
 			_ScriptKey = UC::UCodeRunTimeState::Get_Current()->AddScript(std::move(info));

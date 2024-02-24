@@ -45,6 +45,7 @@ void USerializer::ToString(String& Out, bool WithSerializerType)
 {
 	DoneWriteing();
 
+	Out.clear();
 	if (WithSerializerType)
 	{
 		Out.push_back(*(char*)&_Type);
