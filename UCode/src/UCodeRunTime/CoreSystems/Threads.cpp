@@ -336,7 +336,7 @@ bool Threads::IsTasksDone(const Vector<TaskID>& Tasks)
 {
 	for (auto& Item : Tasks)
 	{
-		if (_Map.count(Item))
+		if (_Map.HasValue(Item))
 		{
 			return false;
 		}

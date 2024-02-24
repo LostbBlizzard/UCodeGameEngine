@@ -236,7 +236,7 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 
 							for (auto& Item : myidmap._Paths)
 							{
-								IDMap._Paths[Item.first] = std::move(Item.second);
+								IDMap._Paths.AddValue(Item.first,std::move(Item.second));
 							}
 
 							MyDataSize -= Item.FileSize;//Will allways be last.
@@ -256,7 +256,7 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 			}
 		}
 
-		if (!IDMap._Paths.count(prj.StartScene))
+		if (!IDMap._Paths.HasValue(prj.StartScene))
 		{
 			ExportError error;
 

@@ -6,8 +6,8 @@ void LibraryWindow::UpdateWindow()
 	thread_local bool Test = false;
 	if (Test == false)
 	{
-		_TestMap["Hello"] = 3;
-		_TestMap["World"] = 5;
+		_TestMap.AddValue("Hello",3);
+		_TestMap.AddValue("World",5);
 		Test = true;
 
 		_Variant = 0;

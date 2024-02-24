@@ -114,7 +114,7 @@ void AppFiles::Init(UC::Gamelibrary *lib)
 
 bool AppFiles::IsLoaded(texture tex)
 {
-    return _loadtextures[(texture_t)tex];
+    return _loadtextures.GetValue((texture_t)tex);
 }
 UC::Texture *AppFiles::GetTexture(texture tex)
 {
@@ -123,9 +123,9 @@ UC::Texture *AppFiles::GetTexture(texture tex)
     {
         id = (texture_t)texture::Null;
     }
-    if (_textures.count(id))
+    if (_textures.HasValue(id))
     {
-        return _textures[id];
+        return _textures.GetValue(id);
     }
     else
     {
@@ -151,8 +151,8 @@ UC::Texture *AppFiles::GetTexture(texture tex)
                     .ContinueOnMainThread(
                         [id](Unique_ptr<UC::Texture> &&Val)
                         {
-                            _textures[id] = Val.release();
-                            _loadtextures[id] = true;
+                            _textures.AddValue(id,Val.release());
+                            _loadtextures.AddValue(id,true);
 
                             return std::move(Val);
                         });
@@ -166,8 +166,8 @@ UC::Texture *AppFiles::GetTexture(texture tex)
                             .ContinueOnMainThread(
                                 [id](Unique_ptr<UC::Texture> &&Val)
                                 {
-                                    _textures[id] = Val.release();
-                                    _loadtextures[id] = true;
+                                    _textures.AddValue(id,Val.release());
+                                    _loadtextures.AddValue(id,true);
 
                                     return std::move(Val);
                                 });
@@ -176,7 +176,7 @@ UC::Texture *AppFiles::GetTexture(texture tex)
 
         auto Tex = newtext.get();
 
-        _textures[id] = Tex;
+        _textures.AddValue(id,Tex);
 
         _LoadedTextures.push_back(std::move(newtext));
         return Tex;
@@ -190,10 +190,10 @@ AsynTask_t<UC::Texture *> AppFiles::AsynGetTexture(texture tex)
     {
         id = (texture_t)texture::Null;
     }
-    if (_textures.count(id))
+    if (_textures.HasValue(id))
     {
         AsynTask_t<UC::Texture *> R;
-        R.SetValue(std::move(_textures[id]));
+        R.SetValue(std::move(_textures.GetValue(id)));
         return R;
     }
     else
@@ -225,8 +225,8 @@ AsynTask_t<UC::Texture *> AppFiles::AsynGetTexture(texture tex)
             Delegate<UC::Texture *, Unique_ptr<UC::Texture> &&> Func2 = [id](Unique_ptr<UC::Texture> &&Val)
             {
                 auto RVal = Val.get();
-                _textures[id] = Val.release();
-                _loadtextures[id] = true;
+                _textures.AddValue(id,Val.release());
+                _loadtextures.AddValue(id,true);
 
                 if (id != (texture_t)texture::AppIcon)
                 {
@@ -256,10 +256,10 @@ UC::Sprite *AppFiles::GetSprite(sprite tex)
         id = (Sprite_t)sprite::Null;
     }
 
-    if (_sprites.count(id))
+    if (_sprites.HasValue(id))
     {
         const SpriteInfo &info = SpriteInfos[id];
-        if (_loadtextures[(texture_t)info.tex])
+        if (_loadtextures.GetValue((texture_t)info.tex))
         {
             auto tex = GetTexture(info.tex);
 
@@ -301,7 +301,7 @@ UC::Sprite *AppFiles::GetSprite(sprite tex)
                 _SizeY = info.SizeY;
             }
 
-            auto &R = _sprites[id];
+            auto &R = _sprites.GetValue(id);
             R->Set_Xoffset(_X);
             R->Set_Yoffset(_Y);
 
@@ -313,7 +313,7 @@ UC::Sprite *AppFiles::GetSprite(sprite tex)
         }
         else
         {
-            return _sprites[id];
+            return _sprites.GetValue(id);
         }
     }
     else
@@ -361,7 +361,7 @@ UC::Sprite *AppFiles::GetSprite(sprite tex)
 
         Unique_ptr<UC::Sprite> newSpr = std::make_unique<UC::Sprite>(tex, _X, _Y, _SizeX, _SizeY);
         UC::Sprite *newSprite = newSpr.get();
-        _sprites[id] = newSprite;
+        _sprites.AddValue(id,newSprite);
 
         _LoadedSprite.push_back(std::move(newSpr));
         return newSprite;

@@ -728,7 +728,7 @@ public:
 		{
 			Unordered_map<Key, U>& MapAsType = *(UCodeEditor::Unordered_map<Key, U>*)Map;
 			std::pair<Key, U>* ObjectAsType = (std::pair<Key, U>*)Object;
-			MapAsType[ObjectAsType->first] = ObjectAsType->second;
+			MapAsType.AddValue(ObjectAsType->first,ObjectAsType->second);
 		};
 
 		return Draw_Dictionary(label, &Item, Item.size(), Info);

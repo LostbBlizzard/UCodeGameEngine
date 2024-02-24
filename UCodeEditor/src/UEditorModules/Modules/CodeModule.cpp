@@ -233,9 +233,16 @@ public:
 	public:
 		UC::ScirptableObjectData _Data;
 		UC::ScirptableObject _Object;
+		Optional<UC::ULangRunTime::ScriptInfoKey> _ScriptKey = {};
 		Liveing()
 		{
 
+		}
+		~Liveing()
+		{
+			if (_ScriptKey.has_value()) {
+				UC::UCodeRunTimeState::Get_Current()->RemoveScript(_ScriptKey.value());
+			}
 		}
 
 		void Init(const UEditorAssetFileInitContext& Context) override
@@ -245,6 +252,29 @@ public:
 				UCodeGEError("Opening Asset for " << FileFullPath << " Failed");
 			}
 			_Object.LoadScript(_Data);
+
+			UC::ULangRunTime::ScriptInfo info;
+			info.ObjPtr = _Object.Get_UObjPtr();
+			info.ScriptType = _Object.Get_ClassDataPtr();
+			info.SetScriptType = [this](const UCodeLang::AssemblyNode* nod)
+				{
+					_Object.LoadScript(nod);
+				};
+			info.PreReload = []()
+				{	
+					auto r = new UC::ScirptableObjectData();
+					return r;
+				};
+			info.PostReload = [](void* ptr)
+				{
+					auto r = (UC::ScirptableObjectData*)ptr;
+					//use defer
+
+
+					delete r;
+				};
+
+			_ScriptKey = UC::UCodeRunTimeState::Get_Current()->AddScript(std::move(info));
 		}
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override
 		{
@@ -281,7 +311,7 @@ public:
 			ImGui::EndDisabled();
 
 			ImGui::Separator();
-
+	
 			//
 			if (!_Object.HasScript())
 			{

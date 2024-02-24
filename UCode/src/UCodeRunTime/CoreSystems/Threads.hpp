@@ -12,9 +12,9 @@
 #include "PackagedTask.hpp"
 CoreStart
 
-	// This is the worst code I've ever written but it works
-	// This abuses most features of C++ and its nuances
-	using ThreadToRunID_t = int;
+// This is the worst code I've ever written but it works
+// This abuses most features of C++ and its nuances
+using ThreadToRunID_t = int;
 struct ThreadToRunID
 {
 	constexpr explicit ThreadToRunID(ThreadToRunID_t Value)
@@ -753,13 +753,13 @@ public:
 		Info.ID = ID;
 
 		LockDoneLock();
-		_Map[ID] = Info;
+		_Map.GetValue(ID) = Info;
 		LockDoneUnLock();
 	}
 	static void SetTaskData_Cancel(TaskID ID, Delegate<void> &&Value, ThreadToRunID Thread)
 	{
 		LockDoneLock();
-		auto &V = _Map[ID];
+		auto &V = _Map.GetValue(ID);
 		V.OnCancel = std::move(Value);
 		V.OnCancelToRun = Thread;
 		LockDoneUnLock();
@@ -767,7 +767,7 @@ public:
 	static void SetTaskData_Done(TaskID ID, AnyDoneFuncPtr &&Value, ThreadToRunID Thread)
 	{
 		LockDoneLock();
-		auto &V = _Map[ID];
+		auto &V = _Map.GetValue(ID);
 		V.OnDone = std::move(Value);
 		V.OnDoneToRun = Thread;
 		LockDoneUnLock();
@@ -776,9 +776,9 @@ public:
 	{
 		LockDoneLock();
 		bool r = false;
-		if (_Map.count(ID))
+		if (_Map.HasValue(ID))
 		{
-			r = _Map.at(ID).OnDoneToRun != NullThread;
+			r = _Map.GetValue(ID).OnDoneToRun != NullThread;
 		}
 		LockDoneUnLock();
 
@@ -788,9 +788,9 @@ public:
 	{
 		LockDoneLock();
 		bool r = false;
-		if (_Map.count(ID))
+		if (_Map.HasValue(ID))
 		{
-			r = _Map.at(ID).OnCancelToRun != NullThread;
+			r = _Map.GetValue(ID).OnCancelToRun != NullThread;
 		}
 		LockDoneUnLock();
 
@@ -801,9 +801,9 @@ public:
 	{
 		Optional<AsynTask> tep;
 		LockDoneLock();
-		if (_Map.count(ID))
+		if (_Map.HasValue(ID))
 		{
-			auto &V = _Map.at(ID);
+			auto &V = _Map.GetValue(ID);
 
 			if (V.OnCancel)
 			{
@@ -840,9 +840,9 @@ public:
 	static bool TryCallOnDone(TaskID ID, T &&Move)
 	{
 		LockDoneLock();
-		if (_Map.count(ID))
+		if (_Map.HasValue(ID))
 		{
-			auto &V = _Map.at(ID);
+			auto &V = _Map.GetValue(ID);
 
 			if (V.OnDone)
 			{
@@ -894,7 +894,7 @@ public:
 			Get_Threads()->_TaskLock.lock();
 		}
 
-		if (Threads::_Map.count(ID))
+		if (Threads::_Map.HasValue(ID))
 		{
 			TaskInfo *V = Get_Threads()->GetTaskInfo(ID);
 			R.DoneTasks = 0;
@@ -1034,13 +1034,13 @@ inline void SetTaskData_Cancel(TaskID id, Delegate<void> &&Value, ThreadToRunID 
 template <typename T>
 void Asyn_SetFuture(TaskID id, std::future<T> &&val)
 {
-	Threads::_Map[id].SetFuture(std::move(val));
+	Threads::_Map.GetValue(id).SetFuture(std::move(val));
 }
 
 template <typename T>
 std::future<T> &Asyn_GetFuture(TaskID id)
 {
-	return Threads::_Map[id].GetFuture<T>();
+	return Threads::_Map.GetValue(id).GetFuture<T>();
 }
 inline bool Asyn_IsDoneLocked()
 {
@@ -1052,7 +1052,7 @@ inline bool Asyn_HasOnDone(TaskID id)
 }
 inline size_t Asyn_Map_Count(TaskID id)
 {
-	return Threads::_Map.count(id);
+	return Threads::_Map.HasValue(id);
 }
 
 inline void Asyn_Map_Erase(TaskID id)

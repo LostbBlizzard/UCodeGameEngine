@@ -33,7 +33,7 @@ public:
 				Out.ReadType("_UID", V1);
 				Out.ReadType("_Path", V2);
 
-				_Paths[V1] = std::move(V2);
+				_Paths.AddValue(V1,std::move(V2));
 			}
 		}
 		~UIdMap()
@@ -78,9 +78,9 @@ private:
 	UIdMap _uids;
 	Optional<Path> GetUIDToPath(const UID& id)
 	{
-		if (_uids._Paths.count(id))
+		if (_uids._Paths.HasValue(id))
 		{
-			return _uids._Paths.at(id);
+			return _uids._Paths.GetValue(id);
 		}
 		return {};
 	}

@@ -160,7 +160,7 @@ void EditorAppCompoent::OnProjectLoaded()
     for (auto& Item : List)
     {
         auto Ext = Item.RelativePath.extension();
-        ExtList[Ext].push_back(&Item);
+        ExtList.GetOrAdd(Ext, {}).push_back(&Item);
     }
 
 

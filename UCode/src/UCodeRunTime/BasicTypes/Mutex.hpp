@@ -1,7 +1,7 @@
 #include <mutex>
 #include <functional>
 #include <optional>
-
+#include "defer.hpp"
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 CoreStart
 
@@ -18,21 +18,21 @@ public:
 	{
 		other._lock.lock();
 		this->_lock.lock();
-			
-		_base = std::move(other);
 
-		this->_lock.unlock();
-		other._lock.unlock();
+		UCodeGEDefer(this->_lock.unlock();)
+		UCodeGEDefer(other->_lock.unlock();)
+
+		_base = std::move(other);
 	}
 	operator=(Mutex&& other)
 	{
 		other._lock.lock();
 		this->_lock.lock();
+	
+		UCodeGEDefer(this->_lock.unlock();)
+		UCodeGEDefer(other->_lock.unlock();)
 
 		_base = std::move(other);
-
-		this->_lock.unlock();
-		other._lock.unlock();
 	}
 	~Mutex()
 	{
@@ -43,46 +43,42 @@ public:
 	void Lock(UseFunc func)
 	{
 		_lock.lock();
+		UCodeGEDefer(_lock.unlock();)
 
 		func(_base);
-
-		_lock.unlock();
 	}
 
-	using UseFunc = std::function<void(T&)>;
 	bool TryLock(UseFunc func)
 	{
 		if (_lock.try_lock())
 		{
+			UCodeGEDefer(_lock.unlock();)
+			
 			func(_base);
-			_lock.unlock();
 			return true;
 		}
 		return false;
 	}
 
-	using UseFuncC = std::function<void(const T&)>;
 	template<typename X>
-	X LockRead(std::function<X(const T&)> func)
+	X Lock_r(std::function<X(T&)> func)
 	{
 		_lock.lock();
-
-		auto  r = func(_base);
+		UCodeGEDefer(_lock.unlock();)
 		
-		_lock.unlock();
+		auto r = func(_base);	
 		
 		return r;
 	}
 
-	using UseFuncC = std::function<void(const T&)>;
 	template<typename X>
-	std::optional<X> TryLockRead(std::function<X(const T&)> func)
+	std::optional<X> Lock_r(std::function<X(T&)> func)
 	{
 		if (_lock.try_lock())
 		{
-			auto  r = func(_base);
+			UCodeGEDefer(_lock.unlock();)
+			auto r = func(_base);
 
-			_lock.unlock();
 			return r;
 		}
 		return {};
