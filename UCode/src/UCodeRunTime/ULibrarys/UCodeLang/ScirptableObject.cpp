@@ -35,6 +35,8 @@ bool ScirptableObjectData::FromString(ScirptableObjectData& out, UDeserializer& 
     {
         text.ReadType("_Data", out._Data, out._Data);
     }
+    out._DataSerializeType = text.Get_Mode();
+
     return true;
 }
 
@@ -111,7 +113,7 @@ void ScirptableObject::LoadScript(const ScirptableObjectData& out)
         }
 
         UDeserializer deserializer;
-        deserializer.SetData(BytesView((Byte*)out._Data.data(),out._Data.size()));
+        deserializer.SetData(BytesView((Byte*)out._Data.data(),out._Data.size()),out._DataSerializeType);
         ULangHelper::Deserialize(deserializer, _UObj, type, runstate->Get_Assembly(), sizeof(void*) == 4);
     }
     else
@@ -142,6 +144,7 @@ void ScirptableObject::SaveTo(ScirptableObjectData& out, USerializerType type) c
     ULangHelper::Serialize(serlalizer, _UObj, *_ClassData,UCodeRunTimeState::Get_Current()->Get_Assembly(), sizeof(void*) == 4);
 
     serlalizer.ToString(out._Data,false);
+    out._DataSerializeType = type;
 }
 LangEnd
 

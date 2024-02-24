@@ -133,6 +133,7 @@ public:
 	void SetYAMLString(const StringView string);
 
 	void SetData(const BytesView Bytes);//the byte[0] is SerializerType 
+	void SetData(const BytesView Bytes,USerializerType type);
 
 	UCodeGameEngineNoDiscard static bool FromFile(const Path& Path, UDeserializer& Out);//Note the File must be made from USerializer::ToFile
 	//

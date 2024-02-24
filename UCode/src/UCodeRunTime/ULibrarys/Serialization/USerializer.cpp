@@ -185,6 +185,21 @@ void UDeserializer::SetData(const BytesView Bytes)
 	}
 }
 
+void UDeserializer::SetData(const BytesView Bytes, USerializerType type)
+{
+	switch (type)
+	{
+	case UCode::USerializerType::Bytes:
+		SetBytes(Bytes);
+		break;
+	case UCode::USerializerType::YAML:
+		SetYAMLString(StringView((char*)Bytes.Data(), Bytes.Size()));
+		break;
+	default:
+		break;
+	}
+}
+
 UCodeGameEngineNoDiscard bool UDeserializer::FromFile(const Path& Path, UDeserializer& Out)
 {
 	if (std::filesystem::is_regular_file(Path))

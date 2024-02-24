@@ -576,6 +576,9 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
         Path FileExt = Item.FullFileName.extension();
         bool ShowOthers = true;
         bool FoundIt = false;
+
+        auto& ProjectFiles = Get_ProjectFiles();
+        
         for (size_t i = 0; i < Modules.Size(); i++)
         {
             auto& item = Modules[i];
@@ -588,12 +591,12 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
                 FoundIt = true;
                 if (Data->CanHaveLiveingAssets)
                 {
-                    auto B =Get_ProjectFiles().FindAssetFile(Item.FullFileName);
+                    auto B =ProjectFiles.FindAssetFile(Item.FullFileName);
                     
                     UEditorAssetDrawButtionContext Context;
                     Context.ButtionSize = *(Vec2*)&ButtionSize;
                     Context.ObjectPtr = &Item;
-                    Context._newuid = Get_ProjectFiles()._newuid;
+                    Context._newuid = ProjectFiles._newuid;
 
                     ProjectFiles::AssetFile* File;
                     if (!B.has_value())
@@ -608,14 +611,14 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
                         tep1.Set(std::move(Ptr));
                         tep1.LastUsed = ProjectFiles::AssetFileMaxLastUsed;
 
-                        Get_ProjectFiles()._AssetFiles.push_back(std::move(tep1));
-                        File = &Get_ProjectFiles()._AssetFiles.back();
+                        ProjectFiles._AssetFiles.push_back(std::move(tep1));
+                        File = &ProjectFiles._AssetFiles.back();
                     }
                     else
                     {
-                        auto& HG = Get_ProjectFiles()._AssetFiles[B.value()];
+                        auto& HG = ProjectFiles._AssetFiles[B.value()];
                         File = &HG;
-                        HG.LastUsed = Get_ProjectFiles().AssetFileMaxLastUsed;
+                        HG.LastUsed = ProjectFiles.AssetFileMaxLastUsed;
                     }
                     
                     
@@ -652,7 +655,7 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
                     UEditorAssetDataConext Conext;
                     Conext.ButtionSize = *(Vec2*)&ButtionSize;
                     Conext.ObjectPtr = &Item;
-                    Conext._newuid = Get_ProjectFiles()._newuid;
+                    Conext._newuid = ProjectFiles._newuid;
 
                     ShowOthers = Data->Draw(Conext, Item.FullFileName);
                 }
