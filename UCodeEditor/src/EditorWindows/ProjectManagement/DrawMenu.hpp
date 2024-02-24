@@ -44,6 +44,8 @@ Optional<size_t> DrawMenu(const Span<T> items, StringView(*getname)(const T&))
         Vector<StringView> mysplitstr;
         for (size_t i = 0; i < std::max(splitstr.size(), MenuScopesplits.size()); i++)
         {
+            break;
+             
             Optional<StringView> MenuScope = i < MenuScopesplits.size() ? MenuScopesplits[i] : Optional<StringView>();
             Optional<StringView> ItemScope = i < splitstr.size() ? splitstr[i] : Optional<StringView>();
 
