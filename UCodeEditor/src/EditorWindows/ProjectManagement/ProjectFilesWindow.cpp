@@ -194,12 +194,16 @@ void ProjectFilesWindow::UpdateWindow()
                     const String _String = "Save Scene To " + _LookingAtDirReadable.generic_string();
 
                     ImGuIHelper::Text(_String);
-                    const UCode::RunTimeScene* DropItem = *(UCode::RunTimeScene**)payload->Data;
+                    UCode::RunTimeScene* DropItem = *(UCode::RunTimeScene**)payload->Data;
                     if (payload->IsDelivery())
                     {
                         auto SaveType = Get_ProjectData()->Get_ProjData()._SerializeType;
                         UCode::Scene2dData Data;
                         UCode::Scene2dData::SaveScene(DropItem, Data, SaveType);
+
+                        auto newuid = Get_ProjectData()->GetNewUID();
+                        Data._UID = newuid;
+                        DropItem->Get_UID() = newuid;
 
                         const String _SceneName = DropItem->Get_Name().size() ? DropItem->Get_Name() : UnNamedScene;
 
@@ -408,7 +412,7 @@ void ProjectFilesWindow::ShowDirButtions()
                 }
                 if (ImGui::MenuItem("Component"))
                 {
-                    Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New Script").native(),
+                    Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New_Script").native(),
                         Path("." + (UCode::String)UCodeLang::FileExt::SourceFile));
 
                     std::ofstream NewScirpt(NewPath);
@@ -418,11 +422,11 @@ void ProjectFilesWindow::ShowDirButtions()
                 }
                 if (ImGui::MenuItem("Asset"))
                 {
-                    Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New Script").native(),
+                    Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New_Asset_Script").native(),
                         Path("." + (UCode::String)UCodeLang::FileExt::SourceFile));
 
                     std::ofstream NewScirpt(NewPath);
-                    NewScirpt << UCompiler::NewComponentTemplate("Script");
+                    NewScirpt << UCompiler::NewAssetTemplate("NewAsset");
                     NewScirpt.close();
                     //Go To TextEditor
                     UpdateDir();
@@ -477,28 +481,30 @@ void ProjectFilesWindow::ShowDirButtions()
                            for (auto& tag : tags.Attributes)
                            {
                                const auto& nod = CurrentAssembly.Find_Node(tag.TypeID);
-                               if (StringHelper::StartsWith(nod->FullName, "UCodeGameEngine:MenuItem"))
-                               {
-                                   StringView menuname = StringView((const char*)tag._Data.Get_Data(), tag._Data.Size);
-
-                                   bool hasItem = false;
-
-                                   for (auto& Item : MenuInfo)
+                               if (nod) {
+                                   if (StringHelper::StartsWith(nod->FullName, "UCodeGameEngine:MenuItem"))
                                    {
-                                       if (Item.MenuName == menuname)
+                                       StringView menuname = StringView((const char*)tag._Data.Get_Data(), tag._Data.Size);
+
+                                       bool hasItem = false;
+
+                                       for (auto& Item : MenuInfo)
                                        {
-                                           hasItem = true;
-                                           break;
+                                           if (Item.MenuName == menuname)
+                                           {
+                                               hasItem = true;
+                                               break;
+                                           }
                                        }
-                                   }
 
-                                   if (!hasItem) {
-                                       ScriptMenuInfo info;
-                                       info.MenuName = menuname;
-                                       info.node = nod;
-                                       MenuInfo.push_back(info);
-                                   }
+                                       if (!hasItem) {
+                                           ScriptMenuInfo info;
+                                           info.MenuName = menuname;
+                                           info.node = nod;
+                                           MenuInfo.push_back(info);
+                                       }
 
+                                   }
                                }
                            }
                        }

@@ -443,6 +443,38 @@ String UCompiler::NewComponentTemplate(const StringView componentname)
 
 	return r;
 }
+String UCompiler::NewAssetTemplate(const StringView componentname)
+{
+	StringView Tab = "  ";
+
+	String r;
+	r += "use ULang;\n";
+	r += "use UCodeGameEngine;\n";
+
+	r += "\n";
+
+	r += "[MenuItem]\n";
+
+	r += "$";
+	r += componentname;
+	r += "[Asset]:\n\n";
+
+	r += Tab;
+	r+= "//Add Varables\n";
+	r += Tab;
+	r += "int Number;\n";
+	
+	r += Tab;
+	r += "String StringVal;\n";
+
+	r += Tab;
+	r += "bool? OptBool;\n";
+
+
+	r += "//\n";
+
+	return r;
+}
 EditorEnd
 
 

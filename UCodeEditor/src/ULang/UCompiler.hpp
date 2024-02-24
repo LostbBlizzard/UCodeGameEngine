@@ -52,5 +52,6 @@ public:
 
 
 	static String NewComponentTemplate(const StringView componentname);
+	static String NewAssetTemplate(const StringView componentname);
 };
 EditorEnd
