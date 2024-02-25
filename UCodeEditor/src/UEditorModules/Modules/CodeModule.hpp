@@ -30,7 +30,7 @@ public:
 	void FilesUpdated(const Vector<FileUpdateData>& paths) override;
 	Result<Vector<ExportEditorReturn>, ExportErrors> ExportSystems(const ExportEditorContext& Context) override;
 private:
-	Array<Unique_ptr<UEditorAssetFileData>,3> Assets;
+	Array<Unique_ptr<UEditorAssetFileData>,4> Assets;
 	Array<Unique_ptr<UEditorComponentData>,1> Components;
 };
 
