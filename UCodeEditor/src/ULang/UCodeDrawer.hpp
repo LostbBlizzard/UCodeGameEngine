@@ -3,6 +3,7 @@
 #include <Editor/EditorNamespace.hpp>
 #include <UCodeLang/UCodeLang/LangCore/UClib.hpp>
 #include <Helper/ImGuIHelper.hpp>
+#include <UCodeLang/UCodeLang/Compilation/ModuleFile.hpp>
 EditorStart
 class UCodeDrawer
 {
@@ -15,5 +16,7 @@ public:
 	static bool DrawField(void* Pointer, const char* FieldName, const UCodeLang::ReflectionTypeInfo& Type, const UCodeLang::ClassAssembly& Assembly);
 
 	static bool DrawEnum(void* Pointer, const UCodeLang::Enum_Data& Class, const UCodeLang::ClassAssembly& Assembly);
+
+	static bool DrawModuleFileDeps(StringView FieldName,Vector<UCodeLang::ModuleFile::ModuleDependencie>& Dependencies);
 };
 EditorEnd

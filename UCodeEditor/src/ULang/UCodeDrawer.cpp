@@ -342,4 +342,9 @@ bool UCodeDrawer::DrawEnum(void* Pointer, const UCodeLang::Enum_Data& Class, con
 	}
 	return R;
 }
+
+bool UCodeDrawer::DrawModuleFileDeps(StringView FieldName, Vector<UCodeLang::ModuleFile::ModuleDependencie>& Dependencies)
+{
+	return false;
+}
 EditorEnd

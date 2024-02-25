@@ -20,6 +20,7 @@
 #include "EditorWindows/DragAndDropNames.hpp"
 #include "UCodeRunTime/ULibrarys/UCodeLang/ScirptableObject.hpp"
 #include "UCodeRunTime/BasicTypes/defer.hpp"
+#include "UCodeLang/Compilation/ModuleFile.hpp"
 EditorStart
 
 class UCodeAssetFile :public UEditorAssetFileData
@@ -384,6 +385,116 @@ public:
 
 };
 
+class UModuleFile :public UEditorAssetFileData
+{
+public:
+	UModuleFile()
+	{
+		FileExtWithDot = UCodeLang::ModuleFile::FileExtWithDot;
+		CanHaveLiveingAssets = true;
+		CallLiveingAssetsWhenUpdated = true;
+	}
+
+	class Liveing :public UEditorAssetFile
+	{
+	public:
+		bool justsaved = false;
+		UCodeLang::ModuleFile _Module;
+		bool updated = false;
+
+		Liveing()
+		{
+
+		}
+		~Liveing()
+		{
+
+		}
+
+		void Init(const UEditorAssetFileInitContext& Context) override
+		{
+			if (!UCodeLang::ModuleFile::FromFile(&_Module, FileFullPath))
+			{
+				UCodeGEError("Unable to open/read \"" << FileFullPath << "\"")
+			}
+
+		}
+		virtual void FileUpdated()
+		{
+			if (justsaved == true)
+			{
+				justsaved = false;
+				return;
+			}
+			_Module = UCodeLang::ModuleFile();
+			if (!UCodeLang::ModuleFile::FromFile(&_Module, FileFullPath))
+			{
+				UCodeGEError("Unable to open/read \"" << FileFullPath << "\"")
+			}
+		}
+		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override
+		{
+			if (updated) 
+			{
+				updated = false;
+				justsaved = true;
+
+				if (!UCodeLang::ModuleFile::ToFile(&_Module, FileFullPath))
+				{
+					UCodeGEError("Unable to Save \"" << FileFullPath << "\"")
+				}
+			}
+		}
+		bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override
+		{
+			return ImGuIHelper::ImageButton(Item.ObjectPtr, AppFiles::sprite::ULangModule, *(ImVec2*)&Item.ButtionSize);;
+		}
+		void DrawInspect(const UEditorAssetDrawInspectContext& Item) override
+		{
+			ImGui::BeginDisabled(true);
+
+			ImGuIHelper::Image(AppFiles::sprite::ULangModule, { 20 ,20 });
+			ImGui::SameLine();
+
+			String tep = "UCodeLang/ModuleFile";
+			Item.Drawer->StringField("Type", tep);
+
+			String tep2 = FileFullPath.filename().replace_extension("").generic_string();
+			Item.Drawer->StringField("Name", tep2);
+
+
+			ImGui::EndDisabled();
+
+			ImGui::Separator();
+
+			if (ImGuIHelper::InputText("BaseNameSpace",_Module.ModuleNameSpace))
+			{
+				updated = true;
+			}
+
+			bool Unsafe = !_Module.RemoveUnSafe;
+
+			if (ImGuIHelper::BoolEnumField("Allow Unsafe", Unsafe))
+			{
+				_Module.RemoveUnSafe = !Unsafe;
+				updated = true;
+			}
+			
+			ImGui::Separator();
+			if (UCodeDrawer::DrawModuleFileDeps("Dependencies", _Module.ModuleDependencies))
+			{
+				updated = true;
+			}
+		}
+	};
+
+	virtual Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
+	{
+		return Unique_ptr<UEditorAssetFile>(new Liveing());
+	}
+
+};
+
 
 CodeModule::CodeModule()
 {
@@ -404,6 +515,7 @@ void CodeModule::Init()
 		Assets[0] = std::move(Unique_ptr<UEditorAssetFileData>(new UCodeAssetFile()));
 		Assets[1] = std::move(Unique_ptr<UEditorAssetFileData>(new UColorAssetFile()));
 		Assets[2] = std::move(Unique_ptr<UEditorAssetFileData>(new ScriptableAssetFile()));
+		Assets[3] = std::move(Unique_ptr<UEditorAssetFileData>(new UModuleFile()));
 	}
 
 	{
@@ -460,7 +572,8 @@ void CodeModule::FilesUpdated(const Vector<FileUpdateData>& paths)
 	for (auto& Item : paths)
 	{
 		auto ext = Item.path.extension();
-		if (ext == UCodeLang::FileExt::SourceFileWithDot)
+		if (ext == UCodeLang::FileExt::SourceFileWithDot
+			|| ext == UCodeLang::ModuleFile::FileExtWithDot)
 		{
 			IsUCodeFileUpdated = true;
 			break;

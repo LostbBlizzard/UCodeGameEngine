@@ -59,16 +59,17 @@ public:
 		Windows_Platform,
 		Web_Platform,
 		Android_Platform,
-		
+
 		//
 
 		Sever_Platform = Uility_image,
 		UPugin = Uility_image,
 		Property = Uility_image,
-		MoreData =Null,
+		MoreData = Null,
 		TxtFile = Uility_image,
 		GlslFile = Uility_image,
-		ScirptableObjectFile=Uility_image,
+		ScirptableObjectFile = Uility_image,
+		ULangModule = Uility_image,
 
 		UCodeEditor_Platform = UPugin,
 
