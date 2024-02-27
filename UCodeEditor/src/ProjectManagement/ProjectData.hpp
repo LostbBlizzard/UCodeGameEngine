@@ -18,7 +18,7 @@ public:
 	
 	UID StartScene;
 	Vector<UPluginID> _Plugins;
-
+	Vector<UID> _AssetsToKeepLoaded;
 
 	inline static const char* FileName = "UProjectData.data";
 

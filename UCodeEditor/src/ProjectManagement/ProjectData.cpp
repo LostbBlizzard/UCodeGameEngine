@@ -32,6 +32,7 @@ void ProjectData::ToBits(USerializer& output, const ProjectData& data)
 	output.Write("_SerializeType", *(USerializerType_t*)&data._SerializeType);
 	output.Write("_StartScene", data.StartScene);
 	output.Write("_Plugins", data._Plugins);
+	output.Write("_AssetsToKeepLoaded", data._AssetsToKeepLoaded);
 }
 
 bool ProjectData::ReadFromFile(const Path& Path, ProjectData& Out)
@@ -62,6 +63,10 @@ void ProjectData::FromBits(UDeserializer& input, ProjectData& Out)
 	if (input.HasField("_Plugins"))
 	{
 		input.ReadType("_Plugins", Out._Plugins, Out._Plugins);
+	}
+	if (input.HasField("_AssetsToKeepLoaded"))
+	{
+		input.ReadType("_AssetsToKeepLoaded", Out._AssetsToKeepLoaded, Out._AssetsToKeepLoaded);
 	}
 }
 EditorEnd
