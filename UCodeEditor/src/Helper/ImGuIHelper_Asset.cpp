@@ -268,5 +268,9 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencAssetPtr&
 			return r;
 		});
 }
+bool ImGuIHelper_Asset::AnyAsssetsField(StringView FieldName, Vector<UID>& Value)
+{
+	return false;
+}
 EditorEnd
 

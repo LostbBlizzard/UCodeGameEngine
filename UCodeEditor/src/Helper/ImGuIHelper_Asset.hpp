@@ -22,6 +22,9 @@ public:
 	static bool AsssetField(const char* FieldName, UCode::ScencPtr& Value);
 	static bool AsssetField(const char* FieldName, UCode::ScencAssetPtr& Value);
 
+	static bool AnyAsssetsField(StringView FieldName,Vector<UID>& Value);
+
+
 	inline static UCode::AssetManager* AssetManager =nullptr;
 	inline static RunTimeProjectData* ProjectData = nullptr;
 };

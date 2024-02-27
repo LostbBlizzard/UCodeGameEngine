@@ -74,8 +74,9 @@ void ProjectWindow::UpdateWindow()
 		}
 	}
 
-	ImGuiHelper_UPlugin::DrawUPluginFieldVector("Plugins", ProjectData2._Plugins);
+	ImGuIHelper_Asset::AnyAsssetsField("Load On Start Up/Assets To Keep Loaded", ProjectData2._AssetsToKeepLoaded);
 
+	ImGuiHelper_UPlugin::DrawUPluginFieldVector("Plugins", ProjectData2._Plugins);
 	if (UpdateValue)
 	{
 		if (SaveCountDown > 15) {
