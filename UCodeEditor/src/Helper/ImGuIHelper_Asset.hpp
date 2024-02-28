@@ -22,6 +22,14 @@ public:
 	static bool AsssetField(const char* FieldName, UCode::ScencPtr& Value);
 	static bool AsssetField(const char* FieldName, UCode::ScencAssetPtr& Value);
 
+
+	static bool AnyAsssetField(UID& Value);
+	static bool AnyAsssetField(StringView FieldName, UID& Value)
+	{
+		ImGuIHelper::Text(FieldName);
+		ImGui::SameLine();
+		return AnyAsssetField(Value);
+	}
 	static bool AnyAsssetsField(StringView FieldName,Vector<UID>& Value);
 
 
