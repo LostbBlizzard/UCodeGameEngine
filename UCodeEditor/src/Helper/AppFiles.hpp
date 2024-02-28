@@ -72,6 +72,7 @@ public:
 		ULangModule = Uility_image,
 
 		UCodeEditor_Platform = UPugin,
+		UCodeAssetIcon =RawEntityData,
 
 		Linux_Platform,
 		Mac_Platform,

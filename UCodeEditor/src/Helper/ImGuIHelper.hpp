@@ -480,6 +480,40 @@ public:
 		return DrawVector(label, &Buffer, Buffer.data(), Buffer.size(), Info);
 	}
 
+	template<typename T>
+	static bool DrawVector(const char* label, Vector<T>& Buffer,std::function<bool(T& Item)> onDraw)
+	{
+		DrawVectorInfo Info;
+		Info.ItemSize = sizeof(T);
+
+		Info._OnDrawItem = [onDraw = std::move(onDraw)](void* Object, size_t Index)
+		{
+			UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
+			auto& Item = Objectbuf[Index];
+
+			onDraw(Item);
+		};
+
+		Info._AddNewValue = [](void* Object, size_t Index)
+		{
+			UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
+			Objectbuf.insert(Objectbuf.begin() + Index, T());
+		};
+
+		Info._AddNewRemove = [](void* Object, size_t Index)
+		{
+			UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
+			Objectbuf.erase(Objectbuf.begin() + Index);
+		};
+
+		Info._ResizeVector = [](void* Object, size_t NewIndex)
+		{
+			UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
+			Objectbuf.resize(NewIndex);
+		};
+
+		return DrawVector(label, &Buffer, Buffer.data(), Buffer.size(), Info);
+	}
 
 	template<typename T>
 	static bool DrawSpan(const char* label, Span<T>& Buffer)
