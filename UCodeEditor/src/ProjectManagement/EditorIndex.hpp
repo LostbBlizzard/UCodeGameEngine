@@ -20,7 +20,7 @@ public:
 		u64 FileLastUpdatedTime = 0;
 		u64 FileHash = 0;
 
-		UID UserID;
+		Optional<UID> UserID;
  	};
 
 	Vector<IndexFile> _Files;

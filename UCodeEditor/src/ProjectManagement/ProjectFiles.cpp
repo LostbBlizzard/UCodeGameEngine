@@ -55,7 +55,7 @@ void ProjectFiles::ReIndex(EditorIndex& index, std::function<UID()> _newuid)
 			auto tep = dirEntry.last_write_time();
 			Index.FileLastUpdatedTime = *(u64*)&tep;
 			Index.FileHash = 0;
-			Index.UserID.Set_Value(0);
+			Index.UserID = {};
 			Index.FileSize = (u64)dirEntry.file_size();
 			Index.RelativePath = dirEntry.path().generic_string().substr(ProjDir.native().size());
 

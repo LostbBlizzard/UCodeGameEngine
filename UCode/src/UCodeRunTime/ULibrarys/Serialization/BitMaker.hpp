@@ -209,10 +209,20 @@ public:
 	}
 
 	 UCodeGEForceinlne void WriteType(const UID& Value)
-	{
-		WriteType(Value.Get_Value());
+	 {
+		 WriteType(Value.Get_Value());
+	 }
 
-	}
+	 template<typename T>
+	 UCodeGEForceinlne void WriteType(const Optional<T>& Value)
+	 {
+		 WriteType(Value.has_value());
+		 
+		 if (Value.has_value()) 
+		 {
+			 WriteType(Value.value());
+		 }
+	 }
 private:
 	Vector<Byte> _Bytes;
 	BitConverter* Converter =nullptr;
@@ -503,6 +513,19 @@ public:
 		ReadType(Out.Minor, Out.Minor);
 		ReadType(Out.Patch, Out.Patch);
 	}
+
+	 template<typename T>
+	 UCodeGEForceinlne void ReadType(Optional<T>& Out)
+	 {
+		 bool has = false;
+		 ReadType(has, has);
+		 if (has)
+		 {
+			 T val = {};
+			 ReadType(val,val);
+			 Out = std::move(val);
+		 }
+	 }
 	
 private:
 	const Byte* _Bytes = nullptr;

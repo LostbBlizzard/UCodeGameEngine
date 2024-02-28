@@ -175,16 +175,24 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 
 		List.push_back(std::move(P));
 	}
+
+	Path ext = UCode::Scene2dData::FileExtDot;
+
 	for (auto& Item : ProjectData->Get_AssetIndex()._Files)
 	{
-		if (Path(Item.RelativePath).extension() != Path(UCode::Scene2dData::FileExtDot))
+		if (!Item.UserID.has_value())
+		{
+			continue;
+		}
+			
+		if (Path(Item.RelativePath).extension() != Path(ext))
 		{
 			continue;
 		}
 
 		ObjectSceneAssetInfo P;
 		P._RelativePath = Item.RelativePath;
-		P._UID = Item.UserID;
+		P._UID = Item.UserID.value();
 
 		List.push_back(std::move(P));
 	}
@@ -286,15 +294,14 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 	}
 	for (auto& Item : ProjectData->Get_AssetIndex()._Files)
 	{
-		if (Item.UserID == UID())
+		if (!Item.UserID.has_value())
 		{
 			continue;
 		}
 		
 		ObjectSceneAssetInfo P;
-		P._RelativePath = Item.RelativePath;
-		
-		P._UID = Item.UserID;
+		P._RelativePath = Item.RelativePath;	
+		P._UID =Item.UserID.value();
 
 		List.push_back(std::move(P));
 	}
