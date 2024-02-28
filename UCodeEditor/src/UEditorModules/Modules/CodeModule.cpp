@@ -378,6 +378,17 @@ public:
 		}
 	};
 
+	Optional<UID> GetFileUID(UEditorGetUIDContext& context) override
+	{
+		UC::ScirptableObjectData setting;
+
+		if (UC::ScirptableObjectData::FromFile(setting,context.AssetPath))
+		{
+			return setting._UID;
+		}
+		return {};
+	}
+
 	virtual Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
 	{
 		return Unique_ptr<UEditorAssetFile>(new Liveing());

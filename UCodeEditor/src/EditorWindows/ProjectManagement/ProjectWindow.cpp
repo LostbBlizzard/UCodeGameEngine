@@ -39,13 +39,15 @@ void ProjectWindow::UpdateWindow()
 	}
 
 	auto ProjectData = Get_ProjectData();
-	auto& ProjectData2 = ProjectData->Get_ProjData();
-	auto& Item = ProjectData2._ProjectName;
-	 
+	auto& ProjectData2 = ProjectData->Get_ProjData(); 
 	
 	bool UpdateValue = false;
 
-	if (ImGuIHelper::InputText("Project Name", Item))
+	if (ImGuIHelper::InputText("Project Name", ProjectData2._ProjectName))
+	{
+		UpdateValue = true;
+	}
+	if (ImGuIHelper::InputText("Company Name",ProjectData2._CompanyName))
 	{
 		UpdateValue = true;
 	}
@@ -74,9 +76,18 @@ void ProjectWindow::UpdateWindow()
 		}
 	}
 
-	ImGuIHelper_Asset::AnyAsssetsField("Load On Start Up/Assets To Keep Loaded", ProjectData2._AssetsToKeepLoaded);
+	if (ImGuIHelper_Asset::AnyAsssetsField("Load On Start Up/Assets To Keep Loaded", ProjectData2._AssetsToKeepLoaded))
+	{
+		UpdateValue = true;
+	}
 
-	ImGuiHelper_UPlugin::DrawUPluginFieldVector("Plugins", ProjectData2._Plugins);
+	if (ImGuiHelper_UPlugin::DrawUPluginFieldVector("Plugins", ProjectData2._Plugins))
+	{
+		UpdateValue = true;
+	}
+	
+	
+	
 	if (UpdateValue)
 	{
 		if (SaveCountDown > 15) {
