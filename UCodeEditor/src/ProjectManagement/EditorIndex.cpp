@@ -3,6 +3,7 @@
 #include <fstream>
 #include <UCodeRunTime/ULibrarys/Serialization_Library.h>
 //#include <fileapi.h>
+#include "Helper/FileHelper.hpp"
 EditorStart
 
 
@@ -10,6 +11,74 @@ Vector< EditorIndex::ChangedFile> EditorIndex::GetDiffFromDir(const Path& path) 
 {
 	Vector<ChangedFile> R;
 
+	Unordered_map<const IndexFile*, bool> hasfiles;
+	hasfiles.reserve(_Files.size());
+
+	for (auto& Item : _Files)
+	{
+		hasfiles.AddValue(&Item, false);
+	}
+
+
+
+	for (auto Item : std::filesystem::recursive_directory_iterator(path))
+	{
+		if (!Item.is_regular_file())
+		{
+			continue;
+		}
+		auto p = Item.path();
+		auto relpath = FileHelper::ToRelativePath(path, p);
+
+		auto info = FindFileRelativePath(relpath.generic_string());
+
+		if (info.has_value())
+		{
+			hasfiles.GetValue(&info.value()) = true;
+
+			auto& oldinfo = info.value();
+
+			bool hasbeenupdated = false;
+
+			u64 lastwritetime =std::filesystem::last_write_time(p).time_since_epoch().count();
+			if (oldinfo.FileLastUpdatedTime == lastwritetime)
+			{
+				hasbeenupdated = true;
+			}
+			else if (oldinfo.FileSize == std::filesystem::file_size(p))
+			{
+				hasbeenupdated = true;
+			}
+
+			if (hasbeenupdated)
+			{
+				ChangedFile f;
+				f.RelativePath = relpath;
+				f.Type = ChangedFileType::FileUpdated;
+				R.push_back(std::move(f));
+			}
+
+		}
+		else
+		{
+			ChangedFile f;
+			f.RelativePath = relpath;
+			f.Type = ChangedFileType::FileAdded;
+			R.push_back(std::move(f));
+		}
+	}
+
+	for (auto& Item : hasfiles)
+	{
+		if (Item.second == false)
+		{
+			ChangedFile f;
+			f.RelativePath = Item.first->RelativePath;
+			f.Type = ChangedFileType::FileRemoved;
+
+			R.push_back(std::move(f));
+		}
+	}
 
 	return R;
 }

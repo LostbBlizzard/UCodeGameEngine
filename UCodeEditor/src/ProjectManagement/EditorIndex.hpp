@@ -33,6 +33,18 @@ public:
 		Path RelativePath;
 	};
 
+	const OptionalRef<IndexFile> FindFileRelativePath(String relativepath) const
+	{
+		for (auto& Item : _Files)
+		{
+			if (Item.RelativePath == relativepath)
+			{
+				return UCode::Optionalref(Item);
+			}
+		}
+
+		return {};
+	}
 
 	Vector<ChangedFile> GetDiffFromDir(const Path& path) const;
 
