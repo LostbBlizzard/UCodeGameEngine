@@ -55,6 +55,8 @@ using Unordered_map = UC::UnorderedMap<Key,U>;
 
 template<typename T> using Optional = UC::Optional<T>;
 
+template<typename T> using OptionalRef = UC::OptionalRef<T>;
+
 template<typename T> using Span = UC::Span<T>;
 
 template<typename T> using Unique_Span = UC::Unique_Span<T>;
