@@ -503,7 +503,7 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 
 			ImGui::SameLine();
 
-			ImGui::BeginDisabled(!Item._AddNewRemove.has_value());
+			ImGui::BeginDisabled(!Item._AddNewRemove.has_value() || Size == 0);
 			if (ImGui::Button("-", ButtionSize))
 			{
 				WasUpdated = true;
