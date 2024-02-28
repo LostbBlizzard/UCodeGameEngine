@@ -33,7 +33,7 @@ public:
 		Path RelativePath;
 	};
 
-	const OptionalRef<IndexFile> FindFileRelativePath(String relativepath) const
+	const OptionalRef<IndexFile> FindFileRelativePath(StringView relativepath) const
 	{
 		for (auto& Item : _Files)
 		{
@@ -44,6 +44,15 @@ public:
 		}
 
 		return {};
+	}
+	void RemoveIndexFilesRelativePath(StringView relativepath)
+	{
+		_Files.erase(std::remove_if(
+			_Files.begin(), _Files.end(),
+			[&relativepath](const IndexFile& x) {
+				return x.RelativePath ==relativepath; // put your condition here
+			}), _Files.end());
+
 	}
 
 	Vector<ChangedFile> GetDiffFromDir(const Path& path) const;

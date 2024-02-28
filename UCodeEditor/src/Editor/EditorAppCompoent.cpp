@@ -628,7 +628,10 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
     }
     else if (Type == ChangedFileType::FileRemoved)
     {
+        auto AssetDir = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetAssetsDir();
+        auto relpath = path.generic_string().substr(AssetDir.generic_string().size());
 
+        EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->Get_AssetIndex().RemoveIndexFilesRelativePath(relpath);
     }
 
     if (Info.Index)
