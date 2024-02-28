@@ -17,6 +17,7 @@ Random::~Random()
 
 Random Random::RandomSeed()
 {	
+	srand(time(NULL));
 
 	SeedType newseed = rand();//Random seed
 	return Random(newseed);
