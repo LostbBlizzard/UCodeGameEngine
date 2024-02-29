@@ -238,12 +238,12 @@ public:
 
 	const T& value() const
 	{
-		UCodeLangAssert(base);
+		UCodeGEAssert(base);
 		return *base;
 	}
 	T& value() 
 	{
-		UCodeLangAssert(base);
+		UCodeGEAssert(base);
 		return *base;
 	}
 private:

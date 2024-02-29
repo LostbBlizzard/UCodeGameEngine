@@ -345,6 +345,17 @@ public:
 		return {};
 	}
 
+	virtual void OnFileRemoved(const Path& path)
+	{
+
+	}
+
+	
+	virtual void OnFileRenamed(const Path& oldpath,const Path& newpath)
+	{
+
+	}
+
 	inline const static String DefaultMetaFileExtWithDot = ".meta";
 };
 
