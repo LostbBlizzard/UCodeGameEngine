@@ -41,11 +41,11 @@ Vector< EditorIndex::ChangedFile> EditorIndex::GetDiffFromDir(const Path& path) 
 			bool hasbeenupdated = false;
 
 			u64 lastwritetime =std::filesystem::last_write_time(p).time_since_epoch().count();
-			if (oldinfo.FileLastUpdatedTime == lastwritetime)
+			if (oldinfo.FileLastUpdatedTime != lastwritetime)
 			{
 				hasbeenupdated = true;
 			}
-			else if (oldinfo.FileSize == std::filesystem::file_size(p))
+			else if (oldinfo.FileSize != std::filesystem::file_size(p))
 			{
 				hasbeenupdated = true;
 			}

@@ -95,7 +95,6 @@ void  EditorAppCompoent::EndProject()
     SaveApp();
     _EditorWindows.clear();
 
-
     _RunTimeProjectData.SetProjectToNull();
    // ImGui::ClearIniSettings();
 }
@@ -201,6 +200,8 @@ void EditorAppCompoent::OnProjectLoaded()
                 {
                     auto Data = AssetDataList[Info.value()];
 
+                    auto fullpath = AssetDir.native() + fileitem.RelativePath.native();
+                    Data->OnFileRemoved(fullpath);
                 }
             }
         }
@@ -519,6 +520,7 @@ void  EditorAppCompoent::BeginDockSpace(bool* p_open)
 }
 void  EditorAppCompoent::SaveApp()
 {
+    EditorIndex::ToFile(_RunTimeProjectData.Get_AssetIndex(), _RunTimeProjectData.GetAssetIndexPath());
     if (_RunTimeProjectData.Is_ProjLoaded()) {
         SaveWindowsPref();
     }
