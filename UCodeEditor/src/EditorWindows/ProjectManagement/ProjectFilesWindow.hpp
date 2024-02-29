@@ -24,6 +24,7 @@ public:
 
 	void ShowDirButtions();
 
+	void OnFileUpdate(const Path& path);
 	
 	static EditorWindowData GetEditorData();
 	void OnSaveWindow(USerializer& JsonToSaveIn) override;

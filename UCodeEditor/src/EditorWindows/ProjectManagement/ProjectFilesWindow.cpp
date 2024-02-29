@@ -49,6 +49,24 @@ static bool OpenPopUp =false;
 static bool ColorEditPopUp = false;
 static String ColorEditFilePath;
 static UCode::Color32* ColorObject =nullptr;
+
+void ProjectFilesWindow::OnFileUpdate(const Path& path)
+{
+    bool islookatdir = false;
+   
+    Path newpath = "Assets";
+    newpath /= path.native();
+
+    if (newpath.native().size() > _LookingAtDirReadable.native().size())
+    {
+        islookatdir = UCode::StringHelper::StartWith<PathChar>(newpath.native(),_LookingAtDirReadable.native());
+
+    }
+    if (islookatdir)
+    {
+        UpdateDir();
+    }
+}
 void ProjectFilesWindow::UpdateWindow()
 {
     if (!_LookingAtDir.has_value())
