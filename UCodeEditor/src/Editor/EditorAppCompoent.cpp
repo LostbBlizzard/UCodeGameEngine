@@ -176,6 +176,8 @@ void EditorAppCompoent::OnProjectLoaded()
                 UEditorModule::FileUpdateData Data;
                 Data.path = AssetDir.native() + Item2->RelativePath.native();
                 Data.type = Item2->Type;
+
+                ListToPush.push_back(std::move(Data));
             }
             Info.Ptr->FilesUpdated(ListToPush);
         }
@@ -203,18 +205,21 @@ void EditorAppCompoent::OnProjectLoaded()
                     auto fullpath = AssetDir.native() + fileitem.RelativePath.native();
                     Data->OnFileRemoved(fullpath);
                 }
+
+                auto v = fileitem.RelativePath.generic_string();
+                Index.RemoveIndexFilesRelativePath(v);
             }
         }
         else if (fileitem.Type == ChangedFileType::FileAdded)
         {
             auto path = AssetDir.native() + fileitem.RelativePath.native();
-            EditorIndex::IndexFile Index;
+            EditorIndex::IndexFile newfileIndex;
             auto tep = std::filesystem::last_write_time(path).time_since_epoch().count();
-            Index.FileLastUpdatedTime = tep;
-            Index.FileHash = 0;
-            Index.UserID = {};
-            Index.FileSize = (u64)std::filesystem::file_size(path);
-            Index.RelativePath = fileitem.RelativePath.generic_string();
+            newfileIndex.FileLastUpdatedTime = tep;
+            newfileIndex.FileHash = 0;
+            newfileIndex.UserID = {};
+            newfileIndex.FileSize = (u64)std::filesystem::file_size(path);
+            newfileIndex.RelativePath = fileitem.RelativePath.generic_string();
 
             for (size_t i = 0; i < Modules.Size(); i++)
             {
@@ -237,16 +242,16 @@ void EditorAppCompoent::OnProjectLoaded()
 
                     if (op.has_value())
                     {
-                        Index.UserID = op.value();
+                        newfileIndex.UserID = op.value();
                     }
 
                     break;
                 }
             }
+
+            Index._Files.push_back(std::move(newfileIndex));
         }
     }
-
-    CodeModule::BuildUCode(true);
 
 
 
@@ -937,7 +942,7 @@ void EditorAppCompoent::OnDraw()
             {
                 for (auto& Item : files)
                 {
-                    Path outpath = FileHelper::GetNewFileName(assets.generic_string() + Path(Item).filename().generic_string());
+                    Path outpath = FileHelper::GetNewFileName(Path(lastvalue) / Path(Item).filename().generic_string());
                     if (OnDropedMovefile)
                     {
                         std::filesystem::rename(Item, outpath);
