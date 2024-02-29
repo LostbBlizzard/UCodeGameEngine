@@ -92,6 +92,8 @@ int App::main(int argc, char* argv[])
             }
             keeploadassets.reserve(keeploaded.size());
 
+            GameRunTime::SetCurrent(runtime);
+
             for (auto& Item : keeploaded)
             {
                 keeploadassets.push_back(manger->LoadAsset(Item).value());

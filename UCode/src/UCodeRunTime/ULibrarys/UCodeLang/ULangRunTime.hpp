@@ -262,7 +262,7 @@ public:
 
 	static UCodeGEForceinlne void Set_Current(ULangRunTime* Value){Current = Value;}
 	static UCodeGEForceinlne ULangRunTime* Get_Current() {
-		UCodeLangAssert(Current);
+		UCodeGEAssert(Current);
 		return Current;
 	}
 	static UCodeGEForceinlne bool Has_Current(){return  Get_Current();}

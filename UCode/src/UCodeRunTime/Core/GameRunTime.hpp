@@ -217,6 +217,7 @@ public:
 	}
 
 	static GameRunTime* Current();
+	static void SetCurrent(GameRunTime* val);
 private:
 	bool _IsGameRuning;
 	Ref<Gamelibrary> _Library;
