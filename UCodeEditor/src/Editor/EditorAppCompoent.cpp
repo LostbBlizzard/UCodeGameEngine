@@ -154,7 +154,7 @@ void EditorAppCompoent::OnProjectLoaded()
 
     auto& Index = _RunTimeProjectData.Get_AssetIndex();
     auto List = Index.GetDiffFromDir(AssetDir);
-    
+
     Unordered_map<PathString, Vector<EditorIndex::ChangedFile*>> ExtList;
 
     for (auto& Item : List)
@@ -164,7 +164,7 @@ void EditorAppCompoent::OnProjectLoaded()
     }
 
 
-    for (auto& Item : ExtList) 
+    for (auto& Item : ExtList)
     {
         auto Info = UEditorModules::GetModuleFromFileExt(Item.first);
 
@@ -181,6 +181,70 @@ void EditorAppCompoent::OnProjectLoaded()
             Info.Ptr->FilesUpdated(ListToPush);
         }
     }
+
+
+    auto Modules = UEditorModules::GetModules();
+
+    for (auto& fileitem : List)
+    {
+        if (fileitem.Type == ChangedFileType::FileRemoved)
+        {
+
+            for (size_t i = 0; i < Modules.Size(); i++)
+            {
+                auto& item = Modules[i];
+                auto AssetDataList = item->GetAssetData();
+
+
+                auto Info = item->GetAssetDataUsingExt(Path(fileitem.RelativePath).extension());
+                if (Info.has_value())
+                {
+                    auto Data = AssetDataList[Info.value()];
+
+                }
+            }
+        }
+        else if (fileitem.Type == ChangedFileType::FileAdded)
+        {
+            auto path = AssetDir.native() + fileitem.RelativePath.native();
+            EditorIndex::IndexFile Index;
+            auto tep = std::filesystem::last_write_time(path).time_since_epoch().count();
+            Index.FileLastUpdatedTime = tep;
+            Index.FileHash = 0;
+            Index.UserID = {};
+            Index.FileSize = (u64)std::filesystem::file_size(path);
+            Index.RelativePath = fileitem.RelativePath.generic_string();
+
+            for (size_t i = 0; i < Modules.Size(); i++)
+            {
+                auto& item = Modules[i];
+                auto AssetDataList = item->GetAssetData();
+
+                auto Info = item->GetAssetDataUsingExt(path);
+                if (Info.has_value())
+                {
+                    auto Data = AssetDataList[Info.value()];
+
+                    UEditorGetUIDContext context;
+                    context.AssetPath = path;
+                    context._newuid = []() ->UID
+                        {
+                            return EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetNewUID();
+                        };
+
+                    auto op = Data->GetFileUID(context);
+
+                    if (op.has_value())
+                    {
+                        Index.UserID = op.value();
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+
     CodeModule::BuildUCode(true);
 
 
@@ -579,14 +643,16 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
     if (Type == ChangedFileType::FileAdded)
     {
         auto AssetDir = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetAssetsDir();
+        auto fullpath = AssetDir.native() + path.native();
+
 
         EditorIndex::IndexFile Index;
-        auto tep = std::filesystem::last_write_time(path).time_since_epoch().count();
+        auto tep = std::filesystem::last_write_time(fullpath).time_since_epoch().count();
         Index.FileLastUpdatedTime = tep;
         Index.FileHash = 0;
         Index.UserID = {};
-        Index.FileSize = (u64)std::filesystem::file_size(path);
-        Index.RelativePath = path.generic_string().substr(AssetDir.generic_string().size());
+        Index.FileSize = (u64)std::filesystem::file_size(fullpath);
+        Index.RelativePath = path.generic_string();
 
         for (size_t i = 0; i < Modules.Size(); i++)
         {
@@ -599,19 +665,11 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
                 auto Data = AssetDataList[Info.value()];
 
                 UEditorGetUIDContext context;
-                context.AssetPath = path;
+                context.AssetPath = fullpath;
                 context._newuid = []() ->UID
                     {
                         return EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetNewUID();
                     };
-
-                auto op = Data->GetFileUID(context);
-
-                if (op.has_value())
-                {
-                    Index.UserID = op.value();
-                }
-
 
                 auto op = Data->GetFileUID(context);
 
@@ -629,7 +687,23 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
     else if (Type == ChangedFileType::FileRemoved)
     {
         auto AssetDir = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetAssetsDir();
-        auto relpath = path.generic_string().substr(AssetDir.generic_string().size());
+        auto relpath = path.generic_string();
+        auto fullpath = AssetDir.native() + path.native();
+
+        for (size_t i = 0; i < Modules.Size(); i++)
+        {
+            auto& item = Modules[i];
+            auto AssetDataList = item->GetAssetData();
+
+            auto Info = item->GetAssetDataUsingExt(path.extension());
+            if (Info.has_value())
+            {
+                auto Data = AssetDataList[Info.value()];
+
+                Data->OnFileRemoved(fullpath);
+            }
+        }
+
 
         EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->Get_AssetIndex().RemoveIndexFilesRelativePath(relpath);
     }

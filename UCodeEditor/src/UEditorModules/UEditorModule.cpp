@@ -15,7 +15,7 @@ void UEditorModules::Init()
 
 	if (InitValue == false)
 	{
-		InitValue = false;
+		InitValue = true;
 		_Modules[0] =Unique_ptr<UEditorModule>(new CodeModule());
 		_Modules[1] = Unique_ptr<UEditorModule>(new CoreModule());
 	}
