@@ -132,6 +132,10 @@ void GameRunTime::EndRunTime()
 	EndGameRunTimeContext();
 }
 
+void GameRunTime::SetCurrent(GameRunTime* val)
+{
+	_GameRunTimeCurrent = val;
+}
 GameRunTime* GameRunTime::Current()
 {
 	UCodeGEAssert(_GameRunTimeCurrent);

@@ -199,10 +199,10 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 	}
 
 	ProjectData prj;
-	if (!ProjectData::ReadFromFile(Path(Export.AssetPath).parent_path() / Path(ProjectData::FileName).native(), prj))
+	if (!ProjectData::ReadFromFile(Path(Export.AssetPath).parent_path().parent_path() / Path(ProjectData::FileName).native(), prj))
 	{
 		auto e = ExportErrors();
-		e.AddError(Export.AssetPath.parent_path() / ProjectData::FileName,"unable open able to read and parse file");
+		e.AddError(Export.AssetPath.parent_path().parent_path() / ProjectData::FileName,"unable open able to read and parse file");
 		return e;
 	}
 
@@ -301,11 +301,12 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 
 		}
 		{
+			serializer.Reset();
+			
 			UCode::StandardAssetLoader::LoadOnStart v;
 			v._LoadList = prj._AssetsToKeepLoaded;
-			serializer.Reset();
 
-			IDMap.Serialize(serializer);
+			v.Serialize(serializer);
 
 			auto bytes = serializer.Get_BitMaker().Get_Bytes();
 

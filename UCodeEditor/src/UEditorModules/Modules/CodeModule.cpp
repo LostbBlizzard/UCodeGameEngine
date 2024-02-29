@@ -378,6 +378,25 @@ public:
 		}
 	};
 
+	ExportFileRet ExportFile(const Path& path, const ExportFileContext& Item) override
+	{
+		std::filesystem::copy_file(path, Item.Output, std::filesystem::copy_options::overwrite_existing);
+	
+		UCode::ScirptableObjectData V;
+		UCode::ScirptableObjectData::FromFile(V, path);
+
+		UC::ScirptableObject _Object;
+		_Object.LoadScript(V);
+
+		_Object.SaveTo(V,USerializerType::Bytes);
+		
+		//UCode::ScirptableObjectData::ToFile(Item.Output, V, USerializerType::Bytes);
+
+		ExportFileRet r;
+		r._UID = V._UID;
+		return r;
+	}
+
 	Optional<UID> GetFileUID(UEditorGetUIDContext& context) override
 	{
 		UC::ScirptableObjectData setting;
