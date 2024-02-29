@@ -274,8 +274,11 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 			return errors.value();
 		}
 
+		{		UCode::USerializer serializer(USerializerType::Bytes);
+
+
 		{
-			UCode::USerializer serializer(USerializerType::Bytes);
+			serializer.Reset();
 
 			IDMap.Serialize(serializer);
 
@@ -296,6 +299,32 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 				GameData._Data.push_back(Item);
 			}
 
+		}
+		{
+			UCode::StandardAssetLoader::LoadOnStart v;
+			v._LoadList = prj._AssetsToKeepLoaded;
+			serializer.Reset();
+
+			IDMap.Serialize(serializer);
+
+			auto bytes = serializer.Get_BitMaker().Get_Bytes();
+
+
+			UCode::GameFileIndex index;
+			index.FileOffset = GameData._Data.size();
+			index.FileFullName = UCode::GameFilesData::GetUCodeDir() / UCode::StandardAssetLoader::LoadOnStart::FileWithDot;
+			index.FileSize = bytes.size();
+
+			GameData.Offsets.push_back(std::move(index));
+
+			for (size_t i = 0; i < bytes.size(); i++)
+			{
+				auto& Item = bytes[i];
+
+				GameData._Data.push_back(Item);
+			}
+
+		}
 		}
 
 
