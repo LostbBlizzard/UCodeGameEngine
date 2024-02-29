@@ -10,6 +10,7 @@
 #include <Helper/FileHelper.hpp>
 #include <Helper/ImGuIHelper_Asset.hpp>
 #include <EditorWindows/ProjectManagement/ExportProjectWindow.hpp>
+#include <EditorWindows/ProjectManagement/ProjectFilesWindow.hpp>
 
 #include "Serialization.hpp"
 
@@ -747,6 +748,15 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
 
     }
  
+
+    for (auto& Item : EditorAppCompoent::GetCurrentEditorAppCompoent()->_EditorWindows)
+    {
+        auto v = dynamic_cast<ProjectFilesWindow*>(Item.get());
+        if (v)
+        {
+            v->OnFileUpdate(path);
+        }
+    }
 }
 void EditorAppCompoent::Undo()
 {
