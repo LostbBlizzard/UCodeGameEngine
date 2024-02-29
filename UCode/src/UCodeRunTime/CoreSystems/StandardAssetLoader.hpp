@@ -43,6 +43,25 @@ public:
 
 		inline static const char* FileWithDot = "UID.data";
 	};
+	struct LoadOnStart
+	{
+		Vector<UID> _LoadList;
+
+		void Serialize(USerializer& Out)
+		{
+			Out.Write("_LoadList",_LoadList);	
+		}
+		void Deserialize(UDeserializer& Out)
+		{
+			Out.ReadType("_LoadList", _LoadList);
+		}
+		~LoadOnStart()
+		{
+
+		}
+
+		inline static const char* FileWithDot = "LoadOnStart.data";
+	};
 
 	inline void Init(GameFiles* files, UCode::AssetManager* Manager)
 	{

@@ -76,6 +76,27 @@ int App::main(int argc, char* argv[])
                 
             UID sceneID = gamefiles->Get_FilesData().SceneToLoadOnPlay;
             auto r = manger->LoadAsset(sceneID);
+
+            
+            Vector<UID> keeploaded;
+            Vector<Assetptr> keeploadassets;
+            {
+                auto bytes = gamefiles->ReadGameFileAsBytes(UCode::GameFilesData::GetUCodeDir() / UCode::StandardAssetLoader::LoadOnStart::FileWithDot);
+                StandardAssetLoader::LoadOnStart V;
+                UDeserializer serializer;
+                serializer.SetBytes(bytes.AsView());
+                
+                V.Deserialize(serializer);
+
+                keeploaded = std::move(V._LoadList);
+            }
+            keeploadassets.reserve(keeploaded.size());
+
+            for (auto& Item : keeploaded)
+            {
+                keeploadassets.push_back(manger->LoadAsset(Item).value());
+            }
+            
             if (r.has_value())
             {
                 auto& ScencData = r.value().Get_Value()->GetAssetAs<ScencAsset>()->_Base;
