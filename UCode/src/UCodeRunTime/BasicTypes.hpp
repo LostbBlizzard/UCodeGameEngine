@@ -244,6 +244,16 @@ public:
 		X -= other.X;
 		Y -= other.Y;
 	}
+	constexpr void operator*=(const T& other)
+	{
+		X *= other;
+		Y *= other;
+	}
+	constexpr void operator/=(const T& other)
+	{
+		X /= other;
+		Y /= other;
+	}
 	constexpr bool operator==(const Vec2_t& other)const
 	{
 		return (X == other.X && Y == other.Y);

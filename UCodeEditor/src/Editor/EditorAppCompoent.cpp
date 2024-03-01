@@ -837,7 +837,8 @@ void EditorAppCompoent::RemoveWaitForInput(DontWaitInputKey key)
 
 void EditorAppCompoent::OnDraw()
 {
-    
+    UCode::UCodeRunTimeState::Set_Current(UCode::ULangRunTime::Get(Get_EditorLibrary()));
+
     if (_RunTimeProjectData.Is_ProjLoaded()) 
     {
         if (_AutoSaveTimer <= 0.0f)

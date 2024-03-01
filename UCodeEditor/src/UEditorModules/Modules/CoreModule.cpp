@@ -10,6 +10,7 @@
 #include "UCodeRunTime/ULibrarys/Rendering/Camera2d.hpp"
 #include "Helper/ImGuIHelper_Asset.hpp"
 #include "EditorWindows/OtherTypes/RawEntityData.hpp"
+#include "Editor/EditorAppCompoent.hpp"
 EditorStart
 
 
@@ -235,12 +236,21 @@ public:
 		bilinear,
 		trilinear,
 	};
+	struct SpriteItem
+	{
+		UID uid;
+		String spritename;
+
+		Vec2 offset;
+		Vec2 size;
+	};
 	struct TextureSettings
 	{
 		UID uid;
 		bool ReadAndWrite = false;
 		Compression compression = Compression::None;
 		Filter filter = Filter::Point;
+		Vector<SpriteItem> sprites;
 	};
 	class LiveingPng :public UEditorAssetFile
 	{
@@ -360,9 +370,195 @@ public:
 
 
 			ImGui::EndDisabled();
+			static void* p = nullptr;
+
+			if (ImGui::Button("Open Sprite Editor"))
+			{
+				p = this;
+				ImGui::OpenPopup("SpriteAssetEditor");
+			}
 
 			ImGui::Separator();
 
+			if ((p == this))
+			{
+				ImGui::Begin("SpriteAssetEditor");
+				{
+					struct SliceWindowData
+					{
+						u32 SpriteW = 16;
+						u32 SpriteH = 16;
+					
+						u32 SpritePadingX = 0;
+						u32 SpritePadingY = 0;
+						
+						bool WithEmpty =false;
+					};
+					struct EditorWindowData
+					{
+						float texturescale = 5;
+						Vec2 dragoffset; 
+						SliceWindowData slicedata;
+					};
+					static EditorWindowData windowdata;
+
+					ImGuiWindowFlags flags = ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollbar;
+					flags |= ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollWithMouse;
+				
+					if (ImGui::Button("Slice"))
+					{
+						ImGui::OpenPopup("SpriteSlice");
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Reset Mouse Drag"))
+					{
+						windowdata.texturescale = 5;
+						windowdata.dragoffset = {};
+					}
+
+					if (ImGui::BeginPopup("SpriteSlice"))
+					{
+						auto& slicedata = windowdata.slicedata;
+
+						ImGuIHelper::uInt32Field(StringView("Sprite Width"), slicedata.SpriteW);
+						ImGuIHelper::uInt32Field(StringView("Sprite Height"), slicedata.SpriteH);
+
+						ImGuIHelper::uInt32Field(StringView("Padding Sprite Width"), slicedata.SpritePadingX);
+						ImGuIHelper::uInt32Field(StringView("Padding Sprite Height"), slicedata.SpritePadingY);
+
+						ImGuIHelper::BoolEnumField(StringView("Include Empty"), slicedata.WithEmpty);
+						
+						ImGui::SameLine();
+						if (ImGui::Button("Slice"))
+						{
+							struct SliceItem
+							{
+								Vec2 offset;
+								Vec2 size;
+							};
+
+							auto textureW = asset.value()._Base.Get_Width();
+							auto textureH = asset.value()._Base.Get_Height();
+							Vector<SliceItem> newitems;
+							
+							for (size_t y = 0; y < textureH; y += slicedata.SpriteH)
+							{
+								for (size_t x = 0; x < textureW; x += slicedata.SpriteW)
+								{
+
+									SliceItem item;
+									item.offset.X = x;
+									item.offset.Y = y;
+
+									item.size.X = slicedata.SpriteW;
+									item.size.Y = slicedata.SpriteH;
+
+									if (!slicedata.WithEmpty)
+									{
+										bool isempty = false;
+
+										if (isempty)
+										{
+											continue;
+										}
+									}
+
+									newitems.push_back(std::move(item));
+									x += slicedata.SpritePadingX;
+									y += slicedata.SpritePadingY;
+
+
+								}
+							}
+
+
+							setting.sprites.reserve(newitems.size());
+							
+						 
+							if (newitems.size() < setting.sprites.size()) 
+							{
+								for (size_t i = newitems.size(); i < setting.sprites.size(); i++)
+								{
+									auto& itemtoremove = setting.sprites[i];
+
+
+								}
+
+								for (size_t i = 0; i < setting.sprites.size() - newitems.size(); i++)
+								{
+									setting.sprites.pop_back();
+								}
+							}
+							
+							for (size_t i = 0; i < newitems.size(); i++)
+							{
+								auto& newitem = newitems[i];
+								bool isnewitem = i >= setting.sprites.size();
+								if (isnewitem)
+								{
+									SpriteItem item;
+									item.offset = newitem.offset;
+									item.size = newitem.size;
+									item.spritename = FileFullPath.filename().replace_extension("").generic_string() + " " + std::to_string(i);
+
+									UID newid = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetNewUID();
+
+									item.uid = newid;
+
+									setting.sprites.push_back(std::move(item));
+								}
+								else
+								{
+									auto& olditem = setting.sprites[i];
+
+									olditem.offset = newitem.offset;
+									olditem.size = newitem.size;
+								}
+							}
+						}
+
+						ImGui::EndPopup();
+					}
+					ImGui::BeginChild("test",{},0,flags);
+					{
+						auto list= ImGui::GetWindowDrawList();
+						auto startpos = ImGui::GetWindowPos();
+						//if (ImGui::IsItemHovered()) {
+						windowdata.texturescale += ImGui::GetIO().MouseWheel;
+						windowdata.dragoffset += *(Vec2*)&ImGui::GetMouseDragDelta(ImGuiMouseButton_::ImGuiMouseButton_Right);
+						//}
+
+						auto& myasset = asset.value();
+						Vec2 objectsize = { (f32)myasset._Base.Get_Width(),(f32)myasset._Base.Get_Height() };
+						objectsize *= windowdata.texturescale;
+
+						auto newpos = ImGui::GetCursorPos();
+						auto diffx = windowdata.dragoffset.X / windowdata.texturescale;
+						auto diffy = windowdata.dragoffset.Y / windowdata.texturescale;
+						
+						newpos.x += diffx;
+						newpos.y += diffy;
+						ImGui::SetCursorPos(newpos);
+
+						for (auto& Item : setting.sprites)
+						{	
+							float HOffset = Item.offset.Y;
+							float WOffset = Item.offset.X;
+							float HSize = Item.size.Y;
+							float WSize = Item.size.X;
+							list->AddRect({ startpos.x + WOffset + diffx ,
+								            startpos.y + HOffset + diffy },
+								          { startpos.x + WOffset + diffx + (WSize * windowdata.texturescale),
+								            startpos.y + HOffset + diffy + (HSize * windowdata.texturescale) }, 0xFFFFFFFF);
+						}
+
+						ImGuIHelper::Image(&asset.value()._Base, *(ImVec2*)&objectsize);
+					}
+					ImGui::EndChild();
+
+				}
+				ImGui::End();
+			}
 			//
 
 			if (ImGuIHelper::BoolEnumField("ReadAndWrite", setting.ReadAndWrite))
