@@ -11,6 +11,8 @@
 #include "Helper/ImGuIHelper_Asset.hpp"
 #include "EditorWindows/OtherTypes/RawEntityData.hpp"
 #include "Editor/EditorAppCompoent.hpp"
+
+#include "UCodeRunTime/ULibrarys/Serialization/SerlizeableType.hpp"
 EditorStart
 
 
@@ -211,6 +213,27 @@ public:
 };
 namespace fs = std::filesystem;
 
+struct SpriteItem
+{
+	UID uid;
+	String spritename;
+
+	Vec2i_t<u32> offset;
+	Vec2i_t<u32> size;
+};
+
+EditorEnd
+
+
+MakeSerlizeType(UCodeEditor::SpriteItem,
+	Field("_UID", _this->uid);
+	Field("_SpriteName", _this->spritename);
+	Field("offset", _this->offset);
+	Field("size", _this->size);
+)
+
+
+EditorStart
 class PNGAssetFile :public UEditorAssetFileData
 {
 public:
@@ -236,20 +259,14 @@ public:
 		bilinear,
 		trilinear,
 	};
-	struct SpriteItem
-	{
-		UID uid;
-		String spritename;
-
-		Vec2i_t<u32> offset;
-		Vec2i_t<u32> size;
-	};
 	struct TextureSettings
 	{
 		UID uid;
 		bool ReadAndWrite = false;
 		Compression compression = Compression::None;
 		Filter filter = Filter::Point;
+		u32 pixelperunit = 16;
+		
 		Vector<SpriteItem> sprites;
 	};
 	class LiveingPng :public UEditorAssetFile
@@ -306,6 +323,9 @@ public:
 
 				serializer.ReadType("_Compression", *(Compression_t*)&Out.compression);
 
+				serializer.ReadType("_PixelPerUnit", Out.pixelperunit);
+				
+				serializer.ReadType("_Sprites", Out.sprites);
 				return true;
 			}
 			return false;
@@ -321,6 +341,9 @@ public:
 
 			serializer.Write("_Compression", *(Compression_t*)&in.compression);
 
+			serializer.Write("_PixelPerUnit", in.pixelperunit);
+
+			serializer.Write("_Sprites",in.sprites);
 
 			return serializer.ToFile(settings);
 		}
@@ -713,6 +736,10 @@ public:
 
 			}
 			if (ImGuIHelper::EnumField("Filter", setting.filter, FilterEnumValues, FilterEnumValuesSize))
+			{
+
+			}
+			if (ImGuIHelper::uInt32Field("Pixel Per Unit", setting.pixelperunit))
 			{
 
 			}

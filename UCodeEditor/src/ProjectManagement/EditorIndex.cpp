@@ -32,7 +32,7 @@ Vector< EditorIndex::ChangedFile> EditorIndex::GetDiffFromDir(const Path& path) 
 		auto p = Item.path();
 		auto relpath = FileHelper::ToRelativePath(path, p);
 
-		auto info = FindFileRelativePath(relpath.generic_string());
+		auto info = FindFileRelativeAssetName(relpath.generic_string());
 
 		if (info.has_value())
 		{
@@ -131,6 +131,7 @@ void EditorIndex::UpdateFile(IndexFile& file, const Path& path, const String& re
 	file.UserID = {};
 	file.FileSize = (u64)std::filesystem::file_size(path);
 	file.RelativePath = relativepath;
+	file.RelativeAssetName = relativepath;
 
 	for (size_t i = 0; i < Modules.Size(); i++)
 	{
@@ -174,6 +175,8 @@ bool EditorIndex::FromBytes(EditorIndex& Out, const BytesView Bytes)
 	{
 		IndexFile F;
 
+		bits.ReadType(F.RelativeAssetName,F.RelativeAssetName);
+		
 		bits.ReadType(F.RelativePath, F.RelativePath);
 
 		bits.ReadType(F.FileSize, F.FileSize);
@@ -197,6 +200,8 @@ Unique_Bytes EditorIndex::ToBytes(const EditorIndex& Out)
 	for (size_t i = 0; i < Out._Files.size(); i++)
 	{
 		auto& Item = Out._Files[i];
+
+		bit.WriteType(Item.RelativeAssetName);
 
 		bit.WriteType(Item.RelativePath);
 

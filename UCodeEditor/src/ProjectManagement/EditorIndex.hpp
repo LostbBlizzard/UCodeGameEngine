@@ -15,6 +15,7 @@ class EditorIndex
 public:
 	struct IndexFile
 	{
+		String RelativeAssetName;
 		String RelativePath;
 		u64 FileSize = 0;
 		u64 FileLastUpdatedTime = 0;
@@ -33,11 +34,33 @@ public:
 		Path RelativePath;
 	};
 
-	const OptionalRef<IndexFile> FindFileRelativePath(StringView relativepath) const
+	
+	void FindFilesRelativePath(StringView relativepath,Vector<const IndexFile*>& out) const
 	{
+		out.clear();
 		for (auto& Item : _Files)
 		{
 			if (Item.RelativePath == relativepath)
+			{
+				out.push_back(&Item);
+			}
+		}
+	}
+	void FindFilesRelativePath(StringView relativepath,Vector<IndexFile*>& out) 
+	{
+		return ((const EditorIndex*)this)->FindFilesRelativePath(relativepath,*(Vector<const IndexFile*>*)& out);
+	}
+	Vector<IndexFile*> FindFilesRelativePath(StringView relativepath) 
+	{
+		Vector<IndexFile*> r;
+		FindFilesRelativePath(relativepath, r);
+		return r;
+	}
+	OptionalRef<IndexFile> FindFileRelativeAssetName(StringView relativeassetname)
+	{
+		for (auto& Item : _Files)
+		{
+			if (Item.RelativeAssetName == relativeassetname)
 			{
 				return UCode::Optionalref(Item);
 			}
@@ -45,11 +68,11 @@ public:
 
 		return {};
 	}
-	OptionalRef<IndexFile> FindFileRelativePath(StringView relativepath)
+	const OptionalRef<IndexFile> FindFileRelativeAssetName(StringView relativeassetname) const
 	{
 		for (auto& Item : _Files)
 		{
-			if (Item.RelativePath == relativepath)
+			if (Item.RelativeAssetName == relativeassetname)
 			{
 				return UCode::Optionalref(Item);
 			}
