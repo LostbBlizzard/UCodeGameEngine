@@ -90,6 +90,21 @@ using Vec2 = UC::Vec2;
 using Vec2i = UC::Vec2i;
 using Vec3 = UC::Vec3;
 using Vec3i = UC::Vec3i;
+
+template<typename T>
+using Vec2_t = UC::Vec2_t<T>;
+
+template<typename T>
+using Vec3_t = UC::Vec3_t<T>;
+
+template<typename T>
+using Vec2i_t = UC::Vec2i_t<T>;
+
+template<typename T>
+using Vec3i_t = UC::Vec3i_t<T>;
+
+
+
 using Version = UC::Version;
 
 template<typename T>
