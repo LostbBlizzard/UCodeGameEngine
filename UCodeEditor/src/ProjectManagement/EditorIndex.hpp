@@ -45,6 +45,18 @@ public:
 
 		return {};
 	}
+	OptionalRef<IndexFile> FindFileRelativePath(StringView relativepath)
+	{
+		for (auto& Item : _Files)
+		{
+			if (Item.RelativePath == relativepath)
+			{
+				return UCode::Optionalref(Item);
+			}
+		}
+
+		return {};
+	}
 	void RemoveIndexFilesRelativePath(StringView relativepath)
 	{
 		_Files.erase(std::remove_if(
@@ -59,7 +71,7 @@ public:
 
 	static bool FromFile(EditorIndex& Out, const Path& path);
 	static bool ToFile(const EditorIndex& Out, const Path& path);
-
+	static void UpdateFile(IndexFile& file, const Path& path, const String& relativepath);
 
 	static bool FromBytes(EditorIndex& Out, const BytesView Bytes);
 	static Unique_Bytes ToBytes(const EditorIndex& Out);

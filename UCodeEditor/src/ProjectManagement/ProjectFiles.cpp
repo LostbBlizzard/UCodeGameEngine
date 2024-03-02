@@ -52,41 +52,8 @@ void ProjectFiles::ReIndex(EditorIndex& index, std::function<UID()> _newuid)
 		{
 			EditorIndex::IndexFile Index;
 
-			auto tep = dirEntry.last_write_time().time_since_epoch().count();
-			Index.FileLastUpdatedTime = tep;
-			Index.FileHash = 0;
-			Index.UserID = {};
-			Index.FileSize = (u64)dirEntry.file_size();
-			Index.RelativePath = dirEntry.path().generic_string().substr(ProjDir.native().size());
-
-            bool FoundIt = false;
-            for (size_t i = 0; i < Modules.Size(); i++)
-            {
-                auto& item = Modules[i];
-                auto AssetDataList = item->GetAssetData();
-
-                auto Info = item->GetAssetDataUsingExt(FileExt);
-				if (Info.has_value())
-				{
-					auto Data = AssetDataList[Info.value()];
-					FoundIt = true;
-
-					UEditorGetUIDContext context;
-					context.AssetPath = dirEntry.path();
-					context._newuid = _newuid;
-
-					auto op = Data->GetFileUID(context);
-
-					if (op.has_value())
-					{
-						Index.UserID = op.value();
-					}
-
-
-					break;
-				}
-            }
-
+			auto relative = dirEntry.path().generic_string().substr(ProjDir.native().size());
+			EditorIndex::UpdateFile(Index, dirEntry.path(), relative);
 			index._Files.push_back(std::move(Index));
 		}
 	}
