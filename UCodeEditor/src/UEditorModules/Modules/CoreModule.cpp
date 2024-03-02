@@ -13,6 +13,8 @@
 #include "Editor/EditorAppCompoent.hpp"
 
 #include "UCodeRunTime/ULibrarys/Serialization/SerlizeableType.hpp"
+
+#include "UCodeRunTime/ULibrarys/AssetManagement/AssetRendering.hpp"
 EditorStart
 
 
@@ -376,6 +378,12 @@ public:
 				return ImGuIHelper::ImageButton(Item.ObjectPtr, &asset.value()._Base, *(ImVec2*)&Item.ButtionSize);
 			}
 		}
+		void RemoveSprite(UID id)
+		{
+			auto runtimeproject = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+			runtimeproject->Get_AssetIndex().RemoveIndexFileWithUID(id);
+		}
+
 		void DrawInspect(const UEditorAssetDrawInspectContext& Item) override
 		{
 			ImGui::BeginDisabled(true);
@@ -402,6 +410,7 @@ public:
 			}
 
 			ImGui::Separator();
+			auto runtimeproject = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 
 			if ((p == this))
 			{
@@ -437,9 +446,19 @@ public:
 
 						val.spritename = "New Sprite " + std::to_string(setting.sprites.size());
 
-						UID newid = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetNewUID();
+						UID newid = runtimeproject->GetNewUID();
 						val.uid = newid;
 
+						
+						auto& assetindex = runtimeproject->Get_AssetIndex();
+						EditorIndex::IndexFile file;
+						
+						auto assetdir = runtimeproject->GetAssetsDir();
+						file.RelativePath =  FileFullPath.generic_string().substr(assetdir.generic_string().size());
+						file.RelativeAssetName = file.RelativePath + EditorIndex::SubAssetSeparator + val.spritename + UCode::SpriteData::FileExtDot;
+						file.UserID = newid;
+						
+						assetindex._Files.push_back(std::move(file));
 						setting.sprites.push_back(std::move(val));
 					}
 					ImGui::SameLine();	
@@ -459,6 +478,7 @@ public:
 
 						auto tex = &asset.value()._Base;
 						bool hasoneopen = false;
+					
 						for (size_t i = 0; i < setting.sprites.size(); i++)
 						{ 
 							auto& Item = setting.sprites[i];
@@ -468,7 +488,18 @@ public:
 							{
 								hasoneopen = true;
 								windowdata.SelcedSpriteIndex = i;
-								ImGuIHelper::InputText("Sprite Name", Item.spritename);
+
+								if (ImGuIHelper::InputText("Sprite Name", Item.spritename))
+								{
+									auto& assetindex = runtimeproject->Get_AssetIndex();
+									auto f = assetindex.FindFileUsingID(Item.uid);
+									if (f.has_value())
+									{
+										auto& file = f.value();
+										file.RelativeAssetName = file.RelativePath + EditorIndex::SubAssetSeparator + Item.spritename + UCode::SpriteData::FileExtDot;
+									}
+
+								}
 
 								if (ImGuIHelper::uInt32Field("X offset", Item.offset.X))
 								{
@@ -514,6 +545,7 @@ public:
 
 								if (ImGui::MenuItem("Destroy"))
 								{
+									RemoveSprite(Item.uid);
 									setting.sprites.erase(setting.sprites.begin() + i);
 									remove = true;
 
@@ -594,14 +626,14 @@ public:
 
 								setting.sprites.reserve(newitems.size());
 
+								auto& assetindex = runtimeproject->Get_AssetIndex();
 
 								if (newitems.size() < setting.sprites.size())
 								{
 									for (size_t i = newitems.size(); i < setting.sprites.size(); i++)
 									{
 										auto& itemtoremove = setting.sprites[i];
-
-
+										RemoveSprite(itemtoremove.uid);
 									}
 
 									for (size_t i = 0; i < setting.sprites.size() - newitems.size(); i++)
@@ -624,6 +656,14 @@ public:
 										UID newid = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetNewUID();
 
 										item.uid = newid;
+										EditorIndex::IndexFile file;
+
+										auto assetdir = runtimeproject->GetAssetsDir();
+										file.RelativePath = FileFullPath.generic_string().substr(assetdir.generic_string().size());
+										file.RelativeAssetName = file.RelativePath + EditorIndex::SubAssetSeparator + item.spritename + UCode::SpriteData::FileExtDot;
+										file.UserID = newid;
+
+										assetindex._Files.push_back(std::move(file));
 
 										setting.sprites.push_back(std::move(item));
 									}

@@ -13,6 +13,7 @@ enum class ChangedFileType
 class EditorIndex
 {
 public:
+	static constexpr const char* SubAssetSeparator = "$";
 	struct IndexFile
 	{
 		String RelativeAssetName;
@@ -80,12 +81,57 @@ public:
 
 		return {};
 	}
+	
+	OptionalRef<IndexFile> FindFileUsingID(UID id)
+	{
+		for (auto& Item : _Files)
+		{
+			if (Item.UserID.value() == id)
+			{
+				return UCode::Optionalref(Item);
+			}
+		}
+
+		return {};
+	}
+	const OptionalRef<IndexFile> FindFileUsingID(UID id) const
+	{
+		for (auto& Item : _Files)
+		{
+			if (Item.UserID.has_value()) 
+			{
+				if (Item.UserID.value() == id)
+				{
+					return UCode::Optionalref(Item);
+				}
+			}
+		}
+
+		return {};
+	}
 	void RemoveIndexFilesRelativePath(StringView relativepath)
 	{
 		_Files.erase(std::remove_if(
 			_Files.begin(), _Files.end(),
 			[&relativepath](const IndexFile& x) {
 				return x.RelativePath ==relativepath; // put your condition here
+			}), _Files.end());
+	}
+	void RemoveIndexFileWithUID(UID id)
+	{
+		_Files.erase(std::remove_if(
+			_Files.begin(), _Files.end(),
+			[&id](const IndexFile& x) {
+				return x.UserID.has_value() ? x.UserID == id : false; // put your condition here
+			}), _Files.end());
+
+	}
+	void RemoveIndexFileWithAssetName(StringView AssetName)
+	{
+		_Files.erase(std::remove_if(
+			_Files.begin(), _Files.end(),
+			[&AssetName](const IndexFile& x) {
+				return x.RelativeAssetName == AssetName; // put your condition here
 			}), _Files.end());
 
 	}

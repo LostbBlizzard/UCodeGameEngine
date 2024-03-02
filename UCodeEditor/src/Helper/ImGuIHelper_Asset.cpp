@@ -3,6 +3,7 @@
 #include "UEditorModules/UEditorModule.hpp"
 #include "ImGuIHelper.hpp"
 #include "StringHelper.hpp"
+#include "UCodeRunTime/ULibrarys/AssetManagement/AssetRendering.hpp"
 EditorStart
 bool ImGuIHelper_Asset::DrawLayerField(const char* FieldName, UCode::RenderRunTime2d::DrawLayer_t& Value)
 {
@@ -65,8 +66,13 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 	for (auto& Item : ProjectData->Get_AssetIndex()._Files)
 	{
 		ObjectSpriteAssetInfo P;
+	
+		auto ext = Path(Item.RelativeAssetName).extension().generic_string();
 
-		List.push_back(std::move(P));
+		if (Item.UserID.has_value() && ext == UCode::SpriteData::FileExtDot)
+		{
+			List.push_back(std::move(P));
+		}
 	}
 
 	String MyName = "None";
@@ -100,7 +106,14 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpriteAssetPtr
 	{
 		ObjectSpriteAssetInfo P;
 
-		List.push_back(std::move(P));
+		auto ext = Path(Item.RelativeAssetName).extension().generic_string();
+
+		if (Item.UserID.has_value() && ext == UCode::SpriteData::FileExtDot)
+		{
+			P._UID = Item.UserID.value();
+
+			List.push_back(std::move(P));
+		}
 	}
 
 	
