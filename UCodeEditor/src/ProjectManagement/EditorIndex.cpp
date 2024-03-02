@@ -4,6 +4,8 @@
 #include <UCodeRunTime/ULibrarys/Serialization_Library.h>
 //#include <fileapi.h>
 #include "Helper/FileHelper.hpp"
+#include "UEditorModules/UEditorModule.hpp"
+#include "Editor/EditorAppCompoent.hpp"
 EditorStart
 
 
@@ -117,6 +119,45 @@ bool EditorIndex::ToFile(const EditorIndex& Out, const Path& path)
 	else
 	{
 		return false;
+	}
+}
+
+void EditorIndex::UpdateFile(IndexFile& file, const Path& path, const String& relativepath)
+{
+	auto Modules = UEditorModules::GetModules();
+	auto tep = std::filesystem::last_write_time(path).time_since_epoch().count();
+	file.FileLastUpdatedTime = tep;
+	file.FileHash = 0;
+	file.UserID = {};
+	file.FileSize = (u64)std::filesystem::file_size(path);
+	file.RelativePath = relativepath;
+
+	for (size_t i = 0; i < Modules.Size(); i++)
+	{
+		auto& item = Modules[i];
+		auto AssetDataList = item->GetAssetData();
+
+		auto Info = item->GetAssetDataUsingExt(path);
+		if (Info.has_value())
+		{
+			auto Data = AssetDataList[Info.value()];
+
+			UEditorGetUIDContext context;
+			context.AssetPath = path;
+			context._newuid = []() ->UID
+				{
+					return EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetNewUID();
+				};
+
+			auto op = Data->GetFileUID(context);
+
+			if (op.has_value())
+			{
+				file.UserID = op.value();
+			}
+
+			break;
+		}
 	}
 }
 

@@ -182,6 +182,10 @@ void EditorAppCompoent::OnProjectLoaded()
             }
             Info.Ptr->FilesUpdated(ListToPush);
         }
+        else
+        {
+
+        }
     }
 
 
@@ -215,42 +219,20 @@ void EditorAppCompoent::OnProjectLoaded()
         {
             auto path = AssetDir.native() + fileitem.RelativePath.native();
             EditorIndex::IndexFile newfileIndex;
-            auto tep = std::filesystem::last_write_time(path).time_since_epoch().count();
-            newfileIndex.FileLastUpdatedTime = tep;
-            newfileIndex.FileHash = 0;
-            newfileIndex.UserID = {};
-            newfileIndex.FileSize = (u64)std::filesystem::file_size(path);
-            newfileIndex.RelativePath = fileitem.RelativePath.generic_string();
-
-            for (size_t i = 0; i < Modules.Size(); i++)
-            {
-                auto& item = Modules[i];
-                auto AssetDataList = item->GetAssetData();
-
-                auto Info = item->GetAssetDataUsingExt(path);
-                if (Info.has_value())
-                {
-                    auto Data = AssetDataList[Info.value()];
-
-                    UEditorGetUIDContext context;
-                    context.AssetPath = path;
-                    context._newuid = []() ->UID
-                        {
-                            return EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetNewUID();
-                        };
-
-                    auto op = Data->GetFileUID(context);
-
-                    if (op.has_value())
-                    {
-                        newfileIndex.UserID = op.value();
-                    }
-
-                    break;
-                }
-            }
-
+            EditorIndex::UpdateFile(newfileIndex,path,fileitem.RelativePath.generic_string());
             Index._Files.push_back(std::move(newfileIndex));
+        }
+        else if (fileitem.Type == ChangedFileType::FileUpdated)
+        {
+            auto path = AssetDir.native() + fileitem.RelativePath.native();
+            auto r = fileitem.RelativePath.generic_string();
+            auto& old = Index.FindFileRelativePath(r);
+
+            UCodeGEAssert(old.has_value());
+            auto& oldv = old.value();
+
+            EditorIndex::UpdateFile(oldv,path,r);
+
         }
     }
 
@@ -655,40 +637,7 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
 
 
         EditorIndex::IndexFile Index;
-        auto tep = std::filesystem::last_write_time(fullpath).time_since_epoch().count();
-        Index.FileLastUpdatedTime = tep;
-        Index.FileHash = 0;
-        Index.UserID = {};
-        Index.FileSize = (u64)std::filesystem::file_size(fullpath);
-        Index.RelativePath = path.generic_string();
-
-        for (size_t i = 0; i < Modules.Size(); i++)
-        {
-            auto& item = Modules[i];
-            auto AssetDataList = item->GetAssetData();
-
-            auto Info = item->GetAssetDataUsingExt(path.extension());
-            if (Info.has_value())
-            {
-                auto Data = AssetDataList[Info.value()];
-
-                UEditorGetUIDContext context;
-                context.AssetPath = fullpath;
-                context._newuid = []() ->UID
-                    {
-                        return EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetNewUID();
-                    };
-
-                auto op = Data->GetFileUID(context);
-
-                if (op.has_value())
-                {
-                    Index.UserID = op.value();
-                }
-
-                break;
-            }
-        }
+        EditorIndex::UpdateFile(Index, fullpath, path.generic_string());
 
         EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->Get_AssetIndex()._Files.push_back(std::move(Index));
     }
@@ -728,6 +677,7 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
         {
             auto& Files = EditorAppCompoent::GetCurrentEditorAppCompoent()->GetPrjectFiles();
             auto AssetDir = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetAssetsDir();
+            auto runtime = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 
             for (auto& Item : Info.Ptr->GetAssetData())
             {
@@ -744,6 +694,10 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
                     }
                 }
             }
+             
+            auto vstr = path.generic_string();
+            auto v = runtime->Get_AssetIndex().FindFileRelativePath(vstr);
+            EditorIndex::UpdateFile(v.value(),AssetDir / path ,vstr);
         }
 
     }
