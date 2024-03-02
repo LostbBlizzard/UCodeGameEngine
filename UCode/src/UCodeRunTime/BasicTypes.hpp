@@ -105,7 +105,20 @@ struct Color32
 			((f32)B / (f32)255),
 			((f32)A / (f32)255) };
 	}
-
+	
+	static constexpr Color32 FromPackedInt(u32 color)
+	{
+		Color32 R;
+		R.R = (color >> 24) & 0xFF;
+		R.G = (color >> 16) & 0xFF;
+		R.B = (color >> 8) & 0xFF;
+		R.A = color & 0xFF;
+		return R;
+	}
+	constexpr u32 AsPackedInt() 
+	{
+		return (R << 24) | (G << 16) | (B << 8) | A;
+	}
 };
 
 constexpr Color::operator Color32() const
@@ -165,6 +178,23 @@ struct Color24
 		};
 	}
 
+
+	static constexpr Color24 FromPackedInt(u32 color)
+	{
+		Color24 R;
+		R.R = (color >> 24) & 0xFF;
+		R.G = (color >> 16) & 0xFF;
+		R.B = (color >> 8) & 0xFF;
+		return R;
+	}
+	constexpr u32 AsPackedInt(Byte alpha) const
+	{
+		return (R << 24) | (G << 16) | (B << 8) | alpha;
+	}
+	constexpr u32 AsPackedInt() const
+	{
+		return AsPackedInt(255);
+	}
 };
 constexpr ColorRGB::operator Color24() const
 {

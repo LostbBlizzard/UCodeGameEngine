@@ -8,6 +8,34 @@ EditorStart
 class ImGuIHelper
 {
 public:
+	static ImVec4 ToVec4(const Color& val)
+	{
+		ImVec4 r;
+		r.x = val.R;
+		r.y = val.G;
+		r.z = val.B;
+		r.w = val.A;
+		return r;
+	}
+	static ImVec4 ToVec4(const ColorRGB& val)
+	{
+		ImVec4 r;
+		r.x = val.R;
+		r.y = val.G;
+		r.z = val.B;
+		r.w = 1;
+		return r;
+	}
+	static ImU32 ColorToImguiU32(const Color32& val)
+	{
+		return ImGui::ColorConvertFloat4ToU32(ToVec4((Color)val));
+	}
+	static ImU32 ColorToImguiU32(const Color24& val)
+	{
+		return ImGui::ColorConvertFloat4ToU32(ToVec4((ColorRGB)val));
+	}
+
+
 	static void Text(const StringView text)
 	{
 		ImGui::TextUnformatted(text.data(), text.data() + text.size());
