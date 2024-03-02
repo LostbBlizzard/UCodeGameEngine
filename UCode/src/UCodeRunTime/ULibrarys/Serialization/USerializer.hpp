@@ -147,7 +147,7 @@ public:
 			_BitReader.ReadType(Out);
 			break;
 		case UCode::USerializerType::YAML:
-			Out = _YamlReader[FieldName].as<T>();
+			Out = _YamlReader[FieldName].as<T>(Out);
 			break;
 		default:
 			break;

@@ -25,7 +25,7 @@ public:
 	{
 
 	}
-	BitMaker(BitConverter* converter,size_t BitSize = 0) :_Bytes(BitSize), Converter(converter)
+	BitMaker(BitConverter* converter, size_t BitSize = 0) :_Bytes(BitSize), Converter(converter)
 	{
 
 	}
@@ -34,11 +34,11 @@ public:
 
 	}
 
-	UCodeGEForceinlne void Resize(size_t NewSize){ _Bytes.resize(NewSize);}
-	UCodeGEForceinlne void Clear(){ _Bytes.clear();}
+	UCodeGEForceinlne void Resize(size_t NewSize) { _Bytes.resize(NewSize); }
+	UCodeGEForceinlne void Clear() { _Bytes.clear(); }
 	UCodeGEForceinlne auto& Get_Bytes() { return _Bytes; }
 	UCodeGEForceinlne const auto& Get_Bytes() const { return _Bytes; }
-	UCodeGEForceinlne size_t Size() const {return _Bytes.size(); }
+	UCodeGEForceinlne size_t Size() const { return _Bytes.size(); }
 
 	void WriteBytes(const Byte* Bits, size_t size)
 	{
@@ -49,54 +49,54 @@ public:
 	}
 
 	template<typename T>
-	UCodeGEForceinlne void WriteTypeAsBytes(const T& Value){WriteBytes((const Byte*)&Value, sizeof(Value));}
+	UCodeGEForceinlne void WriteTypeAsBytes(const T& Value) { WriteBytes((const Byte*)&Value, sizeof(Value)); }
 
 
 	template<typename T>
-	UCodeGEForceinlne void WriteType(const T& Value){ BitData<T>::ToBytes(*this, Value);}
+	UCodeGEForceinlne void WriteType(const T& Value) { BitData<T>::ToBytes(*this, Value); }
 
 
-	
+
 	UCodeGEForceinlne void WriteType(const bool& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
-	
+
 	UCodeGEForceinlne void WriteType(const Byte& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
-	
+
 	UCodeGEForceinlne void WriteType(const i8& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
-	
+
 	UCodeGEForceinlne void WriteType(const char& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
-	
-	UCodeGEForceinlne void WriteType(const u16& Value) { WriteTypeAsBytes(Converter->GetBytes(Value));}
 
-	
+	UCodeGEForceinlne void WriteType(const u16& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
+
+
 	UCodeGEForceinlne void WriteType(const i16& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
-	
-	
+
+
 	UCodeGEForceinlne void WriteType(const u32& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
-	
-	
+
+
 	UCodeGEForceinlne void WriteType(const i32& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
-	
-	
+
+
 	UCodeGEForceinlne void WriteType(const u64& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
-	
+
 	UCodeGEForceinlne void WriteType(const i64& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
-	
-	
+
+
 	UCodeGEForceinlne void WriteType(const f32& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
-	
+
 	UCodeGEForceinlne void WriteType(const f64& Value) { WriteTypeAsBytes(Converter->GetBytes(Value)); }
 
 
 	//
-	
+
 	UCodeGEForceinlne void WriteType(const char* Value)
-	{ 
+	{
 		size_t size = strlen(Value);
 		WriteType((SizeAsBits)size);
 		WriteBytes((const Byte*)Value, size);
@@ -113,8 +113,8 @@ public:
 		}
 	}
 
-	
-	UCodeGEForceinlne void WriteType(const String& Value) 
+
+	UCodeGEForceinlne void WriteType(const String& Value)
 	{
 		size_t size = Value.size();
 		WriteType((SizeAsBits)size);
@@ -122,8 +122,8 @@ public:
 	}
 
 	template<typename T>
-	UCodeGEForceinlne void WriteType(const Vector<T>& Value) 
-	{  
+	UCodeGEForceinlne void WriteType(const Vector<T>& Value)
+	{
 		WriteType(Span<T>::Make(Value.data(), Value.size()));
 	}
 
@@ -134,34 +134,38 @@ public:
 		WriteType(Obj);
 	}
 	//
-	
-	UCodeGEForceinlne void WriteType(const Vec2& Value)
+
+	template<typename T>
+	UCodeGEForceinlne void WriteType(const Vec2_t<T>& Value)
 	{
 		WriteType(Value.X);
 		WriteType(Value.Y);
 	}
-	
-	UCodeGEForceinlne void WriteType(const Vec2i& Value)
+
+	template<typename T>
+	UCodeGEForceinlne void WriteType(const Vec2i_t<T>& Value)
 	{
 		WriteType(Value.X);
 		WriteType(Value.Y);
 	}
-	
-	UCodeGEForceinlne void WriteType(const Vec3& Value)
-	{
-		WriteType(Value.X);
-		WriteType(Value.Y);
-		WriteType(Value.Z);
-	}
-	
-	UCodeGEForceinlne void WriteType(const Vec3i& Value)
+
+	template<typename T>
+	UCodeGEForceinlne void WriteType(const Vec3_t<T>& Value)
 	{
 		WriteType(Value.X);
 		WriteType(Value.Y);
 		WriteType(Value.Z);
 	}
 
-	
+	template<typename T>
+	UCodeGEForceinlne void WriteType(const Vec3i_t<T>& Value)
+	{
+		WriteType(Value.X);
+		WriteType(Value.Y);
+		WriteType(Value.Z);
+	}
+
+
 	UCodeGEForceinlne void WriteType(const Color& Value)
 	{
 		WriteType(Value.R);
@@ -169,7 +173,7 @@ public:
 		WriteType(Value.B);
 		WriteType(Value.A);
 	}
-	
+
 	UCodeGEForceinlne void WriteType(const Color32& Value)
 	{
 		WriteType(Value.R);
@@ -178,14 +182,14 @@ public:
 		WriteType(Value.A);
 	}
 
-	
+
 	UCodeGEForceinlne void WriteType(const Color24& Value)
 	{
 		WriteType(Value.R);
 		WriteType(Value.G);
 		WriteType(Value.B);
 	}
-	
+
 	UCodeGEForceinlne void WriteType(const ColorRGB& Value)
 	{
 		WriteType(Value.R);
@@ -193,49 +197,49 @@ public:
 		WriteType(Value.B);
 	}
 
-	
+
 	UCodeGEForceinlne void WriteType(const Version& Value)
 	{
 		WriteType(Value.Major);
 		WriteType(Value.Minor);
 		WriteType(Value.Patch);
 	}
-	
 
-	 UCodeGEForceinlne void WriteType(const Path& Value)
+
+	UCodeGEForceinlne void WriteType(const Path& Value)
 	{
 		WriteType(Value.generic_string());
 
 	}
 
-	 UCodeGEForceinlne void WriteType(const UID& Value)
-	 {
-		 WriteType(Value.Get_Value());
-	 }
+	UCodeGEForceinlne void WriteType(const UID& Value)
+	{
+		WriteType(Value.Get_Value());
+	}
 
-	 template<typename T>
-	 UCodeGEForceinlne void WriteType(const Optional<T>& Value)
-	 {
-		 WriteType(Value.has_value());
-		 
-		 if (Value.has_value()) 
-		 {
-			 WriteType(Value.value());
-		 }
-	 }
+	template<typename T>
+	UCodeGEForceinlne void WriteType(const Optional<T>& Value)
+	{
+		WriteType(Value.has_value());
+
+		if (Value.has_value())
+		{
+			WriteType(Value.value());
+		}
+	}
 private:
 	Vector<Byte> _Bytes;
-	BitConverter* Converter =nullptr;
+	BitConverter* Converter = nullptr;
 };
 class BitReader
 {
 public:
 	using SizeAsBits = BitMaker::SizeAsBits;
-	BitReader(): _Converter(&littleEndianConverter)
+	BitReader() : _Converter(&littleEndianConverter)
 	{
 
 	}
-	BitReader(const Byte* Bytes, size_t Size): _Converter(&littleEndianConverter)
+	BitReader(const Byte* Bytes, size_t Size) : _Converter(&littleEndianConverter)
 	{
 		SetBytes(Bytes, Size);
 	}
@@ -248,7 +252,7 @@ public:
 	{
 		SetBytes(Bytes.Data(), Bytes.Size());
 	}
-	UCodeGEForceinlne void SetBytes(const Byte* Bytes,size_t Size)
+	UCodeGEForceinlne void SetBytes(const Byte* Bytes, size_t Size)
 	{
 		_Bytes = Bytes;
 		_BytesSize = Size;
@@ -263,16 +267,16 @@ public:
 	const void* Get_OffsetDataPointer()
 	{
 		return &_Bytes[_BitOffset];
-	} 
+	}
 	void Addoffset(size_t Offset)
 	{
 		_BitOffset += Offset;
 	}
-	void ReadBytes(void* Out, const void* fallback,size_t BytesSize)
+	void ReadBytes(void* Out, const void* fallback, size_t BytesSize)
 	{
 		try
 		{
-			ReadBytes(Out,BytesSize);
+			ReadBytes(Out, BytesSize);
 		}
 		catch (const std::exception&)
 		{
@@ -289,10 +293,10 @@ public:
 	template<typename T>
 	void ReadType(T& Out)
 	{
-		BitData<T>::FromBytes(*this,Out);
+		BitData<T>::FromBytes(*this, Out);
 	}
 
-	template<typename T> void ReadType(T& Out,const T& fallback)
+	template<typename T> void ReadType(T& Out, const T& fallback)
 	{
 		try
 		{
@@ -302,8 +306,8 @@ public:
 		{
 			Out = fallback;
 		}
-	}	
-	
+	}
+
 	UCodeGEForceinlne void SizeCheck(size_t Size)
 	{
 		if (_BitOffset + Size > _BytesSize)
@@ -312,25 +316,25 @@ public:
 		}
 	}
 	//
-	 void ReadType(Byte& Out)
+	void ReadType(Byte& Out)
 	{
 		SizeCheck(sizeof(Byte));
 		Out = _Converter->BytesToUChar(_Bytes, _BitOffset);
 		_BitOffset += sizeof(Byte);
 	}
-	 void ReadType(i8& Out)
+	void ReadType(i8& Out)
 	{
 		SizeCheck(sizeof(i8));
 		Out = _Converter->BytesToSChar(_Bytes, _BitOffset);
 		_BitOffset += sizeof(i8);
 	}
-	 void ReadType(char& Out)
+	void ReadType(char& Out)
 	{
 		SizeCheck(sizeof(char));
 		_Converter->BytesToChar(_Bytes, _BitOffset, &Out);
 		_BitOffset += sizeof(char);
 	}
-	 void ReadType(bool& Out)
+	void ReadType(bool& Out)
 	{
 		SizeCheck(sizeof(bool));
 		_Converter->BytesToBool(_Bytes, _BitOffset, &Out);
@@ -341,7 +345,7 @@ public:
 	void ReadType(u16& Out)
 	{
 		SizeCheck(sizeof(u16));
-		_Converter->BytesToInt16(_Bytes, _BitOffset,&Out);
+		_Converter->BytesToInt16(_Bytes, _BitOffset, &Out);
 		_BitOffset += sizeof(u16);
 	}
 	void ReadType(i16& Out)
@@ -357,7 +361,7 @@ public:
 		_Converter->BytesToInt(_Bytes, _BitOffset, &Out);
 		_BitOffset += sizeof(u32);
 	}
-	
+
 	void ReadType(i32& Out)
 	{
 		SizeCheck(sizeof(i32));
@@ -371,7 +375,7 @@ public:
 		_Converter->BytesToInt64(_Bytes, _BitOffset, &Out);
 		_BitOffset += sizeof(u64);
 	}
-	
+
 	void ReadType(i64& Out)
 	{
 		SizeCheck(sizeof(i64));
@@ -379,7 +383,7 @@ public:
 		_BitOffset += sizeof(i64);
 	}
 
-	
+
 	void ReadType(f32& Out)
 	{
 		SizeCheck(sizeof(f32));
@@ -393,7 +397,7 @@ public:
 		_Converter->BytesTofloat64(_Bytes, _BitOffset, &Out);
 		_BitOffset += sizeof(f64);
 	}
-	
+
 	void ReadType(String& Out)
 	{
 		SizeAsBits StrSize;
@@ -405,7 +409,7 @@ public:
 		{
 			ReadType(Out[i]);
 		}
-		
+
 	}
 
 	template<typename T> Unique_Span<T> ReadSpan()
@@ -445,36 +449,44 @@ public:
 		ReadType(Out.get(), Out.get());
 	}
 
-	 void ReadType(Vec2& Out)
+	template<typename T>
+	void ReadType(Vec2_t<T>& Out)
 	{
 		ReadType(Out.X, Out.X);
 		ReadType(Out.Y, Out.Y);
 	}
-	 void ReadType(Vec2i& Out)
+
+	template<typename T>
+	void ReadType(Vec2i_t<T>& Out)
 	{
 		ReadType(Out.X, Out.X);
 		ReadType(Out.Y, Out.Y);
 	}
-	 void ReadType(Vec3& Out)
+
+	template<typename T>
+	void ReadType(Vec3_t<T>& Out)
 	{
 		ReadType(Out.X, Out.X);
 		ReadType(Out.Y, Out.Y);
 		ReadType(Out.Z, Out.Z);
 	}
-	 void ReadType(Vec3i& Out)
+
+	template<typename T>
+	void ReadType(Vec3i_t<T>& Out)
 	{
 		ReadType(Out.X, Out.X);
 		ReadType(Out.Y, Out.Y);
 		ReadType(Out.Z, Out.Z);
 	}
-	 void ReadType(Color& Out)
+
+	void ReadType(Color& Out)
 	{
 		ReadType(Out.R, Out.R);
 		ReadType(Out.G, Out.G);
 		ReadType(Out.B, Out.B);
 		ReadType(Out.A, Out.A);
 	}
-	 void ReadType(Color32& Out)
+	void ReadType(Color32& Out)
 	{
 		ReadType(Out.R, Out.R);
 		ReadType(Out.G, Out.G);
@@ -482,56 +494,56 @@ public:
 		ReadType(Out.A, Out.A);
 	}
 
-	 void ReadType(ColorRGB& Out)
+	void ReadType(ColorRGB& Out)
 	{
 		ReadType(Out.R, Out.R);
 		ReadType(Out.G, Out.G);
 		ReadType(Out.B, Out.B);
 	}
-	 void ReadType(Color24& Out)
+	void ReadType(Color24& Out)
 	{
 		ReadType(Out.R, Out.R);
 		ReadType(Out.G, Out.G);
 		ReadType(Out.B, Out.B);
 	}
-	 void ReadType(Path& Out)
+	void ReadType(Path& Out)
 	{
 		String V;
 		ReadType(V);
 		Out = V;
 	}
-	 UCodeGEForceinlne void ReadType(UID& Out)
+	UCodeGEForceinlne void ReadType(UID& Out)
 	{
 		UID::UID_t b = 0;
-		ReadType(b,b);
+		ReadType(b, b);
 		Out.Set_Value(b);
 	}
 
-	 UCodeGEForceinlne void ReadType(Version& Out)
+	UCodeGEForceinlne void ReadType(Version& Out)
 	{
 		ReadType(Out.Major, Out.Major);
 		ReadType(Out.Minor, Out.Minor);
 		ReadType(Out.Patch, Out.Patch);
 	}
 
-	 template<typename T>
-	 UCodeGEForceinlne void ReadType(Optional<T>& Out)
-	 {
-		 bool has = false;
-		 ReadType(has, has);
-		 if (has)
-		 {
-			 T val = {};
-			 ReadType(val,val);
-			 Out = std::move(val);
-		 }
-	 }
-	
+	template<typename T>
+	UCodeGEForceinlne void ReadType(Optional<T>& Out)
+	{
+		bool has = false;
+		ReadType(has, has);
+		if (has)
+		{
+			T val = {};
+			ReadType(val, val);
+			Out = std::move(val);
+		}
+	}
+
 private:
 	const Byte* _Bytes = nullptr;
 	size_t _BytesSize = 0;
 	size_t _BitOffset = 0;
-	BitConverter* _Converter =nullptr;
+	BitConverter* _Converter = nullptr;
 };
 CoreEnd
 

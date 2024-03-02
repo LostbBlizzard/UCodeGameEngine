@@ -63,6 +63,25 @@ namespace YAML {
 			return true;
 		}
 	};
+	
+	template<> struct convert<UCode::Vec2i_t<UCode::u32>> {
+		static Node encode(const UCode::Vec2i_t<UCode::u32>& rhs) {
+			Node node;
+			node.push_back(rhs.X);
+			node.push_back(rhs.Y);
+			return node;
+		}
+
+		static bool decode(const Node& node, UCode::Vec2i_t<UCode::u32>& rhs) {
+			if (!node.IsSequence() || node.size() != 2) {
+				return false;
+			}
+
+			rhs.X = node[0].as<UCode::u32>();
+			rhs.Y = node[1].as<UCode::u32>();
+			return true;
+		}
+	};
 	template<> struct convert<UCode::Vec3i> {
 		static Node encode(const UCode::Vec3i& rhs) {
 			Node node;

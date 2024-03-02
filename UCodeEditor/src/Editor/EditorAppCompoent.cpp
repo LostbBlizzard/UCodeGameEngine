@@ -226,7 +226,7 @@ void EditorAppCompoent::OnProjectLoaded()
         {
             auto path = AssetDir.native() + fileitem.RelativePath.native();
             auto r = fileitem.RelativePath.generic_string();
-            auto& old = Index.FindFileRelativePath(r);
+            auto& old = Index.FindFileRelativeAssetName(r);
 
             UCodeGEAssert(old.has_value());
             auto& oldv = old.value();
@@ -696,7 +696,7 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
             }
              
             auto vstr = path.generic_string();
-            auto v = runtime->Get_AssetIndex().FindFileRelativePath(vstr);
+            auto v = runtime->Get_AssetIndex().FindFileRelativeAssetName(vstr);
             EditorIndex::UpdateFile(v.value(),AssetDir / path ,vstr);
         }
 
