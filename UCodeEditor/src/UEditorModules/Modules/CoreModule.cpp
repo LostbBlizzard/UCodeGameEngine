@@ -398,6 +398,7 @@ public:
 					{
 						float texturescale = 5;
 						Vec2 dragoffset; 
+						Optional<size_t> SelcedSpriteIndex;
 						SliceWindowData slicedata;
 					};
 					static EditorWindowData windowdata;
@@ -433,20 +434,53 @@ public:
 					{
 						ImGui::BeginChild("Tp");
 
+						auto tex = &asset.value()._Base;
+						bool hasoneopen = false;
 						for (size_t i = 0; i < setting.sprites.size(); i++)
 						{ 
 							auto& Item = setting.sprites[i];
 						
-							UCode::Sprite sp{ &asset.value()._Base,(i32)Item.offset.X,(i32)Item.offset.Y,(i32)Item.size.X,(i32)Item.size.Y };
+							UCode::Sprite sp{ tex,(i32)Item.offset.X,(i32)Item.offset.Y,(i32)Item.size.X,(i32)Item.size.Y };
 							if (ImGuIHelper::TreeNode(&Item,StringView(Item.spritename), &sp))
 							{
+								hasoneopen = true;
+								windowdata.SelcedSpriteIndex = i;
 								ImGuIHelper::InputText("Sprite Name", Item.spritename);
-								ImGuIHelper::uInt32Field("X offset", Item.offset.X);
-								ImGuIHelper::uInt32Field("Y offset", Item.offset.Y);
-								ImGuIHelper::uInt32Field("Width", Item.size.X);
-								ImGuIHelper::uInt32Field("Height", Item.size.Y);
 
-								ImGuIHelper::Image(&sp, { 125,125 });
+								if (ImGuIHelper::uInt32Field("X offset", Item.offset.X))
+								{
+									auto texw = tex->Get_Width();
+									auto spw = Item.size.X;
+
+									Item.offset.X = std::min(Item.offset.X, texw - spw);
+								}
+
+								if (ImGuIHelper::uInt32Field("Y offset", Item.offset.Y))
+								{
+									auto texh = tex->Get_Height();
+									auto sph = Item.size.Y;
+
+									Item.offset.Y = std::min(Item.offset.Y, texh - sph);
+								}
+
+								if (ImGuIHelper::uInt32Field("Width", Item.size.X))
+								{
+									auto texh = tex->Get_Width();
+									auto spx = Item.offset.X;
+
+									Item.size.X = std::min(Item.size.X, texh + spx);
+								}
+
+								if (ImGuIHelper::uInt32Field("Height", Item.size.Y))
+								{
+									auto texw = tex->Get_Height();
+									auto spy = Item.offset.Y;
+
+									Item.size.Y = std::min(Item.size.Y, texw + spy);
+								}
+								float aspectratio = (float)Item.size.X / (float)Item.size.Y;
+
+								ImGuIHelper::Image(&sp, { 125 * aspectratio,125 });
 								ImGui::TreePop();
 							}
 
@@ -472,6 +506,10 @@ public:
 							}
 						}
 
+						if (!hasoneopen)
+						{
+							windowdata.SelcedSpriteIndex = {};
+						}
 						ImGui::EndChild();
 					}
 					ImGui::NextColumn();
@@ -588,6 +626,8 @@ public:
 							{
 								windowdata.texturescale += ImGui::GetIO().MouseWheel;
 								windowdata.dragoffset += *(Vec2*)&ImGui::GetMouseDragDelta(ImGuiMouseButton_::ImGuiMouseButton_Right);
+						
+								windowdata.texturescale = std::max(windowdata.texturescale, 0.5f);
 							}
 
 							auto& myasset = asset.value();
@@ -602,8 +642,14 @@ public:
 							newpos.y += diffy;
 							ImGui::SetCursorPos(newpos);
 
-							for (auto& Item : setting.sprites)
+							ImU32 texturbordercolor =ImGuIHelper::ColorToImguiU32(Color32(217, 51, 0));
+							ImU32 spritebordercolor =ImGuIHelper::ColorToImguiU32(Color32());
+							ImU32 selecedspritebordercolor =ImGuIHelper::ColorToImguiU32( Color32(204, 161, 4));
+
+							for (size_t i = 0; i < setting.sprites.size(); i++)
 							{
+								auto& Item = setting.sprites[i];
+						
 								float HOffset = Item.offset.Y * windowdata.texturescale;
 								float WOffset = Item.offset.X * windowdata.texturescale;
 								float HSize = Item.size.Y;
@@ -611,13 +657,45 @@ public:
 							
 								auto diffx = windowdata.dragoffset.X/ windowdata.texturescale;
 								auto diffy = windowdata.dragoffset.Y/ windowdata.texturescale;
+
+								bool isseleced = false;
+								if (windowdata.SelcedSpriteIndex.has_value())
+								{
+									isseleced = i == windowdata.SelcedSpriteIndex.value();
+								}
+								auto color = isseleced ? selecedspritebordercolor : spritebordercolor;
+
 								list->AddRect({ startpos.x + WOffset + diffx ,
 												startpos.y + HOffset + diffy },
 											  { startpos.x + WOffset + diffx + (WSize * windowdata.texturescale),
-												startpos.y + HOffset + diffy + (HSize * windowdata.texturescale) }, 0xFFFFFFFF);
+												startpos.y + HOffset + diffy + (HSize * windowdata.texturescale) }, color);
 							}
 
-							ImGuIHelper::Image(&asset.value()._Base, *(ImVec2*)&objectsize);
+							if (windowdata.SelcedSpriteIndex.has_value())
+							{
+								if (windowdata.SelcedSpriteIndex.value() > setting.sprites.size())
+								{
+									windowdata.SelcedSpriteIndex = {};
+								}
+							}
+							auto tex = &asset.value()._Base;
+							{//
+								float HOffset = 0 * windowdata.texturescale;
+								float WOffset = 0 * windowdata.texturescale;
+								float HSize = tex->Get_Height();
+								float WSize = tex->Get_Width();
+
+								auto diffx = windowdata.dragoffset.X / windowdata.texturescale;
+								auto diffy = windowdata.dragoffset.Y / windowdata.texturescale;
+
+								list->AddRect({ startpos.x + WOffset + diffx ,
+												startpos.y + HOffset + diffy },
+											  { startpos.x + WOffset + diffx + (WSize * windowdata.texturescale),
+												startpos.y + HOffset + diffy + (HSize * windowdata.texturescale) }, texturbordercolor);
+
+							}
+
+							ImGuIHelper::Image(tex, *(ImVec2*)&objectsize);
 						}
 					}
 					ImGui::EndChild();

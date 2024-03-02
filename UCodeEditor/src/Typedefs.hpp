@@ -103,7 +103,13 @@ using Vec2i_t = UC::Vec2i_t<T>;
 template<typename T>
 using Vec3i_t = UC::Vec3i_t<T>;
 
+using Color24 = UC::Color24;
+using Color32 = UC::Color32;
 
+using ColorRGB = UC::ColorRGB;
+using ColorRGBA = UC::ColorRGBA;
+
+using Color = UC::Color;
 
 using Version = UC::Version;
 
