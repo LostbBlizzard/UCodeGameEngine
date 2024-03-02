@@ -70,7 +70,7 @@ void GameEditorWindow::UpdateWindow()
     if (ImGui::Begin("Game"))
     {
         //    UnLoadSceneCamera();
-        //GameTab();
+        GameTab();
        
     } ImGui::End();
 

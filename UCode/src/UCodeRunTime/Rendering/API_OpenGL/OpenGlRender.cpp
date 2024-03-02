@@ -160,24 +160,26 @@ void OpenGlRender::Init(WindowData windowdata)
     }
     else
     {
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // IMgui Update them
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        if (!_windowdata.shared_window) {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // IMgui Update them
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
-        glfwWindowHint(GLFW_VISIBLE, false);
-        glfwWindowHint(GLFW_FOCUSED, false);
-        glfwWindowHint(GLFW_DECORATED, false);
+            glfwWindowHint(GLFW_VISIBLE, false);
+            glfwWindowHint(GLFW_FOCUSED, false);
+            glfwWindowHint(GLFW_DECORATED, false);
 
-        glfwWindowHint(GLFW_FLOATING, false);
+            glfwWindowHint(GLFW_FLOATING, false);
 
-        window = glfwCreateWindow(_windowdata.width, _windowdata.height, _windowdata.WindowName.c_str(), nullptr,
-                                  (GLFWwindow*)_windowdata.shared_window);
-        glfwMakeContextCurrent(window);
+            window = glfwCreateWindow(_windowdata.width, _windowdata.height, _windowdata.WindowName.c_str(), nullptr,
+                                      (GLFWwindow*)_windowdata.shared_window);
+            glfwMakeContextCurrent(window);
 
-        // if (_windowdata.ImGui_Init)
-        {
-            if (glewInit() != GLEW_OK)
+            // if (_windowdata.ImGui_Init)
             {
-                throw std::runtime_error("glewInit failed");
+                if (glewInit() != GLEW_OK)
+                {
+                    throw std::runtime_error("glewInit failed");
+                }
             }
         }
     }
