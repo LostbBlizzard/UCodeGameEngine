@@ -478,9 +478,8 @@ public:
 
 									Item.size.Y = std::min(Item.size.Y, texw + spy);
 								}
-								float aspectratio = (float)Item.size.X / (float)Item.size.Y;
 
-								ImGuIHelper::Image(&sp, { 125 * aspectratio,125 });
+								ImGuIHelper::Image(&sp, { 125 ,125 });
 								ImGui::TreePop();
 							}
 

@@ -12,10 +12,67 @@ const char* ImGuIHelper::ToCStr(const String& text)
 {
 	return text.c_str();
 }
+void ImGuIHelper::ImageDontKeepAspectRatio(UCode::Texture& texture, const ImVec2& ButtionSize)
+{
+	texture.TryUploadTexToGPU();
+	ImGui::Image((ImTextureID)(size_t)texture.Get_RendererID(), ButtionSize);
+}
+void ImGuIHelper::ImageDontKeepAspectRatio(UCode::Sprite& Sprite, const ImVec2& ButtionSize)
+{
+	ImVec2 uvo;
+	ImVec2 uv1;
+	ImTextureID texid = (ImTextureID)(size_t)Sprite.Get_texture()->Get_RendererID();
+	GetSpriteUV(&Sprite, uvo, uv1);
+
+	ImGui::Image(texid, ButtionSize, uvo, uv1);
+}
+bool ImGuIHelper::ImageButtonDontKeepAspectRatio(const void* id, UCode::Texture* Sprite, const ImVec2& ButtionSize)
+{
+	Sprite->TryUploadTexToGPU();
+	return ImGui::ImageButtonEx(ImGui::GetID(id), (ImTextureID)(size_t)Sprite->Get_RendererID(), ButtionSize, { 0,0 }, { 1,1 }, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
+}
+bool ImGuIHelper::ImageButtonDontKeepAspectRatio(const void* id, UCode::Sprite* Sprite, const ImVec2& ButtionSize)
+{
+	ImVec2 uvo;
+	ImVec2 uv1;
+	ImTextureID texid = (ImTextureID)(size_t)Sprite->Get_texture()->Get_RendererID();
+	GetSpriteUV(Sprite, uvo, uv1);
+	return ImGui::ImageButtonEx(ImGui::GetID(id), texid, ButtionSize, uvo, uv1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1), ImGuiButtonFlags_::ImGuiButtonFlags_MouseButtonLeft);
+}
+
+
+Vec2 ImageSize(Vec2 spritesize, Vec2 buttionsize)
+{
+	auto aspectratio = (float)spritesize.X / (float)spritesize.Y;
+
+	Vec2 r;
+	r.X = buttionsize.X *aspectratio;
+	r.Y = buttionsize.Y;
+
+	return r;
+}
+
 void ImGuIHelper::Image(UCode::Texture* texture, const ImVec2& ButtionSize)
 {
 	texture->TryUploadTexToGPU();
-	ImGui::Image((ImTextureID)(size_t)texture->Get_RendererID(), ButtionSize);
+
+	auto p = ImageSize({ (float)texture->Get_Width(),(float)texture->Get_Height() }, { ButtionSize.x,ButtionSize.y });
+	ImVec2 v;
+	v.x = p.X;
+	v.y = p.Y;
+
+	
+	auto c = ImGui::GetCursorPos();
+
+	ImGui::Dummy(ButtionSize);
+
+	auto d = ImGui::GetCursorPos();
+
+	ImGui::SetCursorPos(c);
+
+	ImGui::Image((ImTextureID)(size_t)texture->Get_RendererID(), v);
+	
+	ImGui::SetCursorPos(d);
 }
 void ImGuIHelper::Image(UCode::Sprite* Sprite, const ImVec2& ButtionSize)
 {
@@ -24,13 +81,65 @@ void ImGuIHelper::Image(UCode::Sprite* Sprite, const ImVec2& ButtionSize)
 	ImTextureID texid = (ImTextureID)(size_t)Sprite->Get_texture()->Get_RendererID();
 	GetSpriteUV(Sprite, uvo, uv1);
 
-	ImGui::Image(texid, ButtionSize, uvo, uv1);
-}
+	auto p =ImageSize({ (float)Sprite->Get_Width(),(float)Sprite->Get_Height() }, {ButtionSize.x,ButtionSize.y});
+	ImVec2 v;
+	v.x = p.X;
+	v.y = p.Y;
 
+	auto c = ImGui::GetCursorPos();
+
+	ImGui::Dummy(ButtionSize);
+
+	auto d = ImGui::GetCursorPos();
+
+	ImGui::SetCursorPos(c);
+
+	ImGui::Image(texid,v, uvo, uv1);
+	
+	ImGui::SetCursorPos(d);
+}
 bool ImGuIHelper::ImageButton(const void* id, UCode::Texture* Sprite, const ImVec2& ButtionSize)
 {
 	Sprite->TryUploadTexToGPU();
-	return ImGui::ImageButtonEx(ImGui::GetID(id), (ImTextureID)(size_t)Sprite->Get_RendererID(), ButtionSize, { 0,0 }, {1,1}, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
+	
+	auto p =ImageSize({ (float)Sprite->Get_Width(),(float)Sprite->Get_Height() }, {ButtionSize.x,ButtionSize.y});
+	ImVec2 v;
+	v.x = p.X;
+	v.y = p.Y;
+
+	auto c = ImGui::GetCursorPos();
+
+	ImGui::PushID(id);
+	bool r =ImGui::InvisibleButton("", ButtionSize);
+	ImGui::PopID();
+
+	bool hovered =ImGui::IsItemHovered();
+	bool held = ImGui::IsItemActive();	
+;
+	auto d = ImGui::GetCursorPos();
+
+	ImGui::SetCursorPos(c);
+
+	{
+		using namespace ImGui;
+		ImGuiContext& g = *GImGui;
+		ImGuiWindow* window = GetCurrentWindow();
+		if (window->SkipItems)
+			return false;
+
+		const ImVec2 padding = g.Style.FramePadding;
+		const ImRect bb(window->DC.CursorPos, *(ImVec2*)&(*(Vec2*)&window->DC.CursorPos + *(Vec2*)&ButtionSize + *(Vec2*)&padding * 2.0f));
+
+		const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+		ImGui::RenderNavHighlight(bb, ImGui::GetID(id));
+		ImGui::RenderFrame(bb.Min, bb.Max, col, true, ImClamp((float)ImMin(padding.x, padding.y), 0.0f, g.Style.FrameRounding));
+	}
+
+	ImGui::Image((ImTextureID)(size_t)Sprite->Get_RendererID(), v, { 0,0 }, {1,1});
+	
+	ImGui::SetCursorPos(d);
+
+	return r;
 }
 
 bool ImGuIHelper::ImageButton(const void* id, UCode::Sprite* Sprite, const ImVec2& ButtionSize)
@@ -38,8 +147,45 @@ bool ImGuIHelper::ImageButton(const void* id, UCode::Sprite* Sprite, const ImVec
 	ImVec2 uvo;
 	ImVec2 uv1;
 	ImTextureID texid = (ImTextureID)(size_t)Sprite->Get_texture()->Get_RendererID();
-	GetSpriteUV( Sprite, uvo, uv1);
-	return ImGui::ImageButtonEx(ImGui::GetID(id), texid, ButtionSize, uvo, uv1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1),ImGuiButtonFlags_::ImGuiButtonFlags_MouseButtonLeft);
+	GetSpriteUV(Sprite, uvo, uv1);
+
+	auto p = ImageSize({ (float)Sprite->Get_Width(),(float)Sprite->Get_Height() }, { ButtionSize.x,ButtionSize.y });
+	ImVec2 v;
+	v.x = p.X;
+	v.y = p.Y;
+
+	auto c = ImGui::GetCursorPos();
+
+	ImGui::PushID(id);
+	bool r = ImGui::InvisibleButton("", ButtionSize, ImGuiButtonFlags_::ImGuiButtonFlags_MouseButtonLeft);
+	ImGui::PopID();
+
+
+	auto d = ImGui::GetCursorPos();
+
+	ImGui::SetCursorPos(c);
+
+	bool hovered =ImGui::IsItemHovered();
+	bool held = ImGui::IsItemActive();	
+	{
+		using namespace ImGui;
+		ImGuiContext& g = *GImGui;
+		ImGuiWindow* window = GetCurrentWindow();
+		if (window->SkipItems)
+			return false;
+
+		const ImVec2 padding = g.Style.FramePadding;
+		const ImRect bb(window->DC.CursorPos, *(ImVec2*)&(*(Vec2*)&window->DC.CursorPos + *(Vec2*)&ButtionSize + *(Vec2*)&padding * 2.0f));
+
+		const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+		ImGui::RenderNavHighlight(bb, ImGui::GetID(id));
+		ImGui::RenderFrame(bb.Min, bb.Max, col, true, ImClamp((float)ImMin(padding.x, padding.y), 0.0f, g.Style.FrameRounding));
+	}
+	ImGui::Image(texid, v, uvo, uv1);
+
+	ImGui::SetCursorPos(d);
+
+	return r;
 }
 void ImGuIHelper::GetSpriteUV(UCode::Sprite* Sprite, ImVec2& uvo, ImVec2& uv1)
 {

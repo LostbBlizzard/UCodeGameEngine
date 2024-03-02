@@ -47,6 +47,11 @@ public:
 	static const char* ToCStr(const StringView text);
 	static const char* ToCStr(const String& text);
 
+	static void ImageDontKeepAspectRatio(UCode::Texture& Sprite, const ImVec2& ButtionSize);
+	static void ImageDontKeepAspectRatio(UCode::Sprite& Sprite, const ImVec2& ButtionSize);
+	static bool ImageButtonDontKeepAspectRatio(const void* id, UCode::Texture* Sprite, const ImVec2& ButtionSize);
+	static bool ImageButtonDontKeepAspectRatio(const void* id, UCode::Sprite* Sprite, const ImVec2& ButtionSize);
+	
 	struct TreeNodeText
 	{
 		bool NodeOpen, TextUpdate;
