@@ -3,6 +3,43 @@
 
 #include <stb_image/stb_image.h>
 CoreStart
+void SpriteData::PushData(USerializer& node) const
+{
+    node.Write("_TextureUID", _Texture); 
+    node.Write("_OffsetX", OffsetX); 
+    node.Write("_OffsetY", OffsetY); 
+    node.Write("_SizeX", SizeX); 
+    node.Write("_SizeY", SizeY); 
+}
+
+bool SpriteData::FromString(SpriteData& out, UDeserializer& text)
+{
+    text.ReadType("_TextureUID", out._Texture, out._Texture);
+	text.ReadType("_OffsetX", out.OffsetY,out.OffsetX); 
+    text.ReadType("_OffsetY", out.OffsetY,out.OffsetY); 
+    text.ReadType("_SizeX", out.SizeX,out.SizeX); 
+    text.ReadType("_SizeY", out.SizeY,out.SizeY);
+	return true;
+}
+
+bool SpriteData::FromFile(SpriteData& out, const Path& Path)
+{
+    UDeserializer V;
+    bool A = UDeserializer::FromFile(Path, V);
+    if (A)
+    {
+        return FromString(out, V);
+    }
+    return A;
+}
+
+bool SpriteData::ToFile(const Path& path, SpriteData& data, USerializerType Type)
+{
+    USerializer V(Type);
+    data.PushData(V);
+    return V.ToFile(path);
+}
+
 void AssetRendering::UpdatePtr(AssetManager* Manager,TexturePtr& Ptr)
 {
 	

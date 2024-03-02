@@ -23,6 +23,23 @@ public:
 using TextureAssetPtr = ManagedPtr<TextureAsset>;
 using TexturePtr= AssetPtr<TextureAsset,Texture>;
 
+struct SpriteData
+{
+	inline static const char* FileExt = "USprite";
+	inline static const char* FileExtDot = ".USprite";
+
+	UID _Texture;
+	i32 OffsetX = 0;
+	i32 OffsetY = 0;
+	i32 SizeX = 0;
+	i32 SizeY = 0;
+
+	void PushData(USerializer& node) const;
+	static bool FromString(SpriteData& out, UDeserializer& text);
+
+	static bool FromFile(SpriteData& out, const Path& Path);
+	static bool ToFile(const Path& path, SpriteData& data, USerializerType Type);
+};
 
 class SpriteAsset : public Asset
 {

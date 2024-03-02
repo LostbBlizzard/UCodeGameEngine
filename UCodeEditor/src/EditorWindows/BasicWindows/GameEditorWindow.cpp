@@ -70,7 +70,7 @@ void GameEditorWindow::UpdateWindow()
     if (ImGui::Begin("Game"))
     {
         //    UnLoadSceneCamera();
-        GameTab();
+        //GameTab();
        
     } ImGui::End();
 
@@ -365,7 +365,7 @@ void GameEditorWindow::SceneEditorTab()
         _GameRunTime->DestroyNullScenes();
     }
     ImGuiIO& io = ImGui::GetIO();
-    bool IsFocused = ImGui::IsItemHovered();
+    bool IsFocused = ImGui::IsItemHovered() || true;
     if (IsFocused)
     {
         SceneCameraGetInputs();
