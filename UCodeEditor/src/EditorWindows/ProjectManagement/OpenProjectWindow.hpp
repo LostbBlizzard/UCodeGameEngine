@@ -43,7 +43,7 @@ public:
 	
 	struct ProjectTemplateInfo
 	{
-		ProjectManger::ProjectType _ProjectType;
+		ProjectManger::ProjectType _ProjectType =ProjectManger::ProjectType::Empty;
 		String ExternalProjectID;
 
 	};

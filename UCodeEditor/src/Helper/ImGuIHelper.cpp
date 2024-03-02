@@ -43,12 +43,14 @@ bool ImGuIHelper::ImageButtonDontKeepAspectRatio(const void* id, UCode::Sprite* 
 
 Vec2 ImageSize(Vec2 spritesize, Vec2 buttionsize)
 {
-	auto aspectratio = (float)spritesize.X / (float)spritesize.Y;
-
 	Vec2 r;
-	r.X = buttionsize.X *aspectratio;
+	r.X = buttionsize.X;
 	r.Y = buttionsize.Y;
 
+	//r = buttionsize /2;
+
+	UCodeGEAssert(r.X > buttionsize.X)
+	UCodeGEAssert(r.Y > buttionsize.Y)
 	return r;
 }
 
@@ -101,21 +103,36 @@ void ImGuIHelper::Image(UCode::Sprite* Sprite, const ImVec2& ButtionSize)
 bool ImGuIHelper::ImageButton(const void* id, UCode::Texture* Sprite, const ImVec2& ButtionSize)
 {
 	Sprite->TryUploadTexToGPU();
-	
-	auto p =ImageSize({ (float)Sprite->Get_Width(),(float)Sprite->Get_Height() }, {ButtionSize.x,ButtionSize.y});
+
+	auto p = ImageSize({ (float)Sprite->Get_Width(),(float)Sprite->Get_Height() }, { ButtionSize.x,ButtionSize.y });
 	ImVec2 v;
 	v.x = p.X;
 	v.y = p.Y;
 
 	auto c = ImGui::GetCursorPos();
 
-	ImGui::PushID(id);
-	bool r =ImGui::InvisibleButton("", ButtionSize);
-	ImGui::PopID();
+	bool hovered;
+	bool held;
+	bool r;
+	//ImGui::PushID(id); 
+	{
+		using namespace ImGui;
+		
+		ImGuiContext& g = *GImGui;
+		ImGuiWindow* window = GetCurrentWindow();
+		
+		const ImGuiID id2 = window->GetID(id);
+		ImVec2 size = CalcItemSize(ButtionSize, 0.0f, 0.0f);
+		const ImRect bb(window->DC.CursorPos,*(ImVec2*)&(*(Vec2*)&window->DC.CursorPos + *(Vec2*)&size));
+		ItemSize(size);
+		if (!ItemAdd(bb, id2))
+			return false;
 
-	bool hovered =ImGui::IsItemHovered();
-	bool held = ImGui::IsItemActive();	
-;
+		r = ButtonBehavior(bb, id2, &hovered, &held);
+	}
+	//ImGui::PopID();
+
+
 	auto d = ImGui::GetCursorPos();
 
 	ImGui::SetCursorPos(c);
@@ -133,9 +150,15 @@ bool ImGuIHelper::ImageButton(const void* id, UCode::Texture* Sprite, const ImVe
 		const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
 		ImGui::RenderNavHighlight(bb, ImGui::GetID(id));
 		ImGui::RenderFrame(bb.Min, bb.Max, col, true, ImClamp((float)ImMin(padding.x, padding.y), 0.0f, g.Style.FrameRounding));
-	}
 
-	ImGui::Image((ImTextureID)(size_t)Sprite->Get_RendererID(), v, { 0,0 }, {1,1});
+		{
+			const ImRect bb(window->DC.CursorPos, *(ImVec2*)&(*(Vec2*)&window->DC.CursorPos + *(Vec2*)&v + *(Vec2*)&padding * 2.0f));
+			window->DrawList->AddImage((ImTextureID)(size_t)Sprite->Get_RendererID(),
+				*(ImVec2*)&(*(Vec2*)&bb.Min + *(Vec2*)&padding)
+				, *(ImVec2*)&(*(Vec2*)&bb.Max - *(Vec2*)&padding), { 0,0, }, { 1,1 });
+		}
+	}
+//ImGui::Image((ImTextureID)(size_t)Sprite->Get_RendererID(), v, { 0,0 }, { 1,1 });
 	
 	ImGui::SetCursorPos(d);
 
@@ -156,17 +179,32 @@ bool ImGuIHelper::ImageButton(const void* id, UCode::Sprite* Sprite, const ImVec
 
 	auto c = ImGui::GetCursorPos();
 
-	ImGui::PushID(id);
-	bool r = ImGui::InvisibleButton("", ButtionSize, ImGuiButtonFlags_::ImGuiButtonFlags_MouseButtonLeft);
-	ImGui::PopID();
+	bool hovered;
+	bool held;
+	bool r;
+	//ImGui::PushID(id); 
+	{
+		using namespace ImGui;
+		
+		ImGuiContext& g = *GImGui;
+		ImGuiWindow* window = GetCurrentWindow();
+		
+		const ImGuiID id2 = window->GetID(id);
+		ImVec2 size = CalcItemSize(ButtionSize, 0.0f, 0.0f);
+		const ImRect bb(window->DC.CursorPos,*(ImVec2*)&(*(Vec2*)&window->DC.CursorPos + *(Vec2*)&size));
+		ItemSize(size);
+		if (!ItemAdd(bb, id2))
+			return false;
+
+		r = ButtonBehavior(bb, id2, &hovered, &held);
+	}
+	//ImGui::PopID();
 
 
 	auto d = ImGui::GetCursorPos();
 
 	ImGui::SetCursorPos(c);
 
-	bool hovered =ImGui::IsItemHovered();
-	bool held = ImGui::IsItemActive();	
 	{
 		using namespace ImGui;
 		ImGuiContext& g = *GImGui;
@@ -180,9 +218,15 @@ bool ImGuIHelper::ImageButton(const void* id, UCode::Sprite* Sprite, const ImVec
 		const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
 		ImGui::RenderNavHighlight(bb, ImGui::GetID(id));
 		ImGui::RenderFrame(bb.Min, bb.Max, col, true, ImClamp((float)ImMin(padding.x, padding.y), 0.0f, g.Style.FrameRounding));
-	}
-	ImGui::Image(texid, v, uvo, uv1);
 
+		{
+			const ImRect bb(window->DC.CursorPos, *(ImVec2*)&(*(Vec2*)&window->DC.CursorPos + *(Vec2*)&v + *(Vec2*)&padding * 2.0f));
+			window->DrawList->AddImage(texid,
+				*(ImVec2*)&(*(Vec2*)&bb.Min + *(Vec2*)&padding)
+				, *(ImVec2*)&(*(Vec2*)&bb.Max - *(Vec2*)&padding), { 0,0, }, { 1,1 });
+		}
+	}
+	
 	ImGui::SetCursorPos(d);
 
 	return r;
