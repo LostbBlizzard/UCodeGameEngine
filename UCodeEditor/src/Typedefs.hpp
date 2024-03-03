@@ -57,6 +57,36 @@ template<typename T> using Optional = UC::Optional<T>;
 
 template<typename T> using OptionalRef = UC::OptionalRef<T>;
 
+template<typename T> using NullablePtr = UC::NullablePtr<T>;
+template<typename T> using NeverNullPtr = UC::NeverNullPtr<T>;
+
+template<typename T> UCodeGameEngineNoDiscard NullablePtr<T> Nullableptr(T* Value)
+{
+	return UC::Nullableptr(Value);
+}
+template<typename T> UCodeGameEngineNoDiscard const NullablePtr<T> Nullableptr(const T* Value)
+{
+	return UC::Nullableptr(Value);
+}
+
+template<typename T> OptionalRef<T> Optionalref(T& Value)
+{
+	return UC::Optionalref(Value);
+}
+template<typename T> const OptionalRef<T> Optionalref(const T& Value)
+{
+	return UC::Optionalref(Value);
+}
+template<typename T> UCodeGameEngineNoDiscard NeverNullPtr<T> NeverNullptr(T* Value)
+{
+	return UC::NeverNullptr(Value);
+}
+
+template<typename T> UCodeGameEngineNoDiscard const NeverNullPtr<T> NeverNullptr(const T* Value)
+{
+	return UC::NeverNullptr(Value);
+}
+
 template<typename T> using Span = UC::Span<T>;
 
 template<typename T> using Unique_Span = UC::Unique_Span<T>;

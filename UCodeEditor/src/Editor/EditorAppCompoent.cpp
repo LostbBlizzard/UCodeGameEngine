@@ -50,7 +50,7 @@ void EditorAppCompoent::Init(const Path& projDir)
     _Loader.reset(new EditorAssetLoader());
     AssetS->Set_AssetLoader(_Loader.get());
 
-    _Loader->Init(&_RunTimeProjectData, AssetS);
+    _Loader->Init(&_ProjectFiles,&_RunTimeProjectData, AssetS);
     
     {
         auto FontBytes = AppFiles::ReadFileAsBytes("art/OpenSans-VariableFont_wdth,wght.ttf");
@@ -219,7 +219,19 @@ void EditorAppCompoent::OnProjectLoaded()
         {
             auto path = AssetDir.native() + fileitem.RelativePath.native();
             EditorIndex::IndexFile newfileIndex;
-            EditorIndex::UpdateFile(newfileIndex,path,fileitem.RelativePath.generic_string());
+
+            Vector<GetSubAssetData> subassets;
+            EditorIndex::UpdateFile(newfileIndex,path,fileitem.RelativePath.generic_string(),subassets);
+
+            for (auto& Item : subassets)
+            {
+                EditorIndex::IndexFile newsubfileIndex;
+                newsubfileIndex.RelativePath = newfileIndex.RelativePath;
+                newsubfileIndex.RelativeAssetName = newfileIndex.RelativePath + EditorIndex::SubAssetSeparator + Item._SubAssetName;
+                newsubfileIndex.UserID = Item._ID;
+
+                Index._Files.push_back(std::move(newsubfileIndex));
+            }
             Index._Files.push_back(std::move(newfileIndex));
         }
         else if (fileitem.Type == ChangedFileType::FileUpdated)
@@ -231,7 +243,18 @@ void EditorAppCompoent::OnProjectLoaded()
             UCodeGEAssert(old.has_value());
             auto& oldv = old.value();
 
-            EditorIndex::UpdateFile(oldv,path,r);
+            Vector<GetSubAssetData> subassets;
+            EditorIndex::UpdateFile(oldv, path, r, subassets);
+        
+            for (auto& Item : subassets)
+            {
+                auto find = Index.FindFileUsingID(Item._ID);
+                if (find.has_value()) 
+                {
+                    auto& foundfile = find.value();
+                    foundfile.RelativeAssetName = oldv.RelativePath + EditorIndex::SubAssetSeparator + Item._SubAssetName;
+                }
+            }
 
         }
     }
@@ -634,12 +657,22 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
     {
         auto AssetDir = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetAssetsDir();
         auto fullpath = AssetDir.native() + path.native();
-
+        auto& Indexlist = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->Get_AssetIndex();
 
         EditorIndex::IndexFile Index;
-        EditorIndex::UpdateFile(Index, fullpath, path.generic_string());
+        Vector<GetSubAssetData> subassets;
+        EditorIndex::UpdateFile(Index, fullpath, path.generic_string(), subassets);
 
-        EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->Get_AssetIndex()._Files.push_back(std::move(Index));
+        for (auto& Item : subassets)
+        {
+            EditorIndex::IndexFile newsubfileIndex;
+            newsubfileIndex.RelativePath = path.generic_string();
+            newsubfileIndex.RelativeAssetName = newsubfileIndex.RelativePath + EditorIndex::SubAssetSeparator + Item._SubAssetName;
+            newsubfileIndex.UserID = Item._ID;
+
+            Indexlist._Files.push_back(std::move(newsubfileIndex));
+        }
+        Indexlist._Files.push_back(std::move(Index));
     }
     else if (Type == ChangedFileType::FileRemoved)
     {
@@ -697,7 +730,21 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
              
             auto vstr = path.generic_string();
             auto v = runtime->Get_AssetIndex().FindFileRelativeAssetName(vstr);
-            EditorIndex::UpdateFile(v.value(),AssetDir / path ,vstr);
+            
+            Vector<GetSubAssetData> subassets;
+            EditorIndex::UpdateFile(v.value(),AssetDir / path ,vstr,subassets);
+
+            for (auto& Item : subassets)
+            {
+                auto find = runtime->Get_AssetIndex().FindFileUsingID(Item._ID);
+                if (find.has_value()) 
+                {
+                    auto& foundfile = find.value();
+                    foundfile.RelativeAssetName = vstr + EditorIndex::SubAssetSeparator + Item._SubAssetName;
+                }
+            }
+
+
         }
 
     }

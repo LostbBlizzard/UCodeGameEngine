@@ -61,6 +61,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 	{
 		Path _RelativePath;
 		UID _UID;
+		UCode::Sprite* sp = nullptr;
 	};
 	Vector<ObjectSpriteAssetInfo> List;
 	for (auto& Item : ProjectData->Get_AssetIndex()._Files)
@@ -71,6 +72,21 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 
 		if (Item.UserID.has_value() && ext == UCode::SpriteData::FileExtDot)
 		{
+			P._UID = Item.UserID.value();
+			P._RelativePath = Item.RelativeAssetName;
+
+			auto v = AssetManager->FindOrLoad(P._UID);
+			if (v.has_value())
+			{
+				if (v.value().Has_Value()) {
+					UCode::SpriteAsset* asset = dynamic_cast<UCode::SpriteAsset*>(v.value().Get_Value());
+					if (asset)
+					{
+						P.sp = &asset->_Base;
+					}
+				}
+			}
+
 			List.push_back(std::move(P));
 		}
 	}
@@ -91,7 +107,45 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSpriteAssetInfo),
 		[](void* Ptr, void* Object, bool Listmode, const String& Find)
 		{
+			UCode::SpritePtr& Value = *(UCode::SpritePtr*)Ptr;
+			ObjectSpriteAssetInfo* obj = (ObjectSpriteAssetInfo*)Object;
+
+			auto Name = obj->_RelativePath.generic_string();
 			bool r = false;
+
+
+			if (StringHelper::Fllter(Find,Name))
+			{
+				UCode::Sprite* sp = nullptr;
+				if (Listmode)
+				{
+					
+					ImGuIHelper::Image(sp, { 20,20 });
+					ImGui::SameLine();
+				
+					//ImGui::PushID(Object);
+					r = ImGui::Selectable(Name.c_str(), Value.Get_UID() == obj->_UID);
+					//ImGui::PopID();
+					
+					if (r)
+					{
+						Value = obj->_UID;
+						r = true;
+					}
+				}
+				else
+				{
+					auto NewName = Name;
+					ImGuIHelper::Text(NewName);
+					if (ImGuIHelper::ImageButton(obj +NewName.size(), sp, {30,30}))
+					{
+						Value = obj->_UID;
+						r = true;
+					}
+				}	
+			}
+
+			return r;
 			return r;
 		});
 }
@@ -150,7 +204,8 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ShaderAssetPtr
 		});
 }
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ShaderPtr& Value) 
-{ 
+{
+	return false;
 	struct ObjectShaderAssetInfo
 	{
 		UID _UID;

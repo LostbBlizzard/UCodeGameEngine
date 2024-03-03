@@ -4,6 +4,8 @@
 #include <FileWatcher/FileWatcher.h>
 EditorStart
 
+struct GetSubAssetData;
+
 enum class ChangedFileType
 {
 	FileAdded,
@@ -140,7 +142,7 @@ public:
 
 	static bool FromFile(EditorIndex& Out, const Path& path);
 	static bool ToFile(const EditorIndex& Out, const Path& path);
-	static void UpdateFile(IndexFile& file, const Path& path, const String& relativepath);
+	static void UpdateFile(IndexFile& file, const Path& path, const String& relativepath,Vector<GetSubAssetData>& outsubassets);
 
 	static bool FromBytes(EditorIndex& Out, const BytesView Bytes);
 	static Unique_Bytes ToBytes(const EditorIndex& Out);

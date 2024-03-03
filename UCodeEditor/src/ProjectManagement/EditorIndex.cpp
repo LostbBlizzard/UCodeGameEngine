@@ -122,8 +122,10 @@ bool EditorIndex::ToFile(const EditorIndex& Out, const Path& path)
 	}
 }
 
-void EditorIndex::UpdateFile(IndexFile& file, const Path& path, const String& relativepath)
+void EditorIndex::UpdateFile(IndexFile& file, const Path& path, const String& relativepath,Vector<GetSubAssetData>& outsubassets)
 {
+	outsubassets.clear();
+
 	auto Modules = UEditorModules::GetModules();
 	auto tep = std::filesystem::last_write_time(path).time_since_epoch().count();
 	file.FileLastUpdatedTime = tep;
@@ -150,11 +152,15 @@ void EditorIndex::UpdateFile(IndexFile& file, const Path& path, const String& re
 					return EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetNewUID();
 				};
 
-			auto op = Data->GetFileUID(context);
+			
 
+			auto op = Data->GetFileUID(context);
 			if (op.has_value())
 			{
-				file.UserID = op.value();
+				auto& val = op.value();
+				file.UserID = val._MainAssetID;
+
+				outsubassets = std::move(val._SubAssets);	
 			}
 
 			break;

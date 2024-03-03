@@ -397,13 +397,15 @@ public:
 		return r;
 	}
 
-	Optional<UID> GetFileUID(UEditorGetUIDContext& context) override
+	Optional<GetUIDInfo> GetFileUID(UEditorGetUIDContext& context) override
 	{
 		UC::ScirptableObjectData setting;
 
 		if (UC::ScirptableObjectData::FromFile(setting,context.AssetPath))
 		{
-			return setting._UID;
+			GetUIDInfo val;
+			val._MainAssetID = setting._UID;
+			return val;
 		}
 		return {};
 	}

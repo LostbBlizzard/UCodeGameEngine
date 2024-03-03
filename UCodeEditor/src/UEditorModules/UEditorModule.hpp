@@ -249,6 +249,10 @@ struct ExportFileRet
 	bool WasUpdated = false;
 	Optional<UID> _UID;
 };
+struct LoadAssetContext
+{
+	UID _AssetToLoad;
+};
 class UEditorAssetFile
 {
 public:
@@ -280,7 +284,12 @@ public:
 	{
 
 	}
-
+	
+	
+	virtual NullablePtr<UCode::Asset> LoadAsset(const LoadAssetContext& Item)
+	{
+		return {};
+	}
 	//called only if UEditorAssetFileData::CallLiveingAssetsWhenUpdated
 	virtual void FileUpdated()
 	{
@@ -298,7 +307,16 @@ public:
 	}
 };
 
-
+struct GetSubAssetData
+{
+	UID _ID;
+	String _SubAssetName;
+};
+struct GetUIDInfo
+{
+	Optional<UID> _MainAssetID;
+	Vector<GetSubAssetData> _SubAssets;
+};
 
 class UEditorAssetFileData
 {
@@ -340,10 +358,11 @@ public:
 		return  ExportFileRet();
 	}
 
-	virtual Optional<UID> GetFileUID(UEditorGetUIDContext& context)
+	virtual Optional<GetUIDInfo> GetFileUID(UEditorGetUIDContext& context)
 	{
 		return {};
 	}
+	
 
 	virtual void OnFileRemoved(const Path& path)
 	{

@@ -71,11 +71,17 @@ public:
 		r._UID = V._UID;
 		return r;
 	}
-	Optional<UID> GetFileUID(UEditorGetUIDContext& context) override
+	Optional<GetUIDInfo> GetFileUID(UEditorGetUIDContext& context) override
 	{
 		UCode::Scene2dData V;
-		UCode::Scene2dData::FromFile(V, context.AssetPath);
-		return V._UID;
+		if (UCode::Scene2dData::FromFile(V, context.AssetPath))
+		{
+			GetUIDInfo val;
+			val._MainAssetID = V._UID;
+
+			return val;
+		}
+		return {};
 	}
 };
 
@@ -792,22 +798,38 @@ public:
 	{
 		return Unique_ptr< UEditorAssetFile>(new LiveingPng());
 	}
-	Optional<UID> GetFileUID(UEditorGetUIDContext& context) override
+	Optional<GetUIDInfo> GetFileUID(UEditorGetUIDContext& context) override
 	{
 		TextureSettings setting;
 		Path metapath = context.AssetPath.native() + Path(UEditorAssetFileData::DefaultMetaFileExtWithDot).native();
 		
 		if (LiveingPng::fromfile(metapath, setting))
 		{
-			return setting.uid;
+			GetUIDInfo val;
+			val._MainAssetID = setting.uid;
+			val._SubAssets.resize(setting.sprites.size());
+			
+			for (auto& Item : setting.sprites)
+			{
+				GetSubAssetData sub;
+				sub._ID = Item.uid;
+				sub._SubAssetName = Item.spritename + UCode::SpriteData::FileExtDot;
+
+				val._SubAssets.push_back(std::move(sub));
+			}
+
+			return val;
 		}
 		else
 		{
+			GetUIDInfo val;
 			auto newid = context.GetNewUID();
 			setting.uid = newid;
 
 			LiveingPng::tofile(metapath, setting);
-			return newid;
+
+			val._MainAssetID = newid;
+			return val;
 		}
 		return {};
 	}

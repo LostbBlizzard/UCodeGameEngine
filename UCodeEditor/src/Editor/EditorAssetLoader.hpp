@@ -3,27 +3,24 @@
 #include "UCodeRunTime/ULibrarys/AssetManagement/AssetManager.hpp"
 
 #include "UEditorModules/UEditorModule.hpp"
+#include "ProjectManagement/ProjectFiles.hpp"
 EditorStart
 class EditorAssetLoader :public UCode::AssetLoader
 {
 public:
 	RunTimeProjectData* RunTimeProject = nullptr;
+	ProjectFiles* Files = nullptr;
 
-	inline void Init(RunTimeProjectData* Project,UCode::AssetManager* Manager)
+	inline void Init(ProjectFiles* files,RunTimeProjectData* Project,UCode::AssetManager* Manager)
 	{
 		RunTimeProject = Project;
 		_Manager = Manager;
+		Files = files;
 	}
 
 
-	Optional<Unique_ptr<UCode::Asset>> LoadAsset(const UID& Path) override
-	{
-		return {};
-	}
-	Optional<Unique_ptr<UCode::Asset>> LoadAsset(const Path& Path) override
-	{
-		return {};
-	}
+	NullablePtr<UCode::Asset> LoadAssetPtr(const UID& Path) override;
+	NullablePtr<UCode::Asset> LoadAssetPtr(const Path& Path) override;
 
 
 };
