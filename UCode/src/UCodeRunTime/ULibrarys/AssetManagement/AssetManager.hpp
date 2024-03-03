@@ -109,6 +109,15 @@ public:
 	{
 		return {};
 	}
+
+	virtual NullablePtr<Asset> LoadAssetPtr(const UID& Path)
+	{
+		return {};
+	}
+	virtual NullablePtr<Asset> LoadAssetPtr(const Path& Path)
+	{
+		return {};
+	}
 };
 
 class AssetManager :private System

@@ -53,7 +53,19 @@ void ProjectFiles::ReIndex(EditorIndex& index, std::function<UID()> _newuid)
 			EditorIndex::IndexFile Index;
 
 			auto relative = dirEntry.path().generic_string().substr(ProjDir.native().size());
-			EditorIndex::UpdateFile(Index, dirEntry.path(), relative);
+
+			Vector<GetSubAssetData> subassets;
+			EditorIndex::UpdateFile(Index, dirEntry.path(), relative,subassets);
+
+			for (auto& Item : subassets)
+			{
+				EditorIndex::IndexFile subIndex;
+				subIndex.UserID = Item._ID;
+				subIndex.RelativePath = Index.RelativePath;
+				subIndex.RelativeAssetName = Index.RelativePath + EditorIndex::SubAssetSeparator + Item._SubAssetName;
+
+				index._Files.push_back(std::move(subIndex));
+			}
 			index._Files.push_back(std::move(Index));
 		}
 	}
