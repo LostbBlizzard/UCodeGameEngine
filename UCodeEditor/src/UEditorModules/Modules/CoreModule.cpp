@@ -389,7 +389,24 @@ public:
 			auto runtimeproject = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 			runtimeproject->Get_AssetIndex().RemoveIndexFileWithUID(id);
 		}
+		NullablePtr<UC::Asset> LoadAsset(const LoadAssetContext& Item)  override
+		{ 
+			if (Item._AssetToLoad == setting.uid)
+			{
+				return UC::Nullableptr<UCode::Asset>(asset.value().GetAsset());
+			}
+			else
+			{
+				for (auto& spr : setting.sprites)
+				{
+					if (Item._AssetToLoad == spr.uid)
+					{
 
+					}
+				}
+			}
+			return {};
+		}
 		void DrawInspect(const UEditorAssetDrawInspectContext& Item) override
 		{
 			ImGui::BeginDisabled(true);

@@ -24,8 +24,8 @@ public:
 	}
 	NeverNullPtr(PtrType Value)
 		:Value(Value)
-	{
-		UCodeLangAssert(Value);//never null
+	{	
+		UCodeGEAssert(Value);//never null
 	}
 	UCodeGameEngineNoDiscard UCodeGEForceinlne static const ThisType Make(const T* Value)
 	{
@@ -136,12 +136,12 @@ public:
 	}
 	UCodeGameEngineNoDiscard UCodeGEForceinlne constexpr const NeverNullType value() const
 	{
-		UCodeLangAssert(Value);
+		UCodeGEAssert(Value);
 		return NeverNullType::Make(Value);
 	}
 	UCodeGameEngineNoDiscard UCodeGEForceinlne constexpr NeverNullType value()
 	{
-		UCodeLangAssert(Value);
+		UCodeGEAssert(Value);
 		return NeverNullType::Make(Value);
 	}
 

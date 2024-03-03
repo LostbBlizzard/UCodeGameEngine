@@ -53,7 +53,9 @@ void AssetRendering::UpdatePtr(AssetManager* Manager,SpritePtr& Ptr)
 		if (asset)
 		{
 			auto TypedAsset = asset.value().Get_Value()->GetAssetAs<SpriteAsset>();
-			Ptr = TypedAsset->GetManaged();
+			if (TypedAsset.has_value()) {
+				Ptr = TypedAsset.value()->GetManaged();
+			}
 		}
 	}
 }
@@ -83,7 +85,11 @@ void AssetRendering::DrawQuad2d(RenderRunTime2d* runtime, const DrawQuad2dData& 
 			auto R = Manager->FindOrLoad(UId);
 			if (R.has_value())
 			{
-				Spr = &R.value().Get_Value()->GetAssetAs<SpriteAsset>()->_Base;
+				auto& op = R.value().Get_Value()->GetAssetAs<SpriteAsset>();
+				
+				if (op.has_value()) {
+					Spr = &op.value()->_Base;
+				}
 			}
 		}
 	}

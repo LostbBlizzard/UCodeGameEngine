@@ -79,7 +79,7 @@ public:
 
 	
 	template<class T, typename... Pars> UCodeGEForceinlne T* AddCompoent(Pars... parameters);
-	template<class T> UCodeGEForceinlne T* GetCompent();
+	template<class T> UCodeGEForceinlne NullablePtr<T> GetCompent();
 
 	template<class T> CompoentPtr<T> Get_ManagedPtr()
 	{
@@ -177,7 +177,7 @@ public:
 
 		_Compoents.push_back(Unique_ptr<Compoent>(t));
 	}
-	template<class T> T* GetCompent()
+	template<class T> NullablePtr<T> GetCompent()
 	{
 		constexpr bool IsCompoent = std::is_base_of< Compoent, T>();
 		static_assert(IsCompoent, " 'T' is not a Compoent");
@@ -188,13 +188,13 @@ public:
 			T* cast = dynamic_cast<T*>(c.get());
 			if (cast)
 			{
-				return cast;
+				return Nullableptr(cast);
 			}
 		}
 
-		return nullptr;
+		return  nullptr;
 	}
-	template<class T> const  T* GetCompent() const
+	template<class T> const NullablePtr<T> GetCompent() const
 	{
 		constexpr bool IsCompoent = std::is_base_of< Compoent, T>();
 		static_assert(IsCompoent, " 'T' is not a Compoent");
@@ -205,12 +205,62 @@ public:
 			T* cast = dynamic_cast<T*>(c.get());
 			if (cast)
 			{
-				return cast;
+				return Nullableptr(cast);
 			}
 		}
 
 		return nullptr;
 	}
+
+	template<class T>
+	void GetCompents(Vector<NeverNullPtr<T>> out)
+	{
+		out.clear();
+		constexpr bool IsCompoent = std::is_base_of< Compoent, T>();
+		static_assert(IsCompoent, " 'T' is not a Compoent");
+
+		for (size_t i = 0; i < _Compoents.size(); i++)
+		{
+			auto& c = _Compoents[i];
+			T* cast = dynamic_cast<T*>(c.get());
+			if (cast)
+			{
+				out.push_back(NeverNullptr(cast));
+			}
+		}
+	}
+	template<class T>
+	void GetCompents(Vector<const NeverNullPtr<T>> out) const
+	{
+		out.clear();
+		constexpr bool IsCompoent = std::is_base_of< Compoent, T>();
+		static_assert(IsCompoent, " 'T' is not a Compoent");
+
+		for (size_t i = 0; i < _Compoents.size(); i++)
+		{
+			auto& c = _Compoents[i];
+			T* cast = dynamic_cast<T*>(c.get());
+			if (cast)
+			{
+				out.push_back(NeverNullptr(cast));
+			}
+		}
+	}
+	template<class T>
+	Vector<NeverNullPtr<T>> GetCompents()
+	{
+		Vector<NeverNullPtr<T>> r;
+		GetCompents(r);
+		return r;
+	}
+	template<class T>
+	Vector<NeverNullPtr<T>> GetCompents() const
+	{
+		Vector<NeverNullPtr<T>> r;
+		GetCompents(r);
+		return r;
+	}
+
 
 	UCodeGEForceinlne RunTimeScene* NativeScene() const { return _Scene; }
 	GameRunTime* NativeGameRunTime();
@@ -383,7 +433,7 @@ template<class T, typename ...Pars> UCodeGEForceinlne T* Compoent::AddCompoent(P
 {
 		return _Entity->AddCompoent<T>(parameters...);
 }
-template<class T> UCodeGEForceinlne T* Compoent::GetCompent()
+template<class T> UCodeGEForceinlne NullablePtr<T> Compoent::GetCompent()
 {
 	return _Entity->GetCompent<T>();
 }

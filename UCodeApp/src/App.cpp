@@ -101,12 +101,21 @@ int App::main(int argc, char* argv[])
             
             if (r.has_value())
             {
-                auto& ScencData = r.value().Get_Value()->GetAssetAs<ScencAsset>()->_Base;
-                Scene2dData::LoadScene(runtime, ScencData);
+                auto& senceop = r.value().Get_Value()->GetAssetAs<ScencAsset>();
 
-                app.Run();
+                if (senceop.has_value())
+                {
+                    auto& ScencData = senceop.value()->_Base;
+                    Scene2dData::LoadScene(runtime, ScencData);
 
-                return EXIT_SUCCESS;
+                    app.Run();
+
+                    return EXIT_SUCCESS;
+                }
+                else
+                {
+                    return EXIT_FAILURE;
+                }
             }
             else
             {
