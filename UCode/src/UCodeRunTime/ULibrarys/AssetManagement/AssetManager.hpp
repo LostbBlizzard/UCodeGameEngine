@@ -64,11 +64,19 @@ public:
 		return _Managed;
 	}	
 	
-	template<typename T> T* GetAssetAs()
+	template<typename T> NullablePtr<T> GetAssetAs()
 	{
 		constexpr bool IsCompoent = std::is_base_of<Asset, T>();
 		static_assert(IsCompoent, " 'T' is not a Compoent");
-		return dynamic_cast<T*>(this);
+		return Nullableptr(dynamic_cast<T*>(this));
+	}
+	Asset* GetAsset()
+	{
+		return this;
+	}
+	const Asset* GetAsset() const
+	{
+		return this;
 	}
 
 	void UseAsset()

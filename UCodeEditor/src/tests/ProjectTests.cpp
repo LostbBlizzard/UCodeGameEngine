@@ -61,15 +61,23 @@ public:
 			auto r = manger->LoadAsset(sceneID);
 			if (r.has_value())
 			{
-				auto& ScencData = r.value().Get_Value()->GetAssetAs<UCode::ScencAsset>()->_Base;
-				auto scenc = UCode::Scene2dData::LoadScene(runtime, ScencData);
+				auto sceneop = r.value().Get_Value()->GetAssetAs<UCode::ScencAsset>();
+				if (sceneop.has_value())
+				{
+					auto& ScencData = sceneop.value()->_Base;
+					auto scenc = UCode::Scene2dData::LoadScene(runtime, ScencData);
 
-				auto apprun = scenc->NewEntity()->AddCompoent<AppRunerCompoent>();
-				apprun->_This = this;
+					auto apprun = scenc->NewEntity()->AddCompoent<AppRunerCompoent>();
+					apprun->_This = this;
 
-				app.Run();
+					app.Run();
 
-				return RetState.value_or(false);
+					return RetState.value_or(false);
+				}
+				else
+				{
+					return false;
+				}
 			}
 			else
 			{
