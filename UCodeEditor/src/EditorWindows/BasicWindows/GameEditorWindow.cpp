@@ -173,18 +173,44 @@ void GameEditorWindow::SceneCameraGetInputs()
     auto M_wheelY = io.MouseWheel;
 
 
+    
+    bool isinfocused = ImGui::IsWindowHovered() || ImGui::IsWindowFocused();
+
+    UCode::Vec2 CamVelocity = { 0,0 };
+    
     bool UpV = ImGui::IsKeyDown(Up);
     bool DownV = ImGui::IsKeyDown(Down);
     bool liftV = ImGui::IsKeyDown(lift);
     bool rightV = ImGui::IsKeyDown(right);
 
+    if (isinfocused)
+    {
+        if (UpV) { CamVelocity.Y += 1; }
+        if (DownV) { CamVelocity.Y -= 1; }
+        if (liftV) { CamVelocity.X -= 1; }
+        if (rightV) { CamVelocity.X += 1; }
+    }
 
+    static Optional<DontWaitInputKey> DontWait;
+    bool hasanydown = UpV || DownV || liftV || rightV;
+    if (hasanydown)
+    {
+        if (!DontWait.has_value())
+        {
+            DontWait = Get_App()->AddDontWaitForInput();
+        }
+    }
+    else
+    {
+        if (DontWait.has_value())
+        {
+            Get_App()->RemoveWaitForInput(DontWait.value());
+            DontWait = {};
+        }
+    }
 
-    UCode::Vec2 CamVelocity = { 0,0 };
-    if (UpV) { CamVelocity.Y += 1; }
-    if (DownV) { CamVelocity.Y -= 1; }
-    if (liftV) { CamVelocity.X -= 1; }
-    if (rightV) { CamVelocity.X += 1; }
+    
+
     float NewCamSpeed = CamSpeed * (_SceneCameraData.Orth_Size / 7) + 2;
 
     CamPos += CamVelocity.Get_Normalize() * NewCamSpeed * TimeFromlastFrame;
@@ -195,32 +221,34 @@ void GameEditorWindow::SceneCameraGetInputs()
         _SceneCameraData.Orth_Size = NewSize;
     }
 
-    auto iSDraging = ImGui::IsMouseDragging(ImGuiMouseButton_::ImGuiMouseButton_Right);
-    static UCode::Vec2 CamOnDrag;
-    static bool SetDragPos = false;
-    if (iSDraging)
+    if (isinfocused)
     {
-        if (SetDragPos)
+        auto iSDraging = ImGui::IsMouseDragging(ImGuiMouseButton_::ImGuiMouseButton_Right);
+        static UCode::Vec2 CamOnDrag;
+        static bool SetDragPos = false;
+        if (iSDraging)
         {
-            auto Drag = ImGui::GetMouseDragDelta(ImGuiMouseButton_::ImGuiMouseButton_Right);
-            auto DragAsVec2 = (*(UCode::Vec2*)&Drag);
+            if (SetDragPos)
+            {
+                auto Drag = ImGui::GetMouseDragDelta(ImGuiMouseButton_::ImGuiMouseButton_Right);
+                auto DragAsVec2 = (*(UCode::Vec2*)&Drag);
 
-            DragAsVec2.Y = -DragAsVec2.Y;
-            float Div = 7;
+                DragAsVec2.Y = -DragAsVec2.Y;
+                float Div = 7;
 
-            CamPos = CamOnDrag - (DragAsVec2 / Div) * (_SceneCameraData.Orth_Size / 18);
+                CamPos = CamOnDrag - (DragAsVec2 / Div) * (_SceneCameraData.Orth_Size / 18);
+            }
+            else
+            {
+                SetDragPos = true;
+                CamOnDrag = CamPos;
+            }
         }
         else
         {
-            SetDragPos = true;
-            CamOnDrag = CamPos;
+            SetDragPos = false;
         }
     }
-    else
-    {
-        SetDragPos = false;
-    }
-
 
     //
 
@@ -365,7 +393,7 @@ void GameEditorWindow::SceneEditorTab()
         _GameRunTime->DestroyNullScenes();
     }
     ImGuiIO& io = ImGui::GetIO();
-    bool IsFocused = ImGui::IsItemHovered() || true;
+    bool IsFocused = ImGui::IsItemHovered();
     if (IsFocused)
     {
         SceneCameraGetInputs();

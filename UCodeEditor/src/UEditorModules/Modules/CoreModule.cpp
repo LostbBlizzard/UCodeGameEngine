@@ -385,6 +385,8 @@ public:
 
 			return serializer.ToFile(settings);
 		}
+
+		
 		bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override
 		{
 
@@ -420,7 +422,26 @@ public:
 			runtimeproject->Get_AssetIndex().RemoveIndexFileWithUID(id);
 		}
 		NullablePtr<UC::Asset> LoadAsset(const LoadAssetContext& Item)  override
-		{ 
+		{
+			if (!asset.has_value())
+			{
+				//TODO add logs when error
+				if (fs::exists(this->FileMetaFullPath.value()))
+				{
+					fromfile(FileMetaFullPath.value(), setting);
+				}
+				else
+				{
+					setting.uid = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetNewUID();
+					tofile(FileMetaFullPath.value(), setting);
+				}
+
+
+
+				UCode::TextureAsset V;
+				V._Base = UCode::Texture(this->FileFullPath);
+				asset = std::move(V);
+			}
 			if (Item._AssetToLoad == setting.uid)
 			{
 				return UC::Nullableptr<UCode::Asset>(asset.value().GetAsset());
