@@ -39,6 +39,7 @@ public:
 	Vector<AssetFile> _AssetFiles;
 
 	Optional<size_t> FindAssetFile(const Path& path);
+	void AssetIsInUse(UEditorAssetFile* file);
 
 	void Update(float UpateDelta);
 

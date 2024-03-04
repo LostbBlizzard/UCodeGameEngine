@@ -64,7 +64,7 @@ void SpriteRenderer::OnDraw()
 	auto Render = GetRenderRunTime();
 	auto Scale =Entity->worldscale2d();
 	if (flipX) {Scale.X = -Scale.X;}
-	if (flipY) { Scale.Y = -Scale.Y; }
+	if (!flipY) { Scale.Y = -Scale.Y; }
 
 	auto AssetManager = AssetManager::Get(Render->GetGameLib());
 

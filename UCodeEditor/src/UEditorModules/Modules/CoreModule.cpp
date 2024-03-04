@@ -478,6 +478,11 @@ public:
 		}
 		void DrawInspect(const UEditorAssetDrawInspectContext& Item) override
 		{
+			{
+				auto& files = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->GetPrjectFiles();
+				files.AssetIsInUse(this);
+			}
+
 			ImGui::BeginDisabled(true);
 
 
