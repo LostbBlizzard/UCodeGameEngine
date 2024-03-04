@@ -568,6 +568,12 @@ public:
 									{
 										auto& file = f.value();
 										file.RelativeAssetName = file.RelativePath + EditorIndex::SubAssetSeparator + Item.spritename + UCode::SpriteData::FileExtDot;
+
+										if (Item._Asset.get())
+										{
+											auto& asset = *Item._Asset.get();
+											asset.ObjectPath = file.RelativeAssetName;
+										}
 									}
 
 								}
@@ -578,6 +584,12 @@ public:
 									auto spw = Item.size.X;
 
 									Item.offset.X = std::min(Item.offset.X, texw - spw);
+
+									if (Item._Asset.get())
+									{
+										auto& asset = *Item._Asset.get();
+										asset._Base.Set_Xoffset(Item.offset.X);
+									}
 								}
 
 								if (ImGuIHelper::uInt32Field("Y offset", Item.offset.Y))
@@ -586,6 +598,12 @@ public:
 									auto sph = Item.size.Y;
 
 									Item.offset.Y = std::min(Item.offset.Y, texh - sph);
+
+									if (Item._Asset.get())
+									{
+										auto& asset = *Item._Asset.get();
+										asset._Base.Set_Yoffset(Item.offset.Y);
+									}
 								}
 
 								if (ImGuIHelper::uInt32Field("Width", Item.size.X))
@@ -594,6 +612,12 @@ public:
 									auto spx = Item.offset.X;
 
 									Item.size.X = std::min(Item.size.X, texh + spx);
+
+									if (Item._Asset.get())
+									{
+										auto& asset = *Item._Asset.get();
+										asset._Base.Set_Width(Item.size.X);
+									}
 								}
 
 								if (ImGuIHelper::uInt32Field("Height", Item.size.Y))
@@ -602,6 +626,12 @@ public:
 									auto spy = Item.offset.Y;
 
 									Item.size.Y = std::min(Item.size.Y, texw + spy);
+
+									if (Item._Asset.get())
+									{
+										auto& asset = *Item._Asset.get();
+										asset._Base.Set_Width(Item.size.Y);
+									}
 								}
 
 								ImGuIHelper::Image(&sp, { 125 ,125 });
@@ -744,6 +774,15 @@ public:
 
 										olditem.offset = newitem.offset;
 										olditem.size = newitem.size;
+									
+										if (olditem._Asset.get())
+										{
+											auto& asset = *olditem._Asset.get();
+											asset._Base.Set_Xoffset(olditem.offset.X);
+											asset._Base.Set_Yoffset(olditem.offset.Y);
+											asset._Base.Set_Width(olditem.size.X);
+											asset._Base.Set_Height(olditem.size.Y);
+										}
 									}
 								}
 							}

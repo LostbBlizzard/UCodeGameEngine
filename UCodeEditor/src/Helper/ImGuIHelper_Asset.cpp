@@ -60,10 +60,17 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 	struct ObjectSpriteAssetInfo
 	{
 		Path _RelativePath;
-		UID _UID;
+		Optional<UID> _UID;
 		UCode::Sprite* sp = nullptr;
 	};
 	Vector<ObjectSpriteAssetInfo> List;
+
+	{
+		ObjectSpriteAssetInfo P;
+		P._RelativePath = "None";
+
+		List.push_back(std::move(P));
+	}
 	for (auto& Item : ProjectData->Get_AssetIndex()._Files)
 	{
 		ObjectSpriteAssetInfo P;
@@ -75,7 +82,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 			P._UID = Item.UserID.value();
 			P._RelativePath = Item.RelativeAssetName;
 
-			auto v = AssetManager->FindOrLoad(P._UID);
+			auto v = AssetManager->FindOrLoad(P._UID.value());
 			if (v.has_value())
 			{
 				if (v.value().Has_Value()) {
@@ -137,7 +144,14 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 					
 					if (r)
 					{
-						Value = obj->_UID;
+						if (obj->_UID.has_value()) 
+						{
+							Value = obj->_UID.value();
+						}
+						else
+						{
+							Value = {};
+						}
 						r = true;
 					}
 				}

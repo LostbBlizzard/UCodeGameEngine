@@ -58,6 +58,14 @@ void AssetRendering::UpdatePtr(AssetManager* Manager,SpritePtr& Ptr)
 			}
 		}
 	}
+	else if (Ptr.Get_State() == SpritePtr::State::ManagedPtr)
+	{
+		if (!Ptr.Has_Asset())
+		{
+			//asset was Distory
+			Ptr = {};
+		}
+	}
 }
 void AssetRendering::UpdatePtr(AssetManager* Manager, ShaderPtr& Ptr)
 {
