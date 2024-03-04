@@ -435,9 +435,17 @@ public:
 						{
 							auto& textureasset = asset.value();
 							auto& tex = textureasset._Base;
-							UCode::Sprite sprite(&tex,spr.offset.X,spr.offset.Y,spr.size.X,spr.size.Y);
-						
-							spr._Asset = std::make_shared<UCode::SpriteAsset>(sprite,textureasset.GetManaged());	
+							UCode::Sprite sprite(&tex, spr.offset.X, spr.offset.Y, spr.size.X, spr.size.Y);
+
+							spr._Asset = std::make_shared<UCode::SpriteAsset>(sprite, textureasset.GetManaged());
+							spr._Asset->Uid = spr.uid;
+
+
+							auto runtimeproject = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+							auto p = FileFullPath.generic_string();
+							auto relpath = p.substr(runtimeproject->GetAssetsDir().generic_string().size());
+
+							spr._Asset->ObjectPath = relpath + EditorIndex::SubAssetSeparator + spr.spritename + UCode::SpriteData::FileExtDot;
 						}
 						auto asset = spr._Asset.get();
 

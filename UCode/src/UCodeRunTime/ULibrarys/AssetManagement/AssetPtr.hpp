@@ -1,6 +1,7 @@
 #pragma once
 #include "UCodeRunTime/ULibrarys/AssetManagement/UID.hpp"
 #include "UCodeRunTime/BasicTypes/ManagedPtr.hpp"
+#include "UCodeRunTime/BasicTypes/Variant.hpp"
 CoreStart
 
 template<typename AssetType, typename AssetBase>
@@ -16,100 +17,99 @@ public:
 		UID,
 		ManagedPtr,
 	};
-	AssetPtr() :_State(State::Null)
+	AssetPtr() 
 	{
 
 	}
-	AssetPtr(const UID& ID) :_State(State::UID), _UID(ID)
+	AssetPtr(const UID& ID):
+		_Base(ID)
 	{
 
 	}
-	AssetPtr(const ManagedAssetPtr& data) :_State(State::ManagedPtr),_Managed(data)
+	AssetPtr(const ManagedAssetPtr& data):
+		_Base(data)
 	{
 
 	}
-	AssetPtr(AssetBase* data) :_State(State::Raw), _Raw(data)
+	AssetPtr(AssetBase* data):	
+		_Base(data)
 	{
 
 	}
 	~AssetPtr()
 	{
-		switch (_State)
-		{
-		case State::Null:
-		case State::Raw:
-			break;
-		case State::UID:
-			_UID.~UID();
-			break;
-		case State::ManagedPtr:
-			_Managed.~ManagedPtr<AssetType>();
-			break;
-		default:
-			break;
-		}
+		
 	}
-	AssetPtr(const AssetPtr& ToCopy) { this->operator=(ToCopy); }
-	AssetPtr& operator=(const AssetPtr& ToCopy)
+	AssetPtr(const AssetPtr& ToCopy) = default;
+	AssetPtr& operator=(const AssetPtr& ToCopy) = default;	
+	AssetPtr(AssetPtr&& ToCopy) = default;
+	AssetPtr& operator=(AssetPtr&& ToCopy) = default;
+
+
+	UCodeGEForceinlne AssetPtr& operator=(AssetType* ToCopy) { _Base = ToCopy;return *this; }
+	UCodeGEForceinlne AssetPtr& operator=(const UID& ToCopy) { _Base = ToCopy;return *this; }
+	UCodeGEForceinlne AssetPtr& operator=(const ManagedAssetPtr& ToCopy) {_Base = ToCopy;return *this;}
+
+	UCodeGEForceinlne State Get_State() const 
 	{
-		this->~AssetPtr();
-		_State = ToCopy._State;
-		switch (_State)
+		if (_Base.IsType<UID>())
 		{
-		case State::Null:
-			break;
-		case State::Raw:
-			_Raw = ToCopy._Raw;
-			break;
-		case State::UID:
-			_UID = ToCopy._UID;
-			break;
-		case State::ManagedPtr:
-			_Managed = ToCopy._Managed;
-			break;
-		default:
-			UCodeGEUnreachable();
-			break;
+			return State::UID;
 		}
-		return *this;
+		else if (_Base.IsType<ManagedAssetPtr>())
+		{
+			return State::ManagedPtr;
+		}
+		else if (_Base.IsType<AssetBase*>())
+		{
+			return State::Raw;
+		}
+		else
+		{
+			return State::Null;
+		}
 	}
-
-	UCodeGEForceinlne AssetPtr& operator=(AssetType* ToCopy) { return *this = AssetPtr(ToCopy); }
-	UCodeGEForceinlne AssetPtr& operator=(const UID& ToCopy) { return *this = AssetPtr(ToCopy); }
-	UCodeGEForceinlne AssetPtr& operator=(const ManagedAssetPtr& ToCopy) { return *this = AssetPtr(ToCopy); }
-
-	UCodeGEForceinlne State Get_State() const { return _State; }
 
 	
 	UID Get_UID() const
 	{
-		if (_State == State::UID)
+		UCodeGEAssert(Has_UID());
+
+		if (Get_State() == State::UID)
 		{
-			return  _UID;
+			return _Base.GetType<UID>();
+		}
+		else if (Get_State() == State::ManagedPtr)
+		{
+			return _Base.GetType<ManagedAssetPtr>().Get_Value()->Uid.value();
 		}
 		else
 		{
+			#if UCodeGEDebug
 			UCodeGEThrow("Cant Return A UID");
+			#endif
 			return {};
 		}
 	}
 	ManagedAssetPtr Get_Managed() const
 	{
-		if (_State == State::ManagedPtr)
+		if (Get_State() == State::ManagedPtr)
 		{
-			return  _Managed;
+			return _Base.GetType<ManagedAssetPtr>();
 		}
 		else
 		{
+			#if UCodeGEDebug
 			UCodeGEThrow("Cant Return ManagedAssetPtr");
-			return {};
+			#endif
+			UCodeGEUnreachable();
 		}
 	}
 	ManagedAssetPtr Get_ManagedOr(ManagedAssetPtr Other) const
 	{
-		if (_State == State::ManagedPtr)
+		if (Get_State() == State::ManagedPtr)
 		{
-			return  _Managed;
+			return _Base.GetType<ManagedAssetPtr>();
 		}
 		else
 		{
@@ -119,16 +119,25 @@ public:
 
 	bool Has_Asset() const
 	{
-		return false;
+		return Get_State() == State::ManagedPtr;
 	}
 
 	bool Has_UID() const
 	{
-		return _State == State::UID;
+		return Get_State() == State::UID || 
+			(Get_State() == State::ManagedPtr &&
+				_Base.GetType<ManagedAssetPtr>().Has_Value() &&
+				 _Base.GetType<ManagedAssetPtr>().Get_Value()->Uid.has_value());
 	}
 	
 	AssetBase* Get_Asset()const
 	{
+		UCodeGEAssert(Has_Asset())
+
+		if (Get_State() == State::ManagedPtr)
+		{
+			return &_Base.GetType<ManagedAssetPtr>().Get_Value()->_Base;
+		}
 		return nullptr;
 	}
 	AssetBase* Get_AssetOr(AssetBase* Other)const
@@ -140,13 +149,6 @@ public:
 		return  Other;
 	}
 private:
-	State _State;
-	union
-	{
-		AssetBase* _Raw;
-		UID _UID;
-		ManagedAssetPtr _Managed;
-	};
-
+	Variant<AssetBase*, UID, ManagedAssetPtr> _Base;
 };
 CoreEnd
