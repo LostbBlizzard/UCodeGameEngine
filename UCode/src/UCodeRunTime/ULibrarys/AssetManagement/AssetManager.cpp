@@ -19,7 +19,7 @@ Optional<Assetptr> AssetManager::FindAsset(const UID& Path)
 {
 	for (auto& Item : _Assets)
 	{
-		if (Item->Uid.value_or(UID()) == Path)
+		if (Item->Uid.has_value() && Item->Uid.value() == Path)
 		{
 			return Item->Get_Managed();
 		}
@@ -31,7 +31,7 @@ Optional<Assetptr> AssetManager::FindAsset(const Path& Path)
 {
 	for (auto& Item : _Assets)
 	{
-		if (Item->ObjectPath.value_or("") == Path)
+		if (Item->ObjectPath.has_value() && Item->ObjectPath.value() == Path)
 		{
 			return Item->Get_Managed();
 		}
@@ -51,6 +51,15 @@ Optional<Assetptr> AssetManager::LoadAsset(const UID& Path)
 
 		return m;
 	}
+	else
+	{
+		auto p = _Loader->LoadAssetPtr(Path);
+
+		if (p.has_value())
+		{
+			return p.value().value()->Get_Managed();
+		}
+	}
 	return {};
 }
 
@@ -63,6 +72,15 @@ Optional<Assetptr> AssetManager::LoadAsset(const Path& Path)
 		AddAsset(std::move(r.value()));
 
 		return m;
+	}
+	else
+	{
+		auto p = _Loader->LoadAssetPtr(Path);
+
+		if (p.has_value())
+		{
+			return p.value().value()->Get_Managed();
+		}
 	}
 	return {};
 }

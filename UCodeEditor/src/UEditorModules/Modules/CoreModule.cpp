@@ -228,6 +228,8 @@ struct SpriteItem
 
 	Vec2i_t<u32> offset;
 	Vec2i_t<u32> size;
+
+	std::shared_ptr<UCode::SpriteAsset> _Asset;
 };
 
 EditorEnd
@@ -316,7 +318,35 @@ public:
 		}
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override
 		{
-			tofile(this->FileMetaFullPath.value(), setting);
+			bool hasdiff = true;
+			if (hasdiff) 
+			{
+				auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+				
+				if (tofile(this->FileMetaFullPath.value(), setting))
+				{
+					auto& index =runprojectdata->Get_AssetIndex();
+					
+					auto p = FileFullPath.generic_string();
+					auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
+					auto op = index.FindFileRelativeAssetName(relpath);
+				
+					if (op.has_value())
+					{
+						auto& ind = op.value();
+						ind.FileLastUpdatedTime = std::filesystem::last_write_time(FileFullPath).time_since_epoch().count();
+						ind.FileSize = std::filesystem::file_size(FileFullPath);
+					}
+				}
+				else
+				{
+					auto p = FileFullPath.generic_string();
+					auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());	
+					UCodeGEError("Saveing Asset for " << relpath << " Failed");
+				}
+		
+			
+			}
 		}
 
 		static  bool fromfile(const Path& settings, TextureSettings& Out)
@@ -401,7 +431,17 @@ public:
 				{
 					if (Item._AssetToLoad == spr.uid)
 					{
+						if (!spr._Asset.get())
+						{
+							auto& textureasset = asset.value();
+							auto& tex = textureasset._Base;
+							UCode::Sprite sprite(&tex,spr.offset.X,spr.offset.Y,spr.size.X,spr.size.Y);
+						
+							spr._Asset = std::make_shared<UCode::SpriteAsset>(sprite,textureasset.GetManaged());	
+						}
+						auto asset = spr._Asset.get();
 
+						return asset->GetAsset();
 					}
 				}
 			}

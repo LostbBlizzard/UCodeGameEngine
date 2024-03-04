@@ -1123,10 +1123,33 @@ void GameEditorWindow::ShowRunTimeGameLibrary()
 }
 void GameEditorWindow::SaveScene()
 {
-    if (_SceneData) {
+    if (_SceneData && _UseingScenePath.has_value()) {
         auto SaveType = Get_ProjectData()->Get_ProjData()._SerializeType;
         UCode::Scene2dData::SaveScene(_SceneDataAsRunTiime, *_SceneData, SaveType);
-        UCode::Scene2dData::ToFile(_UseingScenePath.value(), *_SceneData, SaveType);
+
+        auto runprojectdata = Get_ProjectData();
+        auto p = _UseingScenePath.value().generic_string();
+        auto& scenefilepath = _UseingScenePath.value();
+        
+        if (!UCode::Scene2dData::ToFile(scenefilepath, *_SceneData, SaveType))
+        {
+            auto& index = runprojectdata->Get_AssetIndex();
+
+            auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
+            auto op = index.FindFileRelativeAssetName(relpath);
+
+            if (op.has_value())
+            {
+                auto& ind = op.value();
+                ind.FileLastUpdatedTime = std::filesystem::last_write_time(scenefilepath).time_since_epoch().count();
+                ind.FileSize = std::filesystem::file_size(scenefilepath);
+            }
+        }
+        else
+        {
+            auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
+            UCodeGEError("Saveing Asset for " << relpath << " Failed");
+        }
     }
 }
 void GameEditorWindow::OpenScencAtPath(const Path&  Path)

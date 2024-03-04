@@ -49,7 +49,7 @@ void AssetRendering::UpdatePtr(AssetManager* Manager,SpritePtr& Ptr)
 	if (Ptr.Has_UID())
 	{
 		UID ID = Ptr.Get_UID();
-		auto asset = Manager->FindAsset(ID);
+		auto asset = Manager->FindOrLoad(ID);
 		if (asset)
 		{
 			auto TypedAsset = asset.value().Get_Value()->GetAssetAs<SpriteAsset>();

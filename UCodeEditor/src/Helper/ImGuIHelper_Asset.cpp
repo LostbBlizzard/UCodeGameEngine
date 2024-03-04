@@ -92,19 +92,24 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 	}
 
 	String MyName = "None";
+	UCode::Sprite* spr = nullptr;
 	if (Value.Has_UID()) {
 		for (auto& Item : List)
 		{
 			if (Item._UID == Value.Get_UID())
 			{
 				MyName = Item._RelativePath.generic_string();
+				spr = Item.sp;
 				break;
 			}
 		}
 	}
+	if (spr == nullptr)
+	{
+		spr = AppFiles::GetSprite(AppFiles::sprite::AppIcon);
+	}
 
-
-	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSpriteAssetInfo),
+	return ImGuIHelper::DrawObjectField(spr,FieldName, &Value, List.data(), List.size(), sizeof(ObjectSpriteAssetInfo),
 		[](void* Ptr, void* Object, bool Listmode, const String& Find)
 		{
 			UCode::SpritePtr& Value = *(UCode::SpritePtr*)Ptr;
@@ -112,19 +117,20 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 
 			auto Name = obj->_RelativePath.generic_string();
 			bool r = false;
-
+			Optional<UID> _idval = Value.Has_UID() ? Value.Get_UID() : Optional<UID>();
 
 			if (StringHelper::Fllter(Find,Name))
 			{
-				UCode::Sprite* sp = nullptr;
+				NullablePtr<UCode::Sprite> sp = obj->sp;
 				if (Listmode)
 				{
-					
-					ImGuIHelper::Image(sp, { 20,20 });
-					ImGui::SameLine();
+					if (sp.has_value()) {
+						ImGuIHelper::Image(sp.value().value(), {20,20});
+						ImGui::SameLine();
+					}
 				
 					//ImGui::PushID(Object);
-					r = ImGui::Selectable(Name.c_str(), Value.Get_UID() == obj->_UID);
+					r = ImGui::Selectable(Name.c_str(), _idval.has_value() ? _idval.value() == obj->_UID : false);
 					//ImGui::PopID();
 					
 					if (r)
@@ -135,19 +141,20 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 				}
 				else
 				{
+					r = false;
+
 					auto NewName = Name;
 					ImGuIHelper::Text(NewName);
-					if (ImGuIHelper::ImageButton(obj +NewName.size(), sp, {30,30}))
+					//if (ImGuIHelper::ImageButton(obj +NewName.size(), sp, {30,30}))
 					{
-						Value = obj->_UID;
-						r = true;
+						//Value = obj->_UID;
+						//r = true;
 					}
 				}	
 			}
 
 			return r;
-			return r;
-		});
+		},MyName);
 }
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpriteAssetPtr& Value)
 {
