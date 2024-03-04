@@ -17,6 +17,18 @@ Optional<size_t> ProjectFiles::FindAssetFile(const Path& path)
 	return {};
 }
 
+void ProjectFiles::AssetIsInUse(UEditorAssetFile* file)
+{
+	for (auto& Item : _AssetFiles)
+	{
+		if (Item._ManageFile.Has_Value() && Item._ManageFile.Get_Value() == file)
+		{
+			Item.LastUsed = AssetFileMaxLastUsed;
+			break;
+		}
+	}
+}
+
 void ProjectFiles::Update(float UpateDelta)
 {
 	for (auto i = _AssetFiles.size() - 1; i != (std::vector<AssetFile>::size_type) - 1; i--)
@@ -32,7 +44,15 @@ void ProjectFiles::Update(float UpateDelta)
 		}
 		else
 		{
-			Item.LastUsed -= UpateDelta;
+			bool isinuse = Item._ManageFile.GetCounter() > 1;
+			if (isinuse) 
+			{
+				Item.LastUsed = ProjectFiles::AssetFileMaxLastUsed;
+			}
+			else
+			{
+				Item.LastUsed -= UpateDelta;
+			}
 		}
 	}
 }
