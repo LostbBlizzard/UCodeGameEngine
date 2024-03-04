@@ -476,6 +476,20 @@ public:
 			}
 			return {};
 		}
+		
+		bool ShouldBeUnloaded(const UEditorAssetShouldUnloadContext& Context) override
+		{
+			for (auto& Item : setting.sprites)
+			{
+				bool isinuse = Item._Asset.get() && Item._Asset->Get_Managed().GetCounter() > 1;
+
+				if (isinuse)
+				{
+					return false;
+				}
+			}
+			return true;
+		}
 		void DrawInspect(const UEditorAssetDrawInspectContext& Item) override
 		{
 			{

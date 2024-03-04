@@ -37,10 +37,18 @@ void ProjectFiles::Update(float UpateDelta)
 
 		if (Item.LastUsed < 0)
 		{
-			UEditorAssetFileSaveFileContext Context;
-			Item._File->SaveFile(Context);
+			UEditorAssetShouldUnloadContext shouldunload;
+			if (Item._File->ShouldBeUnloaded(shouldunload))
+			{
+				UEditorAssetFileSaveFileContext Context;
+				Item._File->SaveFile(Context);
 
-			_AssetFiles.erase(_AssetFiles.begin() + i);
+				_AssetFiles.erase(_AssetFiles.begin() + i);
+			}
+			else
+			{
+				Item.LastUsed = ProjectFiles::AssetFileMaxLastUsed;
+			}
 		}
 		else
 		{
