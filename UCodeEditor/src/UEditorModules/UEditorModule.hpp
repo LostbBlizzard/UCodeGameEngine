@@ -253,6 +253,10 @@ struct LoadAssetContext
 {
 	UID _AssetToLoad;
 };
+struct UEditorAssetShouldUnloadContext
+{
+
+};
 class UEditorAssetFile
 {
 public:
@@ -283,6 +287,10 @@ public:
 	virtual void DrawInspect(const UEditorAssetDrawInspectContext& Item)
 	{
 
+	}
+	virtual bool ShouldBeUnloaded(const UEditorAssetShouldUnloadContext& Context)
+	{
+		return true;
 	}
 	
 	
