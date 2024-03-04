@@ -1131,7 +1131,7 @@ void GameEditorWindow::SaveScene()
         auto p = _UseingScenePath.value().generic_string();
         auto& scenefilepath = _UseingScenePath.value();
         
-        if (!UCode::Scene2dData::ToFile(scenefilepath, *_SceneData, SaveType))
+        if (UCode::Scene2dData::ToFile(scenefilepath, *_SceneData, SaveType))
         {
             auto& index = runprojectdata->Get_AssetIndex();
 

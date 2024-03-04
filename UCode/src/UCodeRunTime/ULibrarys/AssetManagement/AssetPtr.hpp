@@ -119,7 +119,7 @@ public:
 
 	bool Has_Asset() const
 	{
-		return Get_State() == State::ManagedPtr;
+		return Get_State() == State::ManagedPtr && _Base.GetType<ManagedAssetPtr>().Has_Value();
 	}
 
 	bool Has_UID() const
