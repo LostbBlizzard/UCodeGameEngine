@@ -530,19 +530,26 @@ void  EditorAppCompoent::BeginDockSpace(bool* p_open)
     }
 }
 void  EditorAppCompoent::SaveApp()
-{
-    EditorIndex::ToFile(_RunTimeProjectData.Get_AssetIndex(), _RunTimeProjectData.GetAssetIndexPath());
-    if (_RunTimeProjectData.Is_ProjLoaded()) {
+{ 
+    if (_RunTimeProjectData.Is_ProjLoaded()) 
+    {
         SaveWindowsPref();
+
+        for (auto& Item : _ProjectFiles._AssetFiles)
+        {
+            UEditorAssetFileSaveFileContext Context;
+            Item._File->SaveFile(Context);
+        }
+        EditorIndex::ToFile(_RunTimeProjectData.Get_AssetIndex(), _RunTimeProjectData.GetAssetIndexPath());
     }
 }
-void  EditorAppCompoent::OnAppEnded()
+void EditorAppCompoent::OnAppEnded()
 {
 
 }
 
 
-void  EditorAppCompoent::LoadWindowsPref()
+void EditorAppCompoent::LoadWindowsPref()
 {
     const Path WinPrePath = _RunTimeProjectData.Get_ProjectPrefsDir().concat(WindowPrefData::FileName);
     const Path IniPrePath = _RunTimeProjectData.Get_ProjectPrefsDir().concat("Ini").concat(WindowPrefData::FileName);
@@ -609,7 +616,7 @@ void  EditorAppCompoent::LoadWindowsPref()
 
     //ImGui::LoadIniSettingsFromDisk(IniPrePath);
 }
-void  EditorAppCompoent::SaveWindowsPref()
+void EditorAppCompoent::SaveWindowsPref()
 {
     const Path WinPrePath = _RunTimeProjectData.Get_ProjectPrefsDir().concat(WindowPrefData::FileName);
     const Path IniPrePath = _RunTimeProjectData.Get_ProjectPrefsDir().concat("Ini").concat(WindowPrefData::FileName);

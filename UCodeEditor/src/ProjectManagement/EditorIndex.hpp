@@ -25,6 +25,11 @@ public:
 		u64 FileHash = 0;
 
 		Optional<UID> UserID;
+
+		bool IsSubAsset() const
+		{
+			return RelativeAssetName != RelativePath;
+		}
  	};
 
 	Vector<IndexFile> _Files;
@@ -87,8 +92,8 @@ public:
 	OptionalRef<IndexFile> FindFileUsingID(UID id)
 	{
 		for (auto& Item : _Files)
-		{
-			if (Item.UserID.value() == id)
+		{	
+			if (Item.UserID.has_value() && Item.UserID.value() == id)
 			{
 				return UCode::Optionalref(Item);
 			}

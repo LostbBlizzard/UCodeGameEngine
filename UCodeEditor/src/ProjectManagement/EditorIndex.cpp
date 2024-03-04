@@ -14,11 +14,21 @@ Vector< EditorIndex::ChangedFile> EditorIndex::GetDiffFromDir(const Path& path) 
 	Vector<ChangedFile> R;
 
 	Unordered_map<const IndexFile*, bool> hasfiles;
-	hasfiles.reserve(_Files.size());
+	size_t realfilecount = 0;
+	for (auto& Item : _Files)
+	{
+		if (!Item.IsSubAsset())
+		{
+			realfilecount++;
+		}
+	}
+	hasfiles.reserve(realfilecount);
 
 	for (auto& Item : _Files)
 	{
-		hasfiles.AddValue(&Item, false);
+		if (!Item.IsSubAsset()) {
+			hasfiles.AddValue(&Item, false);
+		}
 	}
 
 
@@ -74,11 +84,14 @@ Vector< EditorIndex::ChangedFile> EditorIndex::GetDiffFromDir(const Path& path) 
 	{
 		if (Item.second == false)
 		{
-			ChangedFile f;
-			f.RelativePath = Item.first->RelativePath;
-			f.Type = ChangedFileType::FileRemoved;
+			if (!Item.first->IsSubAsset()) 
+			{
+				ChangedFile f;
+				f.RelativePath = Item.first->RelativePath;
+				f.Type = ChangedFileType::FileRemoved;
 
-			R.push_back(std::move(f));
+				R.push_back(std::move(f));
+			}
 		}
 	}
 

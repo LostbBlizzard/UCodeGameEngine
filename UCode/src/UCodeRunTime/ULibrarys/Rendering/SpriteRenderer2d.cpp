@@ -30,7 +30,6 @@ SpriteRenderer::~SpriteRenderer()
 
 void SpriteRenderer::Serialize(USerializer& Serializer) const
 {
-	Serializer.Write("Test", (i32)1);
 	Serializer.Write("Shader", shader);
 	Serializer.Write("Sprite", sprite);
 	Serializer.Write("Color2", color);
@@ -43,9 +42,6 @@ void SpriteRenderer::Serialize(USerializer& Serializer) const
 }
 void SpriteRenderer::Deserialize(UDeserializer& Serializer)
 {
-	i32 V =2;
-	Serializer.ReadType("Test", V,V);
-
 	Serializer.ReadType("Shader", shader, shader);
 	Serializer.ReadType("Sprite", sprite, sprite);
 	Serializer.ReadType("Color2", color,color);

@@ -9,13 +9,14 @@ NullablePtr<UCode::Asset> EditorAssetLoader::LoadAssetPtr(const UID& Path)
   {
 	  auto& fileindex = f.value();
 
-	  auto v = Files->FindAssetFile(fileindex.RelativePath);
+	  auto v = Files->FindAssetFile(RunTimeProject->GetAssetsDir() / fileindex.RelativePath);
 	  if (v.has_value())
 	  {
 		  auto& runingfiles = Files->_AssetFiles[v.value()];
 		  if (runingfiles._ManageFile.Has_Value())
 		  {
 			  LoadAssetContext context;
+			  context._AssetToLoad = Path;
 			  return runingfiles._ManageFile.Get_Value()->LoadAsset(context); 
 		  }
 	  }

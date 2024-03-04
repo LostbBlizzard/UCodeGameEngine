@@ -299,8 +299,8 @@ public:
 		}
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override
 		{
-
-			USerializerType type = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->Get_ProjData()._SerializeType;
+			auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+			USerializerType type = runprojectdata->Get_ProjData()._SerializeType;
 			_Object.SaveTo(_Data, type);
 		
 			bool hasdiff = _Data._DataSerializeType != _InFile._DataSerializeType
@@ -311,8 +311,26 @@ public:
 			{
 				_InFile = _Data;
 				if (!UC::ScirptableObjectData::ToFile(FileFullPath, _Data, type))
+				{			
+					auto p = FileFullPath.generic_string();
+					auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());	
+			
+					UCodeGEError("Saveing Asset for " << relpath << " Failed");
+				}
+				else
 				{
-					UCodeGEError("Saveing Asset for " << FileFullPath << " Failed");
+					auto& index =runprojectdata->Get_AssetIndex();
+					
+					auto p = FileFullPath.generic_string();
+					auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
+					auto op = index.FindFileRelativeAssetName(relpath);
+				
+					if (op.has_value())
+					{
+						auto& ind = op.value();
+						ind.FileLastUpdatedTime = std::filesystem::last_write_time(FileFullPath).time_since_epoch().count();
+						ind.FileSize = std::filesystem::file_size(FileFullPath);
+					}
 				}
 				justsaved = true;
 			}
@@ -447,7 +465,11 @@ public:
 		{
 			if (!UCodeLang::ModuleFile::FromFile(&_Module, FileFullPath))
 			{
-				UCodeGEError("Unable to open/read \"" << FileFullPath << "\"")
+				auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+				auto p = FileFullPath.generic_string();
+				auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
+
+				UCodeGEError("Unable to open/read " << relpath << " Failed")
 			}
 
 		}
@@ -458,10 +480,28 @@ public:
 				justsaved = false;
 				return;
 			}
+				auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 			_Module = UCodeLang::ModuleFile();
 			if (!UCodeLang::ModuleFile::FromFile(&_Module, FileFullPath))
 			{
-				UCodeGEError("Unable to open/read \"" << FileFullPath << "\"")
+				auto p = FileFullPath.generic_string();
+				auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
+				UCodeGEError("Saveing Asset for " << relpath << " Failed")
+			}
+			else
+			{
+				auto& index = runprojectdata->Get_AssetIndex();
+
+				auto p = FileFullPath.generic_string();
+				auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
+				auto op = index.FindFileRelativeAssetName(relpath);
+
+				if (op.has_value())
+				{
+					auto& ind = op.value();
+					ind.FileLastUpdatedTime = std::filesystem::last_write_time(FileFullPath).time_since_epoch().count();
+					ind.FileSize = std::filesystem::file_size(FileFullPath);
+				}
 			}
 		}
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override

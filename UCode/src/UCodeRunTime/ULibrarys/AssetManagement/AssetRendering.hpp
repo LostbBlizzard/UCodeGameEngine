@@ -44,8 +44,14 @@ struct SpriteData
 class SpriteAsset : public Asset
 {
 public:
+	
+	SpriteAsset(const Sprite & spr,const TextureAssetPtr& ptr)
+		:_Base(std::move(spr)),_Texture(std::move(ptr))
+	{
+
+	}
 	Sprite _Base;
-	TextureAsset _Texture;
+	TextureAssetPtr _Texture;
 
 	ManagedPtr<SpriteAsset> GetManaged()
 	{

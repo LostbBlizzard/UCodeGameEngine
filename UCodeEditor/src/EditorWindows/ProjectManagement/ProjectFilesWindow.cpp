@@ -820,11 +820,6 @@ void ProjectFilesWindow::OnSaveWindow(USerializer& SaveIn)
 
 
     //
-    for (auto& Item : Get_ProjectFiles()._AssetFiles)
-    {
-        UEditorAssetFileSaveFileContext Context;
-        Item._File->SaveFile(Context);
-    }
     //
 }
 
