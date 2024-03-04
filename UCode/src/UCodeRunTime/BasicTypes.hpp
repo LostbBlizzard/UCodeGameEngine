@@ -996,6 +996,7 @@ private:
 		if (_Data->RefCount == 0)
 		{
 			delete _Data;
+			_Data = nullptr;
 		}
 	}
 };

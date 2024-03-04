@@ -93,10 +93,12 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 
 	String MyName = "None";
 	UCode::Sprite* spr = nullptr;
-	if (Value.Has_UID()) {
+	if (Value.Has_UID()) 
+	{
+		auto id = Value.Get_UID();
 		for (auto& Item : List)
 		{
-			if (Item._UID == Value.Get_UID())
+			if (Item._UID == id)
 			{
 				MyName = Item._RelativePath.generic_string();
 				spr = Item.sp;
