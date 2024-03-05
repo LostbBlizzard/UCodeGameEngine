@@ -229,7 +229,7 @@ void Inspect_Compoent2d::DrawCompoentButtion(UCode::Compoent* Item, EditorAppCom
         ImGuiContext& g = *GImGui;
         g.Style.Alpha = g.DisabledAlphaBackup;
     }
-    if (ImGui::BeginPopupContextItem())
+    if (ImGuIHelper::BeginPopupContextItem())
     {
         ImGuIHelper::Text(StringView(CompoentName));  ImGui::SameLine(); ImGuIHelper::Text(StringView("options"));
         ImGui::Separator();

@@ -2,6 +2,26 @@
 #include "Imgui/imgui_internal.h"
 #include <Imgui/misc/cpp/imgui_stdlib.h>
 EditorStart
+
+bool IsPopUpKey()
+{
+	return ImGui::IsKeyDown(ImGuiKey_ModCtrl) && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Period);
+}
+
+bool ImGuIHelper::BeginPopupContextItem(const char* str_id, ImGuiPopupFlags popup_flags)
+{
+	ImGuiContext& g = *GImGui;
+    ImGuiWindow* window = g.CurrentWindow;
+    if (window->SkipItems)
+        return false;
+    ImGuiID id = str_id ? window->GetID(str_id) : g.LastItemData.ID;    // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
+    IM_ASSERT(id != 0);                                             // You cannot pass a NULL str_id if the last item has no identifier (e.g. a Text() item)
+    int mouse_button = (popup_flags & ImGuiPopupFlags_MouseButtonMask_);
+    if (ImGui::IsMouseReleased(mouse_button) && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup) || (ImGui::IsItemFocused() && IsPopUpKey()))
+        ImGui::OpenPopupEx(id, popup_flags);
+    return ImGui::BeginPopupEx(id, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings);
+
+}
 const char* ImGuIHelper::ToCStr(const StringView text)
 {
 	thread_local String str;
@@ -744,7 +764,7 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 				{
 					void* ItemPtr = (Byte*)Buffer + (i * Item.ItemSize);
 					ImGui::PushID(Lable.c_str());
-					if (ImGui::BeginPopupContextItem("????"))
+					if (ImGuIHelper::BeginPopupContextItem("????"))
 					{
 						if (ImGui::MenuItem("Remove Item"))
 						{
