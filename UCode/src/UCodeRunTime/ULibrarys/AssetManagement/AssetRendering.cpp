@@ -44,9 +44,23 @@ void AssetRendering::UpdatePtr(AssetManager* Manager,TexturePtr& Ptr)
 {
 	
 }
-void AssetRendering::UpdatePtr(AssetManager* Manager,SpritePtr& Ptr)
+void AssetRendering::UpdatePtr(AssetManager* Manager, SpritePtr& Ptr)
 {
-	if (Ptr.Has_UID())
+	if (Ptr.Get_State() == SpritePtr::State::ManagedPtr)
+	{
+		if (!Ptr.Has_Asset())
+		{
+			//asset was Distory
+			Ptr = {};
+		}
+		else
+		{
+			auto man = Ptr.Get_Managed();
+			
+			int a = 0;
+		}
+	}
+	else if (Ptr.Has_UID())
 	{
 		UID ID = Ptr.Get_UID();
 		auto asset = Manager->FindOrLoad(ID);
@@ -56,14 +70,6 @@ void AssetRendering::UpdatePtr(AssetManager* Manager,SpritePtr& Ptr)
 			if (TypedAsset.has_value()) {
 				Ptr = TypedAsset.value()->GetManaged();
 			}
-		}
-	}
-	else if (Ptr.Get_State() == SpritePtr::State::ManagedPtr)
-	{
-		if (!Ptr.Has_Asset())
-		{
-			//asset was Distory
-			Ptr = {};
 		}
 	}
 }

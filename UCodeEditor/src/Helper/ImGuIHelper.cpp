@@ -631,10 +631,39 @@ bool ImGuIHelper::DrawRenameTree(String& label, bool TreeIsOpened, bool& IsRenam
 {
 	return DrawRenameName(label, IsRenameing);
 }
+bool ImGuIHelper::DrawRenameTree(String& label, bool TreeIsOpened, bool& IsRenameing, UCode::Sprite* sprite)
+{
+	ImGuiContext& g = *GImGui;
+	Image(sprite, ImVec2(20, g.FontSize + g.Style.FramePadding.y * 2));
+	ImGui::SameLine();
+
+	ImGui::SetKeyboardFocusHere();
+	ImGui::PushID(&label);
+	auto V = ImGui::InputText("", &label, ImGuiInputTextFlags_EnterReturnsTrue);
+	ImGui::PopID();
+	if (V)
+	{
+		IsRenameing = false;
+		return true;
+	}
+	if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Escape)
+		|| ImGui::IsMouseClicked(ImGuiMouseButton_::ImGuiMouseButton_Left)
+		|| ImGui::IsMouseClicked(ImGuiMouseButton_::ImGuiMouseButton_Middle)
+		|| ImGui::IsMouseClicked(ImGuiMouseButton_::ImGuiMouseButton_Right))
+	{
+		IsRenameing = false;
+		return true;
+	}
+
+	return false;
+}
 bool ImGuIHelper::DrawRenameName(String& label, bool& IsRenameing)
 {
 	ImGui::SetKeyboardFocusHere();
-	if (ImGuIHelper::InputText("##rename", label, ImGuiInputTextFlags_EnterReturnsTrue))
+	ImGui::PushID(&label);
+	auto V = ImGui::InputText("", &label, ImGuiInputTextFlags_EnterReturnsTrue);
+	ImGui::PopID();
+	if (V)
 	{
 		IsRenameing = false;
 		return true;

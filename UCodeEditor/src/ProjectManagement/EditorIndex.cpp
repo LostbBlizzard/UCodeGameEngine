@@ -153,7 +153,7 @@ void EditorIndex::UpdateFile(IndexFile& file, const Path& path, const String& re
 		auto& item = Modules[i];
 		auto AssetDataList = item->GetAssetData();
 
-		auto Info = item->GetAssetDataUsingExt(path);
+		auto Info = item->GetAssetDataUsingExt(path.extension());
 		if (Info.has_value())
 		{
 			auto Data = AssetDataList[Info.value()];

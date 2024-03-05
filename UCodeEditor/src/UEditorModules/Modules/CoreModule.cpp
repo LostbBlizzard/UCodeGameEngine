@@ -354,7 +354,7 @@ public:
 			UDeserializer serializer;
 			if (UDeserializer::FromFile(settings, serializer))
 			{
-				serializer.ReadType("_Uid", Out.uid);
+				serializer.ReadType("_UID", Out.uid);
 				serializer.ReadType("_ReadAndWrite", Out.ReadAndWrite);
 
 				serializer.ReadType("_Filter", *(Filter_t*)&Out.filter);
@@ -372,7 +372,7 @@ public:
 		{
 			USerializer serializer;
 
-			serializer.Write("_Uid", in.uid);
+			serializer.Write("_UID", in.uid);
 			serializer.Write("_ReadAndWrite", in.ReadAndWrite);
 
 			serializer.Write("_Filter", *(Filter_t*)&in.filter);
