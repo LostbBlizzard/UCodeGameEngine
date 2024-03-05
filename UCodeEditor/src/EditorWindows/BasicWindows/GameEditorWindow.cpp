@@ -157,10 +157,10 @@ void GameEditorWindow::SceneCameraGetInputs()
     UCode::Vec2& CamPos = *(UCode::Vec2*)&_SceneCameraData._Pos.X;
 
     ImGuiKey Up, Down, lift, right;
-    Up = ImGuiKey::ImGuiKey_W;
-    Down = ImGuiKey::ImGuiKey_S;
-    lift = ImGuiKey::ImGuiKey_A;
-    right = ImGuiKey::ImGuiKey_D;
+    Up = ImGuiKey::ImGuiKey_K;//vim controls
+    Down = ImGuiKey::ImGuiKey_J;
+    lift = ImGuiKey::ImGuiKey_H;
+    right = ImGuiKey::ImGuiKey_L;
     float CamSpeed = 2.0f;
     float ScrollSizeSpeed = 2.5f;
 
@@ -174,7 +174,6 @@ void GameEditorWindow::SceneCameraGetInputs()
 
 
     
-    bool isinfocused = ImGui::IsWindowHovered() || ImGui::IsWindowFocused();
 
     UCode::Vec2 CamVelocity = { 0,0 };
     
@@ -183,13 +182,21 @@ void GameEditorWindow::SceneCameraGetInputs()
     bool liftV = ImGui::IsKeyDown(lift);
     bool rightV = ImGui::IsKeyDown(right);
 
-    if (isinfocused)
-    {
-        if (UpV) { CamVelocity.Y += 1; }
-        if (DownV) { CamVelocity.Y -= 1; }
-        if (liftV) { CamVelocity.X -= 1; }
-        if (rightV) { CamVelocity.X += 1; }
-    }
+    
+        if (!ImGui::IsKeyDown(ImGuiMod_Ctrl))
+        {
+            if (UpV) { CamVelocity.Y += 1; }
+            if (DownV) { CamVelocity.Y -= 1; }
+            if (liftV) { CamVelocity.X -= 1; }
+            if (rightV) { CamVelocity.X += 1; }
+        }
+        else
+        {
+            auto moveval = 0.1;
+            if (UpV) { _SceneCameraData.Orth_Size += moveval; }
+            if (DownV) { _SceneCameraData.Orth_Size -= moveval; }
+        }
+    
 
     static Optional<DontWaitInputKey> DontWait;
     bool hasanydown = UpV || DownV || liftV || rightV;
@@ -211,7 +218,7 @@ void GameEditorWindow::SceneCameraGetInputs()
 
     
 
-    float NewCamSpeed = CamSpeed * (_SceneCameraData.Orth_Size / 7) + 2;
+    float NewCamSpeed = CamSpeed * (_SceneCameraData.Orth_Size / 7) + 10;
 
     CamPos += CamVelocity.Get_Normalize() * NewCamSpeed * TimeFromlastFrame;
     auto NewSize = _SceneCameraData.Orth_Size - M_wheelY * ScrollSizeSpeed;
@@ -221,7 +228,6 @@ void GameEditorWindow::SceneCameraGetInputs()
         _SceneCameraData.Orth_Size = NewSize;
     }
 
-    if (isinfocused)
     {
         auto iSDraging = ImGui::IsMouseDragging(ImGuiMouseButton_::ImGuiMouseButton_Right);
         static UCode::Vec2 CamOnDrag;
@@ -393,7 +399,7 @@ void GameEditorWindow::SceneEditorTab()
         _GameRunTime->DestroyNullScenes();
     }
     ImGuiIO& io = ImGui::GetIO();
-    bool IsFocused = ImGui::IsItemHovered();
+    bool IsFocused = ImGui::IsItemHovered() ||ImGui::IsWindowFocused();
     if (IsFocused)
     {
         SceneCameraGetInputs();
@@ -490,7 +496,7 @@ void GameEditorWindow::ShowSceneData()
     if (Size.x == 0 || Size.y == 0) { Size = { 1,1 }; }
     ImGui::InvisibleButton("Data", Size);
     DropSceneFromPath();
-    if (ImGui::BeginPopupContextItem())
+    if (ImGuIHelper::BeginPopupContextItem())
     {
         ImGuIHelper::Text(StringView("RunTime options"));
         ImGui::Separator();
@@ -580,7 +586,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
     }
     ImGui::PopStyleColor();
 
-    if (ImGui::BeginPopupContextItem())
+    if (ImGuIHelper::BeginPopupContextItem())
     {
         ImGuIHelper::Text(StringView("Scene options"));
         ImGui::Separator();
@@ -985,7 +991,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
         }
     }
 
-    if (ImGui::BeginPopupContextItem("SomeThing"))
+    if (ImGuIHelper::BeginPopupContextItem("SomeThing"))
     {
         ImGuIHelper::Text(StringView("Entity2d options"));
         ImGui::Separator();

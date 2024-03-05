@@ -380,7 +380,7 @@ void ProjectFilesWindow::ShowExlorer()
 }
 void ProjectFilesWindow::ShowDirButtions()
 {
-    if (ImGui::BeginPopupContextItem("f"))
+    if (ImGuIHelper::BeginPopupContextItem("f"))
     {
         if (ImGui::BeginMenu("Create"))
         {
@@ -694,7 +694,7 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
 
     bool RetOutfunc = false;
     ImGui::PushID(&Item);
-    if (ImGui::BeginPopupContextItem("Test"))
+    if (ImGuIHelper::BeginPopupContextItem("Test"))
     {
        
         ImGuIHelper::Text(StringView("File options"));

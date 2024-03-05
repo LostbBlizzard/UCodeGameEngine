@@ -108,7 +108,7 @@ void ConsoleWindow::UpdateWindow()
                     }
                 }
             }
-                if (ImGui::BeginPopupContextItem("On"))
+                if (ImGuIHelper::BeginPopupContextItem("On"))
                 {
                     if (ImGui::MenuItem("Copy"))
                     {

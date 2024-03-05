@@ -680,7 +680,7 @@ public:
 
 							bool remove = false;
 
-							if (ImGui::BeginPopupContextItem(Item.spritename.c_str()))
+							if (ImGuIHelper::BeginPopupContextItem(Item.spritename.c_str()))
 							{
 								ImGuIHelper::Text(StringView("Sprite options"));
 

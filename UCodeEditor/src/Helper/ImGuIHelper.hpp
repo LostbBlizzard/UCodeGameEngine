@@ -34,6 +34,7 @@ public:
 	{
 		return ImGui::ColorConvertFloat4ToU32(ToVec4((ColorRGB)val));
 	}
+	static bool BeginPopupContextItem(const char* str_id = NULL, ImGuiPopupFlags popup_flags = 1);
 
 
 	static void Text(const StringView text)
@@ -752,7 +753,7 @@ public:
 			
 			bool RemoveItem = false;
 			ImGui::PushID(Object);
-			if (ImGui::BeginPopupContextItem("????"))
+			if (ImGuIHelper::BeginPopupContextItem("????"))
 			{
 				if (ImGui::MenuItem("Remove Item"))
 				{
