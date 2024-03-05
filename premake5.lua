@@ -440,6 +440,7 @@ project "UCodeEditor"
 
    filter {}
    includedirs{"%{prj.name}/src"}
+   includedirs{"%{prj.name}/src/OtherLibrarys"}
    removefiles{"%{prj.name}/src/OtherLibrarys/ImGuizmo/example/**"}
    
    links {
