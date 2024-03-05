@@ -570,7 +570,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
     if (IsRenameing && IsSelected(Item))
     {
         node_open = WasSelectedObjectOpened;
-        ImGuIHelper::DrawRenameTree(Item->Get_Name(), node_open, IsRenameing);
+        ImGuIHelper::DrawRenameTree(Item->Get_Name(), node_open, IsRenameing,AppFiles::sprite::Scene2dData);
     }
     else
     {
@@ -601,14 +601,25 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
         auto clipboard =  ImGui::GetClipboardText();
         bool isclipboardentity = false;
 
-        auto tep = YAML::Load(clipboard);
-
-        if (tep.IsMap()) 
+        YAML::Node tep;
+        if (clipboard)
         {
-            isclipboardentity = (bool)tep["UType"];
-            if (isclipboardentity)
+            bool ok = true;
+            try
             {
-                isclipboardentity = tep["UType"].as<String>("") == "Entity" && (bool)tep["UData"];
+                tep = YAML::Load(clipboard);
+            }
+            catch (YAML::ParserException ex)
+            {
+                ok = false;
+            }
+            if (ok && tep.IsMap())
+            {
+                isclipboardentity = (bool)tep["UType"];
+                if (isclipboardentity)
+                {
+                    isclipboardentity = tep["UType"].as<String>("") == "Entity" && (bool)tep["UData"];
+                }
             }
         }
 
@@ -779,7 +790,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
         if (IsRenameing && IsSelectedEntity)
         {
             node_open = WasSelectedObjectOpened;
-            ImGuIHelper::DrawRenameTree(Item->NativeName(), node_open, IsRenameing);
+            ImGuIHelper::DrawRenameTree(Item->NativeName(), node_open, IsRenameing, AppFiles::sprite::Entity);
         }
         else
         {

@@ -457,6 +457,11 @@ public:
 	static void LoadingIndicatorCircle(const char* label, const float indicator_radius,const int circle_count = Default_LoadingIndicatorcircle_count, const float speed = Default_LoadingIndicatorSpeed);
 	static void ShowOnMiddleLoadingIndicatorCircle(const char* label,const int circle_count = Default_LoadingIndicatorcircle_count, const float speed = Default_LoadingIndicatorSpeed);
 	static bool DrawRenameTree(String& label, bool TreeIsOpened, bool& IsRenameing);
+	static bool DrawRenameTree(String& label, bool TreeIsOpened, bool& IsRenameing,UCode::Sprite* sprite);
+	static bool DrawRenameTree(String& label, bool TreeIsOpened, bool& IsRenamein, AppFiles::sprite sprite)
+	{
+		return DrawRenameTree(label, TreeIsOpened, IsRenamein, AppFiles::GetSprite(sprite));
+	}
 	static bool DrawRenameName(String& label, bool& IsRenameing);
 
 
