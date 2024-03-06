@@ -22,6 +22,7 @@
 #include "UCodeRunTime/ULibrarys/UCodeLang/ULangRunTime.hpp"
 #include "UCodeRunTime/ULibrarys/UCodeLang/ScirptableObject.hpp"
 #include "DrawMenu.hpp"
+#include "Helper/Fuzzhelper.hpp"
 EditorStart
 namespace fs = std::filesystem;
 
@@ -107,7 +108,7 @@ void ProjectFilesWindow::UpdateWindow()
             ImGui::PopItemWidth();
             ImGui::PopID();
 
-           if (v)
+            if (v)
             {
                 Viewer.SetFindString(_FindFileName);
                 UpdateDir();
@@ -349,11 +350,19 @@ void ProjectFilesWindow::ShowFileCells()
 
     ImGui::Columns(columnCount, 0, false);
 
+    auto findname = _FindFileName;
+    if (findname.size())
+    {
+        if (findname[0] == ':')
+        {
+            findname = findname.substr(1);
+        }
+    }
     for (auto& Item : _Files)
     {
         if (Item.FullFileName.extension() != Path(UEditorAssetFileData::DefaultMetaFileExtWithDot))
         {
-            if (StringHelper::Fllter(_FindFileName, Item.FileName))
+            if (StringHelper::Fllter(findname, Item.FileName))
             {
                 if (DrawFileItem(Item, CeSize)) { break; }
                 ImGui::NextColumn();
@@ -773,9 +782,20 @@ void ProjectFilesWindow::UpdateDir()
     if (fs::exists(path))
     {
         fs::directory_options opt = fs::directory_options::skip_permission_denied;
-        
+        String FindText = _FindFileName;
+        bool allfiles = false;
+
+        if (FindText.size())
+        {
+            if (FindText[0] == ':')
+            {
+                allfiles = true;
+                FindText = FindText.substr(1);
+            }
+        }
+
         _Files.clear();
-        for (auto Item : fs::directory_iterator(path,opt))
+        for (auto Item : fs::directory_iterator(allfiles ? Get_ProjectData()->GetAssetsDir() : path, opt))
         {
             FileData newdata = FileData();
 
@@ -784,11 +804,15 @@ void ProjectFilesWindow::UpdateDir()
             newdata.FullFileName = Item.path().u8string();
             const String Ext = Item.path().extension().u8string();
             if (Item.is_regular_file())
-            {              
+            {
                 newdata.FileType = FileHelper::GetFileType(Ext);
             }
-            else if (Item.is_directory()) 
+            else if (Item.is_directory())
             {
+                if (allfiles)
+                {
+                    continue;
+                }
                 newdata.FileType = FileHelper::FileType::Dir;
             }
             if (newdata.FileType == FileHelper::FileType::Null)
@@ -796,6 +820,42 @@ void ProjectFilesWindow::UpdateDir()
                 continue;
             }
             _Files.push_back(newdata);
+        }
+
+        if (FindText.size())
+        {
+            Unordered_map<Path, float> ScoreMap;
+            ScoreMap.reserve(_Files.size());
+
+            auto assetdir = Get_ProjectData()->GetAssetsDir();
+            auto assetdirstr = assetdir.generic_string();
+            auto pathstr = path.generic_string();
+
+            auto& basepath = allfiles ? assetdirstr : pathstr;
+            for (auto& Item : _Files)
+            {
+                auto str = Item.FullFileName.generic_string();
+
+                str = str.substr(basepath.size());
+
+                ScoreMap.AddValue(Item.FullFileName, FuzzHelper::GetFuzzRotio(FindText, str));
+            }
+
+            std::sort(_Files.begin(), _Files.end(), [&ScoreMap](const FileData& A, const FileData& B)
+                {
+                    return ScoreMap.GetValue(A.FullFileName) < ScoreMap.GetValue(B.FullFileName);
+                });
+        }
+
+        if (!allfiles)
+        {
+            //make directorys first
+
+            std::sort(_Files.begin(), _Files.end(), [](const FileData& A, const FileData& B)
+                {
+                    return A.FileType == FileHelper::FileType::Dir &&
+                        A.FileType != B.FileType;
+                });
         }
 
     }

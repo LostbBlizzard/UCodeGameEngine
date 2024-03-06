@@ -1,6 +1,16 @@
 #include "StringHelper.hpp"
 
+
 EditorStart
+
+void StringHelper::ToUpper(StringView Base, String& Out)
+{
+	Out.clear();
+	for (auto& Item : Base)
+	{
+		Out.push_back(std::toupper(Item));
+	}
+}	
 
 bool  StringHelper::StartsWith(StringView Val, StringView Match)
 {
@@ -21,10 +31,10 @@ bool StringHelper::Fllter(const String& filter, const String& ToCheck)
 {
 	if (filter.size())
 	{
-		String filterLoW = filter;
-		String ToCheckLow = ToCheck;
+		String filterLoW = ToUpper(filter);
+		String ToCheckLow = ToUpper(ToCheck);
 
-		if (StartsWith(ToCheckLow,filterLoW)){return true;}
+		if (Contains<char>(ToCheckLow,filterLoW)){return true;}
 
 
 		return false;
