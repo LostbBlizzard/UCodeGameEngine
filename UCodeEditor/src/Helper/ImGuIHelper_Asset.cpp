@@ -182,9 +182,9 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 			{
 				NullablePtr<UCode::Sprite> sp;
 			
-				if (_idval.has_value()) 
+				if (obj->_UID.has_value()) 
 				{
-					auto v = AssetManager->FindOrLoad(_idval.value());
+					auto v = AssetManager->FindOrLoad(obj->_UID.value());
 					if (v.has_value())
 					{
 						if (v.value().Has_Value()) {
