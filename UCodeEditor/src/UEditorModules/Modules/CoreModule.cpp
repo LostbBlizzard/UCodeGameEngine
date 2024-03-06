@@ -385,6 +385,17 @@ public:
 
 			return serializer.ToFile(settings);
 		}
+		void RemoveSubAssets(const Path& AssetDir, EditorIndex& index)
+		{
+			auto relpath = Path(FileFullPath.native().substr(AssetDir.native().size()));
+
+			index._Files.erase(std::remove_if(
+				index._Files.begin(), index._Files.end(), [&relpath](EditorIndex::IndexFile& val)
+				{
+					return val.RelativePath == relpath;
+				}), index._Files.end());
+
+		}
 
 		
 		bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override
@@ -398,6 +409,8 @@ public:
 				}
 				else
 				{
+					auto runinfo = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+					RemoveSubAssets(runinfo->GetAssetsDir(),runinfo->Get_AssetIndex());
 					setting.uid = Item._newuid();
 					tofile(FileMetaFullPath.value(), setting);
 				}
@@ -432,7 +445,9 @@ public:
 				}
 				else
 				{
-					setting.uid = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetNewUID();
+					auto runinfo = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+					RemoveSubAssets(runinfo->GetAssetsDir(),runinfo->Get_AssetIndex());
+					setting.uid = runinfo->GetNewUID();
 					tofile(FileMetaFullPath.value(), setting);
 				}
 
