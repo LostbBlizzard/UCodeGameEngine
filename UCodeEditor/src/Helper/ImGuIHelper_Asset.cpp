@@ -3,29 +3,10 @@
 #include "UEditorModules/UEditorModule.hpp"
 #include "ImGuIHelper.hpp"
 #include "StringHelper.hpp"
-#include "UCodeRunTime/ULibrarys/AssetManagement/AssetRendering.hpp"
-#include "OtherLibrarys/rapidfuzz/fuzz.hpp"
+#include "Helper/Fuzzhelper.hpp"
 EditorStart
 
-String ToUper(StringView Base)
-{
-	String r;
-	for (auto& Item : Base)
-	{
-		r.push_back(std::toupper(Item));
-	}
-	return r;
-}
 
-float getfuzzrotio(StringView Base,StringView Other)
-{
-	static String upbase;
-	static String upOther;
-	upbase= ToUper(Base);
-	upOther = ToUper(Other);
-
-	return rapidfuzz::fuzz::ratio(upbase, upOther);
-}
 
 float minscorebefordontshow()
 {
@@ -125,7 +106,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 
 		for (auto& Item : List)
 		{
-			Item.score = OldFind.size() ? getfuzzrotio(OldFind, Item._ShowAbleName) : minscorebefordontshow();
+			Item.score = OldFind.size() ? FuzzHelper::GetFuzzRotio(OldFind, Item._ShowAbleName) : minscorebefordontshow();
 		}
 
 		std::sort(List.begin(), List.end(), [](const ObjectSpriteAssetInfo& A,const ObjectSpriteAssetInfo& B)
@@ -140,7 +121,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 
 		for (auto& Item : List)
 		{
-			Item.score = getfuzzrotio(OldFind, Item._ShowAbleName);
+			Item.score = FuzzHelper::GetFuzzRotio(OldFind, Item._ShowAbleName);
 		}
 
 		std::sort(List.begin(), List.end(), [](const ObjectSpriteAssetInfo& A,const ObjectSpriteAssetInfo& B)
@@ -494,7 +475,7 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 		
 		for (auto& Item : List)
 		{
-			Item.score = OldFind.size() ? getfuzzrotio(OldFind, Item.ShowableName) : minscorebefordontshow();
+			Item.score = OldFind.size() ? FuzzHelper::GetFuzzRotio(OldFind, Item.ShowableName) : minscorebefordontshow();
 		}
 
 		std::sort(List.begin(), List.end(), [](const ObjectSceneAssetInfo& A,const ObjectSceneAssetInfo& B)
@@ -508,7 +489,7 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 
 		for (auto& Item : List)
 		{
-			Item.score = getfuzzrotio(OldFind, Item.ShowableName);
+			Item.score = FuzzHelper::GetFuzzRotio(OldFind, Item.ShowableName);
 		}
 
 		std::sort(List.begin(), List.end(), [](const ObjectSceneAssetInfo& A,const ObjectSceneAssetInfo& B)

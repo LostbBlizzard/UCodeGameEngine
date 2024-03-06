@@ -6,7 +6,13 @@ EditorStart
 class StringHelper
 {
 public:
-	
+	static void ToUpper(StringView Base, String& Out);
+	static String ToUpper(StringView Base)
+	{
+		String r;
+		ToUpper(Base,r);
+		return r;
+	}
 	static bool StartsWith(StringView Val,StringView Match);
 	static bool StartsWith(const String& Val,StringView Match)
 	{

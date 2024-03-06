@@ -21,7 +21,7 @@ public:
 	template<typename T>
 	static bool Contains(const StringBase<T>& string, const StringViewBase<T> MatchString)
 	{
-		return  Contains(String_view(string), String_view(MatchString));
+		return  Contains(StringViewBase<T>(string), StringViewBase<T>(MatchString));
 	}
 	
 	template<typename T>
