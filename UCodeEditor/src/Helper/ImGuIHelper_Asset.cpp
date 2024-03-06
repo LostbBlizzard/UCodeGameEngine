@@ -125,7 +125,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 
 		for (auto& Item : List)
 		{
-			Item.score = getfuzzrotio(OldFind, Item._ShowAbleName);
+			Item.score = OldFind.size() ? getfuzzrotio(OldFind, Item._ShowAbleName) : minscorebefordontshow();
 		}
 
 		std::sort(List.begin(), List.end(), [](const ObjectSpriteAssetInfo& A,const ObjectSpriteAssetInfo& B)
@@ -197,7 +197,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 			bool r = false;
 			Optional<UID> _idval = Value.Has_UID() ? Value.Get_UID() : Optional<UID>();
 
-			if (Find.size() ? obj->score >= minscorebefordontshow() : true)
+			if (obj->score >= minscorebefordontshow())
 			{
 				NullablePtr<UCode::Sprite> sp;
 			
@@ -458,28 +458,63 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 	{
 		Path _RelativePath;
 		UID _UID;
+		float score =0;
+		String ShowableName;
 	};
 
 
-	Vector<ObjectSceneAssetInfo> List;
-	{
-		ObjectSceneAssetInfo P;
-		P._RelativePath = "None";
+	static Vector<ObjectSceneAssetInfo> List;
+	static String OldFind;
+	static bool FindWasUpdated = false;
+	bool AssetIndexUpdated = true;
 
-		List.push_back(std::move(P));
-	}
-	for (auto& Item : ProjectData->Get_AssetIndex()._Files)
+	if (AssetIndexUpdated)
 	{
-		if (!Item.UserID.has_value())
+		List.clear();
 		{
-			continue;
+			ObjectSceneAssetInfo P;
+			P._RelativePath = "None";
+			P.ShowableName = "None";
+
+			List.push_back(std::move(P));
+		}
+		for (auto& Item : ProjectData->Get_AssetIndex()._Files)
+		{
+			if (!Item.UserID.has_value())
+			{
+				continue;
+			}
+
+			ObjectSceneAssetInfo P;
+			P._RelativePath = Item.RelativePath;
+			P._UID = Item.UserID.value();
+			P.ShowableName = Item.RelativeAssetName;
+			List.push_back(std::move(P));
 		}
 		
-		ObjectSceneAssetInfo P;
-		P._RelativePath = Item.RelativePath;	
-		P._UID =Item.UserID.value();
+		for (auto& Item : List)
+		{
+			Item.score = OldFind.size() ? getfuzzrotio(OldFind, Item.ShowableName) : minscorebefordontshow();
+		}
 
-		List.push_back(std::move(P));
+		std::sort(List.begin(), List.end(), [](const ObjectSceneAssetInfo& A,const ObjectSceneAssetInfo& B)
+			{
+				return A.score > B.score;
+			});
+	}
+	if (FindWasUpdated)
+	{
+		FindWasUpdated = false;
+
+		for (auto& Item : List)
+		{
+			Item.score = getfuzzrotio(OldFind, Item.ShowableName);
+		}
+
+		std::sort(List.begin(), List.end(), [](const ObjectSceneAssetInfo& A,const ObjectSceneAssetInfo& B)
+			{
+				return A.score > B.score;
+			});	
 	}
 
 	String MyName = "None";
@@ -495,14 +530,20 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 	return ImGuIHelper::DrawObjectField(&Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
 		[](void* Ptr, void* Object, bool Listmode,const String& Find)
 		{
+			if (Find != OldFind)
+			{
+				OldFind = Find;
+				FindWasUpdated = true;
+			}
+
 			UCode::UID& Value = *(UCode::UID*)Ptr;
 			ObjectSceneAssetInfo* obj = (ObjectSceneAssetInfo*)Object;
 
-			auto Name = obj->_RelativePath.generic_string();
+			auto Name = obj->ShowableName;
 			bool r = false;
 
 
-			if (StringHelper::Fllter(Find,Name))
+			if (obj->score >= minscorebefordontshow())
 			{
 				
 				if (Listmode)

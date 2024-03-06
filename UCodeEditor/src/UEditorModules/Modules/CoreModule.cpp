@@ -951,7 +951,7 @@ public:
 		{
 			GetUIDInfo val;
 			val._MainAssetID = setting.uid;
-			val._SubAssets.resize(setting.sprites.size());
+			val._SubAssets.reserve(setting.sprites.size());
 			
 			for (auto& Item : setting.sprites)
 			{
