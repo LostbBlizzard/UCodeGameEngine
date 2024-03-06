@@ -33,13 +33,48 @@ bool SpriteData::FromFile(SpriteData& out, const Path& Path)
     return A;
 }
 
-bool SpriteData::ToFile(const Path& path, SpriteData& data, USerializerType Type)
+bool SpriteData::ToFile(const Path& path,const SpriteData& data, USerializerType Type)
 {
     USerializer V(Type);
     data.PushData(V);
     return V.ToFile(path);
 }
+void TextureData::PushData(USerializer& node) const
+{
+	node.Write("_ReadWrite",ReadWrite);
+	node.Write("_PixelPerUnit", PixelPerunit);
+	node.Write("_Filter", (Texture::Filter_t)Filter);
+	node.Write("_TextureType",_TextureType);
+	node.Write("_TextureData",_TextureData);
+}
 
+bool TextureData::FromString(TextureData& out, UDeserializer& text)
+{
+    text.ReadType("_ReadWrite", out.ReadWrite, out.ReadWrite);
+	text.ReadType("_PixelPerUnit", out.PixelPerunit, out.PixelPerunit);
+	text.ReadType("_Filter", *(Texture::Filter_t*)&out.Filter, *(Texture::Filter_t*)&out.Filter);
+	text.ReadType("_TextureType", out._TextureType,out._TextureType);
+	text.ReadType("_TextureData", out._TextureData,out._TextureData);
+	return true;
+}
+
+bool TextureData::FromFile(TextureData& out, const Path& Path)
+{
+    UDeserializer V;
+    bool A = UDeserializer::FromFile(Path, V);
+    if (A)
+    {
+        return FromString(out, V);
+    }
+    return A;
+}
+
+bool TextureData::ToFile(const Path& path,const TextureData& data, USerializerType Type)
+{
+    USerializer V(Type);
+    data.PushData(V);
+    return V.ToFile(path);
+}
 void AssetRendering::UpdatePtr(AssetManager* Manager,TexturePtr& Ptr)
 {
 	

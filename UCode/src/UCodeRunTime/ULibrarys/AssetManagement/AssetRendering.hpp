@@ -38,7 +38,25 @@ struct SpriteData
 	static bool FromString(SpriteData& out, UDeserializer& text);
 
 	static bool FromFile(SpriteData& out, const Path& Path);
-	static bool ToFile(const Path& path, SpriteData& data, USerializerType Type);
+	static bool ToFile(const Path& path,const SpriteData& data, USerializerType Type);
+};
+struct TextureData
+{
+	inline static const char* FileExt = "UTexture";
+	inline static const char* FileExtDot = ".UTexture";
+
+	bool ReadWrite = false;
+	u32 PixelPerunit = 0;
+	Texture::Filiter Filter = Texture::Filiter::Point;
+
+	String _TextureType;
+	Vector<Byte> _TextureData;
+
+	void PushData(USerializer& node) const;
+	static bool FromString(TextureData& out, UDeserializer& text);
+
+	static bool FromFile(TextureData& out, const Path& Path);
+	static bool ToFile(const Path& path,const TextureData& data, USerializerType Type);
 };
 
 class SpriteAsset : public Asset

@@ -246,8 +246,14 @@ struct UEditorGetUIDContext
 
 struct ExportFileRet
 {
+	struct SubAsset
+	{
+		UID _UID;
+		Path _Path;
+	};
 	bool WasUpdated = false;
 	Optional<UID> _UID;
+	Vector<SubAsset> _SubAssets;
 };
 struct LoadAssetContext
 {
