@@ -7,6 +7,13 @@ RenderingStart
 class Texture
 {
 public:
+	using Filter_t = Byte;
+	enum class Filiter : Filter_t
+	{
+		Point,
+		bilinear,
+		trilinear,
+	};
 	Texture();
 	Texture(const Path& filePath);
 	Texture(i32 width, i32 height,const Color32* color);

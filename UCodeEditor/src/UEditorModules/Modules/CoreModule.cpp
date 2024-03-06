@@ -262,13 +262,8 @@ public:
 		HighQuality,
 	};
 
-	using Filter_t = int;
-	enum class Filter :Filter_t
-	{
-		Point,
-		bilinear,
-		trilinear,
-	};
+	using Filter_t = UCode::Texture::Filter_t;
+	using Filter = UCode::Texture::Filiter;
 	struct TextureSettings
 	{
 		UID uid;
@@ -957,6 +952,74 @@ public:
 	{
 		return Unique_ptr< UEditorAssetFile>(new LiveingPng());
 	}
+	ExportFileRet ExportFile(const Path& path, const ExportFileContext& Item) override
+	{
+		Path metapath = path.native() + Path(UEditorAssetFileData::DefaultMetaFileExtWithDot).native();
+
+		TextureSettings settings;
+		if (!LiveingPng::fromfile(metapath,settings))
+		{
+			UCodeGEToDo();
+		}
+		ExportFileRet r;
+		r._UID = settings.uid;
+		r.WasUpdated = true;
+		r._SubAssets.reserve(settings.sprites.size());
+
+		bool textureneedsupdate = true;
+		if (textureneedsupdate) 
+		{
+			UCode::TextureData _Data;
+			_Data.ReadWrite = settings.ReadAndWrite;
+			_Data.PixelPerunit = settings.pixelperunit;
+			_Data.Filter = settings.filter;
+			_Data._TextureType = ".png";
+
+			auto byte = UCode::GameFiles::ReadFileAsBytes(path);
+			_Data._TextureData.resize(byte.Size());
+
+			for (auto& Item : byte.AsView())
+			{
+				_Data._TextureData.push_back(Item);
+			}
+			
+			if (!UCode::TextureData::ToFile(Item.Output, _Data, USerializerType::Bytes))
+			{
+				UCodeGEToDo();
+			}
+		}
+
+		for (auto& spriteItem : settings.sprites)
+		{
+			Path outpath =  Item.Output.native() + Path(spriteItem.spritename).native() + Path(UCode::SpriteData::FileExtDot).native();
+
+			bool spriteneedsupdate = true;
+
+			if (spriteneedsupdate) {
+				UCode::SpriteData spritedata;
+				spritedata.OffsetX = spriteItem.offset.X;
+				spritedata.OffsetY = spriteItem.offset.Y;
+				spritedata.SizeX = spriteItem.size.X;
+				spritedata.SizeY = spriteItem.size.Y;
+				spritedata._Texture = r._UID.value();
+
+				if (!UCode::SpriteData::ToFile(outpath, spritedata, USerializerType::Bytes))
+				{
+					UCodeGEToDo();
+				}
+			}
+
+			ExportFileRet::SubAsset val;	
+			val._UID = spriteItem.uid;
+			val._Path = outpath;
+
+			r._SubAssets.push_back(std::move(val));
+		}
+
+		return  r;
+	}
+
+
 	Optional<GetUIDInfo> GetFileUID(UEditorGetUIDContext& context) override
 	{
 		TextureSettings setting;
