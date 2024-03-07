@@ -188,7 +188,8 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 				errors = std::move(r.GetError());
 			}
 		}
-		else {
+		else 
+		{
 			ModulesRets.push_back(r.GetValue());
 		}
 	}

@@ -6,6 +6,8 @@
 #include "EditorWindows/BasicWindows/InspectWindow.hpp"
 EditorStart
 
+struct ExportError;
+
 struct ExportChacheFile
 {
 	struct GetState_t;
@@ -254,6 +256,7 @@ struct ExportFileRet
 	bool WasUpdated = false;
 	Optional<UID> _UID;
 	Vector<SubAsset> _SubAssets;
+	Vector<ExportError> errors;
 };
 struct LoadAssetContext
 {
