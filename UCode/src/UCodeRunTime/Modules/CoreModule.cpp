@@ -65,6 +65,8 @@ CoreModule::CoreModule()
 				if (scene._TextureType == ".png") 
 				{
 					UCode::Texture b(spanof(scene._TextureData));
+					b.PixelsPerUnit = scene.PixelPerunit;
+
 					Unique_ptr<Asset> v = std::make_unique<TextureAsset>(std::move(b));
 
 					TextureAsset* tex = v->GetAssetAs<TextureAsset>().value().value();

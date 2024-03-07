@@ -70,8 +70,27 @@ void SpriteRenderer::OnDraw()
 
 	AssetRendering::UpdatePtr(AssetManager,sprite);
 
+	
+	
 	Vec2 pos = Entity->worldposition2d();
-	Vec2 size = Scale;
+	Vec2 size;
+
+	if (sprite.Has_Asset())
+	{
+		auto sp = sprite.Get_Asset();
+		auto ppu = sp->Get_texture()->PixelsPerUnit;
+
+		size = {(f32)sp->Get_Width(),(f32)sp->Get_Height()};
+		size *= (f32)1/(f32)ppu;
+
+		size.X *= Scale.X;	
+		size.Y *= Scale.Y;	
+	}
+	else
+	{
+		size = Scale;
+	}
+
 	Vec2 Rotation = Entity->worldrotation2d();
 	
 	//AssetRendering::DrawQuad2dData Data(pos - Vec2(size.X/2, size.Y/2), size, Rotation);

@@ -414,6 +414,7 @@ public:
 		
 				
 				UCode::TextureAsset V(UCode::Texture(this->FileFullPath));
+				SetupTexture(&V._Base);
 				asset = std::move(V);
 
 				return ImGuIHelper::ImageButton(Item.ObjectPtr, AppFiles::sprite::Entity, *(ImVec2*)&Item.ButtionSize);
@@ -428,6 +429,10 @@ public:
 		{
 			auto runtimeproject = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 			runtimeproject->Get_AssetIndex().RemoveIndexFileWithUID(id);
+		}
+		void SetupTexture(UCode::Texture* tex)
+		{
+			tex->PixelsPerUnit = setting.pixelperunit;
 		}
 		NullablePtr<UC::Asset> LoadAsset(const LoadAssetContext& Item)  override
 		{
@@ -449,6 +454,7 @@ public:
 
 
 				UCode::TextureAsset V(UCode::Texture(this->FileFullPath));
+				SetupTexture(&V._Base);
 				asset = std::move(V);
 			}
 			if (Item._AssetToLoad == setting.uid)
@@ -940,7 +946,7 @@ public:
 			}
 			if (ImGuIHelper::uInt32Field("Pixel Per Unit", setting.pixelperunit))
 			{
-
+				asset.value()._Base.PixelsPerUnit = setting.pixelperunit;
 			}
 			//
 		}
