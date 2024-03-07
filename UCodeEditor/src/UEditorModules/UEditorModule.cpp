@@ -90,6 +90,7 @@ Result<ExportEditorReturn, ExportErrors> UEditorModule::ExportEditor(ExportEdito
 	UCode::StandardAssetLoader::UIdMap IDMaps;
 	
 	fs::create_directories(r.OutputModuleFile.parent_path());
+	ExportErrors asseterrors;
 
 	for (const auto& dirEntry : fs::recursive_directory_iterator(Context.AssetPath))
 	{
@@ -130,6 +131,12 @@ Result<ExportEditorReturn, ExportErrors> UEditorModule::ExportEditor(ExportEdito
 				{
 					outfile = AssetData->ExportFile(path, Exfile);
 				}
+
+				for (auto& Item : outfile.errors)
+				{
+					asseterrors.Errors.push_back(std::move(Item));
+				}
+
 				if (fs::exists(Exfile.Output)) {
 					auto bytes = UCode::GameFiles::ReadFileAsBytes(Exfile.Output);
 					UCode::GameFileIndex index;
@@ -153,10 +160,35 @@ Result<ExportEditorReturn, ExportErrors> UEditorModule::ExportEditor(ExportEdito
 						V._Data.push_back(Item);
 					}
 				}
+
+				for (auto& subasset : outfile._SubAssets)
+				{
+					auto Relat = FileHelper::ToRelativePath(Context.AssetPath, subasset._Path);
+
+					auto bytes = UCode::GameFiles::ReadFileAsBytes(subasset._Path);
+					UCode::GameFileIndex index;
+					index.FileOffset = V._Data.size();
+					index.FileFullName = Relat;
+					index.FileSize = bytes.Size();
+
+
+					V.Offsets.push_back(std::move(index));
+
+					for (size_t i = 0; i < bytes.Size(); i++)
+					{
+						auto& Item = bytes[i];
+
+						V._Data.push_back(Item);
+					}
+				}
 			}
 		}
 	}
 
+	if (asseterrors.Errors.size())
+	{
+		return asseterrors;
+	}
 
 	auto v = ExportSystems(Context);
 
