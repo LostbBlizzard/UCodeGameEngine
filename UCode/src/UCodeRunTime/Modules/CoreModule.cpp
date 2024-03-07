@@ -52,10 +52,74 @@ CoreModule::CoreModule()
 			}
 
 			return r;
+	});
+	_Assets[2] = UModuleAssetData(Path(UCode::TextureData::FileExtDot),[](UDeserializer& serializer)
+	{
+			Optional<Unique_ptr<Asset>> r;
+			UCode::TextureData scene;
+
+			if (UCode::TextureData::FromString(scene, serializer))
+			{
+				Optional<Unique_ptr<Asset>> r;
+			
+				if (scene._TextureType == ".png") 
+				{
+					UCode::Texture b(spanof(scene._TextureData));
+					Unique_ptr<Asset> v = std::make_unique<TextureAsset>(std::move(b));
+
+					TextureAsset* tex = v->GetAssetAs<TextureAsset>().value().value();
+
+					r = std::move(v);
+					return r;
+				}
+			}
+
+			return r;
+	});
+	_Assets[3] = UModuleAssetData(Path(UCode::SpriteData::FileExtDot),[](UDeserializer& serializer)
+	{
+			Optional<Unique_ptr<Asset>> r;
+			UCode::SpriteData scene;
+
+			if (UCode::SpriteData::FromString(scene, serializer))
+			{
+				Optional<Unique_ptr<Asset>> r;
+				
+				auto assetloader = AssetManager::Get(Gamelibrary::Current());
+				auto b = assetloader->FindOrLoad(scene._Texture);
+				
+				Optional<TextureAssetPtr> tex;
+				if (b.has_value())
+				{
+					if (b.value().Has_Value())
+					{
+						auto val = b.value().Get_Value();
+						auto val2 = val->GetAssetAs<TextureAsset>();
+						if (val2.has_value())
+						{
+							tex = val2.value().value()->GetManaged();
+						}
+					}
+				}
+
+				if (tex.has_value()) 
+				{
+					auto texture = tex.value();
+
+					UCode::Sprite b(&texture.Get_Value()->_Base, scene.OffsetX, scene.OffsetY, scene.SizeX, scene.SizeY);
+					Unique_ptr<Asset> v = std::make_unique<UCode::SpriteAsset>(std::move(b),texture);
+
+					r = std::move(v);
+					return r;
+				}
+			}
+
+			return r;
 	}); 
 }
 CoreModule::~CoreModule()
 {
 
 }
+
 CoreEnd

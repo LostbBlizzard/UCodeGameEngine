@@ -412,6 +412,7 @@ public:
 
 		ExportFileRet r;
 		r._UID = V._UID;
+		r.outpath = Item.Output;
 		return r;
 	}
 

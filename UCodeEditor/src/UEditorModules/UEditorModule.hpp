@@ -257,6 +257,7 @@ struct ExportFileRet
 	Optional<UID> _UID;
 	Vector<SubAsset> _SubAssets;
 	Vector<ExportError> errors;
+	Path outpath;
 };
 struct LoadAssetContext
 {
