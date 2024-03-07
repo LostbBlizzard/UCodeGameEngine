@@ -169,7 +169,8 @@ Texture::Texture(Texture&& source)
 }
 Texture& Texture::operator=(Texture&& source)
 {
-	_RendererID = source._RendererID;
+	PixelsPerUnit = source.PixelsPerUnit;
+	_RendererID = std::move(source._RendererID);
 	_Width = source._Width;
 	_Height = source._Height;
 	_BPP = source._BPP;

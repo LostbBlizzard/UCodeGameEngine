@@ -47,6 +47,8 @@ public:
 	UCodeGEForceinlne bool IsUploadedToGPU() { return _BufferIsInGPU; }
 
 	void FreeFromCPU();
+	
+	u32 PixelsPerUnit = 1;
 private:
 	Optional<u32> _RendererID;
 	i32 _Width = 0, _Height = 0, _BPP = 0;
