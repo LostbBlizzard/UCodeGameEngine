@@ -109,9 +109,7 @@ Result<ExportEditorReturn, ExportErrors> UEditorModule::ExportEditor(ExportEdito
 
 				ExportFileContext Exfile;
 				Exfile.ChashPath = Context.TemporaryGlobalPath / "Assets" / Relat;
-				Exfile.Output = Exfile.ChashPath.native() + Path(".out").native();
-				
-
+				Exfile.Output = Exfile.ChashPath.native();
 
 				fs::create_directories(Exfile.Output.parent_path());
 
@@ -137,16 +135,16 @@ Result<ExportEditorReturn, ExportErrors> UEditorModule::ExportEditor(ExportEdito
 					asseterrors.Errors.push_back(std::move(Item));
 				}
 
-				if (fs::exists(Exfile.Output)) {
-					auto bytes = UCode::GameFiles::ReadFileAsBytes(Exfile.Output);
+				if (fs::exists(outfile.outpath)) {
+					auto bytes = UCode::GameFiles::ReadFileAsBytes(outfile.outpath);
 					UCode::GameFileIndex index;
 					index.FileOffset = V._Data.size();
-					index.FileFullName = Relat;
+					index.FileFullName = FileHelper::ToRelativePath(Path(Context.TemporaryGlobalPath / "Assets").native() + Path::preferred_separator, outfile.outpath);
 					index.FileSize = bytes.Size();
 
 					if (outfile._UID.has_value())
 					{
-						IDMaps._Paths.AddValue(outfile._UID.value(),index.FileFullName);
+						IDMaps._Paths.AddValue(outfile._UID.value(), index.FileFullName);
 					}
 
 
@@ -161,16 +159,17 @@ Result<ExportEditorReturn, ExportErrors> UEditorModule::ExportEditor(ExportEdito
 					}
 				}
 
-				for (auto& subasset : outfile._SubAssets)
+				for (size_t i = 0; i < outfile._SubAssets.size(); i++)
 				{
-					auto Relat = FileHelper::ToRelativePath(Context.AssetPath, subasset._Path);
+					auto& subasset = outfile._SubAssets[i];
 
 					auto bytes = UCode::GameFiles::ReadFileAsBytes(subasset._Path);
 					UCode::GameFileIndex index;
 					index.FileOffset = V._Data.size();
-					index.FileFullName = Relat;
+					index.FileFullName = Relat.native() + Path("$" + std::to_string(i)).native() + Path(subasset._Path).extension().native();
 					index.FileSize = bytes.Size();
 
+					IDMaps._Paths.AddValue(subasset._UID, index.FileFullName);
 
 					V.Offsets.push_back(std::move(index));
 
@@ -180,6 +179,7 @@ Result<ExportEditorReturn, ExportErrors> UEditorModule::ExportEditor(ExportEdito
 
 						V._Data.push_back(Item);
 					}
+
 				}
 			}
 		}

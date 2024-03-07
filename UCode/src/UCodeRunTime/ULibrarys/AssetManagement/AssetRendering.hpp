@@ -11,6 +11,10 @@ CoreStart
 struct TextureAsset : public Asset
 {
 public:
+	TextureAsset(Texture&& base) :_Base(std::move(base))
+	{
+
+	}
 	Texture _Base;
 
 	ManagedPtr<TextureAsset> GetManaged()

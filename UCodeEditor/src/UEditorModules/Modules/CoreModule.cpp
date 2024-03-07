@@ -69,6 +69,7 @@ public:
 
 		ExportFileRet r;
 		r._UID = V._UID;
+		r.outpath = Item.Output;
 		return r;
 	}
 	Optional<GetUIDInfo> GetFileUID(UEditorGetUIDContext& context) override
@@ -412,8 +413,7 @@ public:
 
 		
 				
-				UCode::TextureAsset V;
-				V._Base = UCode::Texture(this->FileFullPath);
+				UCode::TextureAsset V(UCode::Texture(this->FileFullPath));
 				asset = std::move(V);
 
 				return ImGuIHelper::ImageButton(Item.ObjectPtr, AppFiles::sprite::Entity, *(ImVec2*)&Item.ButtionSize);
@@ -448,8 +448,7 @@ public:
 
 
 
-				UCode::TextureAsset V;
-				V._Base = UCode::Texture(this->FileFullPath);
+				UCode::TextureAsset V(UCode::Texture(this->FileFullPath));
 				asset = std::move(V);
 			}
 			if (Item._AssetToLoad == setting.uid)
@@ -957,7 +956,7 @@ public:
 		Path metapath = path.native() + Path(UEditorAssetFileData::DefaultMetaFileExtWithDot).native();
 
 		TextureSettings settings;
-		if (!LiveingPng::fromfile(metapath,settings))
+		if (!LiveingPng::fromfile(metapath, settings))
 		{
 			UCodeGEToDo();
 		}
@@ -966,8 +965,11 @@ public:
 		r.WasUpdated = true;
 		r._SubAssets.reserve(settings.sprites.size());
 
+		String filename = Item.Output.generic_string();
+		Path outtexpath = filename.substr(0, filename.find_last_of('.')) + UCode::TextureData::FileExtDot;
+
 		bool textureneedsupdate = true;
-		if (textureneedsupdate) 
+		if (textureneedsupdate)
 		{
 			UCode::TextureData _Data;
 			_Data.ReadWrite = settings.ReadAndWrite;
@@ -976,22 +978,23 @@ public:
 			_Data._TextureType = ".png";
 
 			auto byte = UCode::GameFiles::ReadFileAsBytes(path);
-			_Data._TextureData.resize(byte.Size());
+			_Data._TextureData.reserve(byte.Size());
 
 			for (auto& Item : byte.AsView())
 			{
 				_Data._TextureData.push_back(Item);
 			}
-			
-			if (!UCode::TextureData::ToFile(Item.Output, _Data, USerializerType::Bytes))
+
+			if (!UCode::TextureData::ToFile(outtexpath, _Data, USerializerType::Bytes))
 			{
 				UCodeGEToDo();
 			}
 		}
+		r.outpath = outtexpath;
 
 		for (auto& spriteItem : settings.sprites)
 		{
-			Path outpath =  Item.Output.native() + Path(spriteItem.spritename).native() + Path(UCode::SpriteData::FileExtDot).native();
+			Path outpath = Item.Output.native() + Path(spriteItem.spritename).native() + Path(UCode::SpriteData::FileExtDot).native();
 
 			bool spriteneedsupdate = true;
 
@@ -1009,12 +1012,13 @@ public:
 				}
 			}
 
-			ExportFileRet::SubAsset val;	
+			ExportFileRet::SubAsset val;
 			val._UID = spriteItem.uid;
 			val._Path = outpath;
 
 			r._SubAssets.push_back(std::move(val));
 		}
+
 
 		return  r;
 	}
