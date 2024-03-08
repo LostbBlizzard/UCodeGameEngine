@@ -312,7 +312,7 @@ void GameEditorWindow::SceneEditorTab()
             ImGuizmo::RecomposeMatrixFromComponents(
                 &pos.X,
                 &rot.X,
-                &scl.X,matrixfptr);
+                &scl.X, matrixfptr);
 
 
             ImGuizmo::OPERATION mode = ImGuizmo::OPERATION::BOUNDS;
@@ -337,20 +337,30 @@ void GameEditorWindow::SceneEditorTab()
             }
 
 
-            ImGuizmo::SetOrthographic(_SceneCamera->Get_CamType() ==UCode::Camera2d::CamType::Orthographic);
+            ImGuizmo::SetOrthographic(_SceneCamera->Get_CamType() == UCode::Camera2d::CamType::Orthographic);
             ImGuizmo::BeginFrame();
 
-            auto tep= ImGui::GetWindowPos();
-        
-            ImGuizmo::SetRect(tep.x,(- tep.x/2.5), Viewportsize.x, Viewportsize.y);
+            auto tep = ImGui::GetCursorPos();
 
-            auto vm =_SceneCamera->Get_ViewMatrix();
-            auto pm =_SceneCamera->Get_ProjectionMatrix();
-            
+            auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+            auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+            auto viewportOffset = ImGui::GetWindowPos();
+       
+            ImVec2 view ={ viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
+            ImVec2 view2 = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
+
+
+
+            ImGuiIO& io = ImGui::GetIO();
+            ImGuizmo::SetRect(view.x, view.y, view2.x - view.x, view2.y - view.y);;
+
+            auto vm = _SceneCamera->Get_ViewMatrix();
+            auto pm = _SceneCamera->Get_ProjectionMatrix();
+
             bool updated = ImGuizmo::Manipulate(
              (float*)&vm,
              (float*)&pm
-                , mode,ImGuizmo::MODE::WORLD, matrixfptr);
+                , mode, ImGuizmo::MODE::WORLD, matrixfptr);
 
 
             if (updated)
