@@ -164,7 +164,7 @@ void Texture::TryUploadTexToGPU()
 
 Texture::Texture(Texture&& source)
 {
-	*this = Texture();
+	new (this) Texture();
 	*this = std::move(source);
 }
 Texture& Texture::operator=(Texture&& source)
@@ -174,15 +174,14 @@ Texture& Texture::operator=(Texture&& source)
 	_Width = source._Width;
 	_Height = source._Height;
 	_BPP = source._BPP;
-	_BufferIsInGPU  = std::move(source._BufferIsInGPU);
+	_BufferIsInGPU = std::move(source._BufferIsInGPU);
 	_FilePath = std::move(source._FilePath);
 	_Buffer = std::move(source._Buffer);
 
 
 	source._RendererID = {};
-	
 
-
+	source.~Texture();
 	new (&source) Texture;
 
 	return *this;

@@ -616,9 +616,9 @@ void OpenGlRender::Flush()
     {
         auto &Item = TextureSlots[i];
         Item->TryUploadTexToGPU();
-        // glBindTextureUnit(i, Item->Get_RendererID());
-        glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(GL_TEXTURE_2D, Item->Get_RendererID());
+        glBindTextureUnit(i, Item->Get_RendererID());
+        //glActiveTexture(GL_TEXTURE0 + i);
+        //glBindTexture(GL_TEXTURE_2D, Item->Get_RendererID());
     }
 
     QuadVA->Bind();
