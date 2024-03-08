@@ -104,8 +104,8 @@ Unique_ptr<Texture> Texture::MakeNewNullTexture()
 	{
 		Color32(),
 		Color32(75,0,130),
-		Color32(),
 		Color32(75,0,130),
+		Color32(),
 	};
 	auto tex =std::make_unique<Texture>(2, 2, NullTexureColorData);
 	#else
