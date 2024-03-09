@@ -6,7 +6,7 @@
 
 #include "UCodeRunTime/BasicTypes/ManagedPtr.hpp"
 
-
+#include "../Core/../ULibrarys/Loger.hpp"
 #include "UCodeLang/LangCore/LangDef.hpp"
 CoreStart
 class RunTimeScene;
@@ -24,12 +24,12 @@ template<typename T>
 struct CompoentPtr
 {
 private:
-	static constexpr bool IsCompoent = std::is_base_of<Compoent,T>();
+	static constexpr bool IsCompoent = std::is_base_of<Compoent, T>();
 	static_assert(IsCompoent, " 'T' is not a Compoent");
 public:
 	ManagedPtr<T> Ptr;
 
-	
+
 };
 
 UCodeLangExportSymbol("UCodeGameEngine") UCodeLangEmbed(
@@ -45,8 +45,8 @@ class Compoent
 	friend Entity;
 private:
 	Entity* _Entity = nullptr;
-	UComponentData* _TypeData =nullptr;
-	bool _IsDestroyed= false, _GameRunTimeHasCalledStart = false, _IsActive = true;
+	UComponentData* _TypeData = nullptr;
+	bool _IsDestroyed = false, _GameRunTimeHasCalledStart = false, _IsActive = true;
 	Compoent_Ptr _Managed;
 public:
 	Compoent(Entity* entity, UComponentData* TypeData);
@@ -67,7 +67,7 @@ public:
 	void Disable_Compoent() { _IsActive = false; }
 	bool Get_IsActive() const { return _IsActive; }
 
-	
+
 
 	static void Destroy(Compoent* compoent) { compoent->_IsDestroyed = true; }
 	bool Get_IsDestroyed() const { return _IsDestroyed; }
@@ -77,7 +77,7 @@ public:
 	GameRunTime* GetGameRunTime() const;
 	RunTimeScene* Get_Scene() const;
 
-	
+
 	template<class T, typename... Pars> UCodeGEForceinlne T* AddCompoent(Pars... parameters);
 	template<class T> UCodeGEForceinlne NullablePtr<T> GetCompent();
 
@@ -85,7 +85,7 @@ public:
 	{
 		constexpr bool IsCompoent = std::is_base_of<Compoent, T>();
 		static_assert(IsCompoent, " 'T' is not a Compoent");
-		#if UCodeGEDebug
+#if UCodeGEDebug
 
 		T* cast = dynamic_cast<T*>(_Managed.Get_Value());
 		if (cast == nullptr)
@@ -93,8 +93,8 @@ public:
 			UCodeGEError("bad type");
 		}
 
-		#endif // DEBUG
-		return *(CompoentPtr<T>*)&_Managed;
+#endif // DEBUG
+		return *(CompoentPtr<T>*) & _Managed;
 	}
 
 	Compoent_Ptr Get_ManagedPtr()
@@ -132,9 +132,9 @@ public:
 	Entity(RunTimeScene* runtime);
 	~Entity();
 	Entity(Entity&& source) = default;
-	
-	
-	
+
+
+
 
 	UCodeGEForceinlne const auto& NativeCompoents() const
 	{
@@ -158,7 +158,7 @@ public:
 	inline void MoveCompoent(Compoent* t)
 	{
 
-		#if UCodeGEDebug
+#if UCodeGEDebug
 		if (t->NativeEntity() != this)
 		{
 			throw std::runtime_error("Cant Move Compoent ,Compoent was made with Entity a different Entity");
@@ -171,7 +171,7 @@ public:
 				throw std::runtime_error("Cant Move Compoent ,this Entity has this Compoent");
 			}
 		}
-		#endif // DEBUG
+#endif // DEBUG
 
 
 
@@ -268,7 +268,7 @@ public:
 	UCodeGEForceinlne void SetActive(bool V) { _IsActive = V; }
 
 	UCodeGEForceinlne bool GetActive() const { return _IsActive; }
-	
+
 	UCodeLangExport void Enable() { _IsActive = true; }
 	UCodeLangExport void Disable() { _IsActive = false; }
 	UCodeLangExport bool& active()
@@ -291,10 +291,10 @@ public:
 
 	//Dont use me unless you know what you're doing
 	UCodeGEForceinlne void EditorAPI_Set_Scene(RunTimeScene* S) { _Scene = S; }
-	
+
 	//Dont use me unless you know what you're doing
 	UCodeGEForceinlne void EditorAPI_Set_ParentEntity(Entity* S) { _ParentEntity = S; }
-	
+
 	EntityPtr NativeManagedPtr()
 	{
 		return _Managed;
@@ -320,8 +320,8 @@ public:
 	const String& NativeName() const { return _Name; }
 
 
-	UCodeLangExport const StringView name() const {return _Name;}
-	UCodeLangExport void name(StringView Value){_Name = Value;}
+	UCodeLangExport const StringView name() const { return _Name; }
+	UCodeLangExport void name(StringView Value) { _Name = Value; }
 
 
 	UCodeLangExport Vec3& localposition()
@@ -394,7 +394,7 @@ public:
 
 	UCodeLangExport void worldrotation(const Vec3& Value);
 	UCodeLangExport void worldrotation(const Vec2& Value);
-	
+
 	UCodeLangExport void worldscale(const Vec3& Value);
 	UCodeLangExport void worldscale(const Vec2& Value);
 
@@ -403,13 +403,13 @@ public:
 		return   _ParentEntity;
 	}
 
-	UCodeGEForceinlne auto NativeParent() 
+	UCodeGEForceinlne auto NativeParent()
 	{
 		return   _ParentEntity;
 	}
 private:
-	RunTimeScene* _Scene =nullptr;
-	bool _IsDestroyed =false, _IsActive =true;
+	RunTimeScene* _Scene = nullptr;
+	bool _IsDestroyed = false, _IsActive = true;
 	Vector<Unique_ptr<Compoent>> _Compoents;
 	Vector<Unique_ptr<Entity>> _Entitys;
 	String _Name;
@@ -431,12 +431,12 @@ private:
 
 template<class T, typename ...Pars> UCodeGEForceinlne T* Compoent::AddCompoent(Pars... parameters)
 {
-		return _Entity->AddCompoent<T>(parameters...);
+	return _Entity->AddCompoent<T>(parameters...);
 }
 template<class T> UCodeGEForceinlne NullablePtr<T> Compoent::GetCompent()
 {
 	return _Entity->GetCompent<T>();
 }
-CoreEnd	
-	
+CoreEnd
+
 

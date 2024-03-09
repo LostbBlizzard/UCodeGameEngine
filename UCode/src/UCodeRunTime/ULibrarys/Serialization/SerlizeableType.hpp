@@ -5,7 +5,7 @@
 #define MakeSerlizeType(Type,Members) \
 CoreStart \
 template<> \
-struct BitData< ##Type > { \
+struct BitData< Type > { \
 struct TemStruct2 \
 { \
    const Type* _this; \

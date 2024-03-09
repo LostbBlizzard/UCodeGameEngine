@@ -22,7 +22,7 @@ enum class LogType : Byte
 	Info,
 
 	Default = (Byte)LogType::Info,
-}; 
+};
 class Loger
 {
 public:
@@ -47,7 +47,7 @@ public:
 
 	static void Log(const String& Msg, LogType Type = LogType::Default)
 	{
-		Log(StringView(Msg),Type);
+		Log(StringView(Msg), Type);
 	}
 	static void Log(const char* Msg, LogType Type = LogType::Default)
 	{
@@ -68,15 +68,15 @@ public:
 		}
 	};
 	static void SetLogOutfile(const Path& Str);
-	
-	using ListnerCallBack = Delegate<void,StringView>;
+
+	using ListnerCallBack = Delegate<void, StringView>;
 	using CallBackKey = int;
-	
+
 	//Callback will allways be on main thread
 	static CallBackKey AddListener(ListnerCallBack callback);
 	static void RemoveListener(CallBackKey key);
 private:
-	
+
 	inline static bool IsInit = false;
 };
 

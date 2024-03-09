@@ -65,11 +65,11 @@ public:
 	}
 	void write(const plog::Record& record) override
 	{
-		#if DebugMode
+#if DebugMode
 		std::wostream& Output = std::wcerr;
 		PushToStream(Output, record);
-		#endif // DEBUG
-	
+#endif // DEBUG
+
 		if (!LogerFileOutInfo.Loger_FileOutput.empty())
 		{
 			PushToStream(LogerFileOutInfo.OutStream(), record);
@@ -81,13 +81,13 @@ public:
 		String msg = Path(str.str()).generic_string();
 
 		auto docallfunc = [msg]()
-		{
-			for (auto& Item : CallBacksItems)
 			{
-				Item.callback(msg);
-			}
-		};
-	
+				for (auto& Item : CallBacksItems)
+				{
+					Item.callback(msg);
+				}
+			};
+
 		if (Threads::Get_Threads())
 		{
 			if (Threads::IsOnMainThread())
@@ -108,18 +108,20 @@ public:
 		plog::util::localtime_s(&t, &record.getTime().time);
 
 		//Output << t.tm_year + 1900 << PLOG_NSTR("/") << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_mon + 1 << PLOG_NSTR("/") << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_mday << PLOG_NSTR(";");
+#if UCodeGEWindows
 		Output << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_hour << PLOG_NSTR(":") << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_min << PLOG_NSTR(":") << std::setfill(PLOG_NSTR('0')) << std::setw(2) << t.tm_sec << PLOG_NSTR(".") << std::setfill(PLOG_NSTR('0')) << std::setw(3) << static_cast<int> (record.getTime().millitm);
+#endif
 
 		Output << "]";
 
 
-		#if !PublishMode
+#if !PublishMode
 		/*	Output
 			<< "~" << record.getFunc()
 			//<< " -file: '" << record.getFile() << "'"
 			<< ":" << record.getLine() << "";
 		*/
-		#endif	
+#endif	
 
 		Output << ":";
 		Output << record.getMessage();
@@ -146,14 +148,14 @@ void Loger::SetLogOutfile(const Path& Str)
 }
 Loger::CallBackKey Loger::AddListener(ListnerCallBack callback)
 {
-	#ifdef DebugMode
+#ifdef DebugMode
 	if (!Threads::IsOnMainThread())
 	{
 		UCodeGEError("Adding Log Listener on Non-Main Thread is Undefined");
 
 		return NullCallBack;
 	}
-	#endif
+#endif
 
 	if (NextKey == NullCallBack)
 	{
@@ -172,7 +174,7 @@ Loger::CallBackKey Loger::AddListener(ListnerCallBack callback)
 }
 void Loger::RemoveListener(CallBackKey key)
 {
-	#ifdef DebugMode
+#ifdef DebugMode
 	if (!Threads::IsOnMainThread())
 	{
 		UCodeGEError("Removeing Log Listener on Non-Main Thread is Undefined");
@@ -182,7 +184,7 @@ void Loger::RemoveListener(CallBackKey key)
 			return;
 		}
 	}
-	#endif
+#endif
 
 	for (size_t i = 0; i < CallBacksItems.size(); i++)
 	{
@@ -194,10 +196,10 @@ void Loger::RemoveListener(CallBackKey key)
 		}
 	}
 
-	#ifdef DebugMode
+#ifdef DebugMode
 	UCodeGEError("Could not Remove Log Listener using key. The key may be invaild");
-	#else 
+#else 
 	UCodeGEUnreachable();
-	#endif
+#endif
 }
 CoreEnd
