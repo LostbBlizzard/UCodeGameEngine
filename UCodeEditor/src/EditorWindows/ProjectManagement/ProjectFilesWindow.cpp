@@ -32,7 +32,7 @@ void ProjectFilesWindow::DirectoryViewerOpenFile(DirectoryViewer& From, void* Pt
     ptr->_LookingAtDir = Path.parent_path().native() + Path::preferred_separator;
     ptr->UpdateDir();
 }
-ProjectFilesWindow::ProjectFilesWindow(const NewEditorWindowData& windowdata):EditorWindow(windowdata)
+ProjectFilesWindow::ProjectFilesWindow(const NewEditorWindowData& windowdata) :EditorWindow(windowdata)
 {
     Viewer.SetCallBackPtr(this);
     Viewer.SetOpenPathCallback(DirectoryViewerOpenFile);
@@ -40,27 +40,27 @@ ProjectFilesWindow::ProjectFilesWindow(const NewEditorWindowData& windowdata):Ed
 }
 ProjectFilesWindow::~ProjectFilesWindow()
 {
-   
+
 }
 
 #define ColorSpiteName "NewColorSprite"
-static bool OpenPopUp =false;
+static bool OpenPopUp = false;
 
 #define ColorEdit "UpdateColor"
 static bool ColorEditPopUp = false;
 static String ColorEditFilePath;
-static UCode::Color32* ColorObject =nullptr;
+static UCode::Color32* ColorObject = nullptr;
 
 void ProjectFilesWindow::OnFileUpdate(const Path& path)
 {
     bool islookatdir = false;
-   
+
     Path newpath = "Assets";
     newpath /= path.native();
 
     if (newpath.native().size() > _LookingAtDirReadable.native().size())
     {
-        islookatdir = UCode::StringHelper::StartWith<PathChar>(newpath.native(),_LookingAtDirReadable.native());
+        islookatdir = UCode::StringHelper::StartWith<PathChar>(newpath.native(), _LookingAtDirReadable.native());
 
     }
     if (islookatdir)
@@ -75,12 +75,12 @@ void ProjectFilesWindow::UpdateWindow()
         _LookingAtDir = Get_ProjectData()->GetAssetsDir();
         UpdateDir();
     }
-    
+
     auto window = ImGui::GetCurrentWindow();
 
     window->Flags |= ImGuiWindowFlags_::ImGuiWindowFlags_MenuBar;
 
-   
+
     if (_LookingAtDir.has_value())
     {
         {
@@ -97,11 +97,11 @@ void ProjectFilesWindow::UpdateWindow()
             }
             ImGui::EndDisabled();
 
-            ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ItemSpacing, { 2,4});
+            ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ItemSpacing, { 2,4 });
 
             ImGui::SameLine();
 
-          
+
             ImGui::PushID(&_LookingAtDir);
             ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
             bool v = ImGuIHelper::InputText("", _FindFileName);
@@ -116,7 +116,7 @@ void ProjectFilesWindow::UpdateWindow()
             auto str = _LookingAtDirReadable.generic_string();
 
             static Vector<StringView> list;
-            StringHelper::Split(str, "/",list);
+            StringHelper::Split(str, "/", list);
             String itemstr;
 
             Optional<size_t> ClickedIndex;
@@ -124,14 +124,14 @@ void ProjectFilesWindow::UpdateWindow()
             {
                 auto& Item = list[i];
                 itemstr = Item;
-                
+
                 ImGui::PushID(&Item);
 
                 auto s = ImGui::CalcTextSize(itemstr.c_str());
                 auto roundsize = 10;
-                bool onclick = ImGui::Button(itemstr.c_str(),{ std::ceilf(s.x / roundsize) * roundsize + 10,0});
+                bool onclick = ImGui::Button(itemstr.c_str(), ImVec2(std::ceil(s.x / roundsize) * roundsize + 10, 0));
                 ImGui::PopID();
-               
+
                 if (i + 1 < list.size())
                 {
                     ImGui::SameLine();
@@ -143,7 +143,7 @@ void ProjectFilesWindow::UpdateWindow()
                 }
             }
             ImGui::PopStyleVar();
-         
+
             if (ClickedIndex.has_value())
             {
                 Path oldpath = _LookingAtDir.value();
@@ -152,7 +152,7 @@ void ProjectFilesWindow::UpdateWindow()
                     oldpath = oldpath.parent_path().parent_path().generic_u8string() + '/';
                 }
 
-                 _LookingAtDir = oldpath;
+                _LookingAtDir = oldpath;
                 UpdateDir();
             }
 
@@ -167,8 +167,8 @@ void ProjectFilesWindow::UpdateWindow()
             auto Pos = ImGui::GetCursorPos();
 
             ImGui::SetCursorPos(Pos);
-          
-           
+
+
 
             ImGui::BeginChild(ImGui::GetID("FilesStuff"), ContentSize);
             ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, { 0,0,0,0 });
@@ -201,7 +201,7 @@ void ProjectFilesWindow::UpdateWindow()
 
                         const String EntityName = DropItem->NativeName().size() ? DropItem->NativeName() : UnNamedEntity;
 
-                        Path path = FileHelper::GetNewFileName(Path(_LookingAtDir.value().native() + Path(EntityName).native()),Path(RawEntityData::FileExtDot));
+                        Path path = FileHelper::GetNewFileName(Path(_LookingAtDir.value().native() + Path(EntityName).native()), Path(RawEntityData::FileExtDot));
 
                         RawEntityData::WriteToFile(path, Data);
                         UpdateDir();
@@ -228,7 +228,7 @@ void ProjectFilesWindow::UpdateWindow()
                         const String _SceneName = DropItem->Get_Name().size() ? DropItem->Get_Name() : UnNamedScene;
 
 
-                        Path path = FileHelper::GetNewFileName(_LookingAtDir.value().native() +  Path(_SceneName).native(),Path(UCode::Scene2dData::FileExtDot));
+                        Path path = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path(_SceneName).native(), Path(UCode::Scene2dData::FileExtDot));
                         UCode::Scene2dData::ToFile(path, Data, SaveType);
                         UpdateDir();
                     }
@@ -237,16 +237,16 @@ void ProjectFilesWindow::UpdateWindow()
                 ImGui::EndDragDropTarget();
             }
         }
-       
 
-      
+
+
     } //popups
-   
+
 
     {
         static UCode::Color Color;
         static String FileName;
-        if (OpenPopUp) 
+        if (OpenPopUp)
         {
             OpenPopUp = false;
             FileName = "New Color";
@@ -256,7 +256,7 @@ void ProjectFilesWindow::UpdateWindow()
         {
 
             ImGuIHelper::Text(StringView("Color Sprite"));
-            ImGuIHelper::InputText("File Name",FileName);
+            ImGuIHelper::InputText("File Name", FileName);
             ImGui::ColorPicker4("Color", &Color.R);
 
             bool MakeColor = false;
@@ -279,12 +279,12 @@ void ProjectFilesWindow::UpdateWindow()
 
             if (MakeSprite)
             {
-                Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path(FileName).native(),".png");
+                Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path(FileName).native(), ".png");
                 UCode::Color32 Bytes = (UCode::Color32)Color;
                 constexpr auto CHANNEL_NUM = 4;
                 constexpr auto width = 1;
-                constexpr auto height = 1;            
-                stbi_write_png(NewPath.generic_string().c_str(), width, height, CHANNEL_NUM, &Bytes, width* CHANNEL_NUM);
+                constexpr auto height = 1;
+                stbi_write_png(NewPath.generic_string().c_str(), width, height, CHANNEL_NUM, &Bytes, width * CHANNEL_NUM);
             }
             if (MakeColor)
             {
@@ -481,69 +481,69 @@ void ProjectFilesWindow::ShowDirButtions()
                 const UCodeLang::AssemblyNode* node = nullptr;
             };
 
-           thread_local Vector<ScriptMenuInfo> MenuInfo;
-           thread_local Optional<ULangAssemblyID> Myulangkey;
-           {
-               bool isoutofdate = Myulangkey.has_value() ? currentulangkey != Myulangkey.value() : true;
-               if (isoutofdate) 
-               {
-                   Myulangkey = currentulangkey;
-                   const UCodeLang::ClassAssembly& CurrentAssembly = ULang->Get_Assembly();
+            thread_local Vector<ScriptMenuInfo> MenuInfo;
+            thread_local Optional<ULangAssemblyID> Myulangkey;
+            {
+                bool isoutofdate = Myulangkey.has_value() ? currentulangkey != Myulangkey.value() : true;
+                if (isoutofdate)
+                {
+                    Myulangkey = currentulangkey;
+                    const UCodeLang::ClassAssembly& CurrentAssembly = ULang->Get_Assembly();
 
-                   for (auto& Item : CurrentAssembly.Classes)
-                   {
+                    for (auto& Item : CurrentAssembly.Classes)
+                    {
 
-                       Optional<const UCodeLang::UsedTags*> tagsop;
+                        Optional<const UCodeLang::UsedTags*> tagsop;
 
-                       if (Item->Get_Type() == UCodeLang::ClassType::Class)
-                       {
-                           auto& nod = Item->Get_ClassData();
+                        if (Item->Get_Type() == UCodeLang::ClassType::Class)
+                        {
+                            auto& nod = Item->Get_ClassData();
 
-                           tagsop = &nod.Attributes;
-                       }
+                            tagsop = &nod.Attributes;
+                        }
 
-                       if (tagsop.has_value())
-                       {
-                           const UCodeLang::UsedTags& tags = *tagsop.value();
+                        if (tagsop.has_value())
+                        {
+                            const UCodeLang::UsedTags& tags = *tagsop.value();
 
-                           for (auto& tag : tags.Attributes)
-                           {
-                               const auto& nod = CurrentAssembly.Find_Node(tag.TypeID);
-                               if (nod) {
-                                   if (StringHelper::StartsWith(nod->FullName, "UCodeGameEngine:MenuItem"))
-                                   {
-                                       StringView menuname = StringView((const char*)tag._Data.Get_Data(), tag._Data.Size);
+                            for (auto& tag : tags.Attributes)
+                            {
+                                const auto& nod = CurrentAssembly.Find_Node(tag.TypeID);
+                                if (nod) {
+                                    if (StringHelper::StartsWith(nod->FullName, "UCodeGameEngine:MenuItem"))
+                                    {
+                                        StringView menuname = StringView((const char*)tag._Data.Get_Data(), tag._Data.Size);
 
-                                       bool hasItem = false;
+                                        bool hasItem = false;
 
-                                       for (auto& Item : MenuInfo)
-                                       {
-                                           if (Item.MenuName == menuname)
-                                           {
-                                               hasItem = true;
-                                               break;
-                                           }
-                                       }
+                                        for (auto& Item : MenuInfo)
+                                        {
+                                            if (Item.MenuName == menuname)
+                                            {
+                                                hasItem = true;
+                                                break;
+                                            }
+                                        }
 
-                                       if (!hasItem) {
-                                           ScriptMenuInfo info;
-                                           info.MenuName = menuname;
-                                           info.node = Item.get();
-                                           MenuInfo.push_back(info);
-                                       }
+                                        if (!hasItem) {
+                                            ScriptMenuInfo info;
+                                            info.MenuName = menuname;
+                                            info.node = Item.get();
+                                            MenuInfo.push_back(info);
+                                        }
 
-                                   }
-                               }
-                           }
-                       }
-                   }
+                                    }
+                                }
+                            }
+                        }
+                    }
 
-                   //sort by name
-                   std::sort(MenuInfo.begin(), MenuInfo.end(), [](ScriptMenuInfo& A, ScriptMenuInfo& B)
-                   {
-                          return A.MenuName.compare(B.MenuName) < 0;
-                   });
-               }
+                    //sort by name
+                    std::sort(MenuInfo.begin(), MenuInfo.end(), [](ScriptMenuInfo& A, ScriptMenuInfo& B)
+                    {
+                        return A.MenuName.compare(B.MenuName) < 0;
+                    });
+                }
             }
 
             ImGui::Separator();
@@ -560,18 +560,18 @@ void ProjectFilesWindow::ShowDirButtions()
                 UC::ScirptableObject obj;
 
                 obj.LoadScript(Script.node);
-                
-                obj.SaveTo(data,SaveType);
+
+                obj.SaveTo(data, SaveType);
 
                 data._UID = Get_ProjectData()->GetNewUID();
 
-                Path pathout = FileHelper::GetNewFileName(_LookingAtDir.value() / Script.node->Name,UC::ScirptableObjectData::FileExtDot);
+                Path pathout = FileHelper::GetNewFileName(_LookingAtDir.value() / Script.node->Name, UC::ScirptableObjectData::FileExtDot);
 
                 if (!UC::ScirptableObjectData::ToFile(pathout, data, SaveType))
                 {
                     UCodeGEError("Unable to save Asset at " << pathout);
                 }
-               
+
             }
 
             ImGui::EndMenu();
@@ -587,7 +587,7 @@ ProjectFiles& ProjectFilesWindow::Get_ProjectFiles()
 bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData& Item, ImVec2& ButtionSize)
 {
 
-    if (Item.FileType == FileHelper::FileType::Dir) 
+    if (Item.FileType == FileHelper::FileType::Dir)
     {
         if (ImGuIHelper::ImageButton(&Item, AppFiles::sprite::Dir_folder_image, ButtionSize))
         {
@@ -605,7 +605,7 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
         bool FoundIt = false;
 
         auto& ProjectFiles = Get_ProjectFiles();
-        
+
         for (size_t i = 0; i < Modules.Size(); i++)
         {
             auto& item = Modules[i];
@@ -618,8 +618,8 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
                 FoundIt = true;
                 if (Data->CanHaveLiveingAssets)
                 {
-                    auto B =ProjectFiles.FindAssetFile(Item.FullFileName);
-                    
+                    auto B = ProjectFiles.FindAssetFile(Item.FullFileName);
+
                     UEditorAssetDrawButtionContext Context;
                     Context.ButtionSize = *(Vec2*)&ButtionSize;
                     Context.ObjectPtr = &Item;
@@ -647,31 +647,31 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
                         File = &HG;
                         HG.LastUsed = ProjectFiles.AssetFileMaxLastUsed;
                     }
-                    
-                    
+
+
                     if (File->_File->DrawButtion(Context))
                     {
                         InspectWindow::InspectData V;
-                        V._Data =AnyManagedPtr::As(File->_ManageFile);
+                        V._Data = AnyManagedPtr::As(File->_ManageFile);
 
                         static auto Func = Get_ProjectFiles()._newuid;
                         V._Draw = [](InspectWindow::InspectDrawer& data)
-                        {
-                            UEditorAssetDrawInspectContext Data;
-                            Data.Drawer = &data;
-                            Data._newuid =Func;
+                            {
+                                UEditorAssetDrawInspectContext Data;
+                                Data.Drawer = &data;
+                                Data._newuid = Func;
 
-                            auto AssetFile = data.GetPtr().As_ptr<UEditorAssetFile>();
-                            if (AssetFile.Has_Value())
-                            {
-                                AssetFile.Get_Value()->DrawInspect(Data);
-                            }
-                            else
-                            {
-                                data.SetPtrNull();
-                            }
-                        };
-                       
+                                auto AssetFile = data.GetPtr().As_ptr<UEditorAssetFile>();
+                                if (AssetFile.Has_Value())
+                                {
+                                    AssetFile.Get_Value()->DrawInspect(Data);
+                                }
+                                else
+                                {
+                                    data.SetPtrNull();
+                                }
+                            };
+
 
                         auto inpswin = Get_App()->Get_Window<InspectWindow>();
                         inpswin->Inspect(V);
@@ -690,8 +690,8 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
                 break;
             }
         }
-  
-    
+
+
         if (FoundIt == false)
         {
             if (ImGuIHelper::ImageButton(&Item, AppFiles::sprite::File_image, ButtionSize))
@@ -705,20 +705,20 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
     ImGui::PushID(&Item);
     if (ImGuIHelper::BeginPopupContextItem("Test"))
     {
-       
+
         ImGuIHelper::Text(StringView("File options"));
         ImGui::Separator();
-    
+
         if (ImGui::MenuItem("delete file"))
         {
-           FileHelper::TrashFile(Item.FullFileName);
+            FileHelper::TrashFile(Item.FullFileName);
             UpdateDir();
             RetOutfunc = true;
         }
         if (ImGui::MenuItem("Show in Files"))
         {
             FileHelper::OpenPathinFiles(_LookingAtDir.value());
-        }  
+        }
         if (ImGui::MenuItem("Rename File"))
         {
             RenameFile = Item.FullFileName;
@@ -730,7 +730,7 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
 
         ImGui::EndPopup();
     }
-    
+
     ImGui::PopID();
     if (RetOutfunc)
     {
@@ -760,24 +760,24 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
             RenameFile = {};
         }
     }
-    else 
+    else
     {
         ImGuIHelper::Text(NewName);
     }
     ImGui::PopID();
     ImGui::PopStyleColor();
-   
+
 
     return false;
 }
 void ProjectFilesWindow::UpdateDir()
 {
-    
+
     Path path = _LookingAtDir.value();
 
-       
+
     _LookingAtDirReadable = FileHelper::ToRelativePath(Get_ProjectData()->Get_ProjectDir(), _LookingAtDir.value());
-    
+
 
     if (fs::exists(path))
     {
@@ -871,11 +871,11 @@ EditorWindowData ProjectFilesWindow::GetEditorData()
 void ProjectFilesWindow::OnSaveWindow(USerializer& SaveIn)
 {
     auto Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
-   
+
     auto PathString = FileHelper::ToRelativePath(Assespath, _LookingAtDir.value());
 
 
-    SaveIn.Write("_LookingAtDir",PathString);
+    SaveIn.Write("_LookingAtDir", PathString);
 
 
 
@@ -887,7 +887,7 @@ void ProjectFilesWindow::OnLoadWindow(UDeserializer& Loadin)
 {
     auto Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
 
-    Path PathString= "";
+    Path PathString = "";
     Loadin.ReadType("_LookingAtDir", PathString, PathString);
 
     if (PathString != "")

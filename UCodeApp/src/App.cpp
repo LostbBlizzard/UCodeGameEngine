@@ -101,7 +101,7 @@ int App::main(int argc, char* argv[])
             
             if (r.has_value())
             {
-                auto& senceop = r.value().Get_Value()->GetAssetAs<ScencAsset>();
+                auto senceop = r.value().Get_Value()->GetAssetAs<ScencAsset>();
 
                 if (senceop.has_value())
                 {

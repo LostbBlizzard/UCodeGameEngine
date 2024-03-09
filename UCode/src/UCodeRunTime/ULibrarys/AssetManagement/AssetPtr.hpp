@@ -17,50 +17,50 @@ public:
 		UID,
 		ManagedPtr,
 	};
-	AssetPtr() 
+	AssetPtr()
 	{
 
 	}
-	AssetPtr(const UID& ID):
+	AssetPtr(const UID& ID) :
 		_Base(ID)
 	{
 
 	}
-	AssetPtr(const ManagedAssetPtr& data):
+	AssetPtr(const ManagedAssetPtr& data) :
 		_Base(data)
 	{
 
 	}
-	AssetPtr(AssetBase* data):	
+	AssetPtr(AssetBase* data) :
 		_Base(data)
 	{
 
 	}
 	~AssetPtr()
 	{
-		
+
 	}
 	AssetPtr(const AssetPtr& ToCopy) = default;
-	AssetPtr& operator=(const AssetPtr& ToCopy) = default;	
+	AssetPtr& operator=(const AssetPtr& ToCopy) = default;
 	AssetPtr(AssetPtr&& ToCopy) = default;
 	AssetPtr& operator=(AssetPtr&& ToCopy) = default;
 
 
-	UCodeGEForceinlne AssetPtr& operator=(AssetType* ToCopy) { _Base = ToCopy;return *this; }
-	UCodeGEForceinlne AssetPtr& operator=(const UID& ToCopy) { _Base = ToCopy;return *this; }
-	UCodeGEForceinlne AssetPtr& operator=(const ManagedAssetPtr& ToCopy) {_Base = ToCopy;return *this;}
+	UCodeGEForceinlne AssetPtr& operator=(AssetType* ToCopy) { _Base = ToCopy; return *this; }
+	UCodeGEForceinlne AssetPtr& operator=(const UID& ToCopy) { _Base = ToCopy; return *this; }
+	UCodeGEForceinlne AssetPtr& operator=(const ManagedAssetPtr& ToCopy) { _Base = ToCopy; return *this; }
 
-	UCodeGEForceinlne State Get_State() const 
+	UCodeGEForceinlne State Get_State() const
 	{
-		if (_Base.IsType<UID>())
+		if (_Base.template IsType<UID>())
 		{
 			return State::UID;
 		}
-		else if (_Base.IsType<ManagedAssetPtr>())
+		else if (_Base.template IsType<ManagedAssetPtr>())
 		{
 			return State::ManagedPtr;
 		}
-		else if (_Base.IsType<AssetBase*>())
+		else if (_Base.template IsType<AssetBase*>())
 		{
 			return State::Raw;
 		}
@@ -70,24 +70,24 @@ public:
 		}
 	}
 
-	
+
 	UID Get_UID() const
 	{
 		UCodeGEAssert(Has_UID());
 
 		if (Get_State() == State::UID)
 		{
-			return _Base.GetType<UID>();
+			return _Base.template GetType<UID>();
 		}
 		else if (Get_State() == State::ManagedPtr)
 		{
-			return _Base.GetType<ManagedAssetPtr>().Get_Value()->Uid.value();
+			return _Base.template GetType<ManagedAssetPtr>().Get_Value()->Uid.value();
 		}
 		else
 		{
-			#if UCodeGEDebug
+#if UCodeGEDebug
 			UCodeGEThrow("Cant Return A UID");
-			#endif
+#endif
 			return {};
 		}
 	}
@@ -95,13 +95,13 @@ public:
 	{
 		if (Get_State() == State::ManagedPtr)
 		{
-			return _Base.GetType<ManagedAssetPtr>();
+			return _Base.template GetType<ManagedAssetPtr>();
 		}
 		else
 		{
-			#if UCodeGEDebug
+#if UCodeGEDebug
 			UCodeGEThrow("Cant Return ManagedAssetPtr");
-			#endif
+#endif
 			UCodeGEUnreachable();
 		}
 	}
@@ -109,7 +109,7 @@ public:
 	{
 		if (Get_State() == State::ManagedPtr)
 		{
-			return _Base.GetType<ManagedAssetPtr>();
+			return _Base.template GetType<ManagedAssetPtr>();
 		}
 		else
 		{
@@ -119,25 +119,25 @@ public:
 
 	bool Has_Asset() const
 	{
-		return Get_State() == State::ManagedPtr && _Base.GetType<ManagedAssetPtr>().Has_Value();
+		return Get_State() == State::ManagedPtr && _Base.template GetType<ManagedAssetPtr>().Has_Value();
 	}
 
 	bool Has_UID() const
 	{
-		return Get_State() == State::UID || 
+		return Get_State() == State::UID ||
 			(Get_State() == State::ManagedPtr &&
-				_Base.GetType<ManagedAssetPtr>().Has_Value() &&
-				 _Base.GetType<ManagedAssetPtr>().Get_Value()->Uid.has_value());
+				_Base.template GetType<ManagedAssetPtr>().Has_Value() &&
+				 _Base.template GetType<ManagedAssetPtr>().Get_Value()->Uid.has_value());
 	}
-	
+
 	AssetBase* Get_Asset()const
 	{
 		UCodeGEAssert(Has_Asset())
 
-		if (Get_State() == State::ManagedPtr)
-		{
-			return &_Base.GetType<ManagedAssetPtr>().Get_Value()->_Base;
-		}
+			if (Get_State() == State::ManagedPtr)
+			{
+				return &_Base.template GetType<ManagedAssetPtr>().Get_Value()->_Base;
+			}
 		return nullptr;
 	}
 	AssetBase* Get_AssetOr(AssetBase* Other)const

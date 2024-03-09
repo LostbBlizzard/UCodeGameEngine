@@ -852,8 +852,8 @@ public:
 							if (ImGui::IsWindowFocused() || ImGui::IsWindowHovered())
 							{
 								windowdata.texturescale += ImGui::GetIO().MouseWheel;
-								windowdata.dragoffset += *(Vec2*)&ImGui::GetMouseDragDelta(ImGuiMouseButton_::ImGuiMouseButton_Right);
-						
+								auto tep =ImGui::GetMouseDragDelta(ImGuiMouseButton_::ImGuiMouseButton_Right);
+								windowdata.dragoffset += *(Vec2*)&tep;
 								windowdata.texturescale = std::max(windowdata.texturescale, 0.5f);
 							}
 

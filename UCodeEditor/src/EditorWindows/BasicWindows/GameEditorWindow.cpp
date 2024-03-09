@@ -49,10 +49,10 @@ void GameEditorWindow::UpdateWindow()
 
     if (ImGui::Begin(Get_ImGuiName().c_str()))
     {
-        SceneEditorTab(); 
-       
+        SceneEditorTab();
+
     } ImGui::End();
-   
+
 
     ImGui::PopStyleVar();
 
@@ -61,7 +61,7 @@ void GameEditorWindow::UpdateWindow()
     if (ImGui::Begin("Hierarchy"))
     {
         Scenehierarchy();
-        
+
     }ImGui::End();
 
 
@@ -71,7 +71,7 @@ void GameEditorWindow::UpdateWindow()
     {
         //    UnLoadSceneCamera();
         GameTab();
-       
+
     } ImGui::End();
 
     ImGui::PopStyleVar();
@@ -84,20 +84,20 @@ void GameEditorWindow::OnSaveWindow(USerializer& JsonToSaveIn)
     if (_SceneData && _UseingScenePath.has_value())
     {
         auto PathString = FileHelper::ToRelativePath(Assespath, _UseingScenePath.value());
-       
-        
-        JsonToSaveIn.Write("_ScenePath",PathString); 
-        
+
+
+        JsonToSaveIn.Write("_ScenePath", PathString);
+
         SaveScene();
     }
-   
+
 }
 
 void GameEditorWindow::OnLoadWindow(UDeserializer& JsonToOutof)
 {
     auto Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
     Path PathString = "";
-    
+
     JsonToOutof.ReadType("_ScenePath", PathString, PathString);
     Path NewString = Assespath.native() + Path(PathString).native();
 
@@ -107,7 +107,7 @@ void GameEditorWindow::OnLoadWindow(UDeserializer& JsonToOutof)
 void GameEditorWindow::Scenehierarchy()
 {
 
-    if (ImGui::BeginTabBar("?2")) 
+    if (ImGui::BeginTabBar("?2"))
     {
 
 
@@ -173,30 +173,30 @@ void GameEditorWindow::SceneCameraGetInputs()
     auto M_wheelY = io.MouseWheel;
 
 
-    
+
 
     UCode::Vec2 CamVelocity = { 0,0 };
-    
+
     bool UpV = ImGui::IsKeyDown(Up);
     bool DownV = ImGui::IsKeyDown(Down);
     bool liftV = ImGui::IsKeyDown(lift);
     bool rightV = ImGui::IsKeyDown(right);
 
-    
-        if (!ImGui::IsKeyDown(ImGuiMod_Ctrl))
-        {
-            if (UpV) { CamVelocity.Y += 1; }
-            if (DownV) { CamVelocity.Y -= 1; }
-            if (liftV) { CamVelocity.X -= 1; }
-            if (rightV) { CamVelocity.X += 1; }
-        }
-        else
-        {
-            auto moveval = 0.1;
-            if (UpV) { _SceneCameraData.Orth_Size += moveval; }
-            if (DownV) { _SceneCameraData.Orth_Size -= moveval; }
-        }
-    
+
+    if (!ImGui::IsKeyDown(ImGuiMod_Ctrl))
+    {
+        if (UpV) { CamVelocity.Y += 1; }
+        if (DownV) { CamVelocity.Y -= 1; }
+        if (liftV) { CamVelocity.X -= 1; }
+        if (rightV) { CamVelocity.X += 1; }
+    }
+    else
+    {
+        auto moveval = 0.1;
+        if (UpV) { _SceneCameraData.Orth_Size += moveval; }
+        if (DownV) { _SceneCameraData.Orth_Size -= moveval; }
+    }
+
 
     static Optional<DontWaitInputKey> DontWait;
     bool hasanydown = UpV || DownV || liftV || rightV;
@@ -216,7 +216,7 @@ void GameEditorWindow::SceneCameraGetInputs()
         }
     }
 
-    
+
 
     float NewCamSpeed = CamSpeed * (_SceneCameraData.Orth_Size / 7) + 10;
 
@@ -268,14 +268,14 @@ void GameEditorWindow::SceneCameraGetInputs()
 
 void GameEditorWindow::SceneEditorTab()
 {
-    
+
     SceneEditorBar();
 
     if (_GameRunTime == nullptr)
     {
         LoadRunTime(); LoadRender(false);
     }
-    
+
 
     auto Viewportsize = ImGui::GetContentRegionAvail();
     auto p = ImGui::GetCursorPos();
@@ -287,14 +287,14 @@ void GameEditorWindow::SceneEditorTab()
     if (_GameRender == nullptr) { LoadRender(false); }
     LoadSceneCamera();
     auto runtime = UCode::RenderRunTime2d::GetRenderRunTime(_GameRunTime.get());
-    
-  
+
+
 
     UpdateRunTimeWindowSize(Viewportsize, _SceneCamera);
-    runtime->UpdateDrawData();  
-    
-   
-    
+    runtime->UpdateDrawData();
+
+
+
     {
         if (SelectedObject.Has_Value())
         {
@@ -345,8 +345,8 @@ void GameEditorWindow::SceneEditorTab()
             auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
             auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
             auto viewportOffset = ImGui::GetWindowPos();
-       
-            ImVec2 view ={ viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
+
+            ImVec2 view = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
             ImVec2 view2 = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
 
 
@@ -372,7 +372,7 @@ void GameEditorWindow::SceneEditorTab()
             }
         }
     }
-   {
+    {
         for (auto& Item : _GameRunTime->Get_Scenes())
         {
             for (auto& Item : Item->Get_Entitys())
@@ -381,14 +381,14 @@ void GameEditorWindow::SceneEditorTab()
                 {
                     UCode::RenderRunTime2d::DrawQuad2dData data = { Item->localposition2d(),{1,1},{0,90} };
                     data.color.A = 0.05f;
-                   // data.Spr = AppFiles::GetSprite(AppFiles::sprite::Scene2dData);
+                    // data.Spr = AppFiles::GetSprite(AppFiles::sprite::Scene2dData);
                     runtime->DrawQuad2d(data);
                 }
             }
         }
     }
-     _GameRender->Draw(runtime->Get_DrawData(),_SceneCamera); 
-  
+    _GameRender->Draw(runtime->Get_DrawData(), _SceneCamera);
+
     size_t SceneTex = _SceneCamera->Get_Buffer().Get_TextureId();
 
 
@@ -397,7 +397,7 @@ void GameEditorWindow::SceneEditorTab()
     Vec2 V = *(Vec2*)&tep;
     ImGui::Image((ImTextureID)SceneTex, Viewportsize, { 0,0 }, { 1,-1 });
     bool IsOverImage = ImGui::IsItemHovered();
-    if (IsOverImage) 
+    if (IsOverImage)
     {
         Vec2 Mpos = MousePosFromImage(V, *(Vec2*)&Viewportsize);
 
@@ -409,12 +409,12 @@ void GameEditorWindow::SceneEditorTab()
         _GameRunTime->DestroyNullScenes();
     }
     ImGuiIO& io = ImGui::GetIO();
-    bool IsFocused = ImGui::IsItemHovered() ||ImGui::IsWindowFocused();
+    bool IsFocused = ImGui::IsItemHovered() || ImGui::IsWindowFocused();
     if (IsFocused)
     {
         SceneCameraGetInputs();
     }
-    
+
 }
 void GameEditorWindow::SceneEditorBar()
 {
@@ -438,7 +438,7 @@ void GameEditorWindow::SceneEditorBar()
         if (ImGui::RadioButton("Scale", _ToolBar == ToolBarType::Scale))_ToolBar = ToolBarType::Scale;
 
 
-       
+
         ImGui::Separator();
     }
 }
@@ -452,10 +452,10 @@ void GameEditorWindow::UnLoadSceneCamera()
 {
     if (_SceneCamera)
     {
-        UCode::Entity::Destroy(_SceneCamera->NativeEntity()); 
+        UCode::Entity::Destroy(_SceneCamera->NativeEntity());
         _SceneCamera->UnSetAsMainCam();
         _SceneCamera = nullptr;
-       
+
     }
 }
 void GameEditorWindow::LoadSceneCamera()
@@ -470,23 +470,23 @@ void GameEditorWindow::LoadSceneCamera()
 void GameEditorWindow::ShowSceneData()
 {
     bool HasSceneRightPrivilege = true;//add this to stop updateing the same scene data file.
-  
 
 
-    
+
+
 
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
 
-    ImGuiTableFlags flags =   ImGuiTableFlags_Resizable;
-    if (_GameRunTime) 
+    ImGuiTableFlags flags = ImGuiTableFlags_Resizable;
+    if (_GameRunTime)
     {
         if (ImGui::BeginTable("split", 1, flags))
         {
             auto& Scenes = _GameRunTime->Get_Scenes();
-           
 
-          
+
+
             for (size_t i = 0; i < Scenes.size(); i++)
             {
                 auto& Item = Scenes[i];
@@ -496,12 +496,12 @@ void GameEditorWindow::ShowSceneData()
 
             ImGui::EndTable();
         }
-       
+
     }
-   
+
     ImGui::PopStyleVar();
-    
-    
+
+
     auto Size = ImGui::GetContentRegionAvail();
     if (Size.x == 0 || Size.y == 0) { Size = { 1,1 }; }
     ImGui::InvisibleButton("Data", Size);
@@ -519,11 +519,11 @@ void GameEditorWindow::ShowSceneData()
                 if (_SceneData == nullptr)
                 {
                     _SceneData = new  UCode::Scene2dData();
-                    
-                    UCode::Scene2dData::SaveScene(e, *_SceneData,USerializerType::Fastest);
+
+                    UCode::Scene2dData::SaveScene(e, *_SceneData, USerializerType::Fastest);
                 }
 
-                    
+
                 _SceneDataAsRunTiime = e;
             }
         }
@@ -554,11 +554,11 @@ void GameEditorWindow::DropSceneFromPath()
             {
                 const Path* DropItem = *(Path**)payload->Data;
                 const Path& Path = *DropItem;
-              
+
 
                 OpenScencAtPath(Path);
 
-                
+
             }
 
         }
@@ -566,9 +566,9 @@ void GameEditorWindow::DropSceneFromPath()
     }
 }
 void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
-{ 
+{
     if (Item->Get_IsDestroyed()) { return; }
-    
+
     // Use object uid as identifier. Most commonly you could also use the object pointer as a base ID.
     ImGui::PushID(Item);
     // Text and Tree nodes are less high than framed widgets, using AlignTextToFramePadding() we add vertical spacing to make the tree lines equal high.
@@ -586,11 +586,11 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
     if (IsRenameing && IsSelected(Item))
     {
         node_open = WasSelectedObjectOpened;
-        ImGuIHelper::DrawRenameTree(Item->Get_Name(), node_open, IsRenameing,AppFiles::sprite::Scene2dData);
+        ImGuIHelper::DrawRenameTree(Item->Get_Name(), node_open, IsRenameing, AppFiles::sprite::Scene2dData);
     }
     else
     {
-        auto Data = ImGuIHelper::TreeNode(Item, SceneName.c_str(),AppFiles::sprite::Scene2dData);
+        auto Data = ImGuIHelper::TreeNode(Item, SceneName.c_str(), AppFiles::sprite::Scene2dData);
         node_open = Data;
         ShowingTree = true;
     }
@@ -614,7 +614,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
             e->worldposition(_SceneCameraData._Pos);
         }
 
-        auto clipboard =  ImGui::GetClipboardText();
+        auto clipboard = ImGui::GetClipboardText();
         bool isclipboardentity = false;
 
         YAML::Node tep;
@@ -639,9 +639,9 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
             }
         }
 
-        if (ImGui::MenuItem("Paste-Entity","Ctrl+V",nullptr,isclipboardentity))
+        if (ImGui::MenuItem("Paste-Entity", "Ctrl+V", nullptr, isclipboardentity))
         {
-            auto& DataNode = tep["UData"];
+            auto DataNode = tep["UData"];
 
             auto pastedentity = Item->NewEntity();
             UCode::Scene2dData::Entity_Data _CopyedEntity = DataNode.as<UCode::Scene2dData::Entity_Data>(UCode::Scene2dData::Entity_Data());
@@ -654,24 +654,24 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
 
                 auto _CopyedEntitytep = _CopyedEntity;
                 auto ePtr = pastedentity->NativeManagedPtr();
-                
+
                 undo._UndoCallBack = [_CopyedEntitytep, ePtr](UndoData& This)
-                {
-                    if (ePtr.Has_Value())
                     {
-                        UCode::Entity::Destroy(ePtr.Get_Value());
-
-                        auto ScenePtr = ePtr.Get_Value()->NativeScene()->Get_ManagedPtr();
-
-                        This._RedoCallBack = [ePtr, ScenePtr, _CopyedEntitytep](UndoData& This)
+                        if (ePtr.Has_Value())
                         {
-                            if (ScenePtr.Has_Value())
-                            {
-                            UCode::Scene2dData::LoadEntity(ScenePtr.Get_Value()->NewEntity(), _CopyedEntitytep);
-                            };
-                        };
-                    }
-                };
+                            UCode::Entity::Destroy(ePtr.Get_Value());
+
+                            auto ScenePtr = ePtr.Get_Value()->NativeScene()->Get_ManagedPtr();
+
+                            This._RedoCallBack = [ePtr, ScenePtr, _CopyedEntitytep](UndoData& This)
+                                {
+                                    if (ScenePtr.Has_Value())
+                                    {
+                                        UCode::Scene2dData::LoadEntity(ScenePtr.Get_Value()->NewEntity(), _CopyedEntitytep);
+                                    };
+                                };
+                        }
+                    };
                 Get_App()->AddUndo(undo);
             }
         }
@@ -716,7 +716,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
             }
 
         }
-        
+
 
         bool OnDropable = ImGui::SetDragDropPayload(DragAndDropType_Scene2dType, &Item, sizeof(UCode::RunTimeScene*));
         if (OnDropable)
@@ -775,25 +775,25 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
 void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
 {
     if (Item->Get_IsDestroyed()) { return; }
-    
+
     ImGui::PushID(Item);
 
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(0);
     ImGui::AlignTextToFramePadding();
 
-   
- 
+
+
     //
     AppFiles::sprite _SprToShow = AppFiles::sprite::Entity;
     auto& Co = Item->NativeCompoents();
-   //
-    auto& g = *GImGui;
-       
     //
-    String& EntityName =Item->NativeName();
+    auto& g = *GImGui;
+
+    //
+    String& EntityName = Item->NativeName();
     auto style = ImGui::GetStyleColorVec4(ImGuiCol_::ImGuiCol_WindowBg);
-  //  ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_FrameBg, style);
+    //  ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_FrameBg, style);
     bool node_open;
     bool ShowingTree = false;
 
@@ -801,8 +801,8 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
     {
         ImGui::SetItemAllowOverlap();
 
- 
-        
+
+
         if (IsRenameing && IsSelectedEntity)
         {
             node_open = WasSelectedObjectOpened;
@@ -813,12 +813,12 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
             ImGuiTreeNodeFlags TreeFlags = IsSelectedEntity ? ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_Selected : 0;
             TreeFlags |= ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_OpenOnArrow;
             TreeFlags |= ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_SpanAvailWidth;
-            node_open = ImGuIHelper::TreeNode(Item, Item->NativeName().c_str(), AppFiles::sprite::Entity); 
+            node_open = ImGuIHelper::TreeNode(Item, Item->NativeName().c_str(), AppFiles::sprite::Entity);
             ShowingTree = true;
         }
-        
-        
-        if (IsSelectedEntity==false)
+
+
+        if (IsSelectedEntity == false)
         {
             if (ImGui::IsItemClicked())
             {
@@ -826,18 +826,18 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
                 auto inpswin = Get_App()->Get_Window<InspectWindow>();
                 inpswin->Inspect(Inspect_Entity2d::Get(Item));
 
-            }    
+            }
         }
-       
 
-       
+
+
         ImGui::SameLine();
 
     }
 
- //   ImGui::PopStyleColor();
+    //   ImGui::PopStyleColor();
 
-    
+
     if (ImGui::BeginDragDropTarget())
     {
         ImGuiDragDropFlags target_flags = 0;
@@ -849,7 +849,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
                 const String* DropItem = *(UCode::String**)payload->Data;
                 const UCode::String& Path = *DropItem;
                 RawEntityData Data;//should get from Asset DataBasce
-                if (RawEntityData::ReadFromFile( Path, Data)) 
+                if (RawEntityData::ReadFromFile(Path, Data))
                 {
                     UCode::RunTimeScene* runtime = Item->NativeScene();
                     UCode::Entity* e = runtime->NewEntity();
@@ -874,7 +874,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
             {
                 const Path* DropItem = *(UCode::Path**)payload->Data;
                 const UCode::Path& Str = *DropItem;
-                
+
                 auto PorjDat = Get_ProjectData();
                 auto Intermediate = UCompiler::GetIntermediate(Str, PorjDat);
                 bool ItWork = false;
@@ -894,14 +894,14 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
                         }
 
                         {
-                            auto& Assembly =UCode::ULangRunTime::Get(Get_GameLib())->Get_Assembly();
+                            auto& Assembly = UCode::ULangRunTime::Get(Get_GameLib())->Get_Assembly();
                             Vector<UCodeLang::ReflectionCustomTypeID> New;
                             for (auto& Item : NodeTypeIDs)
                             {
                                 auto SameTypeButIn = Assembly.Find_Node(NodeTypeIDs.front());
                                 if (SameTypeButIn)
                                 {
-                                    if (UCompiler::IsAComponent(*SameTypeButIn, Assembly)) 
+                                    if (UCompiler::IsAComponent(*SameTypeButIn, Assembly))
                                     {
                                         New.push_back(Item);
                                     }
@@ -984,7 +984,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
                 auto Node = Assembly.Find_Node(Item2);
                 if (Node)
                 {
-                    bool Selected =ImGui::Button(Node->FullName.c_str());
+                    bool Selected = ImGui::Button(Node->FullName.c_str());
 
                     if (Selected)
                     {
@@ -1023,7 +1023,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
             SetScelected(Item);
             IsRenameing = true;
             WasSelectedObjectOpened = node_open;
-            
+
         }
         if (ImGui::MenuItem("Duplicate"))
         {
@@ -1039,22 +1039,22 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
 
                 auto ScencPtr = Item->NativeScene()->Get_ManagedPtr();
                 undo._UndoCallBack = [ScencPtr, V](UndoData& This)
-                {
-                    if (ScencPtr.Has_Value())
                     {
-                        auto newentity = ScencPtr.Get_Value()->NewEntity()->NativeManagedPtr();
-                        UCode::Scene2dData::LoadEntity(newentity.Get_Value(), V);
-
-
-                        This._RedoCallBack = [newentity](UndoData& This)
+                        if (ScencPtr.Has_Value())
                         {
-                            if (newentity.Has_Value())
-                            {
-                                UCode::Entity::Destroy(newentity.Get_Value());
-                            }
-                        };
-                    }
-                };
+                            auto newentity = ScencPtr.Get_Value()->NewEntity()->NativeManagedPtr();
+                            UCode::Scene2dData::LoadEntity(newentity.Get_Value(), V);
+
+
+                            This._RedoCallBack = [newentity](UndoData& This)
+                                {
+                                    if (newentity.Has_Value())
+                                    {
+                                        UCode::Entity::Destroy(newentity.Get_Value());
+                                    }
+                                };
+                        }
+                    };
                 Get_App()->AddUndo(undo);
             }
             UCode::Entity::Destroy(Item);
@@ -1083,14 +1083,14 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
 
         ImGui::EndPopup();
     }
-   
+
 
     if (node_open)
     {
-        
+
 
         {
-            auto& Entitys =Item->NativeGetEntitys();
+            auto& Entitys = Item->NativeGetEntitys();
             for (size_t i = 0; i < Entitys.size(); i++)
             {
                 auto& Item2 = Entitys[i];
@@ -1098,7 +1098,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
                 ShowEntityData(Item2.get());
             }
         }
-        
+
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
         ImGui::AlignTextToFramePadding();
@@ -1120,7 +1120,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
             ImGui::TreePop();
         }
     }
-   
+
     ImGui::PopID();
 }
 void GameEditorWindow::ShowlibraryBookData(UCode::System* Item)
@@ -1185,7 +1185,7 @@ void GameEditorWindow::SaveScene()
         auto runprojectdata = Get_ProjectData();
         auto p = _UseingScenePath.value().generic_string();
         auto& scenefilepath = _UseingScenePath.value();
-        
+
         if (UCode::Scene2dData::ToFile(scenefilepath, *_SceneData, SaveType))
         {
             auto& index = runprojectdata->Get_AssetIndex();
@@ -1207,17 +1207,17 @@ void GameEditorWindow::SaveScene()
         }
     }
 }
-void GameEditorWindow::OpenScencAtPath(const Path&  Path)
+void GameEditorWindow::OpenScencAtPath(const Path& Path)
 {
     LoadRunTime();
 
     auto& Scenes = _GameRunTime->Get_Scenes();
-    auto NewSceneData =std::make_unique<UCode::Scene2dData>();//Get from cash;
+    auto NewSceneData = std::make_unique<UCode::Scene2dData>();//Get from cash;
     UCode::AssetManager* Assets = UCode::AssetManager::Get(Get_GameLib());
     if (UCode::Scene2dData::FromFile(*NewSceneData, Path))
     {
         auto NewScene = UCode::Scene2dData::LoadScene(_GameRunTime.get(), *NewSceneData);
-       // UCode::RunTimeScene::SetSceneMulti_Threaded(NewScene);
+        // UCode::RunTimeScene::SetSceneMulti_Threaded(NewScene);
         if (Scenes.size() == 1)
         {
             if (_SceneData)
@@ -1235,18 +1235,18 @@ void GameEditorWindow::OpenScencAtPath(const Path&  Path)
             _UseingScenePath = Path;
             _SceneDataAsRunTiime = NewScene;
         }
-       
+
     }
 }
 Vec2 GameEditorWindow::MousePosFromImage(const Vec2 CursorPos, const Vec2 ImageSize)
 {
-    auto tep =ImGui::GetMousePos();
+    auto tep = ImGui::GetMousePos();
     Vec2 Mpos = *(Vec2*)&tep;
 
-    auto tep2 =ImGui::GetMousePos();
+    auto tep2 = ImGui::GetMousePos();
     auto  CursorPosScreen = CursorPos + *(Vec2*)&tep2;
     auto A = Mpos - CursorPos;
-    
+
     //std::cout << Mpos.X << "," << Mpos.Y << ":" << CursorPosScreen.X << "," << CursorPosScreen.Y << '\n';
     //std::cout << A.X << "," << A.Y << '\n';
     return A;
@@ -1267,7 +1267,7 @@ void GameEditorWindow::GameTab()
     default:UCodeLangUnreachable(); break;
     }
 
-    
+
 
     bool PlayButtionDown = false;
     bool PausedButtionDown = false;
@@ -1277,25 +1277,25 @@ void GameEditorWindow::GameTab()
 
     const ImVec2 ButtionSize = { 15,15 };
     PlayButtionDown = ImGuIHelper::ImageButton(&PlayButtionDown,
-        _IsRuningGame ? AppFiles::sprite::Play_Blue : AppFiles::sprite::Play_Green,ButtionSize);
-    
+        _IsRuningGame ? AppFiles::sprite::Play_Blue : AppFiles::sprite::Play_Green, ButtionSize);
+
     ImGui::SameLine();
-    
+
     PausedButtionDown = ImGuIHelper::ImageButton(&PausedButtionDown,
         _IsGamePaused ? AppFiles::sprite::Paused_Blue : AppFiles::sprite::Paused_Green, ButtionSize);
-    
+
     float Sizey = ImGui::GetItemRectSize().y;
     ImGui::SameLine();
-    
-    WindowTypeButtionDown = ImGui::Button(WindowTypeText, {0,Sizey });
+
+    WindowTypeButtionDown = ImGui::Button(WindowTypeText, { 0,Sizey });
 
     ImGui::Separator();
-   
+
     const char* CantPlayScenePopName = "Some Popup";
 
     if (WindowTypeButtionDown)
     {
-       
+
         switch (_WindowType)
         {
         case GameWindowType::EditorWindow:_WindowType = GameWindowType::ExternalWindow; break;
@@ -1319,10 +1319,10 @@ void GameEditorWindow::GameTab()
         {
             if (!_UseingScenePath.has_value())
             {
-                
+
                 ImGui::OpenPopup(CantPlayScenePopName);
 
-               
+
 
                 _IsRuningGame = false;
             }
@@ -1335,9 +1335,9 @@ void GameEditorWindow::GameTab()
         {
             OnStopPlaying();
         }
-        
-    } 
-    
+
+    }
+
     if (ImGui::BeginPopup(CantPlayScenePopName))
     {
         ImGuIHelper::Text(StringView("Cant Play Scene Try Saveing the Scene To A File. then Opening it"));
@@ -1359,12 +1359,12 @@ void GameEditorWindow::GameTab()
 
 void GameEditorWindow::OnPlayScene()
 {
-    SaveScene();  
-    
+    SaveScene();
+
     UnLoadRender();
     LoadRender(_WindowType == GameWindowType::ExternalWindow);
-    
-    
+
+
     if (!_DontWaitInputKey.has_value())
     {
         _DontWaitInputKey = Get_App()->AddDontWaitForInput();
@@ -1375,13 +1375,13 @@ void GameEditorWindow::OnStopPlaying()
     UnLoadRunTime(); LoadRunTime();
     _IsRuningGame = false;
 
-    if (_SceneData) 
+    if (_SceneData)
     {
         auto ShowScene = UCode::Scene2dData::LoadScene(_GameRunTime.get(), *_SceneData);
         _SceneDataAsRunTiime = ShowScene;
     }
     LoadRender(false);
-    
+
     if (_DontWaitInputKey.has_value())
     {
         Get_App()->RemoveWaitForInput(_DontWaitInputKey.value());
@@ -1404,14 +1404,14 @@ EditorWindowData GameEditorWindow::GetEditorData()
 void GameEditorWindow::ShowGameImage()
 {
     UCode::RenderRunTime2d* runtime = _GameRunTime ? UCode::RenderRunTime2d::GetRenderRunTime(_GameRunTime.get()) : nullptr;
-   
+
     if (_WindowType == GameWindowType::EditorWindow)
     {
         LoadRender(false);
     }
 
     if (_WindowType != GameWindowType::ExternalWindow)
-    { 
+    {
         ImVec2 ViewportPOs = ImGui::GetCursorPos();
         ImVec2 Viewportsize = ImGui::GetContentRegionAvail();
 
@@ -1436,16 +1436,16 @@ void GameEditorWindow::ShowGameImage()
 
         ImGui::Image((ImTextureID)textid, Viewportsize, { 0,0 }, { 1,-1 });
     }
-   
-    
+
+
 }
 void GameEditorWindow::UpdateGame()
 {
 
     ImVec2 EditorWindowsize = { _Size.X , _Size.Y };
     if (EditorWindowsize.x <= 0 && EditorWindowsize.y <= 0) { return; }
-   
-    
+
+
     if (_IsRuningGame && !_IsGamePaused) { _GameRunTime->GameUpdate(); }
 
 
@@ -1457,7 +1457,7 @@ void GameEditorWindow::UpdateGame()
         _GameRender->UpdateFrame();
 
         InputEmuation();
-     
+
         if (_IsRuningGame && !_GameRunTime->Get_IsGameRuning())
         {
             UnLoadRender();
@@ -1481,7 +1481,7 @@ void GameEditorWindow::UnLoadRunTime()
     {
         UnLoadSceneCamera();
         UnLoadRender();
-     
+
         _GameRunTime->EndRunTime();
         delete _GameRunTime.release();
         _GameRunTime = nullptr;
@@ -1489,10 +1489,10 @@ void GameEditorWindow::UnLoadRunTime()
 }
 void GameEditorWindow::LoadRunTime()
 {
-   
-    if (_GameRunTime == nullptr) 
+
+    if (_GameRunTime == nullptr)
     {
-        _GameRunTime =std::make_unique<UCode::GameRunTime>(Get_GameLibRef());
+        _GameRunTime = std::make_unique<UCode::GameRunTime>(Get_GameLibRef());
         _GameRunTime->Set_GameTime_FramesToDestroy(2);//Because The Inspector be able to deselect RunTimeObjects instead of reading freed memory.
         _GameRunTime->Init();
 
@@ -1509,7 +1509,7 @@ void GameEditorWindow::LoadRender(bool MakeWin)
     {
         i32 Sx = (i32)_Size.X;
         i32 Sy = (i32)_Size.Y;
-        if (Sx <= 0) { Sx = 640;}
+        if (Sx <= 0) { Sx = 640; }
         if (Sy <= 0) { Sy = 480; }
 
         _GameRender = std::make_unique <UCode::RenderAPI::Render>();
@@ -1522,9 +1522,9 @@ void GameEditorWindow::LoadRender(bool MakeWin)
 
         _GameRender->Init(Windata, _GameRunTime.get());
 
-       // auto& Tex = *AppFiles::GetTexture(AppFiles::texture::AppIcon);//TODO add call backs
-       // while (Tex.) {}//wait for texture
-       // _GameRender->Get_RenderAPI()->SetWindowIcon(Tex);
+        // auto& Tex = *AppFiles::GetTexture(AppFiles::texture::AppIcon);//TODO add call backs
+        // while (Tex.) {}//wait for texture
+        // _GameRender->Get_RenderAPI()->SetWindowIcon(Tex);
     }
 }
 void SetUCodeInput(ImGuiKey Item, UCode::InputManger* _Input)
@@ -1552,7 +1552,7 @@ void GameEditorWindow::InputEmuation()
 {
     if (_WindowType != GameWindowType::ExternalWindow)
     {
-       
+
         if (_IsGameWindowFocused)
         {
             auto RunTime = _GameRunTime.get();

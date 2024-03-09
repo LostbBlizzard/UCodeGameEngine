@@ -208,7 +208,7 @@ int App::main(int argc, char* argv[])
 
 			auto oldstr = Str;
 			Path target = GetPath(Str);
-		
+
 			if (!target.empty())
 			{
 				auto tep = target.generic_string();
@@ -218,11 +218,11 @@ int App::main(int argc, char* argv[])
 					target.clear();
 				}
 			}
-		
+
 			UE::BuildSytemManger build;
 
 			if (!target.empty())
-			{		
+			{
 				if (target == "windows")
 				{
 					UE::WindowsBuildSetings settings;
@@ -303,7 +303,7 @@ int App::main(int argc, char* argv[])
 			}
 			UE::Optional<Path> CopyToPath;
 			bool printoutputpath = false;
-			
+
 			{
 				auto t = GetPath(Str);
 				if (t == "-o")
@@ -316,7 +316,7 @@ int App::main(int argc, char* argv[])
 				}
 			}
 
-			if (CopyToPath.has_value()) 
+			if (CopyToPath.has_value())
 			{
 				auto& copyto = CopyToPath.value();
 
@@ -328,8 +328,8 @@ int App::main(int argc, char* argv[])
 				else
 				{
 					if (!std::filesystem::is_directory(copyto)) {
-						std::cerr << "Output path \"" << copyto <<  "\" must be a directory\n";
-					
+						std::cerr << "Output path \"" << copyto << "\" must be a directory\n";
+
 						return EXIT_FAILURE;
 					}
 				}
@@ -339,19 +339,19 @@ int App::main(int argc, char* argv[])
 				build.Setings._OutDir = UE::ProjectManger::GetProjectCachedDir(project).native() + Path("output").native();
 				build.Setings.TemporaryPlatfromPath = UE::ProjectManger::GetProjectCachedDir(project).native() + Path("build").native();
 				build.Setings.TemporaryGlobalPath = UE::ProjectManger::GetProjectCachedDir(project).native() + (Path("build") / "global").native();
-			
+
 				UE::ProjectData proj;
 
-				UE::ProjectData::ReadFromFile(project / UE::ProjectData::FileName,proj);
+				UE::ProjectData::ReadFromFile(project / UE::ProjectData::FileName, proj);
 				build.Setings._OutName = proj._ProjectName;
-			} 
-			
+			}
+
 			UE::BuildSytemManger::BuildRet r;
 			{
 				UC::Gamelibrary lib;
 				UE::AppFiles::Init(&lib);
 
-				
+
 				auto _run = std::make_unique<UCode::GameRunTime>();
 				_run->Init();
 
@@ -370,7 +370,7 @@ int App::main(int argc, char* argv[])
 
 				_render->EndRender();
 			}
-			
+
 			if (r.IsError())
 			{
 				auto& err = r.GetError();
@@ -382,22 +382,22 @@ int App::main(int argc, char* argv[])
 					{
 						std::cerr << "(";
 						std::cerr << Item.filepath.value();
-						
+
 						if (Item.lineNumber.has_value())
 						{
 							std::cerr << Item.lineNumber.value();
 						}
-						
+
 						std::cerr << "):";
 					}
-					std::cerr << Item.message;	
+					std::cerr << Item.message;
 					std::cerr << '\n';
 				}
 			}
 
 			if (r.IsValue() && CopyToPath.has_value())
 			{
-				auto& srcpath = r.GetValue().parent_path();
+				auto srcpath = r.GetValue().parent_path();
 				auto& outpath = CopyToPath.value();
 
 				using recursive_directory_iterator = std::filesystem::recursive_directory_iterator;
@@ -407,9 +407,9 @@ int App::main(int argc, char* argv[])
 					auto relpath = filepath.native().substr(srcpath.native().size());
 					auto outfilepath = outpath;
 					outfilepath += relpath;
-				
+
 					std::filesystem::create_directories(outfilepath.parent_path());
-					std::filesystem::copy(filepath, outfilepath,std::filesystem::copy_options::overwrite_existing);
+					std::filesystem::copy(filepath, outfilepath, std::filesystem::copy_options::overwrite_existing);
 				}
 			}
 			else if (r.IsValue() && printoutputpath)
@@ -423,7 +423,7 @@ int App::main(int argc, char* argv[])
 		{
 			Path exepath = std::filesystem::absolute(argv[0]);
 
-			#if UCodeGEWindows
+#if UCodeGEWindows
 			auto unstallerpath = UE::FileHelper::GetEditorGlobalDirectory() / "unins000.exe";
 
 			UC::String cmd = unstallerpath.generic_string();
@@ -446,9 +446,9 @@ int App::main(int argc, char* argv[])
 			Path c = "open";
 			ShellExecute(NULL, c.c_str(), removeexepath.c_str(), NULL, NULL, SW_HIDE);
 			return EXIT_SUCCESS;
-			#else
+#else
 
-			#endif
+#endif
 		}
 		else if (StringHelper::StartsWith(Str, "update"))
 		{
@@ -458,18 +458,18 @@ int App::main(int argc, char* argv[])
 		UC::String ProPath = "";
 		if (argc > 1) { ProPath = argv[1]; }
 
-		if (argupdatepassed ==false)
+		if (argupdatepassed == false)
 		{
 			UE::EditorApp app = UE::EditorApp();
 			app.Run(ProPath);
 		}
 
 		{
-			bool allowsautoupdate =UE::UserSettings::GetSettings().allowautoudate;
-			
-			#if UCodeGEDebug
+			bool allowsautoupdate = UE::UserSettings::GetSettings().allowautoudate;
+
+#if UCodeGEDebug
 			allowsautoupdate = false;
-			#endif
+#endif
 
 			if (allowsautoupdate || (UE::UserSettings::updateonclose || argupdatepassed))
 			{
@@ -484,13 +484,13 @@ int App::main(int argc, char* argv[])
 					if (isversionbiger)
 					{
 						auto changelog = UE::NetworkHelper::GetNewestChangeLog();
-					
-						#if UCodeGEWindows
+
+#if UCodeGEWindows
 						auto installer = UE::NetworkHelper::GetNewestWindowInstall();
-						#else 
+#else 
 						auto installer = UE::NetworkHelper::GetNewestUnixInstallPath();
-						#endif
-						
+#endif
+
 						if (changelog.has_value() && installer.has_value())
 						{
 							auto change = changelog.value();
@@ -498,16 +498,16 @@ int App::main(int argc, char* argv[])
 
 							UC::GameFiles::Writetext(change, "changelog.md");
 
-							
-							#if UCodeGEWindows
+
+#if UCodeGEWindows
 							auto exe = in.generic_string() + ".exe";
 							std::filesystem::rename(in, exe);
 							installer = {};
 
 							UE::FileHelper::OpenExeSubProcess(exe, "/VERYSILENT");
-							#else
+#else
 
-							#endif
+#endif
 							int a = 0;
 						}
 
@@ -538,4 +538,4 @@ int App::main(int argc, char* argv[])
 	}
 #endif // DEBUG
 
-	}
+}

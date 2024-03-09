@@ -11,15 +11,15 @@ bool IsPopUpKey()
 bool ImGuIHelper::BeginPopupContextItem(const char* str_id, ImGuiPopupFlags popup_flags)
 {
 	ImGuiContext& g = *GImGui;
-    ImGuiWindow* window = g.CurrentWindow;
-    if (window->SkipItems)
-        return false;
-    ImGuiID id = str_id ? window->GetID(str_id) : g.LastItemData.ID;    // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
-    IM_ASSERT(id != 0);                                             // You cannot pass a NULL str_id if the last item has no identifier (e.g. a Text() item)
-    int mouse_button = (popup_flags & ImGuiPopupFlags_MouseButtonMask_);
-    if (ImGui::IsMouseReleased(mouse_button) && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup) || (ImGui::IsItemFocused() && IsPopUpKey()))
-        ImGui::OpenPopupEx(id, popup_flags);
-    return ImGui::BeginPopupEx(id, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings);
+	ImGuiWindow* window = g.CurrentWindow;
+	if (window->SkipItems)
+		return false;
+	ImGuiID id = str_id ? window->GetID(str_id) : g.LastItemData.ID;    // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
+	IM_ASSERT(id != 0);                                             // You cannot pass a NULL str_id if the last item has no identifier (e.g. a Text() item)
+	int mouse_button = (popup_flags & ImGuiPopupFlags_MouseButtonMask_);
+	if (ImGui::IsMouseReleased(mouse_button) && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup) || (ImGui::IsItemFocused() && IsPopUpKey()))
+		ImGui::OpenPopupEx(id, popup_flags);
+	return ImGui::BeginPopupEx(id, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings);
 
 }
 const char* ImGuIHelper::ToCStr(const StringView text)
@@ -57,7 +57,7 @@ bool ImGuIHelper::ImageButtonDontKeepAspectRatio(const void* id, UCode::Sprite* 
 	ImVec2 uv1;
 	ImTextureID texid = (ImTextureID)(size_t)Sprite->Get_texture()->Get_RendererID();
 	GetSpriteUV(Sprite, uvo, uv1);
-	return ImGui::ImageButtonEx(ImGui::GetID(id), texid, ButtionSize, uvo, uv1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1), ImGuiButtonFlags_::ImGuiButtonFlags_MouseButtonLeft);
+	return ImGui::ImageButtonEx(ImGui::GetID(id), texid, ButtionSize, uvo, uv1, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
 }
 
 
@@ -70,8 +70,8 @@ Vec2 ImageSize(Vec2 spritesize, Vec2 buttionsize)
 	//r = buttionsize /2;
 
 	UCodeGEAssert(r.X > buttionsize.X)
-	UCodeGEAssert(r.Y > buttionsize.Y)
-	return r;
+		UCodeGEAssert(r.Y > buttionsize.Y)
+		return r;
 }
 
 void ImGuIHelper::Image(UCode::Texture* texture, const ImVec2& ButtionSize)
@@ -83,7 +83,7 @@ void ImGuIHelper::Image(UCode::Texture* texture, const ImVec2& ButtionSize)
 	v.x = p.X;
 	v.y = p.Y;
 
-	
+
 	auto c = ImGui::GetCursorPos();
 
 	ImGui::Dummy(ButtionSize);
@@ -93,7 +93,7 @@ void ImGuIHelper::Image(UCode::Texture* texture, const ImVec2& ButtionSize)
 	ImGui::SetCursorPos(c);
 
 	ImGui::Image((ImTextureID)(size_t)texture->Get_RendererID(), v);
-	
+
 	ImGui::SetCursorPos(d);
 }
 void ImGuIHelper::Image(UCode::Sprite* Sprite, const ImVec2& ButtionSize)
@@ -103,7 +103,7 @@ void ImGuIHelper::Image(UCode::Sprite* Sprite, const ImVec2& ButtionSize)
 	ImTextureID texid = (ImTextureID)(size_t)Sprite->Get_texture()->Get_RendererID();
 	GetSpriteUV(Sprite, uvo, uv1);
 
-	auto p =ImageSize({ (float)Sprite->Get_Width(),(float)Sprite->Get_Height() }, {ButtionSize.x,ButtionSize.y});
+	auto p = ImageSize({ (float)Sprite->Get_Width(),(float)Sprite->Get_Height() }, { ButtionSize.x,ButtionSize.y });
 	ImVec2 v;
 	v.x = p.X;
 	v.y = p.Y;
@@ -116,8 +116,8 @@ void ImGuIHelper::Image(UCode::Sprite* Sprite, const ImVec2& ButtionSize)
 
 	ImGui::SetCursorPos(c);
 
-	ImGui::Image(texid,v, uvo, uv1);
-	
+	ImGui::Image(texid, v, uvo, uv1);
+
 	ImGui::SetCursorPos(d);
 }
 bool ImGuIHelper::ImageButton(const void* id, UCode::Texture* Sprite, const ImVec2& ButtionSize)
@@ -137,13 +137,14 @@ bool ImGuIHelper::ImageButton(const void* id, UCode::Texture* Sprite, const ImVe
 	//ImGui::PushID(id); 
 	{
 		using namespace ImGui;
-		
+
 		ImGuiContext& g = *GImGui;
 		ImGuiWindow* window = GetCurrentWindow();
-		
+
 		const ImGuiID id2 = window->GetID(id);
 		ImVec2 size = CalcItemSize(ButtionSize, 0.0f, 0.0f);
-		const ImRect bb(window->DC.CursorPos,*(ImVec2*)&(*(Vec2*)&window->DC.CursorPos + *(Vec2*)&size));
+		auto tep = (*(Vec2*)&window->DC.CursorPos + *(Vec2*)&size);
+		const ImRect bb(window->DC.CursorPos, *(ImVec2*)&tep);
 		ItemSize(size);
 		if (!ItemAdd(bb, id2))
 			return false;
@@ -165,21 +166,25 @@ bool ImGuIHelper::ImageButton(const void* id, UCode::Texture* Sprite, const ImVe
 			return false;
 
 		const ImVec2 padding = g.Style.FramePadding;
-		const ImRect bb(window->DC.CursorPos, *(ImVec2*)&(*(Vec2*)&window->DC.CursorPos + *(Vec2*)&ButtionSize + *(Vec2*)&padding * 2.0f));
+		auto tep = (*(Vec2*)&window->DC.CursorPos + *(Vec2*)&ButtionSize + *(Vec2*)&padding * 2.0f);
+		const ImRect bb(window->DC.CursorPos, *(ImVec2*)&tep);
 
 		const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
 		ImGui::RenderNavHighlight(bb, ImGui::GetID(id));
 		ImGui::RenderFrame(bb.Min, bb.Max, col, true, ImClamp((float)ImMin(padding.x, padding.y), 0.0f, g.Style.FrameRounding));
 
 		{
-			const ImRect bb(window->DC.CursorPos, *(ImVec2*)&(*(Vec2*)&window->DC.CursorPos + *(Vec2*)&v + *(Vec2*)&padding * 2.0f));
+			auto tep = (*(Vec2*)&window->DC.CursorPos + *(Vec2*)&v + *(Vec2*)&padding * 2.0f);
+			const ImRect bb(window->DC.CursorPos, *(ImVec2*)&tep);
+
+			auto tep2 = (*(Vec2*)&bb.Min + *(Vec2*)&padding);
+			auto tep3 = (*(Vec2*)&bb.Max - *(Vec2*)&padding);
 			window->DrawList->AddImage((ImTextureID)(size_t)Sprite->Get_RendererID(),
-				*(ImVec2*)&(*(Vec2*)&bb.Min + *(Vec2*)&padding)
-				, *(ImVec2*)&(*(Vec2*)&bb.Max - *(Vec2*)&padding), { 0,0, }, { 1,1 });
+				*(ImVec2*)&tep2, *(ImVec2*)&tep3, { 0,0, }, { 1,1 });
 		}
 	}
-//ImGui::Image((ImTextureID)(size_t)Sprite->Get_RendererID(), v, { 0,0 }, { 1,1 });
-	
+	//ImGui::Image((ImTextureID)(size_t)Sprite->Get_RendererID(), v, { 0,0 }, { 1,1 });
+
 	ImGui::SetCursorPos(d);
 
 	return r;
@@ -205,13 +210,14 @@ bool ImGuIHelper::ImageButton(const void* id, UCode::Sprite* Sprite, const ImVec
 	//ImGui::PushID(id); 
 	{
 		using namespace ImGui;
-		
+
 		ImGuiContext& g = *GImGui;
 		ImGuiWindow* window = GetCurrentWindow();
-		
+
 		const ImGuiID id2 = window->GetID(id);
 		ImVec2 size = CalcItemSize(ButtionSize, 0.0f, 0.0f);
-		const ImRect bb(window->DC.CursorPos,*(ImVec2*)&(*(Vec2*)&window->DC.CursorPos + *(Vec2*)&size));
+		auto tep = (*(Vec2*)&window->DC.CursorPos + *(Vec2*)&size);
+		const ImRect bb(window->DC.CursorPos, *(ImVec2*)&tep);
 		ItemSize(size);
 		if (!ItemAdd(bb, id2))
 			return false;
@@ -233,20 +239,24 @@ bool ImGuIHelper::ImageButton(const void* id, UCode::Sprite* Sprite, const ImVec
 			return false;
 
 		const ImVec2 padding = g.Style.FramePadding;
-		const ImRect bb(window->DC.CursorPos, *(ImVec2*)&(*(Vec2*)&window->DC.CursorPos + *(Vec2*)&ButtionSize + *(Vec2*)&padding * 2.0f));
+		auto tep4 = (*(Vec2*)&window->DC.CursorPos + *(Vec2*)&ButtionSize + *(Vec2*)&padding * 2.0f);
+		const ImRect bb(window->DC.CursorPos, *(ImVec2*)&tep4);
 
 		const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
 		ImGui::RenderNavHighlight(bb, ImGui::GetID(id));
 		ImGui::RenderFrame(bb.Min, bb.Max, col, true, ImClamp((float)ImMin(padding.x, padding.y), 0.0f, g.Style.FrameRounding));
 
 		{
-			const ImRect bb(window->DC.CursorPos, *(ImVec2*)&(*(Vec2*)&window->DC.CursorPos + *(Vec2*)&v + *(Vec2*)&padding * 2.0f));
+			auto tep3 = (*(Vec2*)&window->DC.CursorPos + *(Vec2*)&v + *(Vec2*)&padding * 2.0f);
+			const ImRect bb(window->DC.CursorPos, *(ImVec2*)&tep3);
+			auto tep = (*(Vec2*)&bb.Min + *(Vec2*)&padding);
+			auto tep2 = (*(Vec2*)&bb.Max - *(Vec2*)&padding);
+
 			window->DrawList->AddImage(texid,
-				*(ImVec2*)&(*(Vec2*)&bb.Min + *(Vec2*)&padding)
-				, *(ImVec2*)&(*(Vec2*)&bb.Max - *(Vec2*)&padding), { 0,0, }, { 1,1 });
+				*(ImVec2*)&tep, *(ImVec2*)&tep2, { 0,0, }, { 1,1 });
 		}
 	}
-	
+
 	ImGui::SetCursorPos(d);
 
 	return r;
@@ -256,7 +266,7 @@ void ImGuIHelper::GetSpriteUV(UCode::Sprite* Sprite, ImVec2& uvo, ImVec2& uv1)
 	auto tex = Sprite->Get_texture();
 	if (tex->IsUploadedToGPU())
 	{
-	
+
 
 		float w = (float)tex->Get_Width();
 		float h = (float)tex->Get_Height();
@@ -287,20 +297,20 @@ void ImGuIHelper::GetSpriteUV(UCode::Sprite* Sprite, ImVec2& uvo, ImVec2& uv1)
 
 
 		uvo = { sx / w      ,sy / h };
-		uv1 = { (sx + sw) / w,(sy + sh) / h };		
+		uv1 = { (sx + sw) / w,(sy + sh) / h };
 	}
 	else
 	{
 		tex->TryUploadTexToGPU();
 
-		
+
 		uvo = { 0,0 };
 		uv1 = { 1,1 };
 	}
 }
-bool ImGuIHelper::InputText(const char* label, String&  buffer,ImGuiInputTextFlags flags)
+bool ImGuIHelper::InputText(const char* label, String& buffer, ImGuiInputTextFlags flags)
 {
-	ImGui::Text(label);
+	ImGuIHelper::Text(StringView(label));
 	ImGui::SameLine();
 
 	ImGui::PushID(&buffer);
@@ -309,18 +319,18 @@ bool ImGuIHelper::InputText(const char* label, String&  buffer,ImGuiInputTextFla
 
 	return V;
 }
-bool ImGuIHelper::MultLineText(const char* label, String&  buffer, ImVec2 Size, ImGuiInputTextFlags flags)
+bool ImGuIHelper::MultLineText(const char* label, String& buffer, ImVec2 Size, ImGuiInputTextFlags flags)
 {
-	return  ImGui::InputTextMultiline(label,&buffer,Size, flags);
+	return  ImGui::InputTextMultiline(label, &buffer, Size, flags);
 }
 bool ImGuIHelper::InputPath(const char* label, String& buffer, ImGuiInputTextFlags flags, InputPathType PathType, Span<String> Extension)
 {
 	bool R = InputText(label, buffer, flags);
-	
+
 	ImGui::SameLine();
 
 	if (ImGui::Button("+", { 20,20 }))
-	{ 
+	{
 		FileHelper::OpenFileData _Data;
 		if (PathType == InputPathType::Dir)
 		{
@@ -343,10 +353,10 @@ bool ImGuIHelper::InputPath(const char* label, String& buffer, ImGuiInputTextFla
 				}
 				ExtWithNoDot += ",";
 
-			} 
-			_Data = FileHelper::OpenFileFromUser(ExtWithNoDot,buffer);
+			}
+			_Data = FileHelper::OpenFileFromUser(ExtWithNoDot, buffer);
 		}
-		
+
 
 		if (_Data.Result == FileHelper::OpenFileResult::OKAY)
 		{
@@ -359,24 +369,24 @@ bool ImGuIHelper::InputPath(const char* label, String& buffer, ImGuiInputTextFla
 }
 bool ImGuIHelper::InputText(const StringView label, String& buffer, ImGuiInputTextFlags flags)
 {
-	return InputText(ToCStr(label),buffer,flags);
+	return InputText(ToCStr(label), buffer, flags);
 }
 bool ImGuIHelper::MultLineText(const StringView label, String& buffer, ImVec2 Size, ImGuiInputTextFlags flags)
 {
-	return MultLineText(ToCStr(label),buffer,Size,flags);
+	return MultLineText(ToCStr(label), buffer, Size, flags);
 }
 bool ImGuIHelper::TreeNode(const void* id, const StringView label, UCode::Sprite* Sprite)
 {
-	return TreeNode(id,ToCStr(label), Sprite);
+	return TreeNode(id, ToCStr(label), Sprite);
 }
 
 bool ImGuIHelper::InputPath(const StringView label, String& buffer, ImGuiInputTextFlags flags, InputPathType PathType, Span<String> Extension)
 {
-	return InputPath(ToCStr(label), buffer, flags, PathType,Extension);
+	return InputPath(ToCStr(label), buffer, flags, PathType, Extension);
 }
 bool ImGuIHelper::InputPath(const StringView label, Path& buffer, ImGuiInputTextFlags flags, InputPathType PathType, Span<String> Extension)
 {
-	return InputPath(ToCStr(label), buffer, flags, PathType,Extension);
+	return InputPath(ToCStr(label), buffer, flags, PathType, Extension);
 }
 
 
@@ -393,15 +403,15 @@ bool ImGuIHelper::InputPath(const char* label, Path& buffer, ImGuiInputTextFlags
 
 	return false;
 }
-ImGuIHelper::TreeNodeText ImGuIHelper::TreeNode(const void* id, String&  buffer)
+ImGuIHelper::TreeNodeText ImGuIHelper::TreeNode(const void* id, String& buffer)
 {
 	ImGuIHelper::TreeNodeText Data;
-	
+
 	Data.TextUpdate = InputText("##", buffer);
 	ImGui::SameLine();
-	
-	Data.NodeOpen = ImGui::TreeNode(id,"");
-	
+
+	Data.NodeOpen = ImGui::TreeNode(id, "");
+
 	return Data;
 }
 bool ImGuIHelper::TreeNode(const void* id, const char* label, UCode::Sprite* Sprite)
@@ -412,13 +422,13 @@ bool ImGuIHelper::TreeNode(const void* id, const char* label, UCode::Sprite* Spr
 	bool r = ImGui::TreeNode(id, label);
 	return r;
 }
-ImGuIHelper::TreeNodeText ImGuIHelper::TreeNode(const void* id, String&  buffer, UCode::Sprite* Sprite)
+ImGuIHelper::TreeNodeText ImGuIHelper::TreeNode(const void* id, String& buffer, UCode::Sprite* Sprite)
 {
 	auto& g = *GImGui;
 
 
 	ImGuIHelper::Image(Sprite, ImVec2(20, g.FontSize + g.Style.FramePadding.y * 2)); ImGui::SameLine();
-	return TreeNode(id,buffer);
+	return TreeNode(id, buffer);
 }
 
 bool ImGuIHelper::TreeNode(const void* id, StringView label, AppFiles::sprite Sprite)
@@ -428,9 +438,9 @@ bool ImGuIHelper::TreeNode(const void* id, StringView label, AppFiles::sprite Sp
 
 bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
-	
+
 	ImGui::PushID(&Value);
 	auto V = ImGui::Checkbox("", &Value);
 	ImGui::PopID();
@@ -438,9 +448,9 @@ bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 	return V;
 }
 
- bool ImGuIHelper::Vec2Field(const char* FieldName, UCode::Vec2& Value)
+bool ImGuIHelper::Vec2Field(const char* FieldName, UCode::Vec2& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -450,9 +460,9 @@ bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 	return V;
 }
 
- bool ImGuIHelper::Vec2Field(const char* FieldName, UCode::Vec2i& Value)
+bool ImGuIHelper::Vec2Field(const char* FieldName, UCode::Vec2i& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -462,9 +472,9 @@ bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 	return V;
 }
 
- bool ImGuIHelper::Vec3Field(const char* FieldName, UCode::Vec3& Value)
+bool ImGuIHelper::Vec3Field(const char* FieldName, UCode::Vec3& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -474,9 +484,9 @@ bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 	return V;
 }
 
- bool ImGuIHelper::Vec3Field(const char* FieldName, UCode::Vec3i& Value)
+bool ImGuIHelper::Vec3Field(const char* FieldName, UCode::Vec3i& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -486,9 +496,9 @@ bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 	return V;
 }
 
- bool ImGuIHelper::ColorField(const char* FieldName, UCode::ColorRGBA& Value)
+bool ImGuIHelper::ColorField(const char* FieldName, UCode::ColorRGBA& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -498,9 +508,9 @@ bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 	return V;
 }
 
- bool ImGuIHelper::ColorField(const char* FieldName, UCode::ColorRGB& Value)
+bool ImGuIHelper::ColorField(const char* FieldName, UCode::ColorRGB& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -510,9 +520,9 @@ bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 	return V;
 }
 
- bool ImGuIHelper::ColorField(const char* FieldName, UCode::Color32& Value)
+bool ImGuIHelper::ColorField(const char* FieldName, UCode::Color32& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -522,9 +532,9 @@ bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 	return V;
 }
 
- bool ImGuIHelper::ColorField(const char* FieldName, UCode::Color24& Value)
+bool ImGuIHelper::ColorField(const char* FieldName, UCode::Color24& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -535,9 +545,9 @@ bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 	return V;
 }
 
- bool ImGuIHelper::uInt64Field(const char* FieldName, u64& Value)
+bool ImGuIHelper::uInt64Field(const char* FieldName, u64& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -547,9 +557,9 @@ bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 	return V;
 }
 
- bool ImGuIHelper::uInt32Field(const char* FieldName, u32& Value)
+bool ImGuIHelper::uInt32Field(const char* FieldName, u32& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -559,9 +569,9 @@ bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 	return V;
 }
 
- bool ImGuIHelper::uInt16Field(const char* FieldName,u16& Value)
+bool ImGuIHelper::uInt16Field(const char* FieldName, u16& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -571,9 +581,9 @@ bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 	return V;
 }
 
- bool ImGuIHelper::uInt8Field(const char* FieldName,u8& Value)
+bool ImGuIHelper::uInt8Field(const char* FieldName, u8& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -597,7 +607,7 @@ void ImGuIHelper::LoadingIndicatorCircle(const char* label, const float indicato
 	const float circle_radius = indicator_radius / 10.0f;
 	const ImRect bb(pos, ImVec2(pos.x + indicator_radius * 2.0f,
 		pos.y + indicator_radius * 2.0f));
-	ImGui::ItemSize(bb,style.FramePadding.y);
+	ImGui::ItemSize(bb, style.FramePadding.y);
 	if (!ImGui::ItemAdd(bb, id)) {
 		return;
 	}
@@ -639,8 +649,8 @@ void ImGuIHelper::ShowOnMiddleLoadingIndicatorCircle(const char* label, const in
 	}
 	f32 radius = NewSize.x / 2;
 
-    auto tep =ImGui::GetItemRectMax();
-	auto tep2 =ImGui::GetItemRectMin();
+	auto tep = ImGui::GetItemRectMax();
+	auto tep2 = ImGui::GetItemRectMin();
 	auto pos = (*(Vec2*)&tep + *(Vec2*)&tep2) / 2;
 	ImVec2 Pos = *(ImVec2*)&pos;
 	ImGui::SetCursorPos(Pos);
@@ -703,7 +713,7 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 {
 	bool WasUpdated = false;
 	bool Value = ImGui::TreeNode(label);
-	
+
 	size_t NewSize = Size;
 
 	ImGui::SameLine();
@@ -711,7 +721,7 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 	ImGui::BeginDisabled(!Item._ResizeVector.has_value());
 	{
 		ImGui::PushID(&Item);
-		bool ResizeWasUpdated = InputSize_t("",&NewSize,1,100, ImGuiInputTextFlags_EnterReturnsTrue);
+		bool ResizeWasUpdated = InputSize_t("", &NewSize, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue);
 		ImGui::PopID();
 
 		if (ResizeWasUpdated && Item._ResizeVector.has_value())
@@ -722,16 +732,16 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 
 	}
 	ImGui::EndDisabled();
-	
+
 	if (Value)
 	{
-		
+
 
 		{
 			ImGui::SameLine();
 
 			ImVec2 ButtionSize = { 20,20 };
-			
+
 			ImGui::BeginDisabled(!Item._AddNewValue.has_value());
 			if (ImGui::Button("+", ButtionSize))
 			{
@@ -759,7 +769,7 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 				String Lable = "Item:" + std::to_string(i);
 				ImGuIHelper::Text(Lable);
 
-				
+
 				bool RemoveItem = false;
 				{
 					void* ItemPtr = (Byte*)Buffer + (i * Item.ItemSize);
@@ -777,16 +787,16 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 				ImGui::SameLine();
 
 
-				Item._OnDrawItem(Object, i);	
-				
-				
-				
+				Item._OnDrawItem(Object, i);
+
+
+
 
 
 				if (RemoveItem)
 				{
 					WasUpdated = true;
-					Item._AddNewRemove.value()(Object,i);
+					Item._AddNewRemove.value()(Object, i);
 					break;
 				}
 			}
@@ -795,7 +805,7 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 		ImGui::TreePop();
 	}
 
-	
+
 
 	return  WasUpdated;
 }
@@ -815,16 +825,16 @@ bool ImGuIHelper::InputSize_t(const char* label, size_t* v, int step, int step_f
 #define ObjectNullStr "[empty]"
 bool ImGuIHelper::Draw_UniquePtr(const char* label, void* Uniqueptr, const DrawUniquePtrInfo& Info)
 {
-	ImGui::Text(label);
+	ImGuIHelper::Text(StringView(label));
 	ImGui::SameLine();
 
-	
+
 	Unique_ptr<Byte>& Ptr = *(Unique_ptr<Byte>*)Uniqueptr;
 	bool WasUpdated = false;
 	if (Ptr.get())
 	{
 		bool Value = ImGui::TreeNode(ObjectNotNull);
-		
+
 		ImGui::SameLine();
 		if (Info._FreeItem.has_value())
 		{
@@ -845,7 +855,7 @@ bool ImGuIHelper::Draw_UniquePtr(const char* label, void* Uniqueptr, const DrawU
 			ImGui::TreePop();
 		}
 
-		
+
 	}
 	else
 	{
@@ -856,10 +866,10 @@ bool ImGuIHelper::Draw_UniquePtr(const char* label, void* Uniqueptr, const DrawU
 		}
 		ImGui::SameLine();
 
-		if (Info._AllocateItem.has_value()) 
+		if (Info._AllocateItem.has_value())
 		{
 			ImGui::SameLine();
-			if (ImGui::Button("+", {20,20}))
+			if (ImGui::Button("+", { 20,20 }))
 			{
 				WasUpdated = true;
 				Info._AllocateItem.value()(Uniqueptr);
@@ -873,11 +883,11 @@ bool ImGuIHelper::Draw_UniquePtr(const char* label, void* Uniqueptr, const DrawU
 bool ImGuIHelper::Draw_Optional(const char* label, void* Optionalptr, const DrawOptionalInfo& Info)
 {
 
-	ImGui::Text(label);
+	ImGuIHelper::Text(StringView(label));
 	ImGui::SameLine();
 
 	bool HasValue = Info._HasValue(Optionalptr);
-	
+
 	ImGui::BeginDisabled(!HasValue);
 
 	Info._OnDrawItem(Optionalptr);
@@ -888,7 +898,7 @@ bool ImGuIHelper::Draw_Optional(const char* label, void* Optionalptr, const Draw
 
 	ImGui::PushID((Byte*)Optionalptr + 1);
 
-	bool Updated = ImGuIHelper::ToggleField("",HasValue);
+	bool Updated = ImGuIHelper::ToggleField("", HasValue);
 	if (Updated)
 	{
 		if (HasValue)
@@ -925,24 +935,24 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 	}
 
 	ImGui::SameLine();
-	
+
 	ImGui::BeginDisabled(true);
-	
+
 	ImGui::SetNextItemWidth(ImGui::GetTextLineHeightWithSpacing());
 
 	ImGui::PushID(&Value + 1);
-	
+
 	ImGui::DragScalar("", ImGuiDataType_S8, (void*)&Value);
-	
+
 	ImGui::PopID();
 
 	ImGui::EndDisabled();
 
 	return R;
 }
- bool ImGuIHelper::Int64Field(const char* FieldName, i64& Value)
+bool ImGuIHelper::Int64Field(const char* FieldName, i64& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -951,9 +961,9 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 
 	return V;
 }
- bool ImGuIHelper::Int32Field(const char* FieldName, i32& Value)
+bool ImGuIHelper::Int32Field(const char* FieldName, i32& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -962,9 +972,9 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 
 	return V;
 }
- bool ImGuIHelper::Int16Field(const char* FieldName, i16& Value)
+bool ImGuIHelper::Int16Field(const char* FieldName, i16& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -973,9 +983,9 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 
 	return V;
 }
- bool ImGuIHelper::Int8Field(const char* FieldName, i8& Value)
+bool ImGuIHelper::Int8Field(const char* FieldName, i8& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -984,9 +994,9 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 
 	return V;
 }
- bool ImGuIHelper::f32Field(const char* FieldName, f32& Value)
+bool ImGuIHelper::f32Field(const char* FieldName, f32& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -995,9 +1005,9 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 
 	return V;
 }
- bool ImGuIHelper::f64Field(const char* FieldName, f64& Value)
+bool ImGuIHelper::f64Field(const char* FieldName, f64& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
@@ -1006,70 +1016,70 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 
 	return V;
 }
- bool ImGuIHelper::DrawOrdeField(const char* FieldName, unsigned char& Value)
+bool ImGuIHelper::DrawOrdeField(const char* FieldName, unsigned char& Value)
 {
-	ImGui::Text(FieldName);
+	ImGuIHelper::Text(StringView(FieldName));
 	ImGui::SameLine();
 
 	ImGui::PushID(&Value);
-	auto V = uInt8Field("",Value);
+	auto V = uInt8Field("", Value);
 	ImGui::PopID();
 
 	return V;
 }
- bool ImGuIHelper::EnumField(const char* label, void* Value, const EnumValue2* Values, size_t ValuesSize, size_t EnumBaseSize)
- {
-	 bool Updated = false;
-	 const EnumValue2* current_item = nullptr;
-	 for (size_t i = 0; i < ValuesSize; i++)
-	 {
-		 const EnumValue2& Item = Values[i];
+bool ImGuIHelper::EnumField(const char* label, void* Value, const EnumValue2* Values, size_t ValuesSize, size_t EnumBaseSize)
+{
+	bool Updated = false;
+	const EnumValue2* current_item = nullptr;
+	for (size_t i = 0; i < ValuesSize; i++)
+	{
+		const EnumValue2& Item = Values[i];
 
-		 bool IsSame = !memcmp(Item.Value, Value, EnumBaseSize);
-		 if (IsSame)
-		 {
-			 current_item = &Item;
-		 }
-	 }
+		bool IsSame = !memcmp(Item.Value, Value, EnumBaseSize);
+		if (IsSame)
+		{
+			current_item = &Item;
+		}
+	}
 
-	 if (current_item == nullptr)
-	 {
-		 if (ValuesSize == 0)
-		 {
-			 ImGuIHelper::Text(StringView("Cant show EnumField because there is no EnumValues"));
-			 return false;
-		 }
-		 current_item = &Values[0];
+	if (current_item == nullptr)
+	{
+		if (ValuesSize == 0)
+		{
+			ImGuIHelper::Text(StringView("Cant show EnumField because there is no EnumValues"));
+			return false;
+		}
+		current_item = &Values[0];
 
-	 }
+	}
 
-	
-	 ImGui::Text(label); ImGui::SameLine();
 
-	 ImGui::PushID(Value);
-	 if (ImGui::BeginCombo("", current_item->label, ImGuiComboFlags_NoArrowButton))
-	 {
-		 for (size_t i = 0; i < ValuesSize; i++)
-		 {
-			 const EnumValue2& Item = Values[i];
+	ImGuIHelper::Text(StringView(label)); ImGui::SameLine();
 
-			 bool is_selected = (current_item == &Item);
-			 if (ImGui::Selectable(Item.label, is_selected))
-			 {
-				 memcpy(Value, Item.Value, EnumBaseSize);
-				 Updated = true;
-			 }
-			 if (is_selected)
-			 {
-				 ImGui::SetItemDefaultFocus();
-			 }
-		 }
-		 ImGui::EndCombo();
-	 }
-	 ImGui::PopID();
+	ImGui::PushID(Value);
+	if (ImGui::BeginCombo("", current_item->label, ImGuiComboFlags_NoArrowButton))
+	{
+		for (size_t i = 0; i < ValuesSize; i++)
+		{
+			const EnumValue2& Item = Values[i];
 
-	 return Updated;
- }
+			bool is_selected = (current_item == &Item);
+			if (ImGui::Selectable(Item.label, is_selected))
+			{
+				memcpy(Value, Item.Value, EnumBaseSize);
+				Updated = true;
+			}
+			if (is_selected)
+			{
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+		ImGui::EndCombo();
+	}
+	ImGui::PopID();
+
+	return Updated;
+}
 bool ImGuIHelper::Draw_StringView(const char* label, StringView& Item)
 {
 	thread_local String V;
@@ -1077,7 +1087,7 @@ bool ImGuIHelper::Draw_StringView(const char* label, StringView& Item)
 
 	bool R = false;
 	bool Value = ImGui::TreeNode(label);
-	if (Value) 
+	if (Value)
 	{
 		R = InputText("AsString", V);
 		if (R)
@@ -1116,7 +1126,7 @@ bool ImGuIHelper::Draw_Dictionary(const char* label, void* Dictionaryptr, size_t
 	if (TepValue == nullptr)
 	{
 		ImGui::SameLine();
-		if (ImGui::Button("+", { 20,20 })) 
+		if (ImGui::Button("+", { 20,20 }))
 		{
 			TepValue = Info._OnMakeTepItem(Dictionaryptr);
 		}
@@ -1134,7 +1144,7 @@ bool ImGuIHelper::Draw_Dictionary(const char* label, void* Dictionaryptr, size_t
 		}
 
 		ImGui::SameLine();
-		
+
 		if (ImGui::Button("Cancel"))
 		{
 			Info._OnFreeTepItem(TepValue);
@@ -1153,12 +1163,12 @@ bool ImGuIHelper::Draw_Dictionary(const char* label, void* Dictionaryptr, size_t
 }
 bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 	const void* ObjectList, size_t ObjectListSize, size_t ItemObjectSize,
-	ObjectFieldFuncPtr DrawObject,const String& Name)
+	ObjectFieldFuncPtr DrawObject, const String& Name)
 {
 	ImGuIHelper::Image(Sprite, { 20,20 });
 	auto winwidth = ImGui::GetWindowWidth();
 
-	
+
 	bool ok = false;
 	ImGui::SameLine();
 
@@ -1168,19 +1178,19 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 	{
 		static String V;
 		static bool t = false;
-		
-		
+
+
 		ImGui::PushID(&t);
-        ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.96);
-		ImGuIHelper::InputText("",V);
+		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.96);
+		ImGuIHelper::InputText("", V);
 		ImGui::PopItemWidth();
 		ImGui::PopID();
 
 		//ImGui::SameLine();
 		static bool ListMode = true;
 		//ImGuIHelper::BoolEnumField("List",ListMode);
-		
-	
+
+
 		ImGui::Separator();
 		//ImGui::Columns(1, 0, false);
 
@@ -1189,8 +1199,8 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 
 		for (size_t i = 0; i < ObjectListSize; i++)
 		{
-			
-			ok = DrawObject(object,(void*)ptr, ListMode,V);
+
+			ok = DrawObject(object, (void*)ptr, ListMode, V);
 
 			ptr += (uintptr_t)ItemObjectSize;
 
@@ -1200,11 +1210,11 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 			}
 		}
 
-	
+
 		ImGui::EndCombo();
 	}
 
-	
+
 
 	return ok;
 }

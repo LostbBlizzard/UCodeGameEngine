@@ -52,7 +52,7 @@ public:
 	static void ImageDontKeepAspectRatio(UCode::Sprite& Sprite, const ImVec2& ButtionSize);
 	static bool ImageButtonDontKeepAspectRatio(const void* id, UCode::Texture* Sprite, const ImVec2& ButtionSize);
 	static bool ImageButtonDontKeepAspectRatio(const void* id, UCode::Sprite* Sprite, const ImVec2& ButtionSize);
-	
+
 	struct TreeNodeText
 	{
 		bool NodeOpen, TextUpdate;
@@ -168,7 +168,7 @@ public:
 		return ColorField(ToCStr(FieldName), Value);
 	}
 	static bool ColorField(StringView FieldName, UCode::Color32& Value)
-	{	
+	{
 		return ColorField(ToCStr(FieldName), Value);
 	}
 	static bool ColorField(StringView FieldName, UCode::Color24& Value)
@@ -184,15 +184,15 @@ public:
 	{
 		return uInt32Field(ToCStr(FieldName), Value);
 	}
-	static bool uInt16Field(StringView FieldName,u16& Value)
+	static bool uInt16Field(StringView FieldName, u16& Value)
 	{
 		return uInt16Field(ToCStr(FieldName), Value);
 	}
-	static bool uInt8Field(StringView FieldName,u8& Value)
+	static bool uInt8Field(StringView FieldName, u8& Value)
 	{
 		return uInt8Field(ToCStr(FieldName), Value);
 	}
-	
+
 	static bool CharField(StringView FieldName, char& Value)
 	{
 		return CharField(ToCStr(FieldName), Value);
@@ -258,29 +258,29 @@ public:
 		const char* label = "null";
 		const void* Value = nullptr;
 	};
-	
+
 	static bool EnumField(const char* label, void* Value, const EnumValue2* Values, size_t ValuesSize, size_t EnumBaseSize);
-	
+
 	static bool EnumField(const char* label, void* Value, const Vector<EnumValue2>& Values, size_t EnumBaseSize)
 	{
-		return EnumField(label, Value, Values.data(),Values.size(), EnumBaseSize);
+		return EnumField(label, Value, Values.data(), Values.size(), EnumBaseSize);
 	}
 
 	template<typename T>
 	static UCODE_EDITOR_FORCEINLINE bool EnumField(const char* label, T& Value, const Vector<EnumValue<T>>& Values)
 	{
-		return EnumField(label, Value,Values.data(), Values.size());
+		return EnumField(label, Value, Values.data(), Values.size());
 	}
 
 	template<typename T>
 	static bool EnumField(const char* label, T& Value, const EnumValue<T>* Values, size_t Size)
 	{
 		constexpr size_t MaxStackSize = sizeof(EnumValue2) * 8;
-		bool IsEnumValuesBig = (Size * sizeof(EnumValue2))  > MaxStackSize;
+		bool IsEnumValuesBig = (Size * sizeof(EnumValue2)) > MaxStackSize;
 
 
 		EnumValue2* Ptr = nullptr;
-		if (IsEnumValuesBig) 
+		if (IsEnumValuesBig)
 		{
 			Ptr = new EnumValue2[Size];
 		}
@@ -298,7 +298,7 @@ public:
 			Enum2Value.Value = &EnumValue.Value;
 		}
 
-		bool V = EnumField(label,&Value, Ptr,Size, sizeof(T));
+		bool V = EnumField(label, &Value, Ptr, Size, sizeof(T));
 
 		if (IsEnumValuesBig)
 		{
@@ -315,7 +315,7 @@ public:
 	struct VariantInfo
 	{
 		void* Tag = nullptr;
-		void* Union =nullptr;
+		void* Union = nullptr;
 	};
 	static EnumVariantFieldUpdate EnumVariantField(const char* label, VariantInfo Variant, std::function<bool(void* Tag, void* Union, bool UpdatedEnum, bool Draw)> DrawVariant, const EnumValue2* Values, size_t ValuesSize, size_t EnumBaseSize)
 	{
@@ -342,15 +342,15 @@ public:
 		typename Type::TagType _Tag;
 		typename Type::Pack _Objects;
 	};
-	
+
 	template <typename... Types2>
 	struct EnumVariant_helper;
 
-	
+
 	template <typename T2, typename... Types2>
 	struct EnumVariant_helper<T2, Types2...>
 	{
-		
+
 		UCodeGEForceinlne static const char* GetName(const UCode::VariantTagType type_index)
 		{
 			if (type_index == sizeof...(Types2))
@@ -362,7 +362,7 @@ public:
 				return EnumVariant_helper<Types2...>::GetName(type_index);
 			}
 		}
-		UCodeGEForceinlne static bool DrawItem(const UCode::VariantTagType type_index,void* Object)
+		UCodeGEForceinlne static bool DrawItem(const UCode::VariantTagType type_index, void* Object)
 		{
 			if (type_index == sizeof...(Types2))
 			{
@@ -370,21 +370,21 @@ public:
 			}
 			else
 			{
-				return EnumVariant_helper<Types2...>::DrawItem(type_index,Object);
+				return EnumVariant_helper<Types2...>::DrawItem(type_index, Object);
 			}
 		}
 	};
 
-	
+
 	template <typename... Types2>
 	struct EnumVariant_helper
 	{
 		UCODE_EDITOR_FORCEINLINE static const char* GetName(const UCode::VariantTagType type_index) { return {}; }
 		UCODE_EDITOR_FORCEINLINE static bool DrawItem(const UCode::VariantTagType type_index, void* Object) { return false; }
 	};
-	
-	
-		
+
+
+
 	template<typename... T>
 	static EnumVariantFieldUpdate EnumVariantField(const char* label, Variant<T...>& Value)
 	{
@@ -399,14 +399,14 @@ public:
 		static typename Type::TagType RawValue[TypesCount];
 
 
-		
+
 
 
 		if (Init == false)
 		{
 			Init = true;
 
-			
+
 
 			for (size_t i = 0; i < TypesCount; i++)
 			{
@@ -425,23 +425,23 @@ public:
 		V.Tag = &ValueAsMembers._Tag;
 		V.Union = &ValueAsMembers._Objects;
 
-		auto Func = [](void* Tag, void* Union, bool UpdatedEnum,bool Draw)
-		{
-			bool Updated = false;
-			
-
-			UCode::VariantTagType* TagValue = (UCode::VariantTagType*)Tag;
-			
-			if (UpdatedEnum)
+		auto Func = [](void* Tag, void* Union, bool UpdatedEnum, bool Draw)
 			{
-				variant_helper::construct(*TagValue, Union);
-			}
+				bool Updated = false;
 
-			if (Draw) {
-				Updated = EnumVariant_type::DrawItem(*TagValue, Union);
-			}
-			return Updated;
-		};
+
+				UCode::VariantTagType* TagValue = (UCode::VariantTagType*)Tag;
+
+				if (UpdatedEnum)
+				{
+					variant_helper::construct(*TagValue, Union);
+				}
+
+				if (Draw) {
+					Updated = EnumVariant_type::DrawItem(*TagValue, Union);
+				}
+				return Updated;
+			};
 
 		auto R = EnumVariantField(label, V, Func, EnumValues, Type::ItemsInListCount, sizeof(typename Type::TagType));
 
@@ -454,11 +454,11 @@ public:
 	static constexpr float Default_LoadingIndicatorcircle_count = 8;
 	//Made From Alexander Scheid-Rehder on Dec 6, 2018
 	//https://github.com/ocornut/imgui/issues/1901
-	static void LoadingIndicatorCircle(const char* label, const float indicator_radius,const ImVec4& main_color, const ImVec4& backdrop_color,const int circle_count = Default_LoadingIndicatorcircle_count, const float speed = Default_LoadingIndicatorSpeed);
-	static void LoadingIndicatorCircle(const char* label, const float indicator_radius,const int circle_count = Default_LoadingIndicatorcircle_count, const float speed = Default_LoadingIndicatorSpeed);
-	static void ShowOnMiddleLoadingIndicatorCircle(const char* label,const int circle_count = Default_LoadingIndicatorcircle_count, const float speed = Default_LoadingIndicatorSpeed);
+	static void LoadingIndicatorCircle(const char* label, const float indicator_radius, const ImVec4& main_color, const ImVec4& backdrop_color, const int circle_count = Default_LoadingIndicatorcircle_count, const float speed = Default_LoadingIndicatorSpeed);
+	static void LoadingIndicatorCircle(const char* label, const float indicator_radius, const int circle_count = Default_LoadingIndicatorcircle_count, const float speed = Default_LoadingIndicatorSpeed);
+	static void ShowOnMiddleLoadingIndicatorCircle(const char* label, const int circle_count = Default_LoadingIndicatorcircle_count, const float speed = Default_LoadingIndicatorSpeed);
 	static bool DrawRenameTree(String& label, bool TreeIsOpened, bool& IsRenameing);
-	static bool DrawRenameTree(String& label, bool TreeIsOpened, bool& IsRenameing,UCode::Sprite* sprite);
+	static bool DrawRenameTree(String& label, bool TreeIsOpened, bool& IsRenameing, UCode::Sprite* sprite);
 	static bool DrawRenameTree(String& label, bool TreeIsOpened, bool& IsRenamein, AppFiles::sprite sprite)
 	{
 		return DrawRenameTree(label, TreeIsOpened, IsRenamein, AppFiles::GetSprite(sprite));
@@ -491,65 +491,65 @@ public:
 		Info.ItemSize = sizeof(T);
 
 		Info._OnDrawItem = [](void* Object, size_t Index)
-		{
-			UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
-			auto& Item = Objectbuf[Index];
+			{
+				UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
+				auto& Item = Objectbuf[Index];
 
-			DrawValue<T>(&Item);
-		};
+				DrawValue<T>(&Item);
+			};
 
 		Info._AddNewValue = [](void* Object, size_t Index)
-		{
-			UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
-			Objectbuf.insert(Objectbuf.begin() + Index, T());
-		};
+			{
+				UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
+				Objectbuf.insert(Objectbuf.begin() + Index, T());
+			};
 
 		Info._AddNewRemove = [](void* Object, size_t Index)
-		{
-			UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
-			Objectbuf.erase(Objectbuf.begin() + Index);
-		};
+			{
+				UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
+				Objectbuf.erase(Objectbuf.begin() + Index);
+			};
 
 		Info._ResizeVector = [](void* Object, size_t NewIndex)
-		{
-			UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
-			Objectbuf.resize(NewIndex);
-		};
+			{
+				UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
+				Objectbuf.resize(NewIndex);
+			};
 
 		return DrawVector(label, &Buffer, Buffer.data(), Buffer.size(), Info);
 	}
 
 	template<typename T>
-	static bool DrawVector(const char* label, Vector<T>& Buffer,std::function<bool(T& Item)> onDraw)
+	static bool DrawVector(const char* label, Vector<T>& Buffer, std::function<bool(T& Item)> onDraw)
 	{
 		DrawVectorInfo Info;
 		Info.ItemSize = sizeof(T);
 
 		Info._OnDrawItem = [onDraw = std::move(onDraw)](void* Object, size_t Index)
-		{
-			UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
-			auto& Item = Objectbuf[Index];
+			{
+				UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
+				auto& Item = Objectbuf[Index];
 
-			onDraw(Item);
-		};
+				onDraw(Item);
+			};
 
 		Info._AddNewValue = [](void* Object, size_t Index)
-		{
-			UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
-			Objectbuf.insert(Objectbuf.begin() + Index, T());
-		};
+			{
+				UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
+				Objectbuf.insert(Objectbuf.begin() + Index, T());
+			};
 
 		Info._AddNewRemove = [](void* Object, size_t Index)
-		{
-			UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
-			Objectbuf.erase(Objectbuf.begin() + Index);
-		};
+			{
+				UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
+				Objectbuf.erase(Objectbuf.begin() + Index);
+			};
 
 		Info._ResizeVector = [](void* Object, size_t NewIndex)
-		{
-			UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
-			Objectbuf.resize(NewIndex);
-		};
+			{
+				UCodeEditor::Vector<T>& Objectbuf = *(UCodeEditor::Vector<T>*)Object;
+				Objectbuf.resize(NewIndex);
+			};
 
 		return DrawVector(label, &Buffer, Buffer.data(), Buffer.size(), Info);
 	}
@@ -561,40 +561,40 @@ public:
 		Info.ItemSize = sizeof(T);
 
 		Info._OnDrawItem = [](void* Object, size_t Index)
-		{
-			UCodeEditor::Span<T>& Objectbuf = *(UCodeEditor::Span<T>*)Object;
-			auto& Item = Objectbuf[Index];
+			{
+				UCodeEditor::Span<T>& Objectbuf = *(UCodeEditor::Span<T>*)Object;
+				auto& Item = Objectbuf[Index];
 
-			DrawValue<T>(&Item);
-		};
+				DrawValue<T>(&Item);
+			};
 
-		
+
 		return DrawVector(label, &Buffer, Buffer.Data(), Buffer.Size(), Info);
 	}
 
-	template<typename T,size_t Size>
-	static bool DrawArray(const char* label, Array<T,Size>& Buffer)
+	template<typename T, size_t Size>
+	static bool DrawArray(const char* label, Array<T, Size>& Buffer)
 	{
 		DrawVectorInfo Info;
 		Info.ItemSize = sizeof(T);
 
 		Info._OnDrawItem = [](void* Object, size_t Index)
-		{
-			Array<T, Size>& Objectbuf = *(Array<T, Size>*)Object;
-			auto& Item = Objectbuf[Index];
+			{
+				Array<T, Size>& Objectbuf = *(Array<T, Size>*)Object;
+				auto& Item = Objectbuf[Index];
 
-			DrawValue<T>(&Item);
-		};
+				DrawValue<T>(&Item);
+			};
 
 
 		return DrawVector(label, &Buffer, Buffer.data(), Buffer.size(), Info);
 	}
-	
+
 
 	struct DrawUniquePtrInfo
 	{
 		std::function<void(void* Object)> _OnDrawItem;
-		
+
 		Optional<std::function<void(void* Object)>> _FreeItem;
 		Optional<std::function<void(void* Object)>> _AllocateItem;
 	};
@@ -605,22 +605,22 @@ public:
 	{
 		DrawUniquePtrInfo Info;
 		Info._OnDrawItem = [](void* Object)
-		{
-			Unique_ptr<T>& ObjectAsType = *(Unique_ptr<T>*)Object;
-			DrawValue<T>(ObjectAsType.get());
-		};
+			{
+				Unique_ptr<T>& ObjectAsType = *(Unique_ptr<T>*)Object;
+				DrawValue<T>(ObjectAsType.get());
+			};
 		Info._FreeItem = [](void* Object)
-		{
-			Unique_ptr<T>& ObjectAsType = *(Unique_ptr<T>*)Object;
-			ObjectAsType = Unique_ptr<T>();
-		};
+			{
+				Unique_ptr<T>& ObjectAsType = *(Unique_ptr<T>*)Object;
+				ObjectAsType = Unique_ptr<T>();
+			};
 		Info._AllocateItem = [](void* Object)
-		{
-			Unique_ptr<T>& ObjectAsType = *(Unique_ptr<T>*)Object;
-			ObjectAsType = Unique_ptr<T>(new T());
-		};
+			{
+				Unique_ptr<T>& ObjectAsType = *(Unique_ptr<T>*)Object;
+				ObjectAsType = Unique_ptr<T>(new T());
+			};
 		return Draw_UniquePtr(label, (void*)&Item, Info);
-		
+
 	}
 
 	static bool Draw_UniquePtr(const char* label, void* Uniqueptr, const DrawUniquePtrInfo& Info);
@@ -647,53 +647,53 @@ public:
 	template<typename T>
 	static bool Draw_Optional(const char* label, Optional<T>& Item)
 	{
-		
+
 		{
 			constexpr bool AreSame = sizeof(Optional<T>) == sizeof(OptionalMembers<T>);
 			static_assert(AreSame, "Optional and OptionalMembers are not the same");
 		}
-		
+
 		DrawOptionalInfo Info;
 		Info._OnDrawItem = [](void* Object)
-		{
-			Optional<T>& ObjectAsType = *(Optional<T>*)Object;
-			OptionalMembers<T>& AsMembers = *(OptionalMembers<T>*)&ObjectAsType;
+			{
+				Optional<T>& ObjectAsType = *(Optional<T>*)Object;
+				OptionalMembers<T>& AsMembers = *(OptionalMembers<T>*) & ObjectAsType;
 
-			DrawValue<T>(&AsMembers.Value);
-		};
+				DrawValue<T>(&AsMembers.Value);
+			};
 
 		Info._HasValue = [](void* Object)
-		{
-			Optional<T>& ObjectAsType = *(Optional<T>*)Object;
-			
-			bool Value = ObjectAsType.has_value();
-
-			#ifdef DEBUG
-			OptionalMembers<T>& AsMembers = *(OptionalMembers<T>*) & ObjectAsType;
-			if (Value != AsMembers.Value)
 			{
-				UCodeGEFatal("Member Miss-Match");
-				
+				Optional<T>& ObjectAsType = *(Optional<T>*)Object;
 
-			}
-			#endif // DEBUG
+				bool Value = ObjectAsType.has_value();
 
-			return Value;
-		};
-		
+#ifdef DEBUG
+				OptionalMembers<T>& AsMembers = *(OptionalMembers<T>*) & ObjectAsType;
+				if (Value != AsMembers.Value)
+				{
+					UCodeGEFatal("Member Miss-Match");
+
+
+				}
+#endif // DEBUG
+
+				return Value;
+			};
+
 		Info._SetValue = [](void* Object)
-		{
-			Optional<T>& ObjectAsType = *(Optional<T>*)Object;
-			OptionalMembers<T>& AsMembers = *(OptionalMembers<T>*) & ObjectAsType;
-			AsMembers.HasValue = true;
-		};
+			{
+				Optional<T>& ObjectAsType = *(Optional<T>*)Object;
+				OptionalMembers<T>& AsMembers = *(OptionalMembers<T>*) & ObjectAsType;
+				AsMembers.HasValue = true;
+			};
 
 		Info._FreeValue = [](void* Object)
-		{
-			Optional<T>& ObjectAsType = *(Optional<T>*)Object;
-			OptionalMembers<T>& AsMembers = *(OptionalMembers<T>*) & ObjectAsType;
-			AsMembers.HasValue = false;
-		};
+			{
+				Optional<T>& ObjectAsType = *(Optional<T>*)Object;
+				OptionalMembers<T>& AsMembers = *(OptionalMembers<T>*) & ObjectAsType;
+				AsMembers.HasValue = false;
+			};
 
 		return Draw_Optional(label, (void*)&Item, Info);
 	}
@@ -703,106 +703,106 @@ public:
 
 	struct DrawDictionaryInfo
 	{
-		std::function<void(void* Object,const DrawDictionaryInfo& Info)> _LoopOverObjects;
+		std::function<void(void* Object, const DrawDictionaryInfo& Info)> _LoopOverObjects;
 
 		std::function<void(void* Object, void* Item, const DrawDictionaryInfo& Info)> _OnDrawItem;
 		std::function<void(void* Object, void* Item)> _OnRemoveItem;
 
 
 		std::function<void(void* Object, void* Item)> _OnDrawTepItem;
-		std::function<void*(void* Object)> _OnMakeTepItem;
+		std::function<void* (void* Object)> _OnMakeTepItem;
 		std::function<void(void* TepItem)> _OnFreeTepItem;
 		std::function<void(void* Object, void* Item)> _AddTepItemTODictionary;
 	};
 
-	static bool Draw_Dictionary(const char* label, void* Dictionary,size_t DictionarySize, const DrawDictionaryInfo& Info);
-	
+	static bool Draw_Dictionary(const char* label, void* Dictionary, size_t DictionarySize, const DrawDictionaryInfo& Info);
+
 
 	template<typename Key, typename U>
-	static bool Draw_Dictionary(const char* label,Unordered_map<Key,U>& Item)
+	static bool Draw_Dictionary(const char* label, Unordered_map<Key, U>& Item)
 	{
 		DrawDictionaryInfo Info;
 		Info._LoopOverObjects = [](void* Object, const DrawDictionaryInfo& Info)
-		{
-			Unordered_map<Key, U>& ObjectAsType = *(UCodeEditor::Unordered_map<Key, U>*)Object;
-			size_t OldSize = ObjectAsType.size();
-			for (auto& Item : ObjectAsType)
 			{
-				Info._OnDrawItem(&ObjectAsType,&Item,Info);
-
-				if (OldSize != ObjectAsType.size())
+				Unordered_map<Key, U>& ObjectAsType = *(UCodeEditor::Unordered_map<Key, U>*)Object;
+				size_t OldSize = ObjectAsType.size();
+				for (auto& Item : ObjectAsType)
 				{
-					break;
+					Info._OnDrawItem(&ObjectAsType, &Item, Info);
+
+					if (OldSize != ObjectAsType.size())
+					{
+						break;
+					}
 				}
-			}
-		};
+			};
 
 		Info._OnDrawItem = [](void* Map, void* Object, const DrawDictionaryInfo& Info)
-		{
-			std::pair<const Key, U>& ObjectAsType = *(std::pair<const Key, U>*)Object;
-
-			ImGui::BeginDisabled(true);
-
-			DrawValue<Key>((Key*)&ObjectAsType.first);
-
-			ImGui::EndDisabled();
-
-			ImGui::SameLine();
-
-			DrawValue<U>(&ObjectAsType.second);
-			
-			bool RemoveItem = false;
-			ImGui::PushID(Object);
-			if (ImGuIHelper::BeginPopupContextItem("????"))
 			{
-				if (ImGui::MenuItem("Remove Item"))
+				std::pair<const Key, U>& ObjectAsType = *(std::pair<const Key, U>*)Object;
+
+				ImGui::BeginDisabled(true);
+
+				DrawValue<Key>((Key*)&ObjectAsType.first);
+
+				ImGui::EndDisabled();
+
+				ImGui::SameLine();
+
+				DrawValue<U>(&ObjectAsType.second);
+
+				bool RemoveItem = false;
+				ImGui::PushID(Object);
+				if (ImGuIHelper::BeginPopupContextItem("????"))
 				{
-					RemoveItem = true;
+					if (ImGui::MenuItem("Remove Item"))
+					{
+						RemoveItem = true;
+					}
+					ImGui::EndPopup();
 				}
-				ImGui::EndPopup();
-			}
-			ImGui::PopID();
+				ImGui::PopID();
 
-			if (RemoveItem)
-			{
-				Info._OnRemoveItem(Map,Object);
-			}
-		};
+				if (RemoveItem)
+				{
+					Info._OnRemoveItem(Map, Object);
+				}
+			};
 
 		Info._OnRemoveItem = [](void* Object, void* Item)
-		{
-			Unordered_map<Key, U>& ObjectAsType = *(UCodeEditor::Unordered_map<Key, U>*)Object;
-			std::pair<const Key, U>& ObjectToRemove = *(std::pair<const Key, U>*)Item;
+			{
+				Unordered_map<Key, U>& ObjectAsType = *(UCodeEditor::Unordered_map<Key, U>*)Object;
+				std::pair<const Key, U>& ObjectToRemove = *(std::pair<const Key, U>*)Item;
 
-			ObjectAsType.erase(ObjectToRemove.first);
-		};
+				ObjectAsType.erase(ObjectToRemove.first);
+			};
 
 		Info._OnDrawTepItem = [](void* Map, void* Object)
-		{
-			std::pair<Key, U>& ObjectAsType = *(std::pair<Key, U>*)Object;
+			{
+				std::pair<Key, U>& ObjectAsType = *(std::pair<Key, U>*)Object;
 
-			DrawValue<Key>(&ObjectAsType.first);
+				DrawValue<Key>(&ObjectAsType.first);
 
-			ImGui::SameLine();
+				ImGui::SameLine();
 
-			DrawValue<U>(&ObjectAsType.second);
-		};
+				DrawValue<U>(&ObjectAsType.second);
+			};
 
 		Info._OnMakeTepItem = [](void* Object)
-		{
-			return new std::pair<Key, U>();
-		};
+			{
+				return new std::pair<Key, U>();
+			};
 		Info._OnFreeTepItem = [](void* Object)
-		{
-			std::pair<Key, U>* ObjectAsType = (std::pair<Key, U>*)Object;
-			delete ObjectAsType;
-		};
+			{
+				std::pair<Key, U>* ObjectAsType = (std::pair<Key, U>*)Object;
+				delete ObjectAsType;
+			};
 		Info._AddTepItemTODictionary = [](void* Object, void* Map)
-		{
-			Unordered_map<Key, U>& MapAsType = *(UCodeEditor::Unordered_map<Key, U>*)Map;
-			std::pair<Key, U>* ObjectAsType = (std::pair<Key, U>*)Object;
-			MapAsType.AddValue(ObjectAsType->first,ObjectAsType->second);
-		};
+			{
+				Unordered_map<Key, U>& MapAsType = *(UCodeEditor::Unordered_map<Key, U>*)Map;
+				std::pair<Key, U>* ObjectAsType = (std::pair<Key, U>*)Object;
+				MapAsType.AddValue(ObjectAsType->first, ObjectAsType->second);
+			};
 
 		return Draw_Dictionary(label, &Item, Item.size(), Info);
 	}
@@ -813,7 +813,7 @@ public:
 	{
 		auto r = DrawValue<T>(Item);
 		ImGui::SameLine();
-		ImGuIHelper::Text(label);
+		ImGuIHelper::Text((StringView)label);
 		return r;
 	}
 	template<typename T> static bool DrawValue(T* Item)
@@ -832,7 +832,7 @@ public:
 	static bool DrawValue(char* Item)
 	{
 		ImGui::PushID(Item);
-		auto R = ImGuIHelper::CharField("",*Item);
+		auto R = ImGuIHelper::CharField("", *Item);
 		ImGui::PopID();
 		return R;
 	}
@@ -860,7 +860,7 @@ public:
 	static bool DrawValue(u32* Item)
 	{
 		ImGui::PushID(Item);
-		auto R = ImGui::InputScalar("",ImGuiDataType_::ImGuiDataType_U32,Item);
+		auto R = ImGui::InputScalar("", ImGuiDataType_::ImGuiDataType_U32, Item);
 		ImGui::PopID();
 		return R;
 	}
@@ -954,7 +954,7 @@ public:
 	template<typename T, size_t Size> static bool DrawValue(Array<T, Size>* Item)
 	{
 		ImGui::PushID(Item);
-		auto R = DrawArray("",*Item);
+		auto R = DrawArray("", *Item);
 		ImGui::PopID();
 		return R;
 	}
@@ -976,12 +976,12 @@ public:
 	template<typename... T> static bool DrawValue(Variant<T...>* Item)
 	{
 		ImGui::PushID(Item);
-		auto R = EnumVariantField("",*Item);
+		auto R = EnumVariantField("", *Item);
 		ImGui::PopID();
 		return R;
 	}
 
-	template<typename Key, typename Value> static bool DrawValue(Unordered_map<Key,Value>* Item)
+	template<typename Key, typename Value> static bool DrawValue(Unordered_map<Key, Value>* Item)
 	{
 		ImGui::PushID(Item);
 		auto R = Draw_Dictionary<Key, Value>("", *Item);
@@ -996,24 +996,24 @@ public:
 		ImGui::PopID();
 		return R;
 	}
-	using ObjectFieldFuncPtr = std::function<bool(void* Ptr,void* Object,bool Listmode,const String& Find)>;
+	using ObjectFieldFuncPtr = std::function<bool(void* Ptr, void* Object, bool Listmode, const String& Find)>;
 
-	static bool DrawObjectField(UCode::Sprite* Sprite,void* object,
+	static bool DrawObjectField(UCode::Sprite* Sprite, void* object,
 		const void* ObjectList, size_t ObjectListSize, size_t ItemObjectSize,
-		ObjectFieldFuncPtr DrawObject,const String& Name ="Put/Name/Here");
+		ObjectFieldFuncPtr DrawObject, const String& Name = "Put/Name/Here");
 
-	static bool DrawObjectField(UCode::Sprite* Sprite,const char* Label, void* object,
-		const void* ObjectList, size_t ObjectListSize,size_t ItemObjectSize,
+	static bool DrawObjectField(UCode::Sprite* Sprite, const char* Label, void* object,
+		const void* ObjectList, size_t ObjectListSize, size_t ItemObjectSize,
 		ObjectFieldFuncPtr DrawObject, const String& Name = "Put/Name/Here")
 	{
 		ImGuIHelper::Text(StringView(Label));
 		ImGui::SameLine();
 		return DrawObjectField(Sprite, object, ObjectList, ObjectListSize, ItemObjectSize, DrawObject, Name);
 	}
-	
+
 	static bool DrawObjectField(const char* Label, void* object,
 		const void* ObjectList, size_t ObjectListSize, size_t ItemObjectSize,
-		ObjectFieldFuncPtr DrawObject,AppFiles::sprite Sprite = AppFiles::sprite::AppIcon, const String& Name = "Put/Name/Here")
+		ObjectFieldFuncPtr DrawObject, AppFiles::sprite Sprite = AppFiles::sprite::AppIcon, const String& Name = "Put/Name/Here")
 	{
 		return DrawObjectField(AppFiles::GetSprite(Sprite), Label, object, ObjectList, ObjectListSize, ItemObjectSize, DrawObject, Name);
 	}

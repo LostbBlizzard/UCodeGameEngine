@@ -27,7 +27,7 @@ EditorAppCompoent::EditorAppCompoent(UCode::Entity* entity) :
     UCode::Renderer2d(entity, nullptr),
     NextWindowId(0)
 {
-    AppFiles::Init(GetGameRunTime()->Get_Library_Edit()); 
+    AppFiles::Init(GetGameRunTime()->Get_Library_Edit());
 
 
     _This = this;
@@ -50,8 +50,8 @@ void EditorAppCompoent::Init(const Path& projDir)
     _Loader.reset(new EditorAssetLoader());
     AssetS->Set_AssetLoader(_Loader.get());
 
-    _Loader->Init(&_ProjectFiles,&_RunTimeProjectData, AssetS);
-    
+    _Loader->Init(&_ProjectFiles, &_RunTimeProjectData, AssetS);
+
     {
         auto FontBytes = AppFiles::ReadFileAsBytes("art/OpenSans-VariableFont_wdth,wght.ttf");
         auto& io = ImGui::GetIO();
@@ -61,8 +61,8 @@ void EditorAppCompoent::Init(const Path& projDir)
     }
 
     ImGuIHelper_Asset::AssetManager = AssetS;
-    ImGuIHelper_Asset::ProjectData = Get_RunTimeProjectData(); 
-   
+    ImGuIHelper_Asset::ProjectData = Get_RunTimeProjectData();
+
     if (!std::filesystem::exists("imgui.ini"))
     {
         AppFiles::CopyFile("presets/imgui.ini", "imgui.ini");
@@ -71,9 +71,9 @@ void EditorAppCompoent::Init(const Path& projDir)
 
     if (std::filesystem::exists("changelog.md"))
     {
-       ChangeLogtext = UCode::GameFiles::ReadFileAsString("changelog.md");
+        ChangeLogtext = UCode::GameFiles::ReadFileAsString("changelog.md");
 
-       std::filesystem::remove("changelog.md");
+        std::filesystem::remove("changelog.md");
     }
 
     if (!OpenProject(projDir))
@@ -82,7 +82,7 @@ void EditorAppCompoent::Init(const Path& projDir)
         MakeNewWindow(OpenProjectWindow, DataForWindow);
     }
 }
-EditorWindow*  EditorAppCompoent::MakeNewWindow(const EditorWindowData& windata, NewEditorWindowData DataForWindow)
+EditorWindow* EditorAppCompoent::MakeNewWindow(const EditorWindowData& windata, NewEditorWindowData DataForWindow)
 {
     EditorWindow* Game = windata.MakeWindow(DataForWindow);
     Game->WindowName = windata.GetName();
@@ -97,7 +97,7 @@ void  EditorAppCompoent::EndProject()
     _EditorWindows.clear();
 
     _RunTimeProjectData.SetProjectToNull();
-   // ImGui::ClearIniSettings();
+    // ImGui::ClearIniSettings();
 }
 
 bool EditorAppCompoent::OpenProject(const Path& ProjectDir)
@@ -113,10 +113,10 @@ bool EditorAppCompoent::OpenProject(const Path& ProjectDir)
     auto ProjectDataPath = ProjectManger::GetProjectDataPath(ProjectDir);
     if (ProjectData::ReadFromFile(ProjectDataPath, Data))
     {
-        _RunTimeProjectData.SetProject(Data, ProjectDir,_ProjectFiles);
+        _RunTimeProjectData.SetProject(Data, ProjectDir, _ProjectFiles);
 
         OnProjectLoadedPreWindows();
-       
+
         LoadWindowsPref();
 
         UCodeGELog("Project Loaded");
@@ -131,10 +131,11 @@ bool EditorAppCompoent::OpenProject(const Path& ProjectDir)
     }
 }
 void EditorAppCompoent::OnProjectLoadedPreWindows()
-{ auto GameLib = Get_EditorLibrary();
+{
+    auto GameLib = Get_EditorLibrary();
     UCode::GameFiles* gamefiles = gamefiles->Get(GameLib);
-    
-    
+
+
     //UCode::GameFilesData Newdata;
     //Newdata.SetRedirectDir(_RunTimeProjectData.GetGameLibDir());
     //gamefiles->ReInit(Newdata);
@@ -221,7 +222,7 @@ void EditorAppCompoent::OnProjectLoaded()
             EditorIndex::IndexFile newfileIndex;
 
             Vector<GetSubAssetData> subassets;
-            EditorIndex::UpdateFile(newfileIndex,path,fileitem.RelativePath.generic_string(),subassets);
+            EditorIndex::UpdateFile(newfileIndex, path, fileitem.RelativePath.generic_string(), subassets);
 
             for (auto& Item : subassets)
             {
@@ -238,18 +239,18 @@ void EditorAppCompoent::OnProjectLoaded()
         {
             auto path = AssetDir.native() + fileitem.RelativePath.native();
             auto r = fileitem.RelativePath.generic_string();
-            auto& old = Index.FindFileRelativeAssetName(r);
+            auto old = Index.FindFileRelativeAssetName(r);
 
             UCodeGEAssert(old.has_value());
             auto& oldv = old.value();
 
             Vector<GetSubAssetData> subassets;
             EditorIndex::UpdateFile(oldv, path, r, subassets);
-        
+
             for (auto& Item : subassets)
             {
                 auto find = Index.FindFileUsingID(Item._ID);
-                if (find.has_value()) 
+                if (find.has_value())
                 {
                     auto& foundfile = find.value();
                     foundfile.RelativeAssetName = oldv.RelativePath + EditorIndex::SubAssetSeparator + Item._SubAssetName;
@@ -270,11 +271,11 @@ void  EditorAppCompoent::ShowMainMenuBar()
     {
         bool IsOpenInProject = _RunTimeProjectData.Is_ProjLoaded();
         ImVec2 ButtionSize = { 140,20 };
-        
+
         {
             ImGuiIO& io = ImGui::GetIO();
             bool IsCtrlDown = io.KeyCtrl;
-            if (io.KeyCtrl) 
+            if (io.KeyCtrl)
             {
                 if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Z))
                 {
@@ -289,7 +290,7 @@ void  EditorAppCompoent::ShowMainMenuBar()
 
         if (ImGui::BeginMenu("File"))
         {
-           
+
 
             StringView ProjText = IsOpenInProject ? StringView("Project Stuff") : StringView("No Project Is Loaded");
 
@@ -330,7 +331,7 @@ void  EditorAppCompoent::ShowMainMenuBar()
                 }
 
             }
-          
+
             if (ImGui::MenuItem("Quit"))
             {
                 StopEditor();
@@ -340,11 +341,11 @@ void  EditorAppCompoent::ShowMainMenuBar()
         }
         if (ImGui::BeginMenu("Edit", IsOpenInProject))
         {
-            if (ImGui::MenuItem("Undo","CTRL+Z",nullptr,_Undos.size()))
+            if (ImGui::MenuItem("Undo", "CTRL+Z", nullptr, _Undos.size()))
             {
                 Undo();
             }
-            if (ImGui::MenuItem("Redo","CTRL+Y",nullptr,_Redos.size()))
+            if (ImGui::MenuItem("Redo", "CTRL+Y", nullptr, _Redos.size()))
             {
                 Redo();
             }
@@ -383,7 +384,7 @@ void  EditorAppCompoent::ShowMainMenuBar()
                 for (size_t i = 0; i < EditorWindowsList::EditorWindows_Size; i++)
                 {
                     auto& Item = EditorWindowsList::EditorWindows[i];
-                   
+
                     if (auto item = Item.IfType<EditorWindowsList::NewMenu>())
                     {
                         tep = item->Name;
@@ -395,9 +396,9 @@ void  EditorAppCompoent::ShowMainMenuBar()
                             ImGui::EndMenu();
                         }
                     }
-                    else if (auto val = Item.IfType<EditorWindowData>()) 
+                    else if (auto val = Item.IfType<EditorWindowData>())
                     {
-                        if (stack.size() ? stack.back() == true : true) 
+                        if (stack.size() ? stack.back() == true : true)
                         {
                             if (ImGui::MenuItem(val->GetName().c_str()))
                             {
@@ -411,7 +412,7 @@ void  EditorAppCompoent::ShowMainMenuBar()
                         UCodeGEUnreachable();
                     }
                 }
-                
+
 
                 ImGui::EndMenu();
             }
@@ -429,7 +430,7 @@ void  EditorAppCompoent::ShowMainMenuBar()
                         ImGui::EndMenu();
                     }
                 }
-                
+
             }
 
             ImGui::EndMenu();
@@ -446,7 +447,7 @@ void  EditorAppCompoent::ShowMainMenuBar()
             {
 
             }
-            
+
             if (ImGui::MenuItem("Forums"))
             {
 
@@ -530,8 +531,8 @@ void  EditorAppCompoent::BeginDockSpace(bool* p_open)
     }
 }
 void  EditorAppCompoent::SaveApp()
-{ 
-    if (_RunTimeProjectData.Is_ProjLoaded()) 
+{
+    if (_RunTimeProjectData.Is_ProjLoaded())
     {
         SaveWindowsPref();
 
@@ -579,7 +580,7 @@ void EditorAppCompoent::LoadWindowsPref()
 
         for (size_t i = 0; i < EditorWindowsList::EditorWindows_Size; i++)
         {
-            if (EditorWindowsList::EditorWindows[i].IsType<EditorWindowData>()) 
+            if (EditorWindowsList::EditorWindows[i].IsType<EditorWindowData>())
             {
                 auto& WItem = EditorWindowsList::EditorWindows[i].GetType<EditorWindowData>();
 
@@ -620,35 +621,35 @@ void EditorAppCompoent::SaveWindowsPref()
 {
     const Path WinPrePath = _RunTimeProjectData.Get_ProjectPrefsDir().concat(WindowPrefData::FileName);
     const Path IniPrePath = _RunTimeProjectData.Get_ProjectPrefsDir().concat("Ini").concat(WindowPrefData::FileName);
-   
+
     WindowPrefData data = WindowPrefData();
 
     auto TypeSerializer = USerializerType::Bytes;// _RunTimeProjectData.Get_ProjData()._SerializeType;
     //Text is too unstable
     USerializer SWindowData = USerializer(TypeSerializer);
-        
+
     for (auto& Item : _EditorWindows)
     {
         WindowPrefData::WindowData windata;
 
         windata._Windowid = Item->WindowName;
         windata._ImguiName = Item->_ImGuiName;
-        
+
         Item->OnSaveWindow(SWindowData);
-        SWindowData.ToBytes(windata._WindowData,true);
-        
+        SWindowData.ToBytes(windata._WindowData, true);
+
         data._Windows.push_back(std::move(windata));
 
-        
+
         SWindowData.Reset();
     }
-    
+
     //ImGui::SaveIniSettingsToDisk(IniPrePath.c_str());
     if (!WindowPrefData::WriteToFile(WinPrePath, data, TypeSerializer))
     {
         UCodeGELog("Could not Save WindowPrefs");
     }
-    
+
 }
 Path EditorAppCompoent::GetWindows_prefPath()
 {
@@ -658,7 +659,7 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
 {
     auto Info = UEditorModules::GetModuleFromFileExt(path.extension());
 
-	auto Modules = UEditorModules::GetModules();
+    auto Modules = UEditorModules::GetModules();
 
     if (Type == ChangedFileType::FileAdded)
     {
@@ -712,7 +713,7 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
         Data.type = Type;
         Info.Ptr->FileUpdate(Data);
 
-        
+
         if (Type == ChangedFileType::FileUpdated)
         {
             auto& Files = EditorAppCompoent::GetCurrentEditorAppCompoent()->GetPrjectFiles();
@@ -734,17 +735,17 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
                     }
                 }
             }
-             
+
             auto vstr = path.generic_string();
             auto v = runtime->Get_AssetIndex().FindFileRelativeAssetName(vstr);
-            
+
             Vector<GetSubAssetData> subassets;
-            EditorIndex::UpdateFile(v.value(),AssetDir / path ,vstr,subassets);
+            EditorIndex::UpdateFile(v.value(), AssetDir / path, vstr, subassets);
 
             for (auto& Item : subassets)
             {
                 auto find = runtime->Get_AssetIndex().FindFileUsingID(Item._ID);
-                if (find.has_value()) 
+                if (find.has_value())
                 {
                     auto& foundfile = find.value();
                     foundfile.RelativeAssetName = vstr + EditorIndex::SubAssetSeparator + Item._SubAssetName;
@@ -755,7 +756,7 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
         }
 
     }
- 
+
 
     for (auto& Item : EditorAppCompoent::GetCurrentEditorAppCompoent()->_EditorWindows)
     {
@@ -831,12 +832,12 @@ void EditorAppCompoent::RemoveWaitForInput(DontWaitInputKey key)
         if (Item == key)
         {
             _ListDontWaitKeys.erase(_ListDontWaitKeys.begin() + i);
-            
+
             if (_ListDontWaitKeys.size() == 0)
             {
                 WaitForInput(true);
             }
-            
+
             return;
         }
     }
@@ -847,7 +848,7 @@ void EditorAppCompoent::OnDraw()
 {
     UCode::UCodeRunTimeState::Set_Current(UCode::ULangRunTime::Get(Get_EditorLibrary()));
 
-    if (_RunTimeProjectData.Is_ProjLoaded()) 
+    if (_RunTimeProjectData.Is_ProjLoaded())
     {
         if (_AutoSaveTimer <= 0.0f)
         {
@@ -871,7 +872,7 @@ void EditorAppCompoent::OnDraw()
 
     ShowMainMenuBar();
 
-   
+
 
     bool Hi = true;
     BeginDockSpace(&Hi);
@@ -887,7 +888,7 @@ void EditorAppCompoent::OnDraw()
         if (ChangeLogtext.has_value())
         {
             ImGui::OpenPopup("ChangeLog");
-       }
+        }
     }
 
     if (_DropedFiles.has_value())
@@ -900,18 +901,18 @@ void EditorAppCompoent::OnDraw()
         static bool OnDropedMovefile = false;
         static String Sreach = "";
         static String lastvalue = "";
-        if (ImGui::BeginPopupModal(windowname,nullptr))
+        if (ImGui::BeginPopupModal(windowname, nullptr))
         {
             auto assets = _RunTimeProjectData.GetAssetsDir();
             Vector<String> filepaths;
             {
-                
+
                 std::filesystem::recursive_directory_iterator it(assets);
 
                 // Iterate over all directories and print their names
                 for (const auto& entry : it) {
                     if (entry.is_directory()) {
-                       filepaths.push_back(entry.path().generic_string());
+                        filepaths.push_back(entry.path().generic_string());
                     }
                 }
 
@@ -920,9 +921,9 @@ void EditorAppCompoent::OnDraw()
 
             ImGuIHelper::InputText("Search", Sreach);
             ImGui::Separator();
-            
-            String comboname = "Assets" + FileHelper::ToRelativePath(assets.parent_path(),lastvalue).generic_string();
-                    
+
+            String comboname = "Assets" + FileHelper::ToRelativePath(assets.parent_path(), lastvalue).generic_string();
+
             if (ImGui::BeginCombo("Select Directory", comboname.c_str(), ImGuiComboFlags_NoArrowButton))
             {
                 for (size_t i = 0; i < filepaths.size(); i++)
@@ -930,10 +931,10 @@ void EditorAppCompoent::OnDraw()
                     const auto& Item = filepaths[i];
 
                     String name = "Assets" + FileHelper::ToRelativePath(assets.parent_path(), (Path)Item).generic_string();
-                    
+
                     if (StringHelper::Fllter(Sreach, name))
                     {
-                    
+
                         bool is_selected = (Item == lastvalue);
 
                         if (ImGui::Selectable(name.c_str(), is_selected))
@@ -952,11 +953,11 @@ void EditorAppCompoent::OnDraw()
 
             bool haspickeddir = lastvalue.size() != 0;
 
-            ImGui::Checkbox("Move files",&OnDropedMovefile);
+            ImGui::Checkbox("Move files", &OnDropedMovefile);
             ImGui::SameLine();
 
             ImGui::BeginDisabled(!haspickeddir);
-            
+
             if (ImGui::Button("Select"))
             {
                 for (auto& Item : files)
@@ -975,11 +976,11 @@ void EditorAppCompoent::OnDraw()
                 _DropedFiles = {};
                 ImGui::CloseCurrentPopup();
             }
-            
+
             ImGui::EndDisabled();
             ImGui::SameLine();
 
-            if (ImGui::Button("Close")) 
+            if (ImGui::Button("Close"))
             {
                 ImGui::CloseCurrentPopup();
             }
@@ -1015,7 +1016,7 @@ void EditorAppCompoent::OnDraw()
     EndDockSpace();
 
 
-   
+
 }
 void  EditorAppCompoent::ShowEditiorWindows()
 {
