@@ -19,17 +19,17 @@ RenderAPIStart
 
 void OpenGlRender::glfwfiledrop(GLFWwindow* window, int count, const char** paths)
 {
-	int i;
-	Vector<StringView> r;
-	r.resize(count);
-	for (i = 0; i < count; i++)
-	{
-		r[i] = StringView(paths[i]);
-	}
+    int i;
+    Vector<StringView> r;
+    r.resize(count);
+    for (i = 0; i < count; i++)
+    {
+        r[i] = StringView(paths[i]);
+    }
 
     OpenGlRender::GetOpenGlRender(window)->_windowdata._filedroped(r);
 }
-OpenGlRender::OpenGlRender(GameRunTime *run)
+OpenGlRender::OpenGlRender(GameRunTime* run)
 {
     RunTime = run;
     _windowdata = {};
@@ -98,7 +98,7 @@ void OpenGlRender::Init(WindowData windowdata)
         glfwWindowHint(GLFW_FLOATING, false);
 
         window = glfwCreateWindow(_windowdata.width, _windowdata.height, _windowdata.WindowName.c_str(), nullptr,
-                                  (GLFWwindow *)_windowdata.shared_window);
+                                  (GLFWwindow*)_windowdata.shared_window);
 
         oldwindowWidth = -1;
         oldwindowHeight = -1;
@@ -124,7 +124,7 @@ void OpenGlRender::Init(WindowData windowdata)
             // ImGui
             ImGui::CreateContext();
 
-            ImGuiIO &io = ImGui::GetIO();
+            ImGuiIO& io = ImGui::GetIO();
             (void)io;
             io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
             // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -133,9 +133,9 @@ void OpenGlRender::Init(WindowData windowdata)
             // io.IniFilename = nullptr;
 
             OpenGlRender::SetStyle_WoodLandDay();
-            
+
             // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-            ImGuiStyle &style = ImGui::GetStyle();
+            ImGuiStyle& style = ImGui::GetStyle();
             if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
             {
                 style.WindowRounding = 0.0f;
@@ -143,7 +143,7 @@ void OpenGlRender::Init(WindowData windowdata)
             }
 
             ImGui_ImplGlfw_InitForOpenGL(window, true);
-            const char *glsl_version = "#version 130";
+            const char* glsl_version = "#version 130";
             ImGui_ImplOpenGL3_Init(glsl_version);
 
             // ImGui
@@ -190,20 +190,20 @@ void OpenGlRender::Init(WindowData windowdata)
 
     Init();
 }
-void OpenGlRender::SetWindowIcon(const Texture &tex)
+void OpenGlRender::SetWindowIcon(const Texture& tex)
 {
     if (window)
     {
         GLFWimage icon;
         icon.height = tex.Get_Height();
         icon.width = tex.Get_Width();
-        icon.pixels = (unsigned char *)tex.Get_ColorData();
+        icon.pixels = (unsigned char*)tex.Get_ColorData();
 
         glfwSetWindowIcon(window, 1, &icon);
     }
 }
 
-void OpenGlRender::_DrawOpenGl(RenderRunTime2d::DrawData &Data, Camera2d *cam)
+void OpenGlRender::_DrawOpenGl(RenderRunTime2d::DrawData& Data, Camera2d* cam)
 {
     auto Width = cam->Get_WindowWidth();
     auto Height = cam->Get_WindowHeight();
@@ -214,7 +214,7 @@ void OpenGlRender::_DrawOpenGl(RenderRunTime2d::DrawData &Data, Camera2d *cam)
 
     cam->UpdateCamData();
 
-    auto &Buffer = cam->Get_Buffer();
+    auto& Buffer = cam->Get_Buffer();
 
     if (!Buffer.Is_SwapChinTarget())
     {
@@ -237,11 +237,11 @@ void OpenGlRender::_DrawOpenGl(RenderRunTime2d::DrawData &Data, Camera2d *cam)
 
     Buffer.UnBind();
 }
-void OpenGlRender::SetStyle_WoodLandDay(ImGuiStyle *dst)
+void OpenGlRender::SetStyle_WoodLandDay(ImGuiStyle* dst)
 {
     // Hippoptamus gray
-    ImGuiStyle *style = dst ? dst : &ImGui::GetStyle();
-    ImVec4 *colors = style->Colors;
+    ImGuiStyle* style = dst ? dst : &ImGui::GetStyle();
+    ImVec4* colors = style->Colors;
 
     style->FrameRounding = 4.0f;
 
@@ -309,13 +309,13 @@ void OpenGlRender::SetStyle_WoodLandDay(ImGuiStyle *dst)
     colors[ImGuiCol_TabHovered] = ImVec4(0.36f, 0.30f, 0.30f, 1.00f);
     colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.11f, 0.27f, 0.20f, 1.00f);
 }
-void OpenGlRender::SetStyle_WoodLandNight(ImGuiStyle *dst)
+void OpenGlRender::SetStyle_WoodLandNight(ImGuiStyle* dst)
 {
 }
-void OpenGlRender::SetStyle_Gray(ImGuiStyle *dst)
+void OpenGlRender::SetStyle_Gray(ImGuiStyle* dst)
 {
-    ImGuiStyle &style = ImGui::GetStyle();
-    ImVec4 *colors = ImGui::GetStyle().Colors;
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImVec4* colors = ImGui::GetStyle().Colors;
     colors[ImGuiCol_WindowBg] = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);
     colors[ImGuiCol_ChildBg] = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);
     colors[ImGuiCol_PopupBg] = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);
@@ -356,9 +356,9 @@ void OpenGlRender::SetStyle_Gray(ImGuiStyle *dst)
     colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
     colors[ImGuiCol_DragDropTarget] = ImVec4(0.11f, 0.64f, 0.92f, 1.00f);
 }
-void OpenGlRender::SetStyle_Dark(ImGuiStyle *dst)
+void OpenGlRender::SetStyle_Dark(ImGuiStyle* dst)
 {
-    ImVec4 *colors = ImGui::GetStyle().Colors;
+    ImVec4* colors = ImGui::GetStyle().Colors;
     colors[ImGuiCol_WindowBg] = ImVec4(0.15f, 0.18f, 0.15f, 1.00f);
     colors[ImGuiCol_ChildBg] = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
     colors[ImGuiCol_PopupBg] = ImVec4(0.19f, 0.19f, 0.19f, 0.92f);
@@ -411,11 +411,11 @@ void OpenGlRender::SetStyle_Dark(ImGuiStyle *dst)
     colors[ImGuiCol_NavWindowingDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.20f);
     colors[ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.35f);
 }
-OpenGlRender *OpenGlRender::GetOpenGlRender(const GLFWwindow *window)
+OpenGlRender* OpenGlRender::GetOpenGlRender(const GLFWwindow* window)
 {
     for (size_t i = 0; i < Classes.size(); i++)
     {
-        OpenGlRender *Item = Classes[i];
+        OpenGlRender* Item = Classes[i];
         if (Item->window == window)
         {
             return Item;
@@ -427,7 +427,7 @@ void OpenGlRender::UpdateCamWindowSize()
 {
     i32 windowWidth, windowHeight;
 
-    RenderRunTime2d *rtime = RenderRunTime2d::FindRenderRunTime(RunTime);
+    RenderRunTime2d* rtime = RenderRunTime2d::FindRenderRunTime(RunTime);
     if (rtime == nullptr || window == nullptr)
     {
         return;
@@ -443,7 +443,7 @@ void OpenGlRender::UpdateCamWindowSize()
             oldwindowWidth = windowWidth;
             oldwindowHeight = windowHeight;
 
-            if (Camera2d *MainCam = Camera2d::FindMainCam(RunTime))
+            if (Camera2d* MainCam = Camera2d::FindMainCam(RunTime))
             {
                 MainCam->API_Set_WindowSize(windowWidth, windowHeight);
                 MainCam->UpdateCamData();
@@ -503,7 +503,7 @@ void OpenGlRender::EndRender()
     }
 }
 
-void OpenGlRender::glfwerror_callback(int error, const char *description)
+void OpenGlRender::glfwerror_callback(int error, const char* description)
 {
     UCodeGEError("Glfw ERROR(" << error << "):" << description);
 }
@@ -521,7 +521,7 @@ GLuint GLVersionV()
     if (major == 0 && minor == 0)
     {
         // Query GL_VERSION in desktop GL 2.x, the string will start with "<major>.<minor>"
-        const char *gl_version = (const char *)glGetString(GL_VERSION);
+        const char* gl_version = (const char*)glGetString(GL_VERSION);
         sscanf(gl_version, "%d.%d", &major, &minor);
     }
     return (GLuint)(major * 100 + minor * 10);
@@ -614,11 +614,26 @@ void OpenGlRender::Flush()
 
     for (u32 i = 0; i < NextTextureSlot; i++)
     {
-        auto &Item = TextureSlots[i];
+        auto& Item = TextureSlots[i];
         Item->TryUploadTexToGPU();
-        glBindTextureUnit(i, Item->Get_RendererID());
-        //glActiveTexture(GL_TEXTURE0 + i);
-        //glBindTexture(GL_TEXTURE_2D, Item->Get_RendererID());
+
+#define CanCompileTextureUnit !UCodeGEWasm
+        bool CanUseTextureUnitAtRunTime = UCodeGEWindows;
+
+#if !CanCompileTextureUnit
+        CanUseTextureUnitAtRunTime = false;
+#endif
+        if (CanUseTextureUnitAtRunTime)
+        {
+#if CanCompileTextureUnit
+            glBindTextureUnit(i, Item->Get_RendererID());
+#endif
+        }
+        else
+        {
+            glActiveTexture(GL_TEXTURE0 + i);
+            glBindTexture(GL_TEXTURE_2D, Item->Get_RendererID());
+        }
     }
 
     QuadVA->Bind();
@@ -628,7 +643,7 @@ void OpenGlRender::Flush()
     IndexCount = 0;
     NextTextureSlot = 1; // Seting to not WhiteTexture.
 }
-void OpenGlRender::_DrawQuad2d(RenderRunTime2d::DrawQuad2dData &Data)
+void OpenGlRender::_DrawQuad2d(RenderRunTime2d::DrawQuad2dData& Data)
 {
 
     if (IndexCount >= MaxIndexCount || NextTextureSlot > GetMaxTextureSlots() - 1)
@@ -645,7 +660,7 @@ void OpenGlRender::_DrawQuad2d(RenderRunTime2d::DrawQuad2dData &Data)
     const auto color = Data.color;
     const auto size = Data.size;
 
-    Texture *tex;
+    Texture* tex;
     Vec2 TC[4];
     if (Data.Spr)
     {
@@ -678,19 +693,19 @@ void OpenGlRender::_DrawQuad2d(RenderRunTime2d::DrawQuad2dData &Data)
 
         // float A =w/sw
 
-        TC[0] = {sx / w, sy / h};
-        TC[1] = {(sx + sw) / w, sy / h};
-        TC[2] = {(sx + sw) / w, (sy + sh) / h};
-        TC[3] = {sx / w, (sy + sh) / h};
+        TC[0] = { sx / w, sy / h };
+        TC[1] = { (sx + sw) / w, sy / h };
+        TC[2] = { (sx + sw) / w, (sy + sh) / h };
+        TC[3] = { sx / w, (sy + sh) / h };
     }
     else
     {
         tex = nullptr;
 
-        TC[0] = {0.0f, 0.0f};
-        TC[1] = {1.0f, 0.0f};
-        TC[2] = {1.0f, 1.0f};
-        TC[3] = {0.0f, 1.0f};
+        TC[0] = { 0.0f, 0.0f };
+        TC[1] = { 1.0f, 0.0f };
+        TC[2] = { 1.0f, 1.0f };
+        TC[3] = { 0.0f, 1.0f };
     }
 
     if (tex)
@@ -721,16 +736,16 @@ void OpenGlRender::_DrawQuad2d(RenderRunTime2d::DrawQuad2dData &Data)
         {pos.X, pos.Y, Zpos},
         {pos.X + size.X, pos.Y, Zpos},
         {pos.X + size.X, pos.Y + size.Y, Zpos},
-        {pos.X, pos.Y + size.Y, Zpos}};
+        {pos.X, pos.Y + size.Y, Zpos} };
     { // rotation stuff here
         const f32 RotationY = Data.rotation.Y;
         const f32 RotationYRad = RotationY * Math::Deg2Rad;
 
-        Vec2 *TryPos2[]{
-            (Vec2 *)&TryPos[0],
-            (Vec2 *)&TryPos[1],
-            (Vec2 *)&TryPos[2],
-            (Vec2 *)&TryPos[3],
+        Vec2* TryPos2[]{
+            (Vec2*)&TryPos[0],
+            (Vec2*)&TryPos[1],
+            (Vec2*)&TryPos[2],
+            (Vec2*)&TryPos[3],
         };
         Vec2 Quadat0_0[4]{
             {},
@@ -748,10 +763,10 @@ void OpenGlRender::_DrawQuad2d(RenderRunTime2d::DrawQuad2dData &Data)
         *TryPos2[2] = Quadat0_0[2].GetRotated(RotationYRad);
         *TryPos2[3] = Quadat0_0[3].GetRotated(RotationYRad);
 
-        TryPos2[0]->operator+=({pos.X, pos.Y});
-        TryPos2[1]->operator+=({pos.X, pos.Y});
-        TryPos2[2]->operator+=({pos.X, pos.Y});
-        TryPos2[3]->operator+=({pos.X, pos.Y});
+        TryPos2[0]->operator+=({ pos.X, pos.Y });
+        TryPos2[1]->operator+=({ pos.X, pos.Y });
+        TryPos2[2]->operator+=({ pos.X, pos.Y });
+        TryPos2[3]->operator+=({ pos.X, pos.Y });
     }
 
     QuadBufferPtr->SetData(TryPos[0], color, TC[0], textureindex);
@@ -768,12 +783,12 @@ void OpenGlRender::_DrawQuad2d(RenderRunTime2d::DrawQuad2dData &Data)
     DataStats.QuadCount++;
 #endif // ShowRunTimeStats
 }
-void OpenGlRender::_DrawQuads2d(RenderRunTime2d::DrawData &_DrawData)
+void OpenGlRender::_DrawQuads2d(RenderRunTime2d::DrawData& _DrawData)
 {
     std::sort(_DrawData.Quad2d.begin(), _DrawData.Quad2d.end(), draworder_Sort());
     for (size_t i = 0; i < _DrawData.Quad2d.size(); i++)
     {
-        auto &Item = _DrawData.Quad2d[i];
+        auto& Item = _DrawData.Quad2d[i];
         _DrawQuad2d(Item);
     }
 }
