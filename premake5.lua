@@ -344,10 +344,10 @@ project "UCodeApp"
 
 
    filter { "configurations:Published","system:Windows"}
-    --kind ("WindowedApp")
+    kind ("WindowedApp")
    
    filter { "configurations:Release","system:Windows"}
-    --kind ("WindowedApp")
+    kind ("WindowedApp")
 
 project "UCodeAppPub"
    location "UCodeApp"
