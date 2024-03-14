@@ -1,3 +1,5 @@
+-- V0.0.3 on 3/13/2024 build fail for some reson and could not reproduce and dont have time for this so theres not update on github for it some error with xhash for some reason c++ is not fun and most likely not my fault.
+
 -- Improvements
 
 - [fix high cpu usage when not in play mode](https://github.com/LostbBlizzard/UCodeGameEngine/commit/a667f2352b5de6f2446c4520b78c4cd5623ea27b)
@@ -12,4 +14,15 @@
 - [added ScriptableObject/Asset](https://github.com/LostbBlizzard/UCodeGameEngine/commit/ca19bbba4f0f8892455d5b931ed1ecea83159a69)
 -- Changes
 - [Copy Entity will copy into clipboard and not just in memory for that window]()
+-- Removed Features
+
+
+-- V0.0.4
+
+-- Improvements
+
+-- Additions
+
+-- Changes
+
 -- Removed Features
