@@ -31,3 +31,6 @@
 [submodule "UCodeGameEngineWebsite/Site/themes/ananke"]
 	path = UCodeGameEngineWebsite/Site/themes/ananke
 	url = https://github.com/theNewDynamic/gohugo-theme-ananke.git
+[submodule "Dependencies/soloud"]
+	path = Dependencies/soloud
+	url = https://github.com/LostbBlizzard/soloud.git

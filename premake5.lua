@@ -997,6 +997,33 @@ group "Dependencies"
        "Dependencies/GLFW",
       }
 
+project "soloud"
+    location "Dependencies/%{prj.name}"
+    kind "StaticLib"
+    language "C++" 
+
+    includedirs {"Dependencies/MinimalSocket/src/header"}
+
+    targetdir ("Output/%{prj.name}/" .. OutDirPath)
+    objdir ("Output/int/%{prj.name}/" .. OutDirPath)
+
+    filter { "system:Windows"}
+      defines {"WITH_WINMM"}
+
+    filter {}
+    includedirs{
+       "Dependencies/%{prj.name}/include",
+    }
+    files {
+      "Dependencies/%{prj.name}/src/**.h",
+      "Dependencies/%{prj.name}/src/**.c",
+      "Dependencies/%{prj.name}/src/**.cpp",
+      "Dependencies/%{prj.name}/src/**.hpp",
+    }
+    removefiles {
+      "Dependencies/%{prj.name}/src/backend/vita_homebrew/soloud_vita_homebrew.cpp",
+    }
+    removefiles {"Dependencies/%{prj.name}/src/tools/**.cpp"}
 function executeorexit(str)
  exit = os.execute(str)
 
