@@ -74,6 +74,7 @@ public:
 		UCodeEditor_Platform = UPugin,
 		UCodeAssetIcon =RawEntityData,
 
+		AudioIcon = Uility_image,
 		Linux_Platform,
 		Mac_Platform,
 		IOS_Platform,

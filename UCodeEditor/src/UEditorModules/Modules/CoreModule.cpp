@@ -15,6 +15,7 @@
 #include "UCodeRunTime/ULibrarys/Serialization/SerlizeableType.hpp"
 
 #include "UCodeRunTime/ULibrarys/AssetManagement/AssetRendering.hpp"
+#include "UCodeRunTime/ULibrarys/Audio/AudioSystem.hpp"
 EditorStart
 
 
@@ -241,10 +242,58 @@ MakeSerlizeType(UCodeEditor::SpriteItem,
 	Field("_SpriteName", _this->spritename);
 	Field("offset", _this->offset);
 	Field("size", _this->size);
-)
+	)
 
 
-EditorStart
+	EditorStart
+	
+		
+		class MP3AssetFile :public UEditorAssetFileData
+	{
+	public:
+		MP3AssetFile()
+		{
+			FileExtWithDot = ".mp3";
+			FileMetaExtWithDot = UEditorAssetFileData::DefaultMetaFileExtWithDot;
+			CanHaveLiveingAssets = true;
+		}
+
+		class LiveingAsset :public UEditorAssetFile
+		{
+		public:
+			UCode::AudioFile file;
+
+			inline static UCode::AudioPlaySettings playsettings;
+			void Init(const UEditorAssetFileInitContext& Context) override
+			{
+				file.Load(this->FileFullPath);
+			}
+			bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override
+			{
+				return ImGuIHelper::ImageButton(Item.ObjectPtr,AppFiles::sprite::AudioIcon, *(ImVec2*)&Item.ButtionSize);
+			}
+			void DrawInspect(const UEditorAssetDrawInspectContext& Item) override
+			{
+				if (ImGui::Button("Play"))
+				{
+
+					auto audio = UCode::AudioSystem::Get(EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_EditorLibrary());
+					audio->Play(file, playsettings);
+				}
+			}
+		};
+
+		ExportFileRet ExportFile(const Path& path, const ExportFileContext& Item) override
+		{
+			return ExportFileRet();
+		}
+
+		virtual Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
+		{
+			return Unique_ptr< UEditorAssetFile>(new LiveingAsset());
+		}
+
+	};
 class PNGAssetFile :public UEditorAssetFileData
 {
 public:
@@ -1149,6 +1198,7 @@ void CoreModule::Init()
 		Assets[0] = Unique_ptr<UEditorAssetFileData>(new ScencAssetFile());
 		Assets[1] = std::move(Unique_ptr<UEditorAssetFileData>(new PNGAssetFile()));
 		Assets[2] = std::move(Unique_ptr<UEditorAssetFileData>(new EntityAssetFile()));
+		Assets[3] = std::move(Unique_ptr<UEditorAssetFileData>(new MP3AssetFile()));
 	}
 
 	{

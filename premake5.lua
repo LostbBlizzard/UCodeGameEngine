@@ -122,7 +122,7 @@ function includeUCode(HasULangCompiler)
       "Dependencies/FileWatcher/include",
       "Dependencies/zip/src",
       "Dependencies/MinimalSocket/src/header",
-      
+      "Dependencies/soloud/include",
       "UCode/src",
      }
 
@@ -208,6 +208,7 @@ function linkUCode(HasULangCompiler,IsPubMode)
       "Output/box2d/" .. OutDirPath, 
       "Output/MinimalSocket/" .. OutDirPath, 
       "Output/UCode/" .. OutDirPath,
+      "Output/soloud/" .. OutDirPath,
      }
      
      
@@ -223,7 +224,8 @@ function linkUCode(HasULangCompiler,IsPubMode)
       "stb_image",
       "stb_image_write",
       "box2d",
-      "MinimalSocket"
+      "MinimalSocket",
+      "soloud"
      }
      
 
