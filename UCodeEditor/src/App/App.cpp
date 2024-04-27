@@ -206,6 +206,25 @@ int App::main(int argc, char* argv[])
 				return EXIT_FAILURE;
 			}
 
+			auto lockpath = UE::ProjectManger::GetProjectLockPath(project);
+			{
+				bool hasprojectlock = std::filesystem::exists(project);
+				if (hasprojectlock)
+				{
+					if (std::filesystem::remove(lockpath, std::error_code()) == true)
+					{
+						hasprojectlock = false;
+					}
+				}
+
+				if (hasprojectlock)
+				{
+					std::cerr << "Project is already Opened";
+					return EXIT_FAILURE;
+				}
+			}	
+			auto projectlock = std::ofstream(lockpath);
+		
 			auto oldstr = Str;
 			Path target = GetPath(Str);
 
@@ -371,6 +390,7 @@ int App::main(int argc, char* argv[])
 				_render->EndRender();
 			}
 
+
 			if (r.IsError())
 			{
 				auto& err = r.GetError();
@@ -416,6 +436,10 @@ int App::main(int argc, char* argv[])
 			{
 				std::cout << r.GetValue().parent_path();
 			}
+
+
+			projectlock.close();
+			std::filesystem::remove(lockpath);
 
 			return r.IsValue() ? EXIT_SUCCESS : EXIT_FAILURE;
 		}
