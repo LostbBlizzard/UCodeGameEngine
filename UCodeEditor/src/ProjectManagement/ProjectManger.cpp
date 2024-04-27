@@ -28,6 +28,10 @@ Path ProjectManger::GetProjectDataPath(const Path&  ProjectDir)
 {
 	return ProjectDir.native() + Path(ProjectData::FileName).native();
 }
+Path ProjectManger::GetProjectLockPath(const Path& ProjectDir)
+{
+	return ProjectDir.native() + Path("ProjectLock").native();
+}
 
 Path ProjectManger::GetAssetIndexPath(const Path& ProjectDir)
 {

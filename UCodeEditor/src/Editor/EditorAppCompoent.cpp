@@ -34,7 +34,7 @@ EditorAppCompoent::EditorAppCompoent(UCode::Entity* entity) :
 }
 
 EditorAppCompoent::~EditorAppCompoent()
-{
+{ 
     EndEditor();
     _This = nullptr;
 }
@@ -76,7 +76,7 @@ void EditorAppCompoent::Init(const Path& projDir)
         std::filesystem::remove("changelog.md");
     }
 
-    if (!OpenProject(projDir))
+    if (OpenProject(projDir).IsError())
     {
         NewEditorWindowData DataForWindow(this);
         MakeNewWindow(OpenProjectWindow, DataForWindow);
@@ -96,11 +96,19 @@ void  EditorAppCompoent::EndProject()
     SaveApp();
     _EditorWindows.clear();
 
+
+    {
+        ActiveProjectLockFile.value().close();
+        ActiveProjectLockFile = {};
+        std::filesystem::remove(ProjectManger::GetProjectLockPath(_RunTimeProjectData.Get_ProjectDir()));
+    }
+    
     _RunTimeProjectData.SetProjectToNull();
+
     // ImGui::ClearIniSettings();
 }
 
-bool EditorAppCompoent::OpenProject(const Path& ProjectDir)
+Result<bool,String> EditorAppCompoent::OpenProject(const Path& ProjectDir)
 {
     bool IsOpenInProject = _RunTimeProjectData.Is_ProjLoaded();
     if (IsOpenInProject)
@@ -113,6 +121,17 @@ bool EditorAppCompoent::OpenProject(const Path& ProjectDir)
     auto ProjectDataPath = ProjectManger::GetProjectDataPath(ProjectDir);
     if (ProjectData::ReadFromFile(ProjectDataPath, Data))
     {
+        auto lockpath = ProjectManger::GetProjectLockPath(ProjectDir);
+        if (std::filesystem::exists(lockpath))
+        {
+            if (std::filesystem::remove(lockpath,std::error_code()) == false)
+            {
+                String error = "Project Is already Opened";
+                return error;
+            }
+        }
+        
+        ActiveProjectLockFile = std::ofstream(lockpath);
         _RunTimeProjectData.SetProject(Data, ProjectDir, _ProjectFiles);
 
         OnProjectLoadedPreWindows();
@@ -127,7 +146,8 @@ bool EditorAppCompoent::OpenProject(const Path& ProjectDir)
     }
     else
     {
-        return false;
+        String error = "Unable ToRead/Parse UProjectData.data";
+        return error;
     }
 }
 void EditorAppCompoent::OnProjectLoadedPreWindows()
@@ -323,10 +343,12 @@ void  EditorAppCompoent::ShowMainMenuBar()
                 if (DirInfo.Result == FileHelper::OpenFileResult::OKAY)
                 {
                     std::string ProjectPath = DirInfo.Path + '/';
-                    if (!OpenProject(ProjectPath))
-                    {
-                        UCodeGELog("Failed To Open Project at " + ProjectPath);
 
+                    auto v = OpenProject(ProjectPath);
+
+                    if (v.IsError())
+                    {
+                        ProjectOpenError = v.GetError();
                     }
                 }
 
@@ -939,6 +961,32 @@ void EditorAppCompoent::OnDraw()
         {
             ImGui::OpenPopup("ChangeLog");
         }
+    }
+    {
+        static bool isopen = false;
+
+        bool v = true;
+        if (ImGui::BeginPopupModal("Open Project Error",&v))
+        {
+            auto& changelog = ProjectOpenError.value();
+            ImGuIHelper::Text(StringView(changelog));
+            ImGui::EndPopup();
+
+        }
+        else
+        { 
+            if (isopen)
+            {
+                ProjectOpenError = {};
+                isopen = false;
+            }
+            if (ProjectOpenError.has_value())
+            {
+                ImGui::OpenPopup("Open Project Error");
+                isopen = true;
+            }
+        }
+
     }
 
     if (_DropedFiles.has_value())
