@@ -14,6 +14,7 @@ enum class StaticBooksIndex : StaticBooksIndex_t
 	AssetManager,
 	ULangRunTime,
 	BookOfDebuging,
+	AudioSystem,
 	MaxValue,
 };
 enum class StaticRuntimeComponentsIndex : StaticRunTimeComponentsIndex_t
