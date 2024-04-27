@@ -78,13 +78,14 @@ void OpenProjectWindow::UpdateWindow()
                 ImGui::PopID();
                 if (a)
                 {
-                    if (Get_App()->OpenProject(Item._Path / ""))
+                    auto v = Get_App()->OpenProject(Item._Path / "");
+                    if (v.IsValue())
                     {
                         CloseEditorWindow();
                     }
                     else
                     {
-                        //ShowPopUp
+                        Get_App()->SetProjectOpenError(v.GetError());
                     }
                 }ImGui::SameLine();
 

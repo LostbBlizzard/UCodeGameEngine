@@ -79,7 +79,7 @@ public:
 	UCODE_EDITOR_FORCEINLINE UCode::AssetManager* Get_AssetManager() {
 		return UCode::AssetManager::Get(Get_EditorLibrary());
 	}
-	UCODE_EDITOR_NODISCARD bool OpenProject(const Path& ProjectDataPath);
+	UCODE_EDITOR_NODISCARD Result<bool,String> OpenProject(const Path& ProjectDataPath);
 	void Init(const Path& propath);
 	inline static const char* ImGUIDockName = "EditorApp";
 
@@ -113,6 +113,10 @@ public:
 	void UpdateUAssemblyKey()
 	{
 		_AssemblyKey++;
+	}
+	void SetProjectOpenError(const String& errorstring)
+	{
+		ProjectOpenError = errorstring;
 	}
 private:
 	DontWaitInputKey _NextDontWaitKey = {};
@@ -166,7 +170,9 @@ private:
 	Vector<UndoData> _Redos;
 	ProjectFiles _ProjectFiles;
 	Optional<Vector<String>> _DropedFiles;
+	Optional<std::ofstream> ActiveProjectLockFile;
 
+	Optional<String> ProjectOpenError;
 	void SaveApp();
 	void OnAppEnded();
 	void EndProject();
