@@ -435,6 +435,56 @@ void  EditorAppCompoent::ShowMainMenuBar()
 
             ImGui::EndMenu();
         }
+        
+        if (ImGui::BeginMenu("Project",IsOpenInProject))
+        {
+            if (ImGui::BeginMenu("Assets"))
+            {
+                if (ImGui::MenuItem("Clear Cache"))
+                {
+                    std::filesystem::remove_all(_RunTimeProjectData.GetCachedDir()); 
+                }
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("UCodeLang"))
+            {
+                if (ImGui::MenuItem("Rebuild"))
+                {
+                    std::filesystem::remove_all(_RunTimeProjectData.GetULangIntDir()); 
+                    std::filesystem::remove_all(_RunTimeProjectData.GetULangOutDir()); 
+
+                    auto& assetsdir = _RunTimeProjectData.GetAssetsDir();
+                    auto tepfile = assetsdir / "ULangModule.ucm";
+
+                    if (std::filesystem::exists(tepfile))
+                    {
+                        OnFileUpdated(this, "ULangModule.ucm", ChangedFileType::FileUpdated);
+                    } 
+                }
+                if (ImGui::MenuItem("Clear Cache"))
+                {
+                    std::filesystem::remove_all(_RunTimeProjectData.GetULangIntDir()); 
+                }
+                if (ImGui::MenuItem("Dump"))
+                {
+
+                }
+                if (ImGui::MenuItem("Dump as IR"))
+                {
+
+                }
+                if (ImGui::MenuItem("Dump as C"))
+                {
+
+                }
+                if (ImGui::MenuItem("Type was Renamed"))
+                {
+
+                }
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenu();
+        }
 
         if (ImGui::BeginMenu("Help"))
         {
@@ -656,7 +706,7 @@ Path EditorAppCompoent::GetWindows_prefPath()
     return _RunTimeProjectData.Get_ProjectPrefsDir().concat("EditorWindows.").concat(FileExt::Prefs);
 }
 void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileType Type)
-{
+{ 
     auto Info = UEditorModules::GetModuleFromFileExt(path.extension());
 
     auto Modules = UEditorModules::GetModules();
