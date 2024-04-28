@@ -43,7 +43,20 @@ const ArgumentExamples_t ArgumentExamples[] = {
 };
 
 constexpr size_t  ArgumentExamplesCount = sizeof(ArgumentExamples) / sizeof(ArgumentExamples[0]);
+bool DrawKeyBind(KeyBinding& key)
+{
+	static String name;
+	name = key.ToString();
+	bool r = ImGui::BeginCombo("##keybind", name.c_str(),ImGuiComboFlags_NoArrowButton);
+	if (r)
+	{
 
+
+		ImGui::EndCombo();
+	}
+
+	return false;
+}
 void UserSettingsWindow::UpdateWindow()
 {
 	auto& Settings = UserSettings::GetSettings();
@@ -138,10 +151,33 @@ void UserSettingsWindow::UpdateWindow()
 			ImGui::Separator();
 		
 			ImGuIHelper::BoolEnumField("Auto Update", Settings.allowautoudate);
+			ImGuIHelper::BoolEnumField("DeleteGoesToTrash", Settings.DeleteGoesToTrash);
 
 			ImGui::EndTabItem();
 
 			ImGuiHelper_UPlugin::DrawUPluginFieldVector("Active Global Plugins",Settings.GloballyActivePlugins);
+
+
+			ImGuIHelper::Text(StringView("Key Binds"));
+			static String tep;
+			for (size_t i = 0; i < Settings.KeyBinds.size(); i++)
+			{
+				auto& data = UserSettings::KeyBindDataList[i];
+				auto& key = Settings.KeyBinds[i];
+
+				tep = "   ";
+				tep += data.KeyBindName;
+				ImGuIHelper::Text(tep);
+				ImGui::SameLine();
+
+				DrawKeyBind(key);
+
+				ImGui::SameLine();
+				if (ImGui::Button("Reset"))
+				{
+					key = data.Default;
+				}
+			}
 		}	
 		
 		if (ImGui::BeginTabItem("CodeEditor"))
