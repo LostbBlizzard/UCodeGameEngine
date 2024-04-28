@@ -5,6 +5,7 @@
 #include "Helper/NetworkHelper.hpp"
 #include "Editor/EditorAppCompoent.hpp"
 #include "Plugin/ImGuiHelper_UPlugin.hpp"
+#include "UCodeRunTime/Rendering/InputHelper.hpp"
 EditorStart
 UserSettingsWindow::UserSettingsWindow(const NewEditorWindowData& windowdata) : EditorWindow(windowdata)
 {
@@ -45,17 +46,60 @@ const ArgumentExamples_t ArgumentExamples[] = {
 constexpr size_t  ArgumentExamplesCount = sizeof(ArgumentExamples) / sizeof(ArgumentExamples[0]);
 bool DrawKeyBind(KeyBinding& key)
 {
+	struct State
+	{
+		bool IsListening = false;
+	};
 	static String name;
+	static State state;
+
+	bool updated = true;
 	name = key.ToString();
-	bool r = ImGui::BeginCombo("##keybind", name.c_str(),ImGuiComboFlags_NoArrowButton);
+	ImGui::PushID(&key);
+	bool r = ImGui::BeginCombo("##keybind", name.c_str(), ImGuiComboFlags_NoArrowButton);
 	if (r)
 	{
+		if (state.IsListening)
+		{
+			if (ImGui::Button("Stop Listening"))
+			{
+				state.IsListening = false;
+				updated = true;
+
+			}
+
+			for (size_t i = 0; i < ImGuiKey::ImGuiKey_COUNT; i++)
+			{
+				auto imkey = (ImGuiKey)i;
+
+				if (ImGui::IsKeyDown(imkey))
+				{
+					key.key = UCode::RenderAPI::ImguiKeyToUCodeKey(imkey);
+					state.IsListening = false;
+					updated = true;
+				}
+			}
+		
+
+		}
+		else
+		{
+			if (ImGui::Button("Start Listening"))
+			{
+				state.IsListening = true;
+			}
+			if (ImGui::Button("UnMapKey"))
+			{
+				key.key = UCode::InputKey::Null;
+				updated = true;
+			}
+		}
 
 
 		ImGui::EndCombo();
 	}
-
-	return false;
+	ImGui::PopID();
+	return updated;
 }
 void UserSettingsWindow::UpdateWindow()
 {
@@ -150,6 +194,10 @@ void UserSettingsWindow::UpdateWindow()
 
 			ImGui::Separator();
 		
+			if (ImGui::Button("Show UserSetting.yaml in Files"))
+			{
+				FileHelper::OpenPathinFiles(std::filesystem::absolute(UserSettings::GetPath().parent_path()));
+			}
 			ImGuIHelper::BoolEnumField("Auto Update", Settings.allowautoudate);
 			ImGuIHelper::BoolEnumField("DeleteGoesToTrash", Settings.DeleteGoesToTrash);
 
@@ -160,6 +208,16 @@ void UserSettingsWindow::UpdateWindow()
 
 			ImGuIHelper::Text(StringView("Key Binds"));
 			static String tep;
+			if (ImGui::Button("Reset All KeyBinds"))
+			{
+				for (size_t i = 0; i < Settings.KeyBinds.size(); i++)
+				{
+					auto& data = UserSettings::KeyBindDataList[i];
+					auto& key = Settings.KeyBinds[i];
+
+					key = data.Default;
+				}
+			}
 			for (size_t i = 0; i < Settings.KeyBinds.size(); i++)
 			{
 				auto& data = UserSettings::KeyBindDataList[i];
@@ -173,10 +231,13 @@ void UserSettingsWindow::UpdateWindow()
 				DrawKeyBind(key);
 
 				ImGui::SameLine();
+
+				ImGui::PushID(&key);
 				if (ImGui::Button("Reset"))
 				{
 					key = data.Default;
 				}
+				ImGui::PopID();
 			}
 		}	
 		
