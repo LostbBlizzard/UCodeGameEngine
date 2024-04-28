@@ -1145,9 +1145,16 @@ void EditorAppCompoent::OnDraw()
         }
     }
 
-    if (UserSettings::GetSettings().IsKeybindActive(KeyBindList::Special))
+    if (!ImGui::GetIO().WantTextInput)
     {
-        _InputMode = KeyInputMode::Window;
+        if (UserSettings::GetSettings().IsKeybindActive(KeyBindList::Special))
+        {
+            _InputMode = KeyInputMode::Window;
+        }
+    }
+    else
+    {
+        _InputMode = KeyInputMode::Normal;
     }
   
 

@@ -114,9 +114,14 @@ private:
 	static void UpdateRunTimeWindowSize(ImVec2& Viewportsize, UCode::Camera2d* runtime);
 	void UnLoadSceneCamera();
 	void LoadSceneCamera();
+	void ShowSceneDataAddNewScene();
 	void ShowSceneData();
 	void DropSceneFromPath();
+	void PasteInScene(UCode::RunTimeScene* Item);
 	void ShowScene(UCode::RunTimeScene* Item);
+
+	void EntityDestroy(UCode::Entity* Item);
+	void EntityAdd(UCode::Entity* Item, bool AddToChild);
 	void ShowEntityData(UCode::Entity* Item);
 	void ShowlibraryBookData(UCode::System* Item);
 	void Scenehierarchy();

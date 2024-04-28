@@ -32,6 +32,14 @@ const Array<KeyBindData,(KeyBindList_t)KeyBindList::Max>  UserSettings::KeyBindD
 	KeyBindData(StringView("UserWindow"),KeyBinding(InputKey::U)),		
 	KeyBindData(StringView("ConsoleWindow"),KeyBinding(InputKey::C)),	
 	KeyBindData(StringView("ExportWindow"),KeyBinding(InputKey::O)),
+
+	//Context Bases
+	KeyBindData(StringView("New"),KeyBinding(InputKey::N)),
+	KeyBindData(StringView("Delete"),KeyBinding(InputKey::D)),
+	KeyBindData(StringView("Rename"),KeyBinding(InputKey::R)),
+	KeyBindData(StringView("Inspect"),KeyBinding(InputKey::I)),
+	KeyBindData(StringView("Copy"),KeyBinding(InputKey::C)),
+	KeyBindData(StringView("Paste"),KeyBinding(InputKey::P)),
 };
 
 static bool HasLoadSettings = false;
