@@ -6,6 +6,30 @@
 EditorStart
 
 
+using InputKey = UCode::InputKey;
+const Array<KeyBindData,(KeyBindList_t)KeyBindList::Max>  UserSettings::KeyBindDataList
+{
+	KeyBindData(StringView("Special"),KeyBinding(InputKey::Space)),
+	KeyBindData(StringView("Alternative"),KeyBinding(InputKey::DownArrow)),	
+	KeyBindData(StringView("Extra"),KeyBinding(InputKey::LeftArrow)),
+
+	//Vim movement
+	KeyBindData(StringView("Up"),KeyBinding(InputKey::K)),
+	KeyBindData(StringView("Down"),KeyBinding(InputKey::J)),
+	KeyBindData(StringView("Left"),KeyBinding(InputKey::H)),
+	KeyBindData(StringView("Right"),KeyBinding(InputKey::L)),
+
+	//Windows
+	KeyBindData(StringView("MenuBar"),KeyBinding(InputKey::M)),
+
+	KeyBindData(StringView("FilesWindow"),KeyBinding(InputKey::E)),	
+	KeyBindData(StringView("EditorWindow"),KeyBinding(InputKey::F)),	
+	KeyBindData(StringView("InspectorWindow"),KeyBinding(InputKey::I)),	
+	KeyBindData(StringView("ProjectWindow"),KeyBinding(InputKey::P)),	
+	KeyBindData(StringView("UserWindow"),KeyBinding(InputKey::U)),		
+	KeyBindData(StringView("ConsoleWindow"),KeyBinding(InputKey::C)),	
+	KeyBindData(StringView("ExportWindow"),KeyBinding(InputKey::O)),
+};
 
 static bool HasLoadSettings = false;
 static UserSettings UCodeEditor_UserSettings = {};
@@ -37,13 +61,45 @@ void UserSettings::SaveSettings()
 	ToFile(GetPath(), UCodeEditor_UserSettings);
 }
 
+
+String KeyBinding::ToString() const
+{
+	return "";
+}
+Optional<KeyBinding> KeyBinding::Parse(StringView str)
+{
+	return {};
+}
 bool UserSettings::ToFile(const Path& path,const UserSettings& Value)
 {
 	USerializer Output(USerializerType::Readable);
 	Output.Write("CodeEditorPath",Value.CodeEditorPath);
 	Output.Write("OpenCodeEditorFileArg", Value.OpenCodeEditorFileArg);
 	Output.Write("AutoUpdate", Value.allowautoudate);
+	Output.Write("DeleteGoesToTrash", Value.DeleteGoesToTrash);
 	Output.Write("GlobalPlugins", Value.GloballyActivePlugins);
+
+	auto& text = Output.Get_TextMaker();
+
+	{
+		text << YAML::Key << "KeyBinds" << YAML::Value;
+
+		text << YAML::BeginSeq;
+
+		for (size_t i = 0; i < (KeyBindList_t)KeyBindList::Max; i++)
+		{
+			auto& KeyData = KeyBindDataList[i];
+			auto& UserKey = Value.KeyBinds[i];
+
+			YAML::Node v;
+			v.push_back(String(KeyData.KeyBindName));
+			v.push_back(UserKey.ToString());
+
+			text << v;
+		}
+
+		text << YAML::EndSeq;
+	}
 
 	return Output.ToFile(path, false);
 }
@@ -73,9 +129,42 @@ bool UserSettings::FromFile(const Path& path, UserSettings& Value)
 		if (yaml["AutoUpdate"]) {
 			Input.ReadType("AutoUpdate", Value.allowautoudate);
 		}
+		if (yaml["DeleteGoesToTrash"]) {
+			Input.ReadType("DeleteGoesToTrash", Value.DeleteGoesToTrash);
+		}
 
-		if (yaml["GlobalPlugins"]) {
-			Input.ReadType("GlobalPlugins", Value.GloballyActivePlugins);
+		for (size_t i = 0; i < (KeyBindList_t)KeyBindList::Max; i++)
+		{
+			auto& KeyData = KeyBindDataList[i];
+			auto& UserKey = Value.KeyBinds[i];
+
+			UserKey = KeyData.Default;
+		}
+
+		if (yaml["KeyBinds"]) 
+		{
+			auto& list = yaml["KeyBinds"];
+			
+			for (auto& Item : list)
+			{
+				auto keybind = Item[0].as<String>();
+				auto key = Item[1].as<String>();
+
+				for (size_t i = 0; i < KeyBindDataList.size(); i++)
+				{
+					auto& Item = KeyBindDataList[i];
+				
+					if (Item.KeyBindName == Item.KeyBindName)
+					{
+						auto p = KeyBinding::Parse(key);
+
+						if (p.has_value()) 
+						{
+							Value.KeyBinds[i] = p.value();
+						}
+					}	
+				}
+			}
 		}
 		return true;
 	}
@@ -96,7 +185,11 @@ String UserSettings::GetOpenFileStringAsArgs(const UserSettings& Data, const Pat
 	StringHelper::Replace(V, UserSettings::ColumnArg,std::to_string(Column));
 	return V;
 }
+bool UserSettings::IsKeybindActive(KeyBinding& key)
+{
 
+	return false;
+}
 
 EditorEnd
 
