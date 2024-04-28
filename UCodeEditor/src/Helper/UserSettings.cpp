@@ -3,6 +3,7 @@
 #include "UCodeRunTime/CoreSystems/GameFiles.hpp"
 #include "FileHelper.hpp"
 #include "StringHelper.hpp"
+#include "UCodeRunTime/Rendering/InputHelper.hpp"
 EditorStart
 
 
@@ -61,14 +62,15 @@ void UserSettings::SaveSettings()
 	ToFile(GetPath(), UCodeEditor_UserSettings);
 }
 
-
 String KeyBinding::ToString() const
 {
-	return "";
+	return UCode::RenderAPI::UCodeKeyToString(key);
 }
 Optional<KeyBinding> KeyBinding::Parse(StringView str)
 {
-	return {};
+	KeyBinding r;
+	r.key = UCode::RenderAPI::ToStringToKey(str);
+	return r;
 }
 bool UserSettings::ToFile(const Path& path,const UserSettings& Value)
 {
@@ -154,13 +156,14 @@ bool UserSettings::FromFile(const Path& path, UserSettings& Value)
 				{
 					auto& Item = KeyBindDataList[i];
 				
-					if (Item.KeyBindName == Item.KeyBindName)
+					if (Item.KeyBindName == keybind)
 					{
 						auto p = KeyBinding::Parse(key);
 
 						if (p.has_value()) 
 						{
 							Value.KeyBinds[i] = p.value();
+							break;
 						}
 					}	
 				}

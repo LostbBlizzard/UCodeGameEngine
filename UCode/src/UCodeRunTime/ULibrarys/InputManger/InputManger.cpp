@@ -5,7 +5,6 @@ UComponentData InputManger::type_Data = { "InputManger",nullptr};
 InputManger::InputManger(Entity* p) : Compoent(p,&type_Data)
 {
 	constexpr size_t V = (size_t)InputKey::MaxSize;
-	_InputBuff = std::make_unique<bool[]>(V);
 	for (size_t i = 0; i < V; i++)
 	{
 		_InputBuff[i] = false;

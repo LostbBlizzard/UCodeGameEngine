@@ -4,6 +4,7 @@
 #include <UCodeRunTime/BasicTypes.hpp>
 
 #include "UCodeLang/LangCore/LangDef.hpp"
+#include "bitset"
 InputStart
 
 UCodeLangExportSymbol("UCodeGameEngine") enum class InputKey : Byte
@@ -103,11 +104,11 @@ private:
 	};
 
 
-	Unique_array<bool> _InputBuff;
 	Vec2 _CursorPosition;
 	Vec2 _ScrollPosition;
 	InputCallBackKey _NextCallBackID;
 	Vector<CallBackData> _CallBacks;
+	std::bitset<(size_t)InputKey::MaxSize> _InputBuff;
 	static UComponentData type_Data;
 };
 
