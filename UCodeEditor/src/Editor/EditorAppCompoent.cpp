@@ -18,6 +18,7 @@
 #include "Helper/Tasks.hpp"
 #include "UEditorModules/Modules/CodeModule.hpp"
 #include "Helper/StringHelper.hpp"
+#include "Helper/UserSettings.hpp"
 EditorStart
 
 
@@ -286,9 +287,10 @@ void EditorAppCompoent::OnProjectLoaded()
 }
 void  EditorAppCompoent::ShowMainMenuBar()
 {
-
+    
     if (ImGui::BeginMainMenuBar())
     {
+
         bool IsOpenInProject = _RunTimeProjectData.Is_ProjLoaded();
         ImVec2 ButtionSize = { 140,20 };
 
@@ -306,11 +308,14 @@ void  EditorAppCompoent::ShowMainMenuBar()
                     Redo();
                 }
             }
-        }
 
+
+        }
+        if (GetInputMode() == KeyInputMode::Window && UserSettings::GetSettings().IsKeybindActive(KeyBindList::MenuBar)) {
+            SetToNormal();
+        }
         if (ImGui::BeginMenu("File"))
         {
-
 
             StringView ProjText = IsOpenInProject ? StringView("Project Stuff") : StringView("No Project Is Loaded");
 
@@ -457,14 +462,14 @@ void  EditorAppCompoent::ShowMainMenuBar()
 
             ImGui::EndMenu();
         }
-        
-        if (ImGui::BeginMenu("Project",IsOpenInProject))
+
+        if (ImGui::BeginMenu("Project", IsOpenInProject))
         {
             if (ImGui::BeginMenu("Assets"))
             {
                 if (ImGui::MenuItem("Clear Cache"))
                 {
-                    std::filesystem::remove_all(_RunTimeProjectData.GetCachedDir()); 
+                    std::filesystem::remove_all(_RunTimeProjectData.GetCachedDir());
                 }
                 ImGui::EndMenu();
             }
@@ -472,8 +477,8 @@ void  EditorAppCompoent::ShowMainMenuBar()
             {
                 if (ImGui::MenuItem("Rebuild"))
                 {
-                    std::filesystem::remove_all(_RunTimeProjectData.GetULangIntDir()); 
-                    std::filesystem::remove_all(_RunTimeProjectData.GetULangOutDir()); 
+                    std::filesystem::remove_all(_RunTimeProjectData.GetULangIntDir());
+                    std::filesystem::remove_all(_RunTimeProjectData.GetULangOutDir());
 
                     auto& assetsdir = _RunTimeProjectData.GetAssetsDir();
                     auto tepfile = assetsdir / "ULangModule.ucm";
@@ -481,11 +486,11 @@ void  EditorAppCompoent::ShowMainMenuBar()
                     if (std::filesystem::exists(tepfile))
                     {
                         OnFileUpdated(this, "ULangModule.ucm", ChangedFileType::FileUpdated);
-                    } 
+                    }
                 }
                 if (ImGui::MenuItem("Clear Cache"))
                 {
-                    std::filesystem::remove_all(_RunTimeProjectData.GetULangIntDir()); 
+                    std::filesystem::remove_all(_RunTimeProjectData.GetULangIntDir());
                 }
                 if (ImGui::MenuItem("Dump"))
                 {
@@ -531,6 +536,54 @@ void  EditorAppCompoent::ShowMainMenuBar()
             }
             ImGui::EndMenu();
         }
+
+        if (ImGui::BeginMenu("|", false))
+        {
+
+            ImGui::EndMenu();
+        }
+
+        String msg = "InputMode:";
+        switch (_InputMode)
+        {
+        case UCodeEditor::KeyInputMode::Normal:
+            msg += "Normal";
+            break;
+        case UCodeEditor::KeyInputMode::Window:
+            msg += "Window";
+            break;
+        default:
+            UCodeGEUnreachable();
+            break;
+        }
+    
+        if (ImGui::BeginMenu(msg.c_str(), false))
+        {
+
+            ImGui::EndMenu();
+        }
+        {
+            auto& Tasks = RuningTasksInfo::Get_Tasks();
+            if (Tasks.size())
+            {
+                if (ImGui::Begin("Runing Tasks:", false))
+                {
+                    for (auto& Item : Tasks)
+                    {
+                        String TaskStr = "Task Name 1";
+                        if (ImGui::BeginMenu(msg.c_str(), false))
+                        {
+
+                            ImGui::EndMenu();
+                        }
+
+                    }
+
+                    ImGui::EndMenu();
+                }
+            }
+        }
+    
         ImGui::EndMainMenuBar();
     }
 }
@@ -1092,21 +1145,11 @@ void EditorAppCompoent::OnDraw()
         }
     }
 
-
+    if (UserSettings::GetSettings().IsKeybindActive(KeyBindList::Special))
     {
-        auto& Tasks = RuningTasksInfo::Get_Tasks();
-        if (Tasks.size())
-        {
-            if (ImGui::Begin("Runing Tasks"))
-            {
-                ImGuIHelper::Text(StringView("Task Name 1"));
-                ImGuIHelper::Text(StringView("Task Name 2"));
-                ImGuIHelper::Text(StringView("Task Name 3"));
-
-                ImGui::End();
-            }
-        }
+        _InputMode = KeyInputMode::Window;
     }
+  
 
     ShowEditiorWindows();
 

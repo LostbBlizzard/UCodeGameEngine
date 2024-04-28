@@ -3,6 +3,8 @@
 #include "Helper/ImGuIHelper.hpp"
 #include <UCodeLang/Compilation/Helpers/CompilerTypes.hpp>
 #include "Helper/StringHelper.hpp"
+#include "Helper/UserSettings.hpp"
+#include "Editor/EditorAppCompoent.hpp"
 EditorStart
 
 
@@ -45,6 +47,17 @@ void ConsoleWindow::UpdateWindow()
         _FocusWindow = false;
         ImGui::SetWindowFocus();
    }
+    else if (Get_App()->GetInputMode() == KeyInputMode::Window)
+    {
+        auto& settings = UserSettings::GetSettings();
+
+        if (settings.IsKeybindActive(KeyBindList::ConsoleWindow)) 
+        {
+            ImGui::SetWindowFocus();
+            Get_App()->SetToNormal();
+        }
+    }
+    
 
     ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_ItemSpacing, { 2,4});
 

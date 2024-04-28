@@ -16,6 +16,7 @@
 #include <ULang/UCompiler.hpp>
 
 #include <OtherLibrarys/ImGuizmo/ImGuizmo.h>
+#include "Helper/UserSettings.hpp"
 EditorStart
 
 EditorWindow* GameEditorWindow::MakeWin(const NewEditorWindowData& windowdata)
@@ -47,6 +48,22 @@ void GameEditorWindow::UpdateWindow()
 {
     ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_WindowPadding, { 0.0f,0.0f });
 
+    
+    bool editorwindow = false;
+    bool gamewindow = false;
+    bool hierarchuwindow = false;
+    if (Get_App()->GetInputMode() == KeyInputMode::Window)
+    {
+        auto& settings = UserSettings::GetSettings();
+        editorwindow = settings.IsKeybindActive(KeyBindList::EditorWindow);
+        gamewindow = settings.IsKeybindActive(KeyBindList::GameWindow);
+        hierarchuwindow = settings.IsKeybindActive(KeyBindList::HierarchyWindow);
+        
+    }
+    if (editorwindow)
+    {
+        ImGui::SetNextWindowFocus();
+    }
     if (ImGui::Begin(Get_ImGuiName().c_str()))
     {
         SceneEditorTab();
@@ -57,7 +74,10 @@ void GameEditorWindow::UpdateWindow()
     ImGui::PopStyleVar();
 
 
-
+    if (hierarchuwindow)
+    {
+        ImGui::SetNextWindowFocus();
+    }
     if (ImGui::Begin("Hierarchy"))
     {
         Scenehierarchy();
@@ -67,6 +87,11 @@ void GameEditorWindow::UpdateWindow()
 
     ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_WindowPadding, { 0.0f,0.0f });
 
+    if (gamewindow)
+    {
+        ImGui::SetNextWindowFocus();
+    }
+  
     if (ImGui::Begin("Game"))
     {
         //    UnLoadSceneCamera();
@@ -156,11 +181,7 @@ void GameEditorWindow::SceneCameraGetInputs()
 
     UCode::Vec2& CamPos = *(UCode::Vec2*)&_SceneCameraData._Pos.X;
 
-    ImGuiKey Up, Down, lift, right;
-    Up = ImGuiKey::ImGuiKey_K;//vim controls
-    Down = ImGuiKey::ImGuiKey_J;
-    lift = ImGuiKey::ImGuiKey_H;
-    right = ImGuiKey::ImGuiKey_L;
+    
     float CamSpeed = 2.0f;
     float ScrollSizeSpeed = 2.5f;
 
@@ -177,10 +198,11 @@ void GameEditorWindow::SceneCameraGetInputs()
 
     UCode::Vec2 CamVelocity = { 0,0 };
 
-    bool UpV = ImGui::IsKeyDown(Up);
-    bool DownV = ImGui::IsKeyDown(Down);
-    bool liftV = ImGui::IsKeyDown(lift);
-    bool rightV = ImGui::IsKeyDown(right);
+    auto& userset = UserSettings::GetSettings();
+    bool UpV = userset.IsKeybindActive(KeyBindList::Up);
+    bool DownV = userset.IsKeybindActive(KeyBindList::Down);
+    bool liftV =  userset.IsKeybindActive(KeyBindList::Left);
+    bool rightV = userset.IsKeybindActive(KeyBindList::Right);
 
 
     if (!ImGui::IsKeyDown(ImGuiMod_Ctrl))

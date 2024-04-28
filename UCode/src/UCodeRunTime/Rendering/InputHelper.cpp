@@ -55,67 +55,82 @@ InputKey ToStringToKey(StringView str)
 	}
 	return InputKey::Escape;
 }
+std::unordered_map<ImGuiKey, InputKey> ImGuikeytoKeyMap =
+{
+	{ ImGuiKey::ImGuiKey_MouseLeft, InputKey::LeftMouseButtion},
+	{ ImGuiKey::ImGuiKey_MouseRight,InputKey::RightMouseButtion },
+	{ ImGuiKey::ImGuiKey_MouseMiddle, InputKey::MiddleMouseButtion },
+
+	{ ImGuiKey::ImGuiKey_Space, InputKey::Space },
+	{ ImGuiKey::ImGuiKey_Tab, InputKey::Tab },
+	{ ImGuiKey::ImGuiKey_Escape, InputKey::Escape},
+	{ ImGuiKey::ImGuiKey_Enter, InputKey::Enter },
+	{ ImGuiKey::ImGuiKey_Backspace, InputKey::BackSpace },
+	{ ImGuiKey::ImGuiKey_Delete, InputKey::Delete },
+
+	{ ImGuiKey::ImGuiKey_LeftArrow, InputKey::LeftArrow },
+	{ ImGuiKey::ImGuiKey_RightArrow, InputKey::RightArrow },
+	{ ImGuiKey::ImGuiKey_DownArrow, InputKey::DownArrow },
+	{ ImGuiKey::ImGuiKey_UpArrow, InputKey::UpArrow },
+
+	{ ImGuiKey::ImGuiKey_0,InputKey::Key_0 },
+	{ ImGuiKey::ImGuiKey_1,InputKey::Key_1 },
+	{ImGuiKey::ImGuiKey_2,InputKey::Key_2},
+	{ ImGuiKey::ImGuiKey_3,InputKey::Key_3},
+	{ ImGuiKey::ImGuiKey_4,InputKey::Key_4},
+	{ ImGuiKey::ImGuiKey_5,InputKey::Key_5},
+	{ ImGuiKey::ImGuiKey_6,InputKey::Key_6},
+	{ ImGuiKey::ImGuiKey_7,InputKey::Key_7},
+	{ ImGuiKey::ImGuiKey_8,InputKey::Key_8},
+	{ ImGuiKey::ImGuiKey_9,InputKey::Key_9},
+	//leters
+
+	{ ImGuiKey::ImGuiKey_A,InputKey::A},
+	{ ImGuiKey::ImGuiKey_B,InputKey::B},
+	{ ImGuiKey::ImGuiKey_C,InputKey::C},
+	{ ImGuiKey::ImGuiKey_D,InputKey::D},
+	{ ImGuiKey::ImGuiKey_E,InputKey::E},
+	{ ImGuiKey::ImGuiKey_F,InputKey::F},
+	{ ImGuiKey::ImGuiKey_G,InputKey::G},
+	{ ImGuiKey::ImGuiKey_H,InputKey::H},
+	{ ImGuiKey::ImGuiKey_I,InputKey::I},
+	{ ImGuiKey::ImGuiKey_J,InputKey::J},
+	{ ImGuiKey::ImGuiKey_K,InputKey::K},
+	{ ImGuiKey::ImGuiKey_L,InputKey::L},
+	{ ImGuiKey::ImGuiKey_N,InputKey::N},
+	{ ImGuiKey::ImGuiKey_M,InputKey::M},
+	{ ImGuiKey::ImGuiKey_O,InputKey::O},
+	{ ImGuiKey::ImGuiKey_P,InputKey::P},
+	{ ImGuiKey::ImGuiKey_Q,InputKey::Q},
+	{ ImGuiKey::ImGuiKey_R,InputKey::R},
+	{ ImGuiKey::ImGuiKey_S,InputKey::S},
+	{ ImGuiKey::ImGuiKey_T,InputKey::T},
+	{ ImGuiKey::ImGuiKey_U,InputKey::U},
+	{ ImGuiKey::ImGuiKey_V,InputKey::V},
+	{ ImGuiKey::ImGuiKey_W,InputKey::W},
+	{ ImGuiKey::ImGuiKey_X,InputKey::X},
+	{ ImGuiKey::ImGuiKey_Y,InputKey::Y},
+	{ ImGuiKey::ImGuiKey_Z,InputKey::Z},
+	{ ImGuiKey::ImGuiKey_Z,InputKey::Z},
+};
 InputKey ImguiKeyToUCodeKey(ImGuiKey key)
 {
-	switch (key)
+	if (!ImGuikeytoKeyMap.count(key))
 	{
-	case ImGuiKey::ImGuiKey_MouseLeft: return InputKey::LeftMouseButtion;
-	case ImGuiKey::ImGuiKey_MouseRight: return InputKey::RightMouseButtion;
-	case ImGuiKey::ImGuiKey_MouseMiddle: return InputKey::MiddleMouseButtion;
-
-	case ImGuiKey::ImGuiKey_Space: return InputKey::Space;
-	case ImGuiKey::ImGuiKey_Tab: return InputKey::Tab;
-	case ImGuiKey::ImGuiKey_Escape: return InputKey::Escape;
-	case ImGuiKey::ImGuiKey_Enter: return InputKey::Enter;
-	case ImGuiKey::ImGuiKey_Backspace: return InputKey::BackSpace;
-	case ImGuiKey::ImGuiKey_Delete: return InputKey::Delete;
-
-	case ImGuiKey::ImGuiKey_LeftArrow: return InputKey::LeftArrow;
-	case ImGuiKey::ImGuiKey_RightArrow: return InputKey::RightArrow;
-	case ImGuiKey::ImGuiKey_DownArrow: return InputKey::DownArrow;
-	case ImGuiKey::ImGuiKey_UpArrow:return InputKey::UpArrow;
-
-	case ImGuiKey::ImGuiKey_0:return InputKey::Key_0;
-	case ImGuiKey::ImGuiKey_1:return InputKey::Key_1;
-	case ImGuiKey::ImGuiKey_2:return InputKey::Key_2;
-	case ImGuiKey::ImGuiKey_3:return InputKey::Key_3;
-	case ImGuiKey::ImGuiKey_4:return InputKey::Key_4;
-	case ImGuiKey::ImGuiKey_5:return InputKey::Key_5;
-	case ImGuiKey::ImGuiKey_6:return InputKey::Key_6;
-	case ImGuiKey::ImGuiKey_7:return InputKey::Key_7;
-	case ImGuiKey::ImGuiKey_8:return InputKey::Key_8;
-	case ImGuiKey::ImGuiKey_9:return InputKey::Key_9;
-		//leters
-	case ImGuiKey::ImGuiKey_A:return InputKey::A;
-	case ImGuiKey::ImGuiKey_B:return InputKey::B;
-	case ImGuiKey::ImGuiKey_C:return InputKey::C;
-	case ImGuiKey::ImGuiKey_D:return InputKey::D;
-	case ImGuiKey::ImGuiKey_E:return InputKey::E;
-	case ImGuiKey::ImGuiKey_F:return InputKey::F;
-	case ImGuiKey::ImGuiKey_G:return InputKey::G;
-	case ImGuiKey::ImGuiKey_H:return InputKey::H;
-	case ImGuiKey::ImGuiKey_I:return InputKey::I;
-	case ImGuiKey::ImGuiKey_J:return InputKey::J;
-	case ImGuiKey::ImGuiKey_K:return InputKey::K;
-	case ImGuiKey::ImGuiKey_L:return InputKey::L;
-	case ImGuiKey::ImGuiKey_N:return InputKey::N;
-	case ImGuiKey::ImGuiKey_O:return InputKey::O;
-	case ImGuiKey::ImGuiKey_P:return InputKey::P;
-	case ImGuiKey::ImGuiKey_Q:return InputKey::Q;
-	case ImGuiKey::ImGuiKey_R:return InputKey::R;
-	case ImGuiKey::ImGuiKey_S:return InputKey::S;
-	case ImGuiKey::ImGuiKey_T:return InputKey::T;
-	case ImGuiKey::ImGuiKey_U:return InputKey::U;
-	case ImGuiKey::ImGuiKey_W:return InputKey::W;
-	case ImGuiKey::ImGuiKey_X:return InputKey::X;
-	case ImGuiKey::ImGuiKey_Z:return InputKey::Y;
-
-
-
-	default:return  InputKey::Null;
+		return InputKey::Null;
 	}
-
-
+	return ImGuikeytoKeyMap.at(key);
+}
+ImGuiKey UCodeToImguiKey(InputKey  key)
+{
+	for (auto& Item : ImGuikeytoKeyMap)
+	{
+		if (Item.second == key)
+		{
+			return Item.first;
+		}
+	}
+	UCodeGEUnreachable();
 }
 RenderAPIEnd
 
