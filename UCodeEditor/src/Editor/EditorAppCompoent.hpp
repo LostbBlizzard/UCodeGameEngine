@@ -31,6 +31,11 @@ struct UndoData
 	Delegate<void, UndoData&> _RedoCallBack;
 	Delegate<void, UndoData&> _UndoRemoved;
 };
+enum class KeyInputMode
+{
+	Normal,
+	Window,
+};
 
 using DontWaitInputKey = int;
 using ULangAssemblyID = int;
@@ -87,6 +92,14 @@ public:
 	void AddUndo(const UndoData& V)
 	{
 		_Undos.push_back(V);
+	}
+	KeyInputMode GetInputMode() const
+	{
+		return _InputMode;
+	}
+	void SetToNormal()
+	{
+		_InputMode = KeyInputMode::Normal;
 	}
 	static auto GetCurrentEditorAppCompoent()
 	{
@@ -168,6 +181,7 @@ private:
 	float _AutoSaveTimer = 0;
 	Vector<UndoData> _Undos;
 	Vector<UndoData> _Redos;
+	KeyInputMode _InputMode = KeyInputMode::Normal;
 	ProjectFiles _ProjectFiles;
 	Optional<Vector<String>> _DropedFiles;
 	Optional<std::ofstream> ActiveProjectLockFile;

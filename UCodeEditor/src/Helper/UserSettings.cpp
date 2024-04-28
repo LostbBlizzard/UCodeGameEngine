@@ -23,8 +23,10 @@ const Array<KeyBindData,(KeyBindList_t)KeyBindList::Max>  UserSettings::KeyBindD
 	//Windows
 	KeyBindData(StringView("MenuBar"),KeyBinding(InputKey::M)),
 
-	KeyBindData(StringView("FilesWindow"),KeyBinding(InputKey::E)),	
-	KeyBindData(StringView("EditorWindow"),KeyBinding(InputKey::F)),	
+	KeyBindData(StringView("FilesWindow"),KeyBinding(InputKey::F)),	
+	KeyBindData(StringView("EditorWindow"),KeyBinding(InputKey::E)),	
+	KeyBindData(StringView("HierarchyWindow"),KeyBinding(InputKey::H)),	
+	KeyBindData(StringView("GameWindow"),KeyBinding(InputKey::G)),	
 	KeyBindData(StringView("InspectorWindow"),KeyBinding(InputKey::I)),	
 	KeyBindData(StringView("ProjectWindow"),KeyBinding(InputKey::P)),	
 	KeyBindData(StringView("UserWindow"),KeyBinding(InputKey::U)),		
@@ -190,8 +192,9 @@ String UserSettings::GetOpenFileStringAsArgs(const UserSettings& Data, const Pat
 }
 bool UserSettings::IsKeybindActive(KeyBinding& key)
 {
+    auto imkey = UCode::RenderAPI::UCodeToImguiKey(key.key);
 
-	return false;
+	return ImGui::IsKeyDown(imkey);
 }
 
 EditorEnd

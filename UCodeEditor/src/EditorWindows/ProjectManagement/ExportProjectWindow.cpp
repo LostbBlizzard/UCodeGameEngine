@@ -3,6 +3,8 @@
 #include "Helper/FileHelper.hpp"
 #include "Helper/Tasks.hpp"
 #include <UCodeRunTime/ULibrarys/Loger.hpp>
+#include "Helper/UserSettings.hpp"
+#include "Editor/EditorAppCompoent.hpp"
 EditorStart
 ExportProjectWindow::ExportProjectWindow(const NewEditorWindowData& windowdata)
 	:EditorWindow(windowdata)
@@ -33,7 +35,16 @@ constexpr size_t PlatfromSize = sizeof(PlatformsData_) / sizeof(PlatformsData_[0
 
 
 void ExportProjectWindow::UpdateWindow()
-{
+{	
+	auto& settings = UserSettings::GetSettings();
+    if (Get_App()->GetInputMode() == KeyInputMode::Window)
+    {
+        if (settings.IsKeybindActive(KeyBindList::ExportWindow)) {
+            ImGui::SetWindowFocus();
+			Get_App()->SetToNormal();
+        }
+    }
+
 	bool _Building = RuningTasksInfo::HasTaskRuning(RuningTask::Type::BuildingProject);
 	if (_Building)
 	{	

@@ -20,6 +20,8 @@ enum class KeyBindList : KeyBindList_t
 
 	FilesWindow,
 	EditorWindow,
+	HierarchyWindow,
+	GameWindow,
 	InspectorWindow,
 	ProjectWindow,
 	UserWindow,

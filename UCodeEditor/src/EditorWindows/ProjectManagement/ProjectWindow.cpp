@@ -4,6 +4,7 @@
 #include "Editor/EditorAppCompoent.hpp"
 #include "UCodeRunTime/ULibrarys/AssetManagement/CoreAssets.hpp"
 #include "Plugin/ImGuiHelper_UPlugin.hpp"
+#include "Helper/UserSettings.hpp"
 EditorStart
 
 ProjectWindow::ProjectWindow(const NewEditorWindowData& windowdata) : EditorWindow(windowdata)
@@ -26,6 +27,15 @@ void ProjectWindow::SaveProjectDatatFile()
 
 void ProjectWindow::UpdateWindow()
 {
+	auto& settings = UserSettings::GetSettings();
+	if (Get_App()->GetInputMode() == KeyInputMode::Window)
+	{
+		if (settings.IsKeybindActive(KeyBindList::ProjectWindow))
+		{
+			ImGui::SetWindowFocus();
+			Get_App()->SetToNormal();
+		}
+	}
 
 	if (SaveCountDown < 0)
 	{
@@ -39,15 +49,15 @@ void ProjectWindow::UpdateWindow()
 	}
 
 	auto ProjectData = Get_ProjectData();
-	auto& ProjectData2 = ProjectData->Get_ProjData(); 
-	
+	auto& ProjectData2 = ProjectData->Get_ProjData();
+
 	bool UpdateValue = false;
 
 	if (ImGuIHelper::InputText("Project Name", ProjectData2._ProjectName))
 	{
 		UpdateValue = true;
 	}
-	if (ImGuIHelper::InputText("Company Name",ProjectData2._CompanyName))
+	if (ImGuIHelper::InputText("Company Name", ProjectData2._CompanyName))
 	{
 		UpdateValue = true;
 	}
@@ -85,9 +95,9 @@ void ProjectWindow::UpdateWindow()
 	{
 		UpdateValue = true;
 	}
-	
-	
-	
+
+
+
 	if (UpdateValue)
 	{
 		if (SaveCountDown > 15) {

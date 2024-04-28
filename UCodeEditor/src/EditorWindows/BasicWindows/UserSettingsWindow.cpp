@@ -105,6 +105,14 @@ void UserSettingsWindow::UpdateWindow()
 {
 	auto& Settings = UserSettings::GetSettings();
 
+    if (Get_App()->GetInputMode() == KeyInputMode::Window)
+    {
+        if (Settings.IsKeybindActive(KeyBindList::UserWindow)) 
+		{
+            ImGui::SetWindowFocus();
+			Get_App()->SetToNormal();
+        }
+    }
 
 	if (ImGui::BeginTabBar("##Editor_tabs", ImGuiTabBarFlags_None))
 	{

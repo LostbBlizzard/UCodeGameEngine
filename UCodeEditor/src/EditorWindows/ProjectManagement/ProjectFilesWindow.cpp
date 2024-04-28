@@ -23,6 +23,7 @@
 #include "UCodeRunTime/ULibrarys/UCodeLang/ScirptableObject.hpp"
 #include "DrawMenu.hpp"
 #include "Helper/Fuzzhelper.hpp"
+#include "Helper/UserSettings.hpp"
 EditorStart
 namespace fs = std::filesystem;
 
@@ -77,6 +78,16 @@ void ProjectFilesWindow::UpdateWindow()
     }
 
     auto window = ImGui::GetCurrentWindow();
+
+    auto& settings = UserSettings::GetSettings();
+    if (Get_App()->GetInputMode() == KeyInputMode::Window)
+    {
+        if (settings.IsKeybindActive(KeyBindList::FilesWindow)) 
+        {
+            ImGui::SetWindowFocus();
+			Get_App()->SetToNormal();
+        }
+    }
 
     window->Flags |= ImGuiWindowFlags_::ImGuiWindowFlags_MenuBar;
 
