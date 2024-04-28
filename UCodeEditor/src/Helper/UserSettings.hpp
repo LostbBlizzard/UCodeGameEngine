@@ -27,7 +27,14 @@ enum class KeyBindList : KeyBindList_t
 	UserWindow,
 	ConsoleWindow,
 	ExportWindow,
-	
+
+	New,
+	Delete,
+	Rename,
+	Inspect,
+	Copy,
+	Paste,
+
 	Max,
 };
 struct KeyBinding

@@ -1,11 +1,12 @@
 #include "ImGuIHelper.hpp"
 #include "Imgui/imgui_internal.h"
 #include <Imgui/misc/cpp/imgui_stdlib.h>
+#include "Helper/UserSettings.hpp"
 EditorStart
 
 bool IsPopUpKey()
-{
-	return ImGui::IsKeyDown(ImGuiKey_ModCtrl) && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Period);
+{	
+	return ImGui::IsKeyDown(ImGuiKey_ModCtrl) && UserSettings::GetSettings().IsKeybindActive(KeyBindList::Extra);
 }
 
 bool ImGuIHelper::BeginPopupContextItem(const char* str_id, ImGuiPopupFlags popup_flags)
@@ -17,7 +18,7 @@ bool ImGuIHelper::BeginPopupContextItem(const char* str_id, ImGuiPopupFlags popu
 	ImGuiID id = str_id ? window->GetID(str_id) : g.LastItemData.ID;    // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
 	IM_ASSERT(id != 0);                                             // You cannot pass a NULL str_id if the last item has no identifier (e.g. a Text() item)
 	int mouse_button = (popup_flags & ImGuiPopupFlags_MouseButtonMask_);
-	if (ImGui::IsMouseReleased(mouse_button) && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup) || (ImGui::IsItemFocused() && IsPopUpKey()))
+	if ((ImGui::IsMouseReleased(mouse_button) && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup)) || (ImGui::IsItemFocused() && IsPopUpKey()))
 		ImGui::OpenPopupEx(id, popup_flags);
 	return ImGui::BeginPopupEx(id, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings);
 

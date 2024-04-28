@@ -137,7 +137,7 @@ void GameEditorWindow::Scenehierarchy()
 
 
         if (ImGui::BeginTabItem("SceneData"))
-        {
+        {   
             ShowSceneData();
             ImGui::EndTabItem();
         }
@@ -489,12 +489,62 @@ void GameEditorWindow::LoadSceneCamera()
         _SceneCamera->UnSetAsMainCam();
     }
 }
+
+void GameEditorWindow::ShowSceneDataAddNewScene()
+{
+    auto* e = _GameRunTime->Add_NewScene();
+    e->Get_Name() = UnNamedScene;
+    if (_GameRunTime->Get_Scenes().size() == 1)
+    {
+        if (_SceneData == nullptr)
+        {
+            _SceneData = new  UCode::Scene2dData();
+
+            UCode::Scene2dData::SaveScene(e, *_SceneData, USerializerType::Fastest);
+        }
+
+
+        _SceneDataAsRunTiime = e;
+    }
+
+}
 void GameEditorWindow::ShowSceneData()
 {
     bool HasSceneRightPrivilege = true;//add this to stop updateing the same scene data file.
 
+    if (ImGui::IsItemFocused())
+    {
+        auto& settings = UserSettings::GetSettings();
 
+        if (settings.IsKeybindActive(KeyBindList::New))
+        {
+            ShowSceneDataAddNewScene();
+        }
+    }
+    if (ImGuIHelper::BeginPopupContextItem())
+    {
+        ImGuIHelper::Text(StringView("RunTime options"));
+        ImGui::Separator();
 
+        auto& settings = UserSettings::GetSettings();
+        auto keybindstring = settings.KeyBinds[(size_t)KeyBindList::New].ToString();
+        if (ImGui::MenuItem("Add New Scene", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::New))
+        {
+            ShowSceneDataAddNewScene();
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::BeginDisabled(_IsRuningGame);
+
+        if (ImGui::MenuItem("ReLoad RunTime"))
+        {
+            UnLoadRunTime();
+            LoadRunTime();
+        }
+
+        ImGui::EndDisabled();
+
+        ImGui::EndPopup();
+    }
 
 
 
@@ -528,39 +578,6 @@ void GameEditorWindow::ShowSceneData()
     if (Size.x == 0 || Size.y == 0) { Size = { 1,1 }; }
     ImGui::InvisibleButton("Data", Size);
     DropSceneFromPath();
-    if (ImGuIHelper::BeginPopupContextItem())
-    {
-        ImGuIHelper::Text(StringView("RunTime options"));
-        ImGui::Separator();
-        if (ImGui::MenuItem("Add New Scene"))
-        {
-            auto* e = _GameRunTime->Add_NewScene();
-            e->Get_Name() = UnNamedScene;
-            if (_GameRunTime->Get_Scenes().size() == 1)
-            {
-                if (_SceneData == nullptr)
-                {
-                    _SceneData = new  UCode::Scene2dData();
-
-                    UCode::Scene2dData::SaveScene(e, *_SceneData, USerializerType::Fastest);
-                }
-
-
-                _SceneDataAsRunTiime = e;
-            }
-        }
-        ImGui::BeginDisabled(_IsRuningGame);
-
-        if (ImGui::MenuItem("ReLoad RunTime"))
-        {
-            UnLoadRunTime();
-            LoadRunTime();
-        }
-
-        ImGui::EndDisabled();
-
-        ImGui::EndPopup();
-    }
 }
 void GameEditorWindow::DropSceneFromPath()
 {
@@ -585,6 +602,85 @@ void GameEditorWindow::DropSceneFromPath()
 
         }
         ImGui::EndDragDropTarget();
+    }
+}
+bool CanPasteScene()
+{
+    auto clipboard = ImGui::GetClipboardText();
+    bool isclipboardentity = false;
+
+    YAML::Node tep;
+    if (clipboard)
+    {
+        bool ok = true;
+        try
+        {
+            tep = YAML::Load(clipboard);
+        }
+        catch (YAML::ParserException ex)
+        {
+            ok = false;
+        }
+        if (ok && tep.IsMap())
+        {
+            isclipboardentity = (bool)tep["UType"];
+            if (isclipboardentity)
+            {
+                isclipboardentity = tep["UType"].as<String>("") == "Entity" && (bool)tep["UData"];
+            }
+        }
+    }
+    return isclipboardentity;
+}
+void GameEditorWindow::PasteInScene(UCode::RunTimeScene* Item)
+{
+    auto clipboard = ImGui::GetClipboardText();
+    YAML::Node tep;
+    if (clipboard)
+    {
+        bool ok = true;
+        try
+        {
+            tep = YAML::Load(clipboard);
+        }
+        catch (YAML::ParserException ex)
+        {
+            ok = false;
+        }
+    }
+    auto DataNode = tep["UData"];
+
+    auto pastedentity = Item->NewEntity();
+    UCode::Scene2dData::Entity_Data _CopyedEntity = DataNode.as<UCode::Scene2dData::Entity_Data>(UCode::Scene2dData::Entity_Data());
+
+    UCode::Scene2dData::LoadEntity(pastedentity, _CopyedEntity);
+
+    ImGui::CloseCurrentPopup();
+
+    {
+        UndoData undo;
+
+        auto _CopyedEntitytep = _CopyedEntity;
+        auto ePtr = pastedentity->NativeManagedPtr();
+
+        undo._UndoCallBack = [_CopyedEntitytep, ePtr](UndoData& This)
+            {
+                if (ePtr.Has_Value())
+                {
+                    UCode::Entity::Destroy(ePtr.Get_Value());
+
+                    auto ScenePtr = ePtr.Get_Value()->NativeScene()->Get_ManagedPtr();
+
+                    This._RedoCallBack = [ePtr, ScenePtr, _CopyedEntitytep](UndoData& This)
+                        {
+                            if (ScenePtr.Has_Value())
+                            {
+                                UCode::Scene2dData::LoadEntity(ScenePtr.Get_Value()->NewEntity(), _CopyedEntitytep);
+                            };
+                        };
+                }
+            };
+        Get_App()->AddUndo(undo);
     }
 }
 void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
@@ -618,90 +714,108 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
     }
     ImGui::PopStyleColor();
 
-    if (ImGuIHelper::BeginPopupContextItem())
+    
+    if (ImGui::IsItemFocused() && !ImGui::GetIO().WantTextInput)
     {
-        ImGuIHelper::Text(StringView("Scene options"));
-        ImGui::Separator();
-        if (ImGui::MenuItem("Rename"))
+        auto& settings = UserSettings::GetSettings();
+
+        if (settings.IsKeybindActive(KeyBindList::Rename))
         {
             SetScelected(Item);
             IsRenameing = true;
             WasSelectedObjectOpened = node_open;
 
         }
-        if (ImGui::MenuItem("Add Entity"))
+
+        if (settings.IsKeybindActive(KeyBindList::New))
         {
-            UCode::Entity* e = Item->NewEntity();
-            e->NativeName() = UnNamedEntity;
-            e->worldposition(_SceneCameraData._Pos);
+            if (node_open)
+            {
+                UCode::Entity* e = Item->NewEntity();
+                e->NativeName() = UnNamedEntity;
+                e->worldposition(_SceneCameraData._Pos);
+            }
+            else
+            {
+                ShowSceneDataAddNewScene();
+            }
         }
-
-        auto clipboard = ImGui::GetClipboardText();
-        bool isclipboardentity = false;
-
-        YAML::Node tep;
-        if (clipboard)
+        
+        if (settings.IsKeybindActive(KeyBindList::Paste))
         {
-            bool ok = true;
-            try
+            if (CanPasteScene())
             {
-                tep = YAML::Load(clipboard);
-            }
-            catch (YAML::ParserException ex)
-            {
-                ok = false;
-            }
-            if (ok && tep.IsMap())
-            {
-                isclipboardentity = (bool)tep["UType"];
-                if (isclipboardentity)
-                {
-                    isclipboardentity = tep["UType"].as<String>("") == "Entity" && (bool)tep["UData"];
-                }
+                PasteInScene(Item);
             }
         }
 
-        if (ImGui::MenuItem("Paste-Entity", "Ctrl+V", nullptr, isclipboardentity))
+
+        if (settings.IsKeybindActive(KeyBindList::Copy))
         {
-            auto DataNode = tep["UData"];
 
-            auto pastedentity = Item->NewEntity();
-            UCode::Scene2dData::Entity_Data _CopyedEntity = DataNode.as<UCode::Scene2dData::Entity_Data>(UCode::Scene2dData::Entity_Data());
-
-            UCode::Scene2dData::LoadEntity(pastedentity, _CopyedEntity);
-
-
-            {
-                UndoData undo;
-
-                auto _CopyedEntitytep = _CopyedEntity;
-                auto ePtr = pastedentity->NativeManagedPtr();
-
-                undo._UndoCallBack = [_CopyedEntitytep, ePtr](UndoData& This)
-                    {
-                        if (ePtr.Has_Value())
-                        {
-                            UCode::Entity::Destroy(ePtr.Get_Value());
-
-                            auto ScenePtr = ePtr.Get_Value()->NativeScene()->Get_ManagedPtr();
-
-                            This._RedoCallBack = [ePtr, ScenePtr, _CopyedEntitytep](UndoData& This)
-                                {
-                                    if (ScenePtr.Has_Value())
-                                    {
-                                        UCode::Scene2dData::LoadEntity(ScenePtr.Get_Value()->NewEntity(), _CopyedEntitytep);
-                                    };
-                                };
-                        }
-                    };
-                Get_App()->AddUndo(undo);
-            }
         }
-        ImGui::Separator();
-        if (ImGui::MenuItem("Destroy"))
+
+        if (settings.IsKeybindActive(KeyBindList::Delete))
         {
             UCode::RunTimeScene::Destroy(Item);
+        }
 
+    }
+
+    if (ImGuIHelper::BeginPopupContextItem())
+    {
+        ImGuIHelper::Text(StringView("Scene options"));
+        ImGui::Separator();
+
+        auto& settings = UserSettings::GetSettings();
+        auto keybindstring = settings.KeyBinds[(size_t)KeyBindList::Rename].ToString();
+
+        if (ImGui::MenuItem("Rename", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Rename))
+        {
+            SetScelected(Item);
+            IsRenameing = true;
+            WasSelectedObjectOpened = node_open;
+
+            ImGui::CloseCurrentPopup();
+        }
+
+        keybindstring = settings.KeyBinds[(size_t)KeyBindList::New].ToString();
+
+        if (ImGui::MenuItem("Add Entity") || settings.IsKeybindActive(KeyBindList::New))
+        {
+            if (node_open) 
+            {
+                UCode::Entity* e = Item->NewEntity();
+                e->NativeName() = UnNamedEntity;
+                e->worldposition(_SceneCameraData._Pos);
+            }
+            else
+            {
+                ShowSceneDataAddNewScene();
+            }
+
+            ImGui::CloseCurrentPopup();
+        }
+
+        keybindstring = settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
+        if (ImGui::MenuItem("Copy", keybindstring.c_str(), nullptr) || settings.IsKeybindActive(KeyBindList::Paste))
+        {
+
+        }
+
+        
+        keybindstring = settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
+        if (ImGui::MenuItem("Paste", keybindstring.c_str(), nullptr, CanPasteScene()) || settings.IsKeybindActive(KeyBindList::Paste))
+        {
+            PasteInScene(Item);
+        }
+        ImGui::Separator();
+
+
+        keybindstring = settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
+        if (ImGui::MenuItem("Destroy", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Delete))
+        {
+            UCode::RunTimeScene::Destroy(Item);
         }
         ImGui::EndPopup();
     }
@@ -793,7 +907,61 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
     ImGui::PopID();
 }
 
+void GameEditorWindow::EntityDestroy(UCode::Entity* Item)
+{
+    {
+        UndoData undo;
+        UCode::Scene2dData::Entity_Data V;
+        UCode::Scene2dData::SaveEntityData(Item, V, USerializerType::Fastest);
 
+
+        auto ScencPtr = Item->NativeScene()->Get_ManagedPtr();
+        undo._UndoCallBack = [ScencPtr, V](UndoData& This)
+            {
+                if (ScencPtr.Has_Value())
+                {
+                    auto newentity = ScencPtr.Get_Value()->NewEntity()->NativeManagedPtr();
+                    UCode::Scene2dData::LoadEntity(newentity.Get_Value(), V);
+
+
+                    This._RedoCallBack = [newentity](UndoData& This)
+                        {
+                            if (newentity.Has_Value())
+                            {
+                                UCode::Entity::Destroy(newentity.Get_Value());
+                            }
+                        };
+                }
+            };
+        Get_App()->AddUndo(undo);
+    }
+    UCode::Entity::Destroy(Item);
+}
+
+void GameEditorWindow::EntityAdd(UCode::Entity* Item, bool AddToChild)
+{
+    if (AddToChild)
+    {
+        auto E = Item->NativeAddEntity();
+        E->NativeName() = UnNamedEntity;
+        SetScelected(E);
+    }
+    else
+    {
+        if (Item->NativeParent())
+        {
+            auto E = Item->NativeParent()->NativeAddEntity();
+            E->NativeName() = UnNamedEntity;
+            SetScelected(E);
+        }
+        else
+        {
+            auto E = Item->NativeScene()->NewEntity();
+            E->NativeName() = UnNamedEntity;
+            SetScelected(E);
+        }
+    }
+}
 void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
 {
     if (Item->Get_IsDestroyed()) { return; }
@@ -1023,84 +1191,141 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
         }
     }
 
+    if (ImGui::IsItemFocused() && !ImGui::GetIO().WantTextInput)
+    {
+        auto& settings = UserSettings::GetSettings();
+
+        
+        if (settings.IsKeybindActive(KeyBindList::Inspect))
+        {
+            if (ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl))
+            {
+                _SceneCameraData._Pos = Item->worldposition();
+            }
+            else 
+            {
+                auto inpswin = Get_App()->Get_Window<InspectWindow>();
+                inpswin->Inspect(Inspect_Entity2d::Get(Item));
+                SetScelected(Item);
+            }
+        }
+
+        if (settings.IsKeybindActive(KeyBindList::Rename))
+        {
+            SetScelected(Item);
+            IsRenameing = true;
+            WasSelectedObjectOpened = node_open;
+        }
+
+        if (settings.IsKeybindActive(KeyBindList::New))
+        {
+            if (ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl))
+            {
+
+            }
+            else
+            {
+                EntityAdd(Item, node_open);
+            }
+        }
+        
+        if (settings.IsKeybindActive(KeyBindList::Paste))
+        {
+            
+        }
+
+
+        if (settings.IsKeybindActive(KeyBindList::Copy))
+        {
+            SetCopy(Item);
+        }
+
+        if (settings.IsKeybindActive(KeyBindList::Delete))
+        {
+            if (ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl))
+            {
+                UCode::Scene2dData::CloneEntity(Item);
+            }
+            else
+            {
+
+                EntityDestroy(Item);
+            }
+        }
+
+    }
     if (ImGuIHelper::BeginPopupContextItem("SomeThing"))
     {
         ImGuIHelper::Text(StringView("Entity2d options"));
         ImGui::Separator();
-        if (ImGui::MenuItem("Inspect"))
+
+        auto& settings = UserSettings::GetSettings();
+        auto keybindstring = settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
+
+        if (ImGui::MenuItem("Inspect",keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Inspect))
         {
             auto inpswin = Get_App()->Get_Window<InspectWindow>();
 
             inpswin->Inspect(Inspect_Entity2d::Get(Item));
             SetScelected(Item);
         }
-        if (ImGui::MenuItem("Copy"))
+
+
+        keybindstring = settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
+        if (ImGui::MenuItem("Copy", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Copy))
         {
             SetCopy(Item);
         }
 
+        keybindstring = settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
+        if (ImGui::MenuItem("Paste", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Paste))
+        {
 
-        if (ImGui::MenuItem("Rename"))
+        }
+
+        keybindstring = settings.KeyBinds[(size_t)KeyBindList::Rename].ToString();
+        if (ImGui::MenuItem("Rename",keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Rename))
         {
             SetScelected(Item);
             IsRenameing = true;
             WasSelectedObjectOpened = node_open;
-
+            ImGui::CloseCurrentPopup();
         }
-        if (ImGui::MenuItem("Duplicate"))
+        
+        keybindstring ="Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
+        if (ImGui::MenuItem("Duplicate",keybindstring.c_str()) || (ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
         {
             UCode::Scene2dData::CloneEntity(Item);
+            ImGui::CloseCurrentPopup();
         }
-        if (ImGui::MenuItem("Destroy"))
+
+        keybindstring = settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
+        if (ImGui::MenuItem("Destroy", keybindstring.c_str()))
         {
-            {
-                UndoData undo;
-                UCode::Scene2dData::Entity_Data V;
-                UCode::Scene2dData::SaveEntityData(Item, V, USerializerType::Fastest);
-
-
-                auto ScencPtr = Item->NativeScene()->Get_ManagedPtr();
-                undo._UndoCallBack = [ScencPtr, V](UndoData& This)
-                    {
-                        if (ScencPtr.Has_Value())
-                        {
-                            auto newentity = ScencPtr.Get_Value()->NewEntity()->NativeManagedPtr();
-                            UCode::Scene2dData::LoadEntity(newentity.Get_Value(), V);
-
-
-                            This._RedoCallBack = [newentity](UndoData& This)
-                                {
-                                    if (newentity.Has_Value())
-                                    {
-                                        UCode::Entity::Destroy(newentity.Get_Value());
-                                    }
-                                };
-                        }
-                    };
-                Get_App()->AddUndo(undo);
-            }
-            UCode::Entity::Destroy(Item);
-
+            EntityDestroy(Item);
         }
-
-        if (ImGui::MenuItem("Set Scenc Cam To "))
+ 
+        keybindstring ="Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
+        if (ImGui::MenuItem("Set Scenc Cam To ",keybindstring.c_str()) || (ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
         {
             _SceneCameraData._Pos = Item->worldposition();
+            ImGui::CloseCurrentPopup();
         }
 
 
 
+        keybindstring = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::New].ToString();
         if (ImGui::BeginMenu("Add Compoent"))
         {
             Inspect_Compoent2d::ShowAddCompoenList(Item);
             ImGui::EndMenu();
         }
 
-        if (ImGui::MenuItem("Add Entity"))
+        keybindstring = settings.KeyBinds[(size_t)KeyBindList::New].ToString();
+        if (ImGui::MenuItem("Add Entity", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::New))
         {
-            auto E = Item->NativeAddEntity();
-            E->NativeName() = UnNamedEntity;
-            SetScelected(E);
+            EntityAdd(Item, node_open); 
+            ImGui::CloseCurrentPopup();
         }
 
         ImGui::EndPopup();
