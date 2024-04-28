@@ -34,6 +34,9 @@ enum class KeyBindList : KeyBindList_t
 	Inspect,
 	Copy,
 	Paste,
+	Undo,
+	Redo,
+	Search,
 
 	Max,
 };

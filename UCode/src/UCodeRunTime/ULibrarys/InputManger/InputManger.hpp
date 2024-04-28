@@ -20,6 +20,7 @@ UCodeLangExportSymbol("UCodeGameEngine") enum class InputKey : Byte
 
 	//Other
 	Space,Tab,Escape,Enter,BackSpace,Delete,
+	ForwardSlash,BackSlash,Dot,Comma,
 	//Other
 	RightArrow,LeftArrow,DownArrow,UpArrow,
 	//Numbers

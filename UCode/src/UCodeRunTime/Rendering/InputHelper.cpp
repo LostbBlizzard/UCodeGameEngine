@@ -38,6 +38,10 @@ std::unordered_map<InputKey, String> KeyToStringMap =
 	{InputKey::LeftArrow,"LeftArrow"},
 	{InputKey::RightArrow,"RightArrow"},
 	{InputKey::Null,"null"},
+	{InputKey::ForwardSlash,"/"},
+	{InputKey::BackSlash,"\\"},	
+	{InputKey::Dot,"."},	
+	{InputKey::Comma,","},	
 };
 String UCodeKeyToString(InputKey key)
 {
@@ -67,6 +71,10 @@ std::unordered_map<ImGuiKey, InputKey> ImGuikeytoKeyMap =
 	{ ImGuiKey::ImGuiKey_Enter, InputKey::Enter },
 	{ ImGuiKey::ImGuiKey_Backspace, InputKey::BackSpace },
 	{ ImGuiKey::ImGuiKey_Delete, InputKey::Delete },
+	{ ImGuiKey::ImGuiKey_Backslash, InputKey::BackSlash },
+	{ ImGuiKey::ImGuiKey_Slash, InputKey::ForwardSlash },
+	{ ImGuiKey::ImGuiKey_Period, InputKey::Dot },
+	{ ImGuiKey::ImGuiKey_Comma, InputKey::Comma },
 
 	{ ImGuiKey::ImGuiKey_LeftArrow, InputKey::LeftArrow },
 	{ ImGuiKey::ImGuiKey_RightArrow, InputKey::RightArrow },
@@ -110,7 +118,6 @@ std::unordered_map<ImGuiKey, InputKey> ImGuikeytoKeyMap =
 	{ ImGuiKey::ImGuiKey_W,InputKey::W},
 	{ ImGuiKey::ImGuiKey_X,InputKey::X},
 	{ ImGuiKey::ImGuiKey_Y,InputKey::Y},
-	{ ImGuiKey::ImGuiKey_Z,InputKey::Z},
 	{ ImGuiKey::ImGuiKey_Z,InputKey::Z},
 };
 InputKey ImguiKeyToUCodeKey(ImGuiKey key)

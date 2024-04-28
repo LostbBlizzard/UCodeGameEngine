@@ -98,6 +98,7 @@ void  EditorAppCompoent::EndProject()
     _EditorWindows.clear();
 
 
+    if (ActiveProjectLockFile.has_value())
     {
         ActiveProjectLockFile.value().close();
         ActiveProjectLockFile = {};
@@ -299,11 +300,11 @@ void  EditorAppCompoent::ShowMainMenuBar()
             bool IsCtrlDown = io.KeyCtrl;
             if (io.KeyCtrl)
             {
-                if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Z))
+                if (UserSettings::GetSettings().IsKeybindActive(KeyBindList::Undo))
                 {
                     Undo();
                 }
-                if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Y))
+                if (UserSettings::GetSettings().IsKeybindActive(KeyBindList::Redo))
                 {
                     Redo();
                 }
@@ -312,6 +313,7 @@ void  EditorAppCompoent::ShowMainMenuBar()
 
         }
         if (GetInputMode() == KeyInputMode::Window && UserSettings::GetSettings().IsKeybindActive(KeyBindList::MenuBar)) {
+            ImGui::FocusItem();
             SetToNormal();
         }
         if (ImGui::BeginMenu("File"))
@@ -368,11 +370,14 @@ void  EditorAppCompoent::ShowMainMenuBar()
         }
         if (ImGui::BeginMenu("Edit", IsOpenInProject))
         {
-            if (ImGui::MenuItem("Undo", "CTRL+Z", nullptr, _Undos.size()))
+            auto str = "Ctrl+" + UserSettings::GetSettings().KeyBinds[(size_t)KeyBindList::Undo].ToString();
+            if (ImGui::MenuItem("Undo", str.c_str(), nullptr, _Undos.size()))
             {
                 Undo();
             }
-            if (ImGui::MenuItem("Redo", "CTRL+Y", nullptr, _Redos.size()))
+            
+            str ="Ctrl+" + UserSettings::GetSettings().KeyBinds[(size_t)KeyBindList::Redo].ToString();
+            if (ImGui::MenuItem("Redo", str.c_str(), nullptr, _Redos.size()))
             {
                 Redo();
             }
@@ -566,21 +571,18 @@ void  EditorAppCompoent::ShowMainMenuBar()
             auto& Tasks = RuningTasksInfo::Get_Tasks();
             if (Tasks.size())
             {
-                if (ImGui::Begin("Runing Tasks:", false))
+
+                for (auto& Item : Tasks)
                 {
-                    for (auto& Item : Tasks)
+                    String TaskStr = "Task Name 1";
+                    if (ImGui::BeginMenu(msg.c_str(), false))
                     {
-                        String TaskStr = "Task Name 1";
-                        if (ImGui::BeginMenu(msg.c_str(), false))
-                        {
 
-                            ImGui::EndMenu();
-                        }
-
+                        ImGui::EndMenu();
                     }
 
-                    ImGui::EndMenu();
                 }
+
             }
         }
     
@@ -902,7 +904,7 @@ void EditorAppCompoent::Undo()
 }
 void EditorAppCompoent::Redo()
 {
-    if (_Undos.size()) {
+    if (_Redos.size()) {
         auto Undo = _Redos.back();  _Redos.pop_back();
         Undo._RedoCallBack(Undo);
     }

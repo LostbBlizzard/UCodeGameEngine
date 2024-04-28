@@ -11,8 +11,8 @@ using InputKey = UCode::InputKey;
 const Array<KeyBindData,(KeyBindList_t)KeyBindList::Max>  UserSettings::KeyBindDataList
 {
 	KeyBindData(StringView("Special"),KeyBinding(InputKey::Space)),
-	KeyBindData(StringView("Alternative"),KeyBinding(InputKey::DownArrow)),	
-	KeyBindData(StringView("Extra"),KeyBinding(InputKey::LeftArrow)),
+	KeyBindData(StringView("Alternative"),KeyBinding(InputKey::Comma)),	
+	KeyBindData(StringView("Extra"),KeyBinding(InputKey::Dot)),
 
 	//Vim movement
 	KeyBindData(StringView("Up"),KeyBinding(InputKey::K)),
@@ -38,8 +38,11 @@ const Array<KeyBindData,(KeyBindList_t)KeyBindList::Max>  UserSettings::KeyBindD
 	KeyBindData(StringView("Delete"),KeyBinding(InputKey::D)),
 	KeyBindData(StringView("Rename"),KeyBinding(InputKey::R)),
 	KeyBindData(StringView("Inspect"),KeyBinding(InputKey::I)),
-	KeyBindData(StringView("Copy"),KeyBinding(InputKey::C)),
+	KeyBindData(StringView("Copy"),KeyBinding(InputKey::Y)),
 	KeyBindData(StringView("Paste"),KeyBinding(InputKey::P)),
+	KeyBindData(StringView("Undo"),KeyBinding(InputKey::U)),
+	KeyBindData(StringView("Redo"),KeyBinding(InputKey::R)),
+	KeyBindData(StringView("Search"),KeyBinding(InputKey::ForwardSlash)),
 };
 
 static bool HasLoadSettings = false;
@@ -202,7 +205,7 @@ bool UserSettings::IsKeybindActive(KeyBinding& key)
 {
     auto imkey = UCode::RenderAPI::UCodeToImguiKey(key.key);
 
-	return ImGui::IsKeyDown(imkey);
+	return ImGui::IsKeyPressed(imkey);
 }
 
 EditorEnd

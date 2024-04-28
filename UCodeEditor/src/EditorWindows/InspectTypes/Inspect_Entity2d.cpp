@@ -307,7 +307,7 @@ void Inspect_Compoent2d::Insp_(UCode::Compoent* item, InspectWindow::InspectDraw
     }
 
 }
-void Inspect_Compoent2d::ShowAddCompoenList(UCode::Entity* item)
+bool Inspect_Compoent2d::ShowAddCompoenList(UCode::Entity* item)
 {
     ImVec2 Size = { 20,20 };
     struct Lib
@@ -316,14 +316,15 @@ void Inspect_Compoent2d::ShowAddCompoenList(UCode::Entity* item)
         String MenuName;
     };
     static std::stack<Lib> MenuData;//TODO ReMove This
+    bool  addconpoent = false;
     for (size_t i = 0; i < MakeableCompoents::Compoents_Size; i++)
     {
-        
+
         auto& Item = MakeableCompoents::Compoents[i];
         if (Item.Id == MakeableCompoents::NewMenuName)
         {
             bool V = ImGui::BeginMenu(Item.Name.c_str());
-            MenuData.push({ V ,Item.Name});
+            MenuData.push({ V ,Item.Name });
             continue;
         }
         else if (Item.Id == MakeableCompoents::EndMenuName)
@@ -336,7 +337,7 @@ void Inspect_Compoent2d::ShowAddCompoenList(UCode::Entity* item)
                     ImGui::Separator();
 
                     const Vector<const UCodeLang::AssemblyNode*>& vaildcompoents = CodeModule::GetAllVaildCompoents();
-                    
+
                     for (const auto& Item : vaildcompoents)
                     {
                         if (Item->Get_Type() == UCodeLang::ClassType::Class)
@@ -356,7 +357,7 @@ void Inspect_Compoent2d::ShowAddCompoenList(UCode::Entity* item)
 
                 ImGui::EndMenu();
             }
-            
+
             continue;
         }
         if (MenuData.size() == 0 || MenuData.top().IsOpen)
@@ -367,13 +368,15 @@ void Inspect_Compoent2d::ShowAddCompoenList(UCode::Entity* item)
 
             ImGuIHelper::Image(Spr, Size);
             ImGui::SameLine();
-            if (ImGui::Button(Item.Name.c_str()))
+            if (ImGui::MenuItem(Item.Name.c_str()))
             {
                 Item.MakeCompoent(item);
+                addconpoent = true;
             }
         }
-        
+
     }
+    return addconpoent;
 }
 EditorEnd
 
