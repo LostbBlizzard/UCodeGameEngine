@@ -26,7 +26,7 @@ public:
     static InspectWindow::InspectData Get(UCode::Compoent* Item);
     static void Insp_(InspectWindow::InspectDrawer& Draw);
     static void Insp_(UCode::Compoent* item, InspectWindow::InspectDrawer& Draw);
-    static void ShowAddCompoenList(UCode::Entity* item);
+    static bool ShowAddCompoenList(UCode::Entity* item);
 };
 EditorEnd
 

@@ -800,7 +800,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
         keybindstring = settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
         if (ImGui::MenuItem("Copy", keybindstring.c_str(), nullptr) || settings.IsKeybindActive(KeyBindList::Paste))
         {
-
+            ImGui::CloseCurrentPopup();
         }
 
         
@@ -808,6 +808,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
         if (ImGui::MenuItem("Paste", keybindstring.c_str(), nullptr, CanPasteScene()) || settings.IsKeybindActive(KeyBindList::Paste))
         {
             PasteInScene(Item);
+            ImGui::CloseCurrentPopup();
         }
         ImGui::Separator();
 
@@ -816,6 +817,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
         if (ImGui::MenuItem("Destroy", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Delete))
         {
             UCode::RunTimeScene::Destroy(Item);
+            ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
     }
@@ -1190,6 +1192,14 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
             ImGui::EndChild();
         }
     }
+    static bool showlist = false; 
+    static bool focusenext = false; 
+    const char* EntityOptions = "SomeThing";
+    if (focusenext)
+    {
+        ImGui::FocusItem();
+        focusenext = false;
+    }
 
     if (ImGui::IsItemFocused() && !ImGui::GetIO().WantTextInput)
     {
@@ -1221,7 +1231,8 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
         {
             if (ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl))
             {
-
+                ImGui::OpenPopup(EntityOptions);
+                showlist = true;
             }
             else
             {
@@ -1248,26 +1259,32 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
             }
             else
             {
-
                 EntityDestroy(Item);
+                focusenext = true;
             }
         }
 
     }
-    if (ImGuIHelper::BeginPopupContextItem("SomeThing"))
+    if (ImGuIHelper::BeginPopupContextItem(EntityOptions))
     {
-        ImGuIHelper::Text(StringView("Entity2d options"));
+        ImGuIHelper::Text(StringView("Entity options"));
         ImGui::Separator();
 
         auto& settings = UserSettings::GetSettings();
         auto keybindstring = settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
 
-        if (ImGui::MenuItem("Inspect",keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Inspect))
+        if (ImGui::MenuItem("Inspect", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Inspect))
         {
             auto inpswin = Get_App()->Get_Window<InspectWindow>();
 
             inpswin->Inspect(Inspect_Entity2d::Get(Item));
             SetScelected(Item);
+        }
+        keybindstring = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
+        if (ImGui::MenuItem("Set Scenc Cam To ", keybindstring.c_str()) || (ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
+        {
+            _SceneCameraData._Pos = Item->worldposition();
+            ImGui::CloseCurrentPopup();
         }
 
 
@@ -1284,16 +1301,42 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
         }
 
         keybindstring = settings.KeyBinds[(size_t)KeyBindList::Rename].ToString();
-        if (ImGui::MenuItem("Rename",keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Rename))
+        if (ImGui::MenuItem("Rename", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Rename))
         {
             SetScelected(Item);
             IsRenameing = true;
             WasSelectedObjectOpened = node_open;
             ImGui::CloseCurrentPopup();
         }
-        
-        keybindstring ="Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
-        if (ImGui::MenuItem("Duplicate",keybindstring.c_str()) || (ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
+
+
+        keybindstring = settings.KeyBinds[(size_t)KeyBindList::New].ToString();
+        if (!showlist)
+        {
+            if (ImGui::MenuItem("Add Entity", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::New))
+            {
+                EntityAdd(Item, node_open);
+                ImGui::CloseCurrentPopup();
+            }
+        }
+
+        if (ImGui::BeginMenu("Add Compoent"))
+        {
+            if (Inspect_Compoent2d::ShowAddCompoenList(Item))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndMenu();
+        }
+        keybindstring = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::New].ToString();
+        if (showlist)
+        {
+            showlist = false;
+            ImGui::FocusItem();
+        }
+
+        keybindstring = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
+        if (ImGui::MenuItem("Duplicate", keybindstring.c_str()) || (ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
         {
             UCode::Scene2dData::CloneEntity(Item);
             ImGui::CloseCurrentPopup();
@@ -1303,29 +1346,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
         if (ImGui::MenuItem("Destroy", keybindstring.c_str()))
         {
             EntityDestroy(Item);
-        }
- 
-        keybindstring ="Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
-        if (ImGui::MenuItem("Set Scenc Cam To ",keybindstring.c_str()) || (ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
-        {
-            _SceneCameraData._Pos = Item->worldposition();
-            ImGui::CloseCurrentPopup();
-        }
-
-
-
-        keybindstring = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::New].ToString();
-        if (ImGui::BeginMenu("Add Compoent"))
-        {
-            Inspect_Compoent2d::ShowAddCompoenList(Item);
-            ImGui::EndMenu();
-        }
-
-        keybindstring = settings.KeyBinds[(size_t)KeyBindList::New].ToString();
-        if (ImGui::MenuItem("Add Entity", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::New))
-        {
-            EntityAdd(Item, node_open); 
-            ImGui::CloseCurrentPopup();
+            focusenext = true;
         }
 
         ImGui::EndPopup();

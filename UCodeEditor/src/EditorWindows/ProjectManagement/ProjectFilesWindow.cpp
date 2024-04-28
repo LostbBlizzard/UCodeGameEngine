@@ -80,6 +80,7 @@ void ProjectFilesWindow::UpdateWindow()
     auto window = ImGui::GetCurrentWindow();
 
     auto& settings = UserSettings::GetSettings();
+    /*
     if (Get_App()->GetInputMode() == KeyInputMode::Window)
     {
         if (settings.IsKeybindActive(KeyBindList::FilesWindow)) 
@@ -88,6 +89,7 @@ void ProjectFilesWindow::UpdateWindow()
 			Get_App()->SetToNormal();
         }
     }
+    */
 
     window->Flags |= ImGuiWindowFlags_::ImGuiWindowFlags_MenuBar;
 
@@ -99,9 +101,8 @@ void ProjectFilesWindow::UpdateWindow()
             bool CantGoBack = _LookingAtDir == AssetsDir;
 
             ImGui::BeginDisabled(CantGoBack);
-            if (ImGui::Button("Back"))
+            if (ImGui::Button("Back") || (settings.IsKeybindActive(KeyBindList::Alternative) && CantGoBack))
             {
-
                 Path oldpath = _LookingAtDir.value();
                 _LookingAtDir = oldpath.parent_path().parent_path().generic_u8string() + '/';
                 UpdateDir();
@@ -115,7 +116,14 @@ void ProjectFilesWindow::UpdateWindow()
 
             ImGui::PushID(&_LookingAtDir);
             ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+
             bool v = ImGuIHelper::InputText("", _FindFileName);
+
+            if (settings.IsKeybindActive(KeyBindList::Search))
+            {
+                ImGui::FocusItem();
+            }
+
             ImGui::PopItemWidth();
             ImGui::PopID();
 
@@ -376,6 +384,16 @@ void ProjectFilesWindow::ShowFileCells()
             if (StringHelper::Fllter(findname, Item.FileName))
             {
                 if (DrawFileItem(Item, CeSize)) { break; }
+
+                if (Get_App()->GetInputMode() == KeyInputMode::Window)
+                {
+                    if (UserSettings().GetSettings().IsKeybindActive(KeyBindList::FilesWindow))
+                    {
+                        ImGui::FocusItem();
+                        Get_App()->SetToNormal();
+                    }
+                }
+
                 ImGui::NextColumn();
             }
         }
@@ -595,6 +613,70 @@ ProjectFiles& ProjectFilesWindow::Get_ProjectFiles()
 {
     return this->Get_App()->GetPrjectFiles();
 }
+
+Optional<Path> GetAssetMetaFileExt(const Path& Ext)
+{
+
+    auto Modules = UEditorModules::GetModules();
+
+
+    for (size_t i = 0; i < Modules.Size(); i++)
+    {
+        auto& item = Modules[i];
+        auto AssetDataList = item->GetAssetData();
+
+        auto Info = item->GetAssetDataUsingExt(Ext);
+        if (Info.has_value())
+        {
+            auto Data = AssetDataList[Info.value()];
+            return Data->FileMetaExtWithDot;
+        }
+    }
+    return {};
+}
+Optional<Path> GetAssetMetaFilePath(const Path& from)
+{
+
+    auto metaf = GetAssetMetaFileExt(from.extension());
+    if (metaf.has_value())
+    {
+        Path filepath =Path(from).native() + PathString(metaf.value());
+        if (std::filesystem::exists(filepath)) {
+            return filepath;
+        }
+    }
+    return {};
+}
+void RenameAssetFile(const Path& from, const Path& to)
+{
+    std::filesystem::rename(from, to);
+    auto v = GetAssetMetaFilePath(from);
+    if (v.has_value())
+    {
+        Path outpath = Path(to).native() + Path(v.value()).extension().native();
+        std::filesystem::rename(v.value(),outpath);
+    }
+}
+struct TepFilesToRemove
+{
+    std::set<Path> files;
+    ~TepFilesToRemove()
+    {
+        for (auto& Item : files)
+        {
+            FileHelper::TrashFile(Item);
+            auto v = GetAssetMetaFilePath(Item);
+            if (v.has_value())
+            {
+                FileHelper::TrashFile(v.value());
+            }
+        }
+    }
+};
+static TepFilesToRemove fileinteptoremove;
+
+
+
 bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData& Item, ImVec2& ButtionSize)
 {
 
@@ -714,30 +796,147 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
 
     bool RetOutfunc = false;
     ImGui::PushID(&Item);
+    if (ImGui::IsItemFocused() && !ImGui::GetIO().WantTextInput)
+    {
+        auto& settings = UserSettings::GetSettings();
+
+
+        if (settings.IsKeybindActive(KeyBindList::Inspect))
+        {
+            if (ImGui::IsKeyDown(ImGuiMod_Ctrl)) 
+            {
+                FileHelper::OpenPathinFiles(Item.FullFileName);
+            }
+            else
+            {
+
+                FileHelper::OpenPathinFiles(_LookingAtDir.value());
+            }
+        }
+
+        if (settings.IsKeybindActive(KeyBindList::Rename))
+        {
+            RenameFile = Item.FullFileName;
+        }
+
+        if (settings.IsKeybindActive(KeyBindList::Delete))
+        {
+
+            bool allowforundo = true;
+
+            RetOutfunc = true;
+            if (allowforundo)
+            {
+                Path teppath = std::filesystem::temp_directory_path() / Path(Item.FileName);
+                RenameAssetFile(Item.FullFileName, teppath);
+
+
+                UndoData undodata;
+                undodata._UndoCallBack = [teppath, oldpath = Item.FullFileName](UndoData& data)
+                    {
+                        fileinteptoremove.files.erase(teppath);
+                        RenameAssetFile(teppath, oldpath);
+                    };
+                undodata._RedoCallBack = [teppath, oldpath = Item.FullFileName](UndoData& data)
+                    {
+                        RenameAssetFile(oldpath, teppath);
+                    };
+                undodata._UndoRemoved = [teppath](UndoData& data)
+                    {
+                        fileinteptoremove.files.erase(teppath);
+                        FileHelper::TrashFile(teppath);
+                        auto v = GetAssetMetaFilePath(teppath);
+                        if (v.has_value())
+                        {
+                            FileHelper::TrashFile(v.value());
+                        }
+                    };
+                Get_App()->AddUndo(undodata);
+            }
+            else
+            {
+                FileHelper::TrashFile(Item.FullFileName);
+            }
+        }
+    }
     if (ImGuIHelper::BeginPopupContextItem("Test"))
     {
 
         ImGuIHelper::Text(StringView("File options"));
         ImGui::Separator();
 
-        if (ImGui::MenuItem("delete file"))
-        {
-            FileHelper::TrashFile(Item.FullFileName);
-            UpdateDir();
-            RetOutfunc = true;
-        }
-        if (ImGui::MenuItem("Show in Files"))
-        {
-            FileHelper::OpenPathinFiles(_LookingAtDir.value());
-        }
-        if (ImGui::MenuItem("Rename File"))
-        {
-            RenameFile = Item.FullFileName;
-        }
-        if (ImGui::MenuItem("Open File"))
+        auto& settings = UserSettings::GetSettings();
+
+        auto str = settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
+
+        if (ImGui::MenuItem("Open File", str.c_str()) || settings.IsKeybindActive(KeyBindList::Inspect))
         {
             FileHelper::OpenPathinFiles(Item.FullFileName);
+            ImGui::CloseCurrentPopup();
         }
+
+        str = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
+        if (ImGui::MenuItem("Show in Files", str.c_str()) || (ImGui::IsKeyDown(ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
+        {
+            FileHelper::OpenPathinFiles(_LookingAtDir.value());
+            ImGui::CloseCurrentPopup();
+        }
+
+        str = settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
+        if (ImGui::MenuItem("Copy File", str.c_str()) || settings.IsKeybindActive(KeyBindList::Copy))
+        {
+
+        }
+    
+        str = settings.KeyBinds[(size_t)KeyBindList::Rename].ToString();
+        if (ImGui::MenuItem("Rename File", str.c_str()) || settings.IsKeybindActive(KeyBindList::Rename))
+        {
+            RenameFile = Item.FullFileName;
+            ImGui::CloseCurrentPopup();
+        }
+
+        str = settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
+        if (ImGui::MenuItem("Delete file", str.c_str()) || settings.IsKeybindActive(KeyBindList::Delete))
+        {
+            bool allowforundo = true;
+            if (allowforundo)
+            {
+                Path teppath = std::filesystem::temp_directory_path() / Path(Item.FileName);
+                RenameAssetFile(Item.FullFileName, teppath);
+
+
+                UndoData undodata;
+                undodata._UndoCallBack = [teppath, oldpath = Item.FullFileName](UndoData& data)
+                    {
+                        fileinteptoremove.files.erase(teppath);
+                        RenameAssetFile(teppath, oldpath);
+                    };
+                undodata._RedoCallBack = [teppath, oldpath = Item.FullFileName](UndoData& data)
+                    {
+                        RenameAssetFile(oldpath, teppath);
+                    };
+                undodata._UndoRemoved = [teppath](UndoData& data)
+                    {
+                        fileinteptoremove.files.erase(teppath);
+                        FileHelper::TrashFile(teppath);
+                        auto v = GetAssetMetaFilePath(teppath);
+                        if (v.has_value())
+                        {
+                            FileHelper::TrashFile(v.value());
+                        }
+                    };
+                Get_App()->AddUndo(undodata);
+            }
+            else
+            {
+                FileHelper::TrashFile(Item.FullFileName);
+            }
+            UpdateDir();
+            RetOutfunc = true;
+            ImGui::CloseCurrentPopup();
+        }
+
+
 
         ImGui::EndPopup();
     }
@@ -760,10 +959,22 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
         bool ReNameValue = true;
         if (ImGuIHelper::DrawRenameName(NewName, ReNameValue))
         {
+            auto oldpath = Item.FullFileName;
             auto NewPath = Path(_LookingAtDir.value()) / Path(NewName).concat(Ext.generic_string());
-            FileHelper::RenameFile(Item.FullFileName, NewPath);
+            RenameAssetFile(Item.FullFileName, NewPath);
             Item.FullFileName = NewPath.generic_string();
             Item.FileName = NewName;
+
+            UndoData undodata;
+            undodata._UndoCallBack = [oldpath, NewPath](UndoData& data)
+                {
+                    RenameAssetFile(NewPath, oldpath);
+                };
+            undodata._RedoCallBack = [oldpath,NewPath](UndoData& data)
+                {
+                    RenameAssetFile(oldpath,NewPath);
+                };
+            Get_App()->AddUndo(undodata);
         }
 
         if (!ReNameValue)
