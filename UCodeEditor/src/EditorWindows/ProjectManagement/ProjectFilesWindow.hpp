@@ -22,6 +22,7 @@ public:
 
 	void ShowExlorer();
 
+
 	void ShowDirButtions();
 
 	void OnFileUpdate(const Path& path);
@@ -39,6 +40,7 @@ private:
 	};
 
 
+	void ShowDirButtionsPaste();
 	void UpdateDir();
 	
 	Optional<Path> _LookingAtDir;
