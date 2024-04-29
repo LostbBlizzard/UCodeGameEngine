@@ -207,7 +207,7 @@ namespace YAML {
 				return false;
 			}
 
-			rhs = node[0].as<UCode::Path>();
+			rhs = node[0].as<UCode::String>();
 			return true;
 		}
 

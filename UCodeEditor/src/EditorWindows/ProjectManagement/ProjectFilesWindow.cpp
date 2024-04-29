@@ -61,12 +61,56 @@ void ProjectFilesWindow::OnFileUpdate(const Path& path)
 
     if (newpath.native().size() > _LookingAtDirReadable.native().size())
     {
-        islookatdir = UCode::StringHelper::StartWith<PathChar>(newpath.native(), _LookingAtDirReadable.native());
+        islookatdir = UCode::StringHelper::StartWith<char>(newpath.generic_string(), _LookingAtDirReadable.generic_string());
 
     }
     if (islookatdir)
     {
         UpdateDir();
+    }
+}
+
+Optional<Path> GetAssetMetaFileExt(const Path& Ext)
+{
+
+    auto Modules = UEditorModules::GetModules();
+
+
+    for (size_t i = 0; i < Modules.Size(); i++)
+    {
+        auto& item = Modules[i];
+        auto AssetDataList = item->GetAssetData();
+
+        auto Info = item->GetAssetDataUsingExt(Ext);
+        if (Info.has_value())
+        {
+            auto Data = AssetDataList[Info.value()];
+            return Data->FileMetaExtWithDot;
+        }
+    }
+    return {};
+}
+Optional<Path> GetAssetMetaFilePath(const Path& from)
+{
+
+    auto metaf = GetAssetMetaFileExt(from.extension());
+    if (metaf.has_value())
+    {
+        Path filepath =Path(from).native() + PathString(metaf.value());
+        if (std::filesystem::exists(filepath)) {
+            return filepath;
+        }
+    }
+    return {};
+}
+void RenameAssetFile(const Path& from, const Path& to)
+{
+    std::filesystem::rename(from, to);
+    auto v = GetAssetMetaFilePath(from);
+    if (v.has_value())
+    {
+        Path outpath = Path(to).native() + Path(v.value()).extension().native();
+        std::filesystem::rename(v.value(),outpath);
     }
 }
 void ProjectFilesWindow::UpdateWindow()
@@ -101,7 +145,7 @@ void ProjectFilesWindow::UpdateWindow()
             bool CantGoBack = _LookingAtDir == AssetsDir;
 
             ImGui::BeginDisabled(CantGoBack);
-            if (ImGui::Button("Back") || (settings.IsKeybindActive(KeyBindList::Alternative) && CantGoBack))
+            if (ImGui::Button("Back") || (settings.IsKeybindActive(KeyBindList::Alternative) && !CantGoBack))
             {
                 Path oldpath = _LookingAtDir.value();
                 _LookingAtDir = oldpath.parent_path().parent_path().generic_u8string() + '/';
@@ -190,6 +234,7 @@ void ProjectFilesWindow::UpdateWindow()
 
 
             ImGui::BeginChild(ImGui::GetID("FilesStuff"), ContentSize);
+
             ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, { 0,0,0,0 });
             ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonActive, { 0,0,0,0 });
             ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonHovered, { 1,1,1,0.1 });
@@ -200,7 +245,8 @@ void ProjectFilesWindow::UpdateWindow()
             ImGui::PopStyleColor();
             ImGui::PopStyleColor();
             ImGui::EndChild();
-
+ 
+            ShowDirButtions();
 
 
 
@@ -384,7 +430,6 @@ void ProjectFilesWindow::ShowFileCells()
             if (StringHelper::Fllter(findname, Item.FileName))
             {
                 if (DrawFileItem(Item, CeSize)) { break; }
-
                 if (Get_App()->GetInputMode() == KeyInputMode::Window)
                 {
                     if (UserSettings().GetSettings().IsKeybindActive(KeyBindList::FilesWindow))
@@ -393,7 +438,6 @@ void ProjectFilesWindow::ShowFileCells()
                         Get_App()->SetToNormal();
                     }
                 }
-
                 ImGui::NextColumn();
             }
         }
@@ -403,8 +447,7 @@ void ProjectFilesWindow::ShowFileCells()
 
     auto ContentSize2 = ImGui::GetContentRegionAvail();
     if (ContentSize2.x > 0 && ContentSize2.y > 0) {
-        ImGui::InvisibleButton("##", ContentSize2);
-        ShowDirButtions();
+        //ImGui::InvisibleButton("##", ContentSize2);
     }
 }
 void ProjectFilesWindow::ShowExlorer()
@@ -416,8 +459,102 @@ void ProjectFilesWindow::ShowExlorer()
     Viewer.SetPath(path);
     Viewer.Draw();
 }
+
+Optional<String> CanPasteShowDirButtionsPaste()
+{
+    auto clipboard = ImGui::GetClipboardText();
+
+    Optional<String> PasteType;
+    YAML::Node tep;
+    if (clipboard)
+    {
+        bool ok = true;
+        try
+        {
+            tep = YAML::Load(clipboard);
+        }
+        catch (YAML::ParserException ex)
+        {
+            ok = false;
+        }
+        if (ok && tep.IsMap())
+        {
+            bool isclipboardentity = (bool)tep["UType"];
+            if (isclipboardentity)
+            {
+                if ((bool)tep["UData"])
+                {
+                    auto  t = tep["UType"].as<String>("");
+
+                    if (t == "AssetPath")
+                    {
+                        PasteType = t;
+                    }
+                }
+            }
+        }
+    }
+ 
+    return PasteType;
+}
+
+void ProjectFilesWindow::ShowDirButtionsPaste()
+{
+    bool ctrl = ImGui::IsKeyDown(ImGuiMod_Ctrl);
+
+    auto p = CanPasteShowDirButtionsPaste().value();
+
+    if (p == "AssetPath")
+    {
+        auto clipboard = ImGui::GetClipboardText();
+        YAML::Node tep = YAML::Load(clipboard);
+
+        auto str = tep["UData"].as<Path>();
+
+        if (std::filesystem::exists(str))
+        {
+            auto& dir = _LookingAtDir.value();
+            auto OutPath =FileHelper::GetNewFileName(dir / Path(str).filename().replace_extension(""), str.extension());
+            if (ctrl)
+            {
+                RenameAssetFile(str, OutPath);
+            }
+            else
+            {
+                std::filesystem::copy(str, OutPath);
+            }
+        }
+    }
+}
 void ProjectFilesWindow::ShowDirButtions()
 {
+    
+    if (Get_App()->GetInputMode() == KeyInputMode::Window)
+    {
+        if (UserSettings().GetSettings().IsKeybindActive(KeyBindList::FilesWindow))
+        {
+            ImGui::SetWindowFocus();
+            Get_App()->SetToNormal();
+        }
+    }
+    if (!ImGui::GetIO().WantTextInput && (ImGui::IsItemFocused() || (_Files.size() == 0 && ImGui::IsWindowFocused())))
+    {
+        auto& userseting = UserSettings::GetSettings();
+        if (userseting.IsKeybindActive(KeyBindList::Paste))
+        {
+
+            Optional<String> PasteType = CanPasteShowDirButtionsPaste();
+            if (PasteType.has_value())
+            {
+                ShowDirButtionsPaste();
+            }
+        }
+        else if (userseting.IsKeybindActive(KeyBindList::New))
+        {
+            ImGui::OpenPopup("f");
+        }
+
+    }
     if (ImGuIHelper::BeginPopupContextItem("f"))
     {
         if (ImGui::BeginMenu("Create"))
@@ -605,6 +742,22 @@ void ProjectFilesWindow::ShowDirButtions()
 
             ImGui::EndMenu();
         }
+        
+    
+        {
+            Optional<String> PasteType = CanPasteShowDirButtionsPaste();
+            
+
+            auto& userseting = UserSettings::GetSettings();
+            auto str = userseting.KeyBinds[(size_t)KeyBindList::Paste].ToString();
+            
+            if (ImGui::MenuItem("Paste", str.c_str(), false, PasteType.has_value()) ||
+                (userseting.IsKeybindActive(KeyBindList::Paste) && PasteType.has_value()))
+            {
+                ShowDirButtionsPaste();
+                ImGui::CloseCurrentPopup();
+            }
+        }
         ImGui::EndPopup();
     }
 }
@@ -614,49 +767,6 @@ ProjectFiles& ProjectFilesWindow::Get_ProjectFiles()
     return this->Get_App()->GetPrjectFiles();
 }
 
-Optional<Path> GetAssetMetaFileExt(const Path& Ext)
-{
-
-    auto Modules = UEditorModules::GetModules();
-
-
-    for (size_t i = 0; i < Modules.Size(); i++)
-    {
-        auto& item = Modules[i];
-        auto AssetDataList = item->GetAssetData();
-
-        auto Info = item->GetAssetDataUsingExt(Ext);
-        if (Info.has_value())
-        {
-            auto Data = AssetDataList[Info.value()];
-            return Data->FileMetaExtWithDot;
-        }
-    }
-    return {};
-}
-Optional<Path> GetAssetMetaFilePath(const Path& from)
-{
-
-    auto metaf = GetAssetMetaFileExt(from.extension());
-    if (metaf.has_value())
-    {
-        Path filepath =Path(from).native() + PathString(metaf.value());
-        if (std::filesystem::exists(filepath)) {
-            return filepath;
-        }
-    }
-    return {};
-}
-void RenameAssetFile(const Path& from, const Path& to)
-{
-    std::filesystem::rename(from, to);
-    auto v = GetAssetMetaFilePath(from);
-    if (v.has_value())
-    {
-        Path outpath = Path(to).native() + Path(v.value()).extension().native();
-        std::filesystem::rename(v.value(),outpath);
-    }
-}
 struct TepFilesToRemove
 {
     std::set<Path> files;
@@ -674,7 +784,6 @@ struct TepFilesToRemove
     }
 };
 static TepFilesToRemove fileinteptoremove;
-
 
 
 bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData& Item, ImVec2& ButtionSize)
@@ -814,6 +923,18 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
             }
         }
 
+        
+        if (settings.IsKeybindActive(KeyBindList::Copy))
+        {
+            USerializer V(USerializerType::YAML);
+            V.Write("UData", Item.FullFileName);
+            V.Write("UType", "AssetPath");
+
+            auto copytext = V.Get_TextMaker().c_str();
+
+            ImGui::SetClipboardText(copytext);
+        }
+
         if (settings.IsKeybindActive(KeyBindList::Rename))
         {
             RenameFile = Item.FullFileName;
@@ -885,14 +1006,19 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
         str = settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
         if (ImGui::MenuItem("Copy File", str.c_str()) || settings.IsKeybindActive(KeyBindList::Copy))
         {
+            USerializer V(USerializerType::YAML);
+            V.Write("UData", Item.FullFileName);
+            V.Write("UType", "AssetPath");
 
+            auto copytext = V.Get_TextMaker().c_str();
+
+            ImGui::SetClipboardText(copytext);
         }
     
         str = settings.KeyBinds[(size_t)KeyBindList::Rename].ToString();
         if (ImGui::MenuItem("Rename File", str.c_str()) || settings.IsKeybindActive(KeyBindList::Rename))
         {
             RenameFile = Item.FullFileName;
-            ImGui::CloseCurrentPopup();
         }
 
         str = settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
