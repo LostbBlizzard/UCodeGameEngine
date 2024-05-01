@@ -3,7 +3,7 @@
 #include "../Core/GameRunTime.hpp"
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 #include <UCodeRunTime/BasicTypes.hpp>
-#include <mutex>
+#include "UCodeRunTime/BasicTypes/Mutex.hpp"
 #include <thread>
 #include <functional>
 #include <condition_variable>
@@ -12,11 +12,15 @@
 #include "PackagedTask.hpp"
 CoreStart
 
-// This is the worst code I've ever written but it works
-// This abuses most features of C++ and its nuances
+
 using ThreadToRunID_t = int;
 struct ThreadToRunID
 {
+	static constexpr ThreadToRunID_t badid = -3;
+	constexpr ThreadToRunID()
+		:Base(badid)
+	{
+	}
 	constexpr explicit ThreadToRunID(ThreadToRunID_t Value)
 		: Base(Value)
 	{
@@ -42,6 +46,11 @@ private:
 using TaskID_t = int;
 struct TaskID
 {
+	static constexpr TaskID_t badid = -1;
+	TaskID()
+		: Base(badid)
+	{
+	}
 
 	constexpr explicit TaskID(TaskID_t Value)
 		: Base(Value)
@@ -84,8 +93,8 @@ static constexpr AsynNonVoidType AsynNonVoidValue = AsynNonVoidType();
 
 static constexpr ThreadToRunID AnyThread = ThreadToRunID(-1);
 static constexpr ThreadToRunID MainThread = ThreadToRunID(-2);
-static constexpr ThreadToRunID NullThread = ThreadToRunID(-3);
-static constexpr TaskID NullTaskID = TaskID(-1);
+static constexpr ThreadToRunID NullThread = ThreadToRunID(ThreadToRunID::badid);
+static constexpr TaskID NullTaskID = TaskID(TaskID::badid);
 
 struct CurrentThreadInfo
 {
@@ -612,8 +621,8 @@ public:
 	// #define MoveParPack(Pack_t,P) P...
 	// #define MoveParPack2(Pack_t, P) std::forward<##Pack_t&&>(##P)...
 
-#define MoveParPack(Pack_t, P) std::forward<Pack_t>(P)...
-#define MovedParsParam(Pars) Pars...
+	#define MoveParPack(Pack_t, P) std::forward<Pack_t>(P)...
+	#define MovedParsParam(Pars) Pars...
 
 	struct TaskInfo
 	{
@@ -621,12 +630,58 @@ public:
 		Vector<TaskID> TaskDependencies;
 		TaskID taskID = NullTaskID;
 	};
+	struct RuningTaskDataList
+	{
+		UnorderedMap<TaskID, RuningTaskData> _RuningTasks;
+	};
+	struct ThreadData
+	{
+		Vector<TaskInfo> _TaskToDo;
+	};
+	struct ThreadInfo
+	{
+		std::shared_ptr<std::condition_variable> _NewTask;
+		std::shared_ptr<std::thread> thread;
+		ThreadData _Data;
+		const ThreadToRunID _ThreadID;
+		ThreadInfo(ThreadToRunID id)
+			: _ThreadID(id)
+		{
+			_NewTask = std::make_shared<std::condition_variable>();
+		}
+	};
+	struct MainThreadTaskData
+	{
+		ThreadData _MainThreadData;
+		Vector<TaskInfo> _TaskToReAddOnToMainThread;
+	};
+	struct MainTaskData
+	{
+		//AnyThradInfo
+		ThreadData _AnyThread;
+		TaskID _TaskID;
+		ThreadToRunID _NextLockKey;
+
+		TaskID GetNextTasksID()
+		{
+			auto R = _TaskID;
+			_TaskID = TaskID(R.Get_Base() + 1);
+
+			return R;
+		}
+	};
 
 	static Threads *Get(Gamelibrary *lib);
 	static Threads *Find(const Gamelibrary *lib);
 
-	ThreadToRunID GetNewThreadLockKey();
-	void FreeThreadLock(ThreadToRunID key);
+	ThreadToRunID GetNewThreadLockKey(MainTaskData& taskdata);
+	ThreadToRunID GetNewThreadLockKey()
+	{
+		return	TaskData.Lock_r<ThreadToRunID>([this](MainTaskData& taskdata)
+		{
+			return GetNewThreadLockKey(taskdata);
+		});
+	}
 
 	AsynTask AddTask(ThreadToRunID thread, FuncPtr &&Func, const Vector<TaskID> &TaskDependencies);
 	AsynTask AddTask(TaskType TaskType, FuncPtr &&Func, const Vector<TaskID> &TaskDependencies)
@@ -662,10 +717,11 @@ public:
 		auto r = task_promise->get_future();
 		AsynTask_t<R> Ret;
 
-		_TaskLock.lock();
-		Ret._TaskID = GetNextTasksID();
+		Ret._TaskID = TaskData.Lock_r<TaskID>([this](MainTaskData& Maintasks) 
+			{
+				return Maintasks.GetNextTasksID();
+			});
 		TaskID NewTasklID = Ret._TaskID;
-		_TaskLock.unlock();
 
 		Ret.Set_Future(std::move(r));
 
@@ -727,83 +783,90 @@ public:
 	static void ThrowErrIfNotOnMainThread();
 	inline static Threads *_GlobalThreads = nullptr;
 
-	static bool IsTasksDone(const Vector<TaskID> &Tasks);
-	static bool IsTasksDone(TaskID Task);
+	bool IsTasksDone(const Vector<TaskID> &Tasks);
+	bool IsTasksDone(TaskID Task);
 
 	// Only for AsynTask
 
-	inline static bool _IsDoneLocked = false;
-	static bool IsDoneLocked()
+	void AddCallDone(TaskID ID, RuningTaskData&& Info)
 	{
-		return _IsDoneLocked;
+		RuningTasks.Lock([this,ID,&Info](RuningTaskDataList& List)
+			{
+				AddCallDone(ID,std::move(Info), List);
+			});
 	}
-	static void LockDoneLock()
-	{
-		_DoneLock.lock();
-		_IsDoneLocked = true;
-	}
-	static void LockDoneUnLock()
-	{
-		_IsDoneLocked = false;
-		_DoneLock.unlock();
-	}
-
-	static void AddCallDone(TaskID ID, RuningTaskData &&Info)
+	void AddCallDone(TaskID ID, RuningTaskData &&Info,RuningTaskDataList& List)
 	{
 		Info.ID = ID;
-
-		LockDoneLock();
-		_Map.GetValue(ID) = Info;
-		LockDoneUnLock();
+		List._RuningTasks.GetValue(ID) = Info;
 	}
-	static void SetTaskData_Cancel(TaskID ID, Delegate<void> &&Value, ThreadToRunID Thread)
+	void SetTaskData_Cancel(TaskID ID, Delegate<void>&& Value, ThreadToRunID Thread)
 	{
-		LockDoneLock();
-		auto &V = _Map.GetValue(ID);
+		RuningTasks.Lock([ID,this,&Value,Thread](Threads::RuningTaskDataList& val) 
+			{
+				SetTaskData_Cancel(ID,std::move(Value),Thread,val);
+			});
+	}
+	void SetTaskData_Cancel(TaskID ID, Delegate<void> &&Value, ThreadToRunID Thread,RuningTaskDataList& List)
+	{
+		auto &V = List._RuningTasks.GetValue(ID);
 		V.OnCancel = std::move(Value);
 		V.OnCancelToRun = Thread;
-		LockDoneUnLock();
 	}
-	static void SetTaskData_Done(TaskID ID, AnyDoneFuncPtr &&Value, ThreadToRunID Thread)
+	void SetTaskData_Done(TaskID ID, AnyDoneFuncPtr&& Value, ThreadToRunID Thread)
 	{
-		LockDoneLock();
-		auto &V = _Map.GetValue(ID);
+		RuningTasks.Lock([ID, this, &Value, Thread](Threads::RuningTaskDataList& val)
+				{
+					SetTaskData_Done(ID, std::move(Value), Thread);
+				});
+	}
+	void SetTaskData_Done(TaskID ID, AnyDoneFuncPtr &&Value, ThreadToRunID Thread,RuningTaskDataList& List)
+	{
+		auto &V = List._RuningTasks.GetValue(ID);
 		V.OnDone = std::move(Value);
 		V.OnDoneToRun = Thread;
-		LockDoneUnLock();
 	}
-	static bool HasOnDone(TaskID ID)
+	bool HasOnDone(TaskID ID)
 	{
-		LockDoneLock();
+		return RuningTasks.Lock_r<bool>([this,ID](Threads::RuningTaskDataList& val) 
+			{
+				return HasOnDone(ID,val);
+			});
+	}
+	bool HasOnDone(TaskID ID,RuningTaskDataList& List)
+	{
 		bool r = false;
-		if (_Map.HasValue(ID))
+		if (List._RuningTasks.HasValue(ID))
 		{
-			r = _Map.GetValue(ID).OnDoneToRun != NullThread;
+			r = List._RuningTasks.GetValue(ID).OnDoneToRun != NullThread;
 		}
-		LockDoneUnLock();
 
 		return r;
 	}
-	static bool HasOnCancel(TaskID ID)
+	bool HasOnCancel(TaskID ID,RuningTaskDataList& List)
 	{
-		LockDoneLock();
 		bool r = false;
-		if (_Map.HasValue(ID))
+		if (List._RuningTasks.HasValue(ID))
 		{
-			r = _Map.GetValue(ID).OnCancelToRun != NullThread;
+			r = List._RuningTasks.GetValue(ID).OnCancelToRun != NullThread;
 		}
-		LockDoneUnLock();
 
 		return r;
 	}
 
-	static void TryCallCancel(TaskID ID)
+	void TryCallCancel(TaskID ID)
+	{
+		RuningTasks.Lock([ID, this](Threads::RuningTaskDataList& val)
+			   {
+				   TryCallCancel(ID, val);
+			   });
+	}
+	void TryCallCancel(TaskID ID,RuningTaskDataList& List)
 	{
 		Optional<AsynTask> tep;
-		LockDoneLock();
-		if (_Map.HasValue(ID))
+		if (List._RuningTasks.HasValue(ID))
 		{
-			auto &V = _Map.GetValue(ID);
+			auto &V = List._RuningTasks.GetValue(ID);
 
 			if (V.OnCancel)
 			{
@@ -811,21 +874,17 @@ public:
 				{
 					V.OnCancel();
 
-					_Map.erase(ID);
-					LockDoneUnLock();
+					List._RuningTasks.erase(ID);
 					return;
 				}
 				else
 				{
 					Delegate<void> Func = [OnDone = std::make_shared<RuningTaskData::Cancel>(std::move(V.OnCancel))]() mutable
 					{
-						LockDoneLock();
 						(*OnDone)();
-						LockDoneUnLock();
 					};
 
-					_Map.erase(ID);
-					// avoid double locking by using Destructor
+					List._RuningTasks.erase(ID);
 					tep = Threads::_GlobalThreads->AddTask_t(
 						V.ThreadToRun,
 						std::move(Func),
@@ -833,16 +892,22 @@ public:
 				}
 			}
 		}
-		LockDoneUnLock();
 	}
 
 	template <typename T>
-	static bool TryCallOnDone(TaskID ID, T &&Move)
+	bool TryCallOnDone(TaskID ID, T&& Move)
 	{
-		LockDoneLock();
-		if (_Map.HasValue(ID))
+		return RuningTasks.Lock_r<bool>([this,ID, &Move](Threads::RuningTaskDataList& val)
+				 {
+					 return TryCallOnDone(ID, std::move(Move), val);
+			     });
+	}
+	template <typename T>
+	bool TryCallOnDone(TaskID ID, T &&Move,RuningTaskDataList& List)
+	{
+		if (List._RuningTasks.HasValue(ID))
 		{
-			auto &V = _Map.GetValue(ID);
+			auto &V = List._RuningTasks.GetValue(ID);
 
 			if (V.OnDone)
 			{
@@ -852,7 +917,6 @@ public:
 					auto &donefunc = (*(OnDoneFuncPtr<T> *)&done);
 					donefunc(std::move(Move));
 
-					LockDoneUnLock();
 					return false;
 				}
 				else
@@ -861,49 +925,51 @@ public:
 										   Val = std::make_shared<T>(std::move(Move)), ID]() mutable
 					{
 						auto &done = (*OnDone);
-						LockDoneLock();
-						(*(OnDoneFuncPtr<T> *)&done)(std::move(*Val));
-						_Map.erase(ID);
-						LockDoneUnLock();
+						(*(OnDoneFuncPtr<T>*)&done)(std::move(*Val));
 					};
 
+					List._RuningTasks.erase(ID);
 					auto tep = Threads::Get_Threads()->AddTask_t(
 						V.ThreadToRun,
 						std::move(Func),
 						{});
 
-					LockDoneUnLock();
 					return true;
 				}
 			}
 		}
-		LockDoneUnLock();
 		return false;
 	}
 
-	inline static std::mutex _DoneLock;
-	inline static UnorderedMap<TaskID, RuningTaskData> _Map;
-
-	static TaskProgress GetProgress(TaskID ID, bool ShouldLock = true)
+	
+	Mutex<RuningTaskDataList> RuningTasks;
+	
+	
+	TaskProgress GetProgress(TaskID ID)
 	{
-		TaskProgress R;
-
-		if (ShouldLock)
+		return RuningTasks.Lock_r<TaskProgress>([this, ID](RuningTaskDataList& TaskList) -> TaskProgress
 		{
-			Get_Threads()->_OnMainThreadLock.lock();
-			Get_Threads()->_TaskLock.lock();
-		}
+			return MainThreadData.Lock_r<TaskProgress>([this, &TaskList, ID](MainThreadTaskData& Maintasks) -> TaskProgress
+			{
+					return GetProgress(ID);
+			});
+		});
+	}
 
-		if (Threads::_Map.HasValue(ID))
+	TaskProgress GetProgress(TaskID ID,RuningTaskDataList& TaskList,MainThreadTaskData& Maintasks)
+	{
+		TaskProgress R;	
+
+		if (TaskList._RuningTasks.HasValue(ID))
 		{
-			TaskInfo *V = Get_Threads()->GetTaskInfo(ID);
+			TaskInfo *V = GetTaskInfo(ID,Maintasks);
 			R.DoneTasks = 0;
 			R.TotalTasks = 1;
 			if (V)
 			{
 				for (auto &Item : V->TaskDependencies)
 				{
-					auto v = GetProgress(Item, false);
+					auto v = GetProgress(Item, TaskList,Maintasks);
 					R.DoneTasks += v.DoneTasks;
 					R.TotalTasks += v.TotalTasks;
 				}
@@ -915,19 +981,13 @@ public:
 			R.TotalTasks = 1;
 		}
 
-		if (ShouldLock)
-		{
-			Get_Threads()->_OnMainThreadLock.unlock();
-			Get_Threads()->_TaskLock.unlock();
-		}
-
 		return R;
 	}
 
 private:
-	TaskInfo *GetTaskInfo(TaskID ID)
+	TaskInfo *GetTaskInfo(TaskID ID,MainThreadTaskData& Maintasks)
 	{
-		for (auto &Item : _MainThreadData._TaskToDo)
+		for (auto &Item : Maintasks._MainThreadData._TaskToDo)
 		{
 			if (Item.taskID == ID)
 			{
@@ -948,22 +1008,7 @@ private:
 
 		return nullptr;
 	}
-	struct ThreadData
-	{
-		Vector<TaskInfo> _TaskToDo;
-	};
-	struct ThreadInfo
-	{
-		std::shared_ptr<std::condition_variable> _NewTask;
-		std::shared_ptr<std::thread> thread;
-		ThreadData _Data;
-		const ThreadToRunID _ThreadID;
-		ThreadInfo(ThreadToRunID id)
-			: _ThreadID(id)
-		{
-			_NewTask = std::make_shared<std::condition_variable>();
-		}
-	};
+	
 	void CallTaskToDoOnMainThread();
 	void Update() override;
 
@@ -971,33 +1016,15 @@ private:
 	~Threads();
 	static void ThreadLoop(Threads *_This, ThreadInfo *Info);
 
-	std::mutex _TaskLock;
+	Mutex<MainTaskData> TaskData;
+	Mutex<MainThreadTaskData> MainThreadData;
 
 	std::condition_variable _NewTask;
 	Vector<ThreadInfo> _Threads;
-	bool _EndThreads;
-	ThreadToRunID _NextLockKey;
-
-	ThreadData _MainThreadData;
-	Vector<TaskInfo> _TaskToReAddOnToMainThread;
-
-	// AnyThradInfo
-	ThreadData _AnyThread;
-
-	std::mutex _OnMainThreadLock;
-
-	TaskID _TaskID;
-
-	TaskID GetNextTasksID()
-	{
-		auto R = _TaskID;
-		_TaskID = TaskID(R.Get_Base() + 1);
-
-		return R;
-	}
-
-	ThreadData &GetThreadInfo(ThreadToRunID ID);
-	ThreadData &GetThreadNoneWorkingThread();
+	bool _EndThreads =false;
+	
+	void GetThreadInfo(ThreadToRunID ID,std::function<void(ThreadData&)> functocall);
+	void GetThreadNoneWorkingThread(std::function<void(ThreadData&)> functocall);
 };
 
 template <typename T2>
@@ -1014,65 +1041,67 @@ inline void Asyn_RunOnOnMainThread(Delegate<void> &&Func)
 template <typename T>
 bool Asyn_TryCallOnDone(TaskID id, T &&Move)
 {
-	return Threads::TryCallOnDone<T>(id, std::move(Move));
+	return Threads::Get_Threads()->TryCallOnDone<T>(id, std::move(Move));
 }
 
 inline void Asyn_TryCallCancel(TaskID id)
 {
-	Threads::TryCallCancel(id);
+	Threads::Get_Threads()->TryCallCancel(id);
 }
 inline void Asyn_SetTaskData_Done(TaskID id, AnyDoneFuncPtr &&done, ThreadToRunID Thread)
 {
-	Threads::SetTaskData_Done(id, std::move(done), Thread);
+	Threads::Get_Threads()->SetTaskData_Done(id, std::move(done), Thread);
 }
 
 inline void SetTaskData_Cancel(TaskID id, Delegate<void> &&Value, ThreadToRunID Thread)
 {
-	Threads::SetTaskData_Cancel(id, std::move(Value), Thread);
+	Threads::Get_Threads()->SetTaskData_Cancel(id, std::move(Value), Thread);
 }
 
 template <typename T>
 void Asyn_SetFuture(TaskID id, std::future<T> &&val)
 {
-	Threads::_Map.GetOrAdd(id, {}).SetFuture(std::move(val));
+	Threads::Get_Threads()->RuningTasks.Lock([id,&val](Threads::RuningTaskDataList& data)
+		{
+			data._RuningTasks.GetOrAdd(id, {}).SetFuture(std::move(val));
+		});
 }
 
 template <typename T>
-std::future<T> &Asyn_GetFuture(TaskID id)
+void Asyn_GetFuture(TaskID id,std::function<void(std::future<T>&)> func)
 {
-	return Threads::_Map.GetValue(id).GetFuture<T>();
+	Threads::Get_Threads()->RuningTasks.Lock([id](Threads::RuningTaskDataList& data)
+		   {
+			   return data._RuningTasks.GetValue(id).GetFuture<T>();
+		   });
 }
-inline bool Asyn_IsDoneLocked()
-{
-	return Threads::IsDoneLocked();
-}
+
 inline bool Asyn_HasOnDone(TaskID id)
 {
-	return Threads::HasOnDone(id);
+	return Threads::Get_Threads()->HasOnDone(id);
 }
-inline size_t Asyn_Map_Count(TaskID id)
+inline bool Asyn_RuningTasks_HasValue(TaskID id)
 {
-	return Threads::_Map.HasValue(id);
+	return Threads::Get_Threads()->RuningTasks.Lock_r<bool>([id](Threads::RuningTaskDataList& val)
+	{
+		return val._RuningTasks.HasValue(id);
+	});
 }
 
 inline void Asyn_Map_Erase(TaskID id)
 {
-	Threads::_Map.erase(id);
+	Threads::Get_Threads()->RuningTasks.Lock([id](Threads::RuningTaskDataList& val)
+	{
+		val._RuningTasks.erase(id);
+	});
 }
-inline void Asyn_LockDoneLock()
-{
-	Threads::LockDoneLock();
-}
-inline void Asyn_LockDoneUnlock()
-{
-	Threads::LockDoneUnLock();
-}
+
 inline TaskProgress Asyn_GetProgress(TaskID id)
 {
-	return Threads::GetProgress(id);
+	return Threads::Get_Threads()->GetProgress(id);
 }
 inline void Asyn_SetTaskData_Cancel(TaskID id, Delegate<void> &&Value, ThreadToRunID Thread)
 {
-	Threads::SetTaskData_Cancel(id, std::move(Value), Thread);
+	Threads::Get_Threads()->SetTaskData_Cancel(id, std::move(Value), Thread);
 }
 CoreEnd
