@@ -24,7 +24,7 @@ public:
 
 		_base = std::move(other);
 	}
-	operator=(Mutex&& other)
+	Mutex& operator=(Mutex&& other)
 	{
 		other._lock.lock();
 		this->_lock.lock();
@@ -33,6 +33,8 @@ public:
 		UCodeGEDefer(other->_lock.unlock();)
 
 		_base = std::move(other);
+
+		return *this;
 	}
 	~Mutex()
 	{
@@ -72,7 +74,7 @@ public:
 	}
 
 	template<typename X>
-	std::optional<X> Lock_r(std::function<X(T&)> func)
+	std::optional<X> TryLock_r(std::function<X(T&)> func)
 	{
 		if (_lock.try_lock())
 		{
@@ -82,6 +84,15 @@ public:
 			return r;
 		}
 		return {};
+	}
+
+	std::mutex& Unsafe_GetLockBase()
+	{
+		return _lock;
+	}
+	T& Unsafe_GetBaseType()
+	{
+		return _base;
 	}
 private:
 	std::mutex _lock;
