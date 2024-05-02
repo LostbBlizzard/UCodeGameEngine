@@ -197,18 +197,15 @@ struct TaskProgress
 
 // Because incomplete types
 void Asyn_Map_Erase(TaskID id);
-size_t Asyn_Map_Count(TaskID id);
-void Asyn_LockDoneUnlock();
-void Asyn_LockDoneLock();
-TaskProgress Asyn_GetProgress(TaskID id);
 bool Asyn_HasOnDone(TaskID id);
-bool Asyn_IsDoneLocked();
+TaskProgress Asyn_GetProgress(TaskID id);
+bool Asyn_RuningTasks_HasValue(TaskID id);
 
 template <typename T>
 void Asyn_SetFuture(TaskID id, std::future<T> &&val);
 
 template <typename T>
-std::future<T> &Asyn_GetFuture(TaskID id);
+void Asyn_GetFuture(TaskID id, std::function<void(std::future<T>&)> func);
 
 void Asyn_SetTaskData_Cancel(TaskID id, Delegate<void> &&Value, ThreadToRunID Thread);
 void Asyn_SetTaskData_Done(TaskID id, AnyDoneFuncPtr &&done, ThreadToRunID Thread);
@@ -449,7 +446,14 @@ struct AsynTask_t
 
 	T GetValue()
 	{
-		return Get_Future().get();
+		T r = {};
+
+		Get_Future([&r](Future& val)
+				{
+					r = std::move(val.get());
+				});
+
+		return r;
 	}
 	T *TryGet()
 	{
@@ -474,9 +478,12 @@ struct AsynTask_t
 	}
 	bool valid()
 	{
-		if (Asyn_Map_Count(_TaskID))
+		if (HasOnDone(_TaskID))
 		{
-			return Get_Future().valid();
+			Get_Future([](Future& val)
+					{
+						val.valid();
+					});
 		}
 		else
 		{
@@ -485,16 +492,22 @@ struct AsynTask_t
 	}
 	void wait_for()
 	{
-		if (Asyn_Map_Count(_TaskID))
+		if (HasOnDone(_TaskID))
 		{
-			return Get_Future().wait_for();
+			Get_Future([](Future& val)
+					{
+						val.wait_for();
+					});
 		}
 	}
 	void wait()
 	{
-		if (Asyn_Map_Count(_TaskID))
+		if (HasOnDone(_TaskID))
 		{
-			Get_Future().wait();
+			Get_Future([](Future& val)
+				  {
+					  val.wait();
+				  });
 		}
 	}
 	bool IsDone()
@@ -505,9 +518,17 @@ struct AsynTask_t
 			return false;
 		}
 
-		if (Asyn_Map_Count(_TaskID))
+		if (HasOnDone(_TaskID))
 		{
-			return Get_Future().wait_for(0s) == std::future_status::ready;
+			bool r = false;
+
+
+			Get_Future([&r](Future& val)
+				{
+					r = val.wait_for(0s) == std::future_status::ready;
+				});
+
+			return r;
 		}
 		else
 		{
@@ -525,15 +546,13 @@ struct AsynTask_t
 
 	static void RemoveCallID(TaskID ID)
 	{
-		Asyn_LockDoneLock();
 		if (ID != NullTaskID)
 		{
-			if (Asyn_Map_Count(ID))
+			if (Asyn_RuningTasks_HasValue(ID))
 			{
 				Asyn_Map_Erase(ID);
 			}
 		}
-		Asyn_LockDoneUnlock();
 	}
 
 	void SetValue(T &&Value)
@@ -569,42 +588,18 @@ private:
 	{
 		return Asyn_HasOnDone(ID);
 	}
-	Future &Get_Future()
+	void Get_Future(std::function<void(Future& val)> func)
 	{
-		return Get_Future(_TaskID);
+		return Get_Future(_TaskID,func);
 	}
 	void Set_Future(Future &&Value)
-	{
-		bool isdonel = Asyn_IsDoneLocked();
-
-		if (!isdonel)
-		{
-			Asyn_LockDoneLock();
-		}
+	{	
 		Asyn_SetFuture(_TaskID, std::move(Value));
-
-		if (!isdonel)
-		{
-			Asyn_LockDoneUnlock();
-		}
 	}
 
-	static Future &Get_Future(TaskID _TaskID)
+	static void Get_Future(TaskID _TaskID,std::function<void(Future& val)> func)
 	{
-		bool isdonel = Asyn_IsDoneLocked();
-
-		if (!isdonel)
-		{
-			Asyn_LockDoneLock();
-		}
-
-		auto &R = Asyn_GetFuture<T>(_TaskID);
-
-		if (!isdonel)
-		{
-			Asyn_LockDoneUnlock();
-		}
-		return R;
+		Asyn_GetFuture<T>(_TaskID,func);	
 	}
 };
 using AsynTask = AsynTask_t<AsynNonVoidType>;
@@ -735,7 +730,13 @@ public:
 
 			if (AsynTask_t<R>::HasOnDone(NewTasklID))
 			{
-				auto Val = AsynTask_t<R>::Get_Future(NewTasklID).get();
+				R Val = {};
+				
+				AsynTask_t<R>::Get_Future(NewTasklID,[&Val](typename AsynTask_t<R>::Future& future)
+					{
+						Val = std::move(future.get());
+					});
+
 				if (!AsynTask_t<R>::TryCallOnDone(NewTasklID, std::move(Val)))
 				{
 					AsynTask_t<R>::RemoveCallID(NewTasklID);
@@ -817,7 +818,7 @@ public:
 	{
 		RuningTasks.Lock([ID, this, &Value, Thread](Threads::RuningTaskDataList& val)
 				{
-					SetTaskData_Done(ID, std::move(Value), Thread);
+					SetTaskData_Done(ID, std::move(Value), Thread,val);
 				});
 	}
 	void SetTaskData_Done(TaskID ID, AnyDoneFuncPtr &&Value, ThreadToRunID Thread,RuningTaskDataList& List)
@@ -1070,9 +1071,9 @@ void Asyn_SetFuture(TaskID id, std::future<T> &&val)
 template <typename T>
 void Asyn_GetFuture(TaskID id,std::function<void(std::future<T>&)> func)
 {
-	Threads::Get_Threads()->RuningTasks.Lock([id](Threads::RuningTaskDataList& data)
+	Threads::Get_Threads()->RuningTasks.Lock([id,&func](Threads::RuningTaskDataList& data)
 		   {
-			   return data._RuningTasks.GetValue(id).GetFuture<T>();
+			   func(data._RuningTasks.GetValue(id).GetFuture<T>());
 		   });
 }
 

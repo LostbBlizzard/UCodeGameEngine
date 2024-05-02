@@ -247,8 +247,8 @@ void Threads::Update()
 
 AsynTask Threads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vector<TaskID>& TaskDependencies)
 {
-	RunOnOnMainThread(std::move(Func), TaskDependencies);
-	return  AsynTask();
+	//RunOnOnMainThread(std::move(Func), TaskDependencies);
+	//return  AsynTask();
 
 	if (_Threads.size() == 0 || _Threads.size() == 1)
 	{ 
