@@ -1,3 +1,4 @@
+#pragma once
 #include "../Core/CoreNamespace.hpp"
 #include <functional>
 CoreStart
