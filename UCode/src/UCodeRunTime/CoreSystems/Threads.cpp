@@ -94,7 +94,7 @@ void Threads::ThreadLoop(Threads* _This,ThreadInfo* Info)
 			auto& MyTaskToDo = Info->_Data._TaskToDo;
 			auto& AnyThreadTaskToDo = _This->TaskData.Unsafe_GetBaseType()._AnyThread._TaskToDo;
 
-			_This->_NewTask.wait(lock, [_This, Info, MyTaskToDo, AnyThreadTaskToDo]
+			_This->_NewTask.wait(lock, [_This, Info, &MyTaskToDo, &AnyThreadTaskToDo]
 				{
 					return !MyTaskToDo.empty()
 						 || !AnyThreadTaskToDo.empty()
@@ -304,6 +304,7 @@ AsynTask Threads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vector<Tas
 				{
 					data._TaskToDo.push_back(std::move(Task));
 				});
+			_NewTask.notify_all();		
 			return  AsynTask();
 		}
 		else
@@ -314,7 +315,7 @@ AsynTask Threads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vector<Tas
 
 			auto taskid = TaskData.Lock_r<TaskID_t>([](Threads::MainTaskData& data)
 					{
-							return data._TaskID.Get_Base();
+						return data._TaskID.Get_Base();
 					});
 
 
@@ -324,6 +325,7 @@ AsynTask Threads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vector<Tas
 					data._TaskToDo.push_back(std::move(Task));
 				});
 
+			_NewTask.notify_all();
 			return AsynTask();
 		}
 	}
