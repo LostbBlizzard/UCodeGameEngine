@@ -59,7 +59,7 @@ void EditorApp::Run(const String& ProjPath)
             {
                 Window->SetWindowIcon(*Tex);
                 Tex->FreeFromCPU();
-            });
+            }).Start();
    
 
 

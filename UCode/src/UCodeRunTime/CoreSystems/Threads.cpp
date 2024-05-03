@@ -107,37 +107,48 @@ void Threads::ThreadLoop(Threads* _This,ThreadInfo* Info)
 			size_t TaskIndex = 0;
 			TaskInfo* TaskToRun = nullptr;
 
-			for (int i = MyTaskToDo.size() - 1; i >= 0; i--)
+			bool shouldskip = _This->RuningTasks.Lock_r<bool>([&AnyThreadTaskToDo,&TaskIndex,&TaskToRun,_This,&MyTaskToDo](RuningTaskDataList& List) 
 			{
-				auto& Item = MyTaskToDo[i];
-
+				bool skip = false;
 				
-				if (_This->IsTasksDone(Item.TaskDependencies))
+				for (int i = MyTaskToDo.size() - 1; i >= 0; i--)
 				{
-					TaskToRun = &Item;
-					TaskIndex = i;
-					break;
-				}
-			}
-
-			if (TaskToRun == nullptr) 
-			{ 
-				
-				for (int i = AnyThreadTaskToDo.size() - 1; i >= 0; i--)
-				{
-					auto& Item = AnyThreadTaskToDo[i];
+					auto& Item = MyTaskToDo[i];
 
 
-					if (_This->IsTasksDone(Item.TaskDependencies))
+					if (List._RuningTasks.GetValue(Item.taskID).CanStartTask && _This->IsTasksDone(Item.TaskDependencies,List))
 					{
 						TaskToRun = &Item;
 						TaskIndex = i;
 						break;
 					}
 				}
-				if (TaskToRun == nullptr) {
-					continue;
+
+				if (TaskToRun == nullptr)
+				{
+
+					for (int i = AnyThreadTaskToDo.size() - 1; i >= 0; i--)
+					{
+						auto& Item = AnyThreadTaskToDo[i];
+
+
+						if (_This->IsTasksDone(Item.TaskDependencies,List))
+						{
+							TaskToRun = &Item;
+							TaskIndex = i;
+							break;
+						}
+					}
+					if (TaskToRun == nullptr) {
+						skip = true;
+					}
 				}
+				return skip;
+			});
+
+			if (shouldskip)
+			{
+				continue;
 			}
 
 
@@ -195,12 +206,14 @@ void Threads::GetThreadNoneWorkingThread(std::function<void(ThreadData&)> functo
 			Best = &Item._Data;
 		}
 	}
+	UCodeGEAssert(Best);
 	functocall(*Best);
 }
 
 void Threads::CallTaskToDoOnMainThread()
 {
-	MainThreadData.Lock([this](MainThreadTaskData& val)
+	Vector<std::shared_ptr<FuncPtr>> FuncList;
+	MainThreadData.Lock([&FuncList,this](MainThreadTaskData& val)
 	{
 		for (auto& Item : val._TaskToReAddOnToMainThread)
 		{
@@ -209,7 +222,7 @@ void Threads::CallTaskToDoOnMainThread()
 		val._TaskToReAddOnToMainThread.clear();
 		
 		Vector<TaskInfo> CopyList = std::move(val._MainThreadData._TaskToDo);	
-
+		
 		/*
 		for (auto i = CopyList.rbegin();i != CopyList.rend(); ++i)
 		{
@@ -219,25 +232,34 @@ void Threads::CallTaskToDoOnMainThread()
 		val._MainThreadData._TaskToDo = CopyList;//for GetProgress
 		size_t V = val._MainThreadData._TaskToDo.size();
 
-		for (auto& Item : CopyList)
-		{	
-			if (IsTasksDone(Item.TaskDependencies))
-			{
-				(*Item._Func)();
-			}
-			else
-			{
-				//_TaskToReAddOnToMainThread.push_back(std::move(Item));
 
-				val._TaskToReAddOnToMainThread.push_back(std::move(Item));
-			}
-		}
-
-		for (size_t i = 0; i < V; i++)
+		RuningTasks.Lock([&FuncList,&val,V,this,&CopyList](RuningTaskDataList& list)
 		{
-			val._MainThreadData._TaskToDo.erase(val._MainThreadData._TaskToDo.begin());
-		}
-	});	
+			for (auto& Item : CopyList)
+			{
+				if (list._RuningTasks.GetValue(Item.taskID).CanStartTask && IsTasksDone(Item.TaskDependencies,list))
+				{
+					FuncList.push_back(Item._Func);
+				}
+				else
+				{
+					//_TaskToReAddOnToMainThread.push_back(std::move(Item));
+
+					val._TaskToReAddOnToMainThread.push_back(std::move(Item));
+				}
+			}
+
+			for (size_t i = 0; i < V; i++)
+			{
+				val._MainThreadData._TaskToDo.erase(val._MainThreadData._TaskToDo.begin());
+			}
+		});
+	});
+
+	for (auto& Item : FuncList) 
+	{
+		(*Item)();
+	}
 }
 
 void Threads::Update()
@@ -302,6 +324,7 @@ AsynTask Threads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vector<Tas
 					data._TaskToDo.push_back(std::move(Task));
 				});
 
+			return AsynTask();
 		}
 	}
 
@@ -360,26 +383,40 @@ void Threads::ThrowErrIfNotOnMainThread()
 	}
 }
 
+bool Threads::IsTasksDone(const Vector<TaskID>& Tasks, RuningTaskDataList& val)
+{
+
+	for (auto& Item : Tasks)
+	{
+		if (val._RuningTasks.HasValue(Item))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool Threads::IsTasksDone(TaskID Task,RuningTaskDataList& val)
+{
+	Vector <TaskID> list; list.push_back(Task);
+	return IsTasksDone(list,val);
+}
+
 bool Threads::IsTasksDone(const Vector<TaskID>& Tasks)
 {
-	return RuningTasks.Lock_r<bool>([&Tasks](RuningTaskDataList& val)
+	return RuningTasks.Lock_r<bool>([this,&Tasks](RuningTaskDataList& val)
 	{
-		for (auto& Item : Tasks)
-		{
-			if (val._RuningTasks.HasValue(Item))
-			{
-				return false;
-			}
-		}
-	
-		return true;
+		return IsTasksDone(Tasks,val);
 	});
 }
 
 bool Threads::IsTasksDone(TaskID Task)
 {
-	Vector <TaskID> list; list.push_back(Task);
-	return IsTasksDone(list);
+	return RuningTasks.Lock_r<bool>([this,&Task](RuningTaskDataList& val)
+	{
+		return IsTasksDone(Task,val);
+	});
 }
 
 ThreadToRunID GetThreadFromTask(TaskType type)

@@ -242,7 +242,7 @@ AsynTask_t<UC::Texture *> AppFiles::AsynGetTexture(texture tex)
                 .ContinueOnMainThread(std::move(Func2));
             */
             auto Task = UC::AssetRendering::LoadTextureAsync(_GameLib, Path)
-                            .ContinueOnMainThread(std::move(Func2));
+                            .ContinueOnMainThread(std::move(Func2)).Start();
 
             return Task;
         }
