@@ -137,6 +137,7 @@ struct RuningTaskData
 	AnyDoneFuncPtr OnDone;
 	ThreadToRunID OnDoneToRun = NullThread;
 
+	bool CanStartTask = false;
 	Cancel OnCancel;
 	ThreadToRunID OnCancelToRun = NullThread;
 	struct FutureBlock
@@ -216,6 +217,7 @@ void Asyn_RunOnOnMainThread(Delegate<void> &&Func);
 
 template <typename T>
 bool Asyn_TryCallOnDone(TaskID id, T &&Move);
+void Asyn_StartTask(TaskID id);
 
 template <typename T>
 struct AsynTask_t;
@@ -223,6 +225,10 @@ struct AsynTask_t;
 template <typename T2>
 AsynTask_t<T2> Asyn_AddTask_t(ThreadToRunID Thread, Delegate<T2> &&Func, const Vector<TaskID> &Deps);
 
+struct RuningTaskDataList
+{
+	UnorderedMap<TaskID, RuningTaskData> _RuningTasks;
+};
 template <typename T>
 struct AsynTask_t
 {
@@ -255,10 +261,30 @@ struct AsynTask_t
 	{
 		if (_TaskID != NullTaskID)
 		{
-			if (!HasOnDone(_TaskID))
-			{
-				RemoveCallID(_TaskID);
-			}
+			DestructTask();	
+		}
+	}
+	TaskID FreeCallID()
+	{
+		auto v = _TaskID;
+		_TaskID = NullTaskID;
+		return v;
+	}
+	
+	
+	void DestructTask()
+	{	
+		if (!Asyn_HasOnDone(_TaskID))
+		{
+			RemoveCallID(_TaskID);
+		}
+	}
+	
+	void DestructTask(RuningTaskDataList& List)
+	{	
+		if (!Asyn_HasOnDone(_TaskID,List))
+		{
+			RemoveCallID(_TaskID,List);
 		}
 	}
 
@@ -401,6 +427,7 @@ struct AsynTask_t
 		};
 
 		SetTaskData_OnDone(_TaskID, std::move(FuncDone), Thread);
+		Start();
 
 		Delegate<T2> Func = [Value = std::move(Value), v]()
 		{
@@ -441,6 +468,14 @@ struct AsynTask_t
 	SelfRet OnCancelOnThread(Cancel &&Value, ThreadToRunID Thread)
 	{
 		SetTaskData_OnCancel(_TaskID, std::move(Value), Thread);
+		return std::move(*this);
+	}
+	SelfRet Start()
+	{
+		if (_TaskID != NullTaskID) 
+		{
+			Asyn_StartTask(_TaskID);
+		}
 		return std::move(*this);
 	}
 
@@ -544,6 +579,7 @@ struct AsynTask_t
 		return _TaskID;
 	}
 
+	
 	static void RemoveCallID(TaskID ID)
 	{
 		if (ID != NullTaskID)
@@ -551,6 +587,16 @@ struct AsynTask_t
 			if (Asyn_RuningTasks_HasValue(ID))
 			{
 				Asyn_Map_Erase(ID);
+			}
+		}
+	}
+	static void RemoveCallID(TaskID ID,RuningTaskDataList& List)
+	{
+		if (ID != NullTaskID)
+		{
+			if (Asyn_RuningTasks_HasValue(ID,List))
+			{
+				Asyn_Map_Erase(ID,List);
 			}
 		}
 	}
@@ -596,6 +642,10 @@ private:
 	{	
 		Asyn_SetFuture(_TaskID, std::move(Value));
 	}
+	void Set_Future(Future&& Value,RuningTaskDataList& List)
+	{
+		Asyn_SetFuture(_TaskID, std::move(Value),List);
+	}
 
 	static void Get_Future(TaskID _TaskID,std::function<void(Future& val)> func)
 	{
@@ -624,11 +674,7 @@ public:
 		std::shared_ptr<FuncPtr> _Func;
 		Vector<TaskID> TaskDependencies;
 		TaskID taskID = NullTaskID;
-	};
-	struct RuningTaskDataList
-	{
-		UnorderedMap<TaskID, RuningTaskData> _RuningTasks;
-	};
+	};	
 	struct ThreadData
 	{
 		Vector<TaskInfo> _TaskToDo;
@@ -705,7 +751,7 @@ public:
 
 	// Based From BS_thread_pool.hpp
 	template <typename R, typename... Pars>
-	AsynTask_t<R> AddTask_t(ThreadToRunID TaskType, Delegate<R, Pars...> &&task_function, const Vector<TaskID> &TaskDependencies, MovedParsParam(Pars) pars)
+	AsynTask_t<R> AddTask_t(ThreadToRunID TaskType, Delegate<R, Pars...>&& task_function, const Vector<TaskID>& TaskDependencies,RuningTaskDataList& List, MovedParsParam(Pars) pars)
 	{
 		auto task_promise = std::make_shared<PackagedTask<R(Pars...)>>(task_function);
 
@@ -718,7 +764,7 @@ public:
 			});
 		TaskID NewTasklID = Ret._TaskID;
 
-		Ret.Set_Future(std::move(r));
+		Asyn_SetFuture(Ret._TaskID, std::move(r), List);
 
 		FuncPtr NewPtr = [NewTasklID,
 						  task = std::move(task_promise),
@@ -746,6 +792,29 @@ public:
 
 		AddTask(TaskType, std::move(NewPtr), TaskDependencies);
 		return Ret;
+
+
+	}
+	template <typename R, typename... Pars>
+	AsynTask_t<R> AddTask_t(ThreadToRunID TaskType, Delegate<R, Pars...> &&task_function, const Vector<TaskID> &TaskDependencies, MovedParsParam(Pars) pars)
+	{
+		return RuningTasks.Lock_r<AsynTask_t<R>>([&](RuningTaskDataList& List)
+			{
+				return AddTask_t<R,Pars...>(TaskType, std::move(task_function),TaskDependencies,List,MoveParPack(Pars, pars));
+			});
+	}
+
+	template <typename... Pars>
+	AsynTask_t<AsynNonVoidType> AddTask_t(ThreadToRunID TaskType, Delegate<void, Pars...> &&task_function, const Vector<TaskID> &TaskDependencies,RuningTaskDataList& List, MovedParsParam(Pars) pars)
+	{
+		Delegate<AsynNonVoidType, Pars...> Func = [task_function = std::move(task_function)]()
+		{
+			task_function();
+
+			return AsynNonVoidValue;
+		};
+
+		return AddTask_t<AsynNonVoidType, Pars...>(TaskType, std::move(Func), TaskDependencies,List, MoveParPack(Pars, pars));
 	}
 
 	template <typename... Pars>
@@ -787,8 +856,22 @@ public:
 	bool IsTasksDone(const Vector<TaskID> &Tasks);
 	bool IsTasksDone(TaskID Task);
 
+	bool IsTasksDone(const Vector<TaskID> &Tasks,RuningTaskDataList& val);
+	bool IsTasksDone(TaskID Task,RuningTaskDataList& val);
 	// Only for AsynTask
 
+	void StartTask(TaskID Task)
+	{
+		RuningTasks.Lock([this, Task](RuningTaskDataList& List)
+					{
+						StartTask(Task, List);
+					});
+	}
+	
+	void StartTask(TaskID Task,RuningTaskDataList& List)
+	{
+		List._RuningTasks.GetValue(Task).CanStartTask = true;
+	}
 	void AddCallDone(TaskID ID, RuningTaskData&& Info)
 	{
 		RuningTasks.Lock([this,ID,&Info](RuningTaskDataList& List)
@@ -803,7 +886,7 @@ public:
 	}
 	void SetTaskData_Cancel(TaskID ID, Delegate<void>&& Value, ThreadToRunID Thread)
 	{
-		RuningTasks.Lock([ID,this,&Value,Thread](Threads::RuningTaskDataList& val) 
+		RuningTasks.Lock([ID,this,&Value,Thread](RuningTaskDataList& val) 
 			{
 				SetTaskData_Cancel(ID,std::move(Value),Thread,val);
 			});
@@ -816,7 +899,7 @@ public:
 	}
 	void SetTaskData_Done(TaskID ID, AnyDoneFuncPtr&& Value, ThreadToRunID Thread)
 	{
-		RuningTasks.Lock([ID, this, &Value, Thread](Threads::RuningTaskDataList& val)
+		RuningTasks.Lock([ID, this, &Value, Thread](RuningTaskDataList& val)
 				{
 					SetTaskData_Done(ID, std::move(Value), Thread,val);
 				});
@@ -829,7 +912,7 @@ public:
 	}
 	bool HasOnDone(TaskID ID)
 	{
-		return RuningTasks.Lock_r<bool>([this,ID](Threads::RuningTaskDataList& val) 
+		return RuningTasks.Lock_r<bool>([this,ID](RuningTaskDataList& val) 
 			{
 				return HasOnDone(ID,val);
 			});
@@ -857,7 +940,7 @@ public:
 
 	void TryCallCancel(TaskID ID)
 	{
-		RuningTasks.Lock([ID, this](Threads::RuningTaskDataList& val)
+		RuningTasks.Lock([ID, this](RuningTaskDataList& val)
 			   {
 				   TryCallCancel(ID, val);
 			   });
@@ -898,7 +981,7 @@ public:
 	template <typename T>
 	bool TryCallOnDone(TaskID ID, T&& Move)
 	{
-		return RuningTasks.Lock_r<bool>([this,ID, &Move](Threads::RuningTaskDataList& val)
+		return RuningTasks.Lock_r<bool>([this,ID, &Move](RuningTaskDataList& val)
 				 {
 					 return TryCallOnDone(ID, std::move(Move), val);
 			     });
@@ -929,12 +1012,18 @@ public:
 						(*(OnDoneFuncPtr<T>*)&done)(std::move(*Val));
 					};
 
-					List._RuningTasks.erase(ID);
 					auto tep = Threads::Get_Threads()->AddTask_t(
 						V.ThreadToRun,
 						std::move(Func),
-						{});
-
+						{},List);
+					
+					auto taskid = tep.Get_TaskID();
+					StartTask(taskid, List);
+					tep.DestructTask(List);
+					tep.FreeCallID();
+	
+					List._RuningTasks.erase(ID);
+					
 					return true;
 				}
 			}
@@ -1060,41 +1149,62 @@ inline void SetTaskData_Cancel(TaskID id, Delegate<void> &&Value, ThreadToRunID 
 }
 
 template <typename T>
+void Asyn_SetFuture(TaskID id, std::future<T>&& val, RuningTaskDataList& data)
+{
+	data._RuningTasks.GetOrAdd(id, {}).SetFuture(std::move(val));
+}
+template <typename T>
 void Asyn_SetFuture(TaskID id, std::future<T> &&val)
 {
-	Threads::Get_Threads()->RuningTasks.Lock([id,&val](Threads::RuningTaskDataList& data)
+	Threads::Get_Threads()->RuningTasks.Lock([id,&val](RuningTaskDataList& data)
 		{
-			data._RuningTasks.GetOrAdd(id, {}).SetFuture(std::move(val));
+			Asyn_SetFuture(id, std::move(val), data);
 		});
 }
 
 template <typename T>
 void Asyn_GetFuture(TaskID id,std::function<void(std::future<T>&)> func)
 {
-	Threads::Get_Threads()->RuningTasks.Lock([id,&func](Threads::RuningTaskDataList& data)
+	Threads::Get_Threads()->RuningTasks.Lock([id,&func](RuningTaskDataList& data)
 		   {
 			   func(data._RuningTasks.GetValue(id).GetFuture<T>());
 		   });
 }
 
+inline bool Asyn_HasOnDone(TaskID id, RuningTaskDataList& val)
+{
+	return Threads::Get_Threads()->HasOnDone(id,val);
+}
 inline bool Asyn_HasOnDone(TaskID id)
 {
 	return Threads::Get_Threads()->HasOnDone(id);
 }
+
+inline bool Asyn_RuningTasks_HasValue(TaskID id, RuningTaskDataList& val)
+{
+	return val._RuningTasks.HasValue(id);
+}
 inline bool Asyn_RuningTasks_HasValue(TaskID id)
 {
-	return Threads::Get_Threads()->RuningTasks.Lock_r<bool>([id](Threads::RuningTaskDataList& val)
+	return Threads::Get_Threads()->RuningTasks.Lock_r<bool>([id](RuningTaskDataList& val)
 	{
-		return val._RuningTasks.HasValue(id);
+		return Asyn_RuningTasks_HasValue(id,val);
 	});
 }
-
+inline void Asyn_Map_Erase(TaskID id, RuningTaskDataList& val)
+{
+	val._RuningTasks.erase(id);
+}
 inline void Asyn_Map_Erase(TaskID id)
 {
-	Threads::Get_Threads()->RuningTasks.Lock([id](Threads::RuningTaskDataList& val)
+	Threads::Get_Threads()->RuningTasks.Lock([id](RuningTaskDataList& val)
 	{
-		val._RuningTasks.erase(id);
+		Asyn_Map_Erase(id, val);
 	});
+}
+inline void Asyn_StartTask(TaskID id)
+{
+	Threads::Get_Threads()->StartTask(id);
 }
 
 inline TaskProgress Asyn_GetProgress(TaskID id)

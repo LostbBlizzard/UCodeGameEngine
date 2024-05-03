@@ -169,7 +169,7 @@ AsynTask_t<Unique_ptr<Texture>> AssetRendering::LoadTextureAsync(Gamelibrary* li
 		};
 
 
-	return threads->AddTask_t(TaskType::File_Input,
+	return threads->AddTask_t(TaskType::Rendering,
 		std::move(Func), {});
 }
 AsynTask_t<Unique_ptr<Texture>> AssetRendering::LoadTextureAsync(Gamelibrary* lib, const BytesView bits)
