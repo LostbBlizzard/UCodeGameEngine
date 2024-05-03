@@ -261,7 +261,7 @@ struct AsynTask_t
 	{
 		if (_TaskID != NullTaskID)
 		{
-			DestructTask();	
+			//DestructTask();	
 		}
 	}
 	TaskID FreeCallID()
@@ -1012,14 +1012,14 @@ public:
 						(*(OnDoneFuncPtr<T>*)&done)(std::move(*Val));
 					};
 
-					auto tep = Threads::Get_Threads()->AddTask_t(
+					auto tep = AddTask_t(
 						V.ThreadToRun,
 						std::move(Func),
 						{},List);
 					
 					auto taskid = tep.Get_TaskID();
 					StartTask(taskid, List);
-					tep.DestructTask(List);
+					//tep.DestructTask(List);
 					tep.FreeCallID();
 	
 					List._RuningTasks.erase(ID);
