@@ -152,7 +152,7 @@ struct RuningTaskData
 	ThreadToRunID ThreadToRun= NullThread;
 
 	bool CanStartTask = false;
-	
+	bool IsTaskDone = false;
 	
 
 	template <typename T>
@@ -793,23 +793,23 @@ public:
 
 			if (AsynTask_t<R>::HasOnDone(NewTasklID))
 			{
-				R Val = {};
-				
-				AsynTask_t<R>::Get_Future(NewTasklID,[&Val](typename AsynTask_t<R>::Future& future)
-					{
-						Val = std::move(future.get());
-					});
+					R Val = {};
 
-				if (!AsynTask_t<R>::TryCallOnDone(NewTasklID, std::move(Val)))
+				AsynTask_t<R>::Get_Future(NewTasklID,[&Val](typename AsynTask_t<R>::Future& future)
+						{
+							Val = std::move(future.get());
+						});
+
+					if (!AsynTask_t<R>::TryCallOnDone(NewTasklID, std::move(Val)))
+					{
+						AsynTask_t<R>::RemoveCallID(NewTasklID);
+					}
+				}
+				else
 				{
+
 					AsynTask_t<R>::RemoveCallID(NewTasklID);
 				}
-			}
-			else
-			{
-
-				AsynTask_t<R>::RemoveCallID(NewTasklID);
-			}
 		};
 
 		AddTask(TaskType, std::move(NewPtr), TaskDependencies,List);
@@ -910,7 +910,10 @@ public:
 		}
 		else
 		{
-
+			if (OnTaskSentToMain.has_value())
+			{
+				(*OnTaskSentToMain)();
+			}
 		}
 	}
 	void AddCallDone(TaskID ID, RuningTaskData&& Info)
@@ -1130,6 +1133,7 @@ public:
 	}
 
 	void Notify_AllThreadsWhoDepens(TaskID id);
+	Optional<std::function<void()>> OnTaskSentToMain;
 private:
 	TaskInfo *GetTaskInfo(TaskID ID,MainThreadTaskData& Maintasks,Vector<ThreadInfo>& threads)
 	{

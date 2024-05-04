@@ -213,7 +213,6 @@ AsynTask_t<UC::Texture *> AppFiles::AsynGetTexture(texture tex)
 
                     if (id != (texture_t)texture::AppIcon)
                     {
-                        Unique_ptr<UC::Texture> newtext;
                         RVal->FreeFromCPU();
                     }
 
