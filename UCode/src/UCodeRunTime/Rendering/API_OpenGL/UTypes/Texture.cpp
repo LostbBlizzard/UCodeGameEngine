@@ -99,7 +99,7 @@ Texture::~Texture()
 
 Unique_ptr<Texture> Texture::MakeNewNullTexture()
 {
-	#if UCodeGEDebug
+	#if false 
 	const Color32 NullTexureColorData[]
 	{
 		Color32(),

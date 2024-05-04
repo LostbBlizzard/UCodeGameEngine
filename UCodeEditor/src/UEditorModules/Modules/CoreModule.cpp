@@ -335,7 +335,7 @@ public:
 		
 		TextureSettings setting;
 		Optional<UCode::TextureAsset> asset;
-		
+		bool IsLoadingTexture = false;
 
 		inline static const ImGuIHelper::EnumValue<Compression> CompressionEnumValues[] =
 		{
@@ -500,11 +500,20 @@ public:
 					tofile(FileMetaFullPath.value(), setting);
 				}
 
+				const static Color32 colordata = { 0,0,0,0 };
 
-
-				UCode::TextureAsset V(UCode::Texture(this->FileFullPath));
+				UCode::TextureAsset V(UCode::Texture(1,1,&colordata));
 				SetupTexture(&V._Base);
 				asset = std::move(V);
+				UC::AssetRendering::LoadTextureAsync(UC::Gamelibrary::Current(), this->FileFullPath)
+					.OnCompletedOnThread([this,v = asset.value().GetManaged()](Unique_ptr<UC::Texture>& text)
+				{
+					if (v.Has_Value())
+					{
+						v.Get_Value()->_Base = std::move(*text.get());
+						IsLoadingTexture = false;
+					}
+				},UC::TaskType::Main);
 			}
 			if (Item._AssetToLoad == setting.uid)
 			{

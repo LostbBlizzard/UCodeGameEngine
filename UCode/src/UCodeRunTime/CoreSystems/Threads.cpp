@@ -278,18 +278,8 @@ void Threads::CallTaskToDoOnMainThread()
 		val._TaskToReAddOnToMainThread.clear();
 		
 		Vector<TaskInfo> CopyList = std::move(val._MainThreadData._TaskToDo);	
-		
-		/*
-		for (auto i = CopyList.rbegin();i != CopyList.rend(); ++i)
-		{
 
-			auto& Item = *i;
-		*/
-		val._MainThreadData._TaskToDo = CopyList;//for GetProgress
-		size_t V = val._MainThreadData._TaskToDo.size();
-
-
-		bool b = RuningTasks.TryLock([&FuncList,&val,V,this,&CopyList](RuningTaskDataList& list)
+		bool b = RuningTasks.TryLock([&FuncList,&val,this,&CopyList](RuningTaskDataList& list)
 		{
 			for (auto& Item : CopyList)
 			{
@@ -299,15 +289,8 @@ void Threads::CallTaskToDoOnMainThread()
 				}
 				else
 				{
-					//_TaskToReAddOnToMainThread.push_back(std::move(Item));
-
 					val._TaskToReAddOnToMainThread.push_back(std::move(Item));
 				}
-			}
-
-			for (size_t i = 0; i < V; i++)
-			{
-				val._MainThreadData._TaskToDo.erase(val._MainThreadData._TaskToDo.begin());
 			}
 		});
 
