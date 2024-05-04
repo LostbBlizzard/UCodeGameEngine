@@ -26,6 +26,7 @@ EditorApp::~EditorApp()
 
 void EditorApp::Run(const String& ProjPath)
 {
+
     UCodeGELog("Hello World");
 
 
@@ -71,13 +72,13 @@ void EditorApp::Run(const String& ProjPath)
             }).Start();
 
 
-            UCode::Threads::Get(Lib)->OnTaskSentToMain = [this,Render]()
+            UCode::Threads::Get(Lib)->OnTaskSentToMain = [this, Render]()
                 {
                     auto window = Render->Get_RenderAPI()->Get_Window();
-                    #if UCodeGEWindows
+#if UCodeGEWindows
                     auto handle = glfwGetWin32Window(window);
                     PostMessage(handle, WM_USER, 0, 0);
-                    #endif 
+#endif 
 
                 };
 
