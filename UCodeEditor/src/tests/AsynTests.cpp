@@ -40,7 +40,7 @@ bool AsynTest_1_V(V_t XValue, V_t YValue)
 			return X + Y;
 		};
 
-	auto task = V.Threads->AddTask_t(UCode::TaskType::Generic, std::move(Func), {}, XValue, YValue);
+	auto task = V.Threads->AddTask_t(UCode::TaskType::Generic, std::move(Func), {}, XValue, YValue).Start();
 	while (!task.IsDone()) { V.Update(); }
 
 	V_t NewValue = task.GetValue();
@@ -64,7 +64,7 @@ bool AsynTest_1_VMove(V_t XValue, V_t YValue)
 
 	auto task = V.Threads->AddTask_t(UCode::TaskType::Generic, std::move(Func), {},
 		std::make_unique<V_t>(XValue),
-		std::make_unique<V_t>(YValue));
+		std::make_unique<V_t>(YValue)).Star();
 	while (!task.IsDone()) { V.Update(); }
 
 	V_t NewValue = task.GetValue();
@@ -85,7 +85,7 @@ bool AsynTest_2_V(V_t XValue, V_t YValue)
 		};
 	V_t RValue = XValue + YValue;
 
-	auto task = V.Threads->RunOnOnMainThread(std::move(Func), {}, XValue, YValue);
+	auto task = V.Threads->RunOnOnMainThread(std::move(Func), {}, XValue, YValue).Start();
 	while (!task.IsDone()) { V.Update(); }
 
 	V_t NewValue = task.GetValue();
@@ -128,7 +128,7 @@ bool AsynTest_3()
 		};
 
 	auto task = V.Threads->RunOnOnMainThread(std::move(Func), {}, 5, 10)
-		.OnCompletedOnMainThread(std::move(DoneFunc));
+		.OnCompletedOnMainThread(std::move(DoneFunc)).Start();
 
 
 	while (WasSet == false) { V.Update(); }
@@ -156,7 +156,7 @@ bool AsynTest_4()
 		};
 
 	auto task = V.Threads->RunOnOnMainThread(std::move(Func), {}, 5, 10)
-		.ContinueTaskThread(std::move(DoneFunc));
+		.ContinueTaskThread(std::move(DoneFunc)).Start();
 
 
 	while (WasSet == false) { V.Update(); }
@@ -192,7 +192,7 @@ bool AsynTest_5()
 
 	auto task = V.Threads->RunOnOnMainThread(std::move(Func), {}, 5, 10)
 		.ContinueTaskThread(std::move(DoneFunc))
-		.OnCancelOnMainThread(std::move(FuncFail));
+		.OnCancelOnMainThread(std::move(FuncFail)).Start();
 
 	task.CancelTask();
 
@@ -223,7 +223,7 @@ bool AsynTest_6()
 		};
 
 	auto task = V.Threads->RunOnOnMainThread(std::move(Func), {}, 5, 10)
-		.ContinueOnMainThread(std::move(DoneFunc));
+		.ContinueOnMainThread(std::move(DoneFunc)).Start();
 
 
 	while (WasSet == false) { V.Update(); }
@@ -252,7 +252,7 @@ bool AsynTest_7()
 		};
 
 	auto task = V.Threads->RunOnOnMainThread(std::move(Func), {}, 5, 10)
-		.ContinueOnAnyThread(std::move(DoneFunc));
+		.ContinueOnAnyThread(std::move(DoneFunc)).Start();
 
 
 	while (WasSet == false) { V.Update(); }
@@ -281,7 +281,7 @@ bool AsynTest_8()
 		};
 
 	auto task = V.Threads->RunOnOnMainThread(std::move(Func), {}, 5, 10)
-		.ContinueCurrentThread(std::move(DoneFunc));
+		.ContinueCurrentThread(std::move(DoneFunc)).Start();
 
 
 	while (WasSet == false) { V.Update(); }
@@ -289,5 +289,42 @@ bool AsynTest_8()
 	int NewValue = Value;
 
 	return NewValue == 15;
+}
+bool AsynTest_9()
+{
+	AsynTestContext V; V.SetUp();
+
+	bool a = false;
+	bool b = false;
+	bool c = false;
+
+	int v = 1;
+	UCode::Delegate<void> f = [&]() 
+		{
+			v *= 2;
+			a = true;
+		};
+
+	UCode::Delegate<void> f2 = [&]() 
+		{
+			v *= 5;
+			b = true;
+		};
+
+	UCode::Delegate<void> f3 = [&]() 
+		{
+			v *= 10;
+			c = true;	
+		};
+	auto v1 = V.Threads->AddTask_t(UCode::AnyThread,std::move(f), {});
+	auto v2 = V.Threads->AddTask_t(UCode::AnyThread,std::move(f2),{v1.Get_TaskID()});
+	auto v3 = V.Threads->AddTask_t(UCode::AnyThread,std::move(f3),{v2.Get_TaskID()});
+
+	v3.Start();
+	v2.Start();
+	v1.Start();
+
+	v3.wait();
+	return v == 100;
 }
 EditorTestEnd

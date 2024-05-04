@@ -18,4 +18,6 @@ bool AsynTest_6();
 bool AsynTest_7();
 
 bool AsynTest_8();
+
+bool AsynTest_9();
 EditorTestEnd

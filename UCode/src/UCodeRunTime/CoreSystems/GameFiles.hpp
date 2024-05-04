@@ -156,7 +156,7 @@ public:
 
 	const GameFilesData& Get_FilesData()
 	{
-		return _Data;
+		return _MainState.Unsafe_GetBaseType()._Data;
 	}
 	
 	AsynTask_t<Unique_Bytes> AsynReadGameFileFullBytes(const Path& Path);
@@ -177,11 +177,17 @@ private:
 	GameFiles(Gamelibrary* lib, const GameFilesData& Data);
 	~GameFiles() override;
 
-	FileBuffer _FileBuffer;
-	GameFilesData _Data;
-	Optional<Path> _PersistentDataPath;
-	Optional<Path> _CacheDataPath;
-	Unique_ptr<Shader> _DefaultShader;
+	void GetCurrentFileBuffer(std::function<void(FileBuffer&)> Scope);
+	Mutex<FileBuffer> _FileBuffer;
+	Vector<Mutex<Optional<FileBuffer>>> _OtherThreadsBuffers;
+	struct MainGameFilesState
+	{
+		GameFilesData _Data;
+		Optional<Path> _PersistentDataPath;
+		Optional<Path> _CacheDataPath;
+		Unique_ptr<Shader> _DefaultShader;
+	};
+	Mutex<MainGameFilesState> _MainState;
 };
 CoreEnd
 
