@@ -145,19 +145,6 @@ UC::Texture *AppFiles::GetTexture(texture tex)
 
             UCodeGEAssert(std::filesystem::exists(AppFilesPathDir + Path));
 
-            auto Func2 = [id](Unique_Bytes Bytes)
-            {
-                return UC::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView())
-                    .ContinueOnMainThread(
-                        [id](Unique_ptr<UC::Texture> &&Val)
-                        {
-                            _textures.AddValue(id,Val.release());
-                            _loadtextures.AddValue(id,true);
-
-                            return std::move(Val);
-                        });
-            };
-
             gamefiles->AsynReadGameFileFullBytes(Path)
                 .ContinueOnAnyThread(
                     [id](Unique_Bytes &&Bytes)
@@ -215,34 +202,25 @@ AsynTask_t<UC::Texture *> AppFiles::AsynGetTexture(texture tex)
         {
             UCodeGEAssert(std::filesystem::exists(AppFilesPathDir + Path));
 
-            UC::GameFiles *gamefiles = UC::GameFiles::Get(_GameLib);
+            UC::GameFiles* gamefiles = UC::GameFiles::Get(_GameLib);
 
-            Delegate<AsynTask_t<Unique_ptr<UC::Texture>>, Unique_Bytes &&> Func = [](Unique_Bytes &&Bytes)
-            {
-                return UC::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView());
-            };
 
-            Delegate<UC::Texture *, Unique_ptr<UC::Texture> &&> Func2 = [id](Unique_ptr<UC::Texture> &&Val)
-            {
-                auto RVal = Val.get();
-                _textures.AddValue(id,Val.release());
-                _loadtextures.AddValue(id,true);
-
-                if (id != (texture_t)texture::AppIcon)
+            Delegate<UC::Texture*, Unique_ptr<UC::Texture>&&> Func2 = [id](Unique_ptr<UC::Texture>&& Val)
                 {
-                    RVal->FreeFromCPU();
-                }
+                    auto RVal = Val.get();
+                    _textures.AddValue(id, Val.release());
+                    _loadtextures.AddValue(id, true);
 
-                return RVal;
-            };
+                    if (id != (texture_t)texture::AppIcon)
+                    {
+                        RVal->FreeFromCPU();
+                    }
 
-            /*
-            auto Task = gamefiles->AsynReadGameFileFullBytes(Path)
-                .ContinueOnMainThreadTask(std::move(Func))
-                .ContinueOnMainThread(std::move(Func2));
-            */
+                    return RVal;
+                };
+
             auto Task = UC::AssetRendering::LoadTextureAsync(_GameLib, Path)
-                            .ContinueOnMainThread(std::move(Func2)).Start();
+                .ContinueOnMainThread(std::move(Func2)).Start();
 
             return Task;
         }

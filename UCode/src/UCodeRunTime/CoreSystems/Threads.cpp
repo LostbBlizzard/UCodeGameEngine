@@ -277,7 +277,21 @@ AsynTask Threads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vector<Tas
 	{
 		if (thread == MainThread)
 		{
-			RunOnOnMainThread(std::move(Func),TaskDependencies,List);
+			
+			TaskInfo Task;
+			Task._Func =std::make_shared<FuncPtr>(Func);
+			Task.TaskDependencies = TaskDependencies;
+			
+
+			auto taskid = List.TaskData._TaskID.Get_Base(); 
+
+			Task.taskID = TaskID(taskid-1);
+			
+
+			MainThreadData.Lock([&Task](MainThreadTaskData& data)
+			{
+				data._MainThreadData._TaskToDo.push_back(std::move(Task));
+			});
 			return  AsynTask();
 		}
 		else if (thread == AnyThread)

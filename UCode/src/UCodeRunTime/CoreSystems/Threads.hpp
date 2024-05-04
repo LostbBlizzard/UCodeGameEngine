@@ -477,7 +477,7 @@ struct AsynTask_t
 			auto &Val = *v.get();
 			return Value(std::move(Val));
 		};
-		return Asyn_AddTask_t<T2>(Thread, std::move(Func), Deps);
+		return Asyn_AddTask_t<T2>(Thread, std::move(Func), Deps).Start();
 	}
 
 	ContinueRet<AsynNonVoidType> ContinueOnThread(ThreadToRunID Thread, Continue<AsynNonVoidType> &&Value)
