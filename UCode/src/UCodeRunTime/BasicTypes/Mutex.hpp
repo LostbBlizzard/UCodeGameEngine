@@ -14,15 +14,23 @@ public:
 	{
 
 	}
+	Mutex(T&& val)
+	{
+		_base = std::move(val);
+	}
+	Mutex(const T& val)
+	{
+		_base = std::move(val);
+	}
 	Mutex(Mutex&& other)
 	{
 		other._lock.lock();
 		this->_lock.lock();
 
 		UCodeGEDefer(this->_lock.unlock();)
-		UCodeGEDefer(other->_lock.unlock();)
+		UCodeGEDefer(other._lock.unlock();)
 
-		_base = std::move(other);
+		_base = std::move(other._base);
 	}
 	Mutex& operator=(Mutex&& other)
 	{
@@ -30,9 +38,9 @@ public:
 		this->_lock.lock();
 	
 		UCodeGEDefer(this->_lock.unlock();)
-		UCodeGEDefer(other->_lock.unlock();)
+		UCodeGEDefer(other._lock.unlock();)
 
-		_base = std::move(other);
+		_base = std::move(other._base);
 
 		return *this;
 	}

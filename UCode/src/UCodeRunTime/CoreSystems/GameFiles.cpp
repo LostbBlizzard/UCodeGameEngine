@@ -6,7 +6,7 @@
 #include <sstream>
 #include <UCodeRunTime/ULibrarys/Serialization/Bit_Implementation/AsssetPtr.hpp>
 #include <UCodeRunTime/ULibrarys/Others/StringHelper.hpp>
-
+#include <mutex>
 
 #if UCodeGEWindows
 #include <Windows.h>
@@ -370,61 +370,77 @@ Unique_Bytes GameFiles::ReadFileAsBytes(const Path& path, size_t Offset, size_t 
 }
 String GameFiles::ReadGameFileAsString(const Path& path)
 {
-	if (_Data._Type == GameFilesData::Type::Redirect)
-	{
-		return GameFiles::ReadGameFileAsString(_Data._RedirectDir.native() + path.native());
-	}
-	else if (_Data._Type == GameFilesData::Type::ThisFile)
-	{
-		if (auto val = _Data.GetFile(path))
+	return _MainState.Lock_r<String>([&](MainGameFilesState& files) -> String
 		{
-			_FileBuffer.Set_FileReadIndex(val->FileOffset);
+			auto& _Data = files._Data;
+			if (_Data._Type == GameFilesData::Type::Redirect)
+			{
+				return GameFiles::ReadFileAsString(_Data._RedirectDir.native() + path.native());
+			}
+			else if (_Data._Type == GameFilesData::Type::ThisFile)
+			{
+				if (auto val = _Data.GetFile(path))
+				{
+					String V;
+					V.resize(val->FileSize);
 
-			String V;
-			V.resize(val->FileSize);
-			_FileBuffer.ReadBytes((Byte*)V.data(), V.size());
+					GetCurrentFileBuffer([&](FileBuffer& _FileBuffer)
+						   {
+							   _FileBuffer.Set_FileReadIndex(val->FileOffset);
+							   _FileBuffer.ReadBytes((Byte*)V.data(), V.size());
+							});
 
-			return V;
-		}
-		else
-		{
-			return {};
-		}
-	}
-	else
-	{
-		UCodeGEUnreachable();
-	}
+					return V;
+				}
+				else
+				{
+					return {};
+				}
+			}
+			else
+			{
+				UCodeGEUnreachable();
+			}
+
+	});
 }
 Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& path)
 {
-	if (_Data._Type == GameFilesData::Type::Redirect)
+	
+	return _MainState.Lock_r<Unique_Bytes>([&](MainGameFilesState& files) -> Unique_Bytes
 	{
-		return GameFiles::ReadFileAsBytes(_Data._RedirectDir.native() + path.native());
-	}
-	else if (_Data._Type == GameFilesData::Type::ThisFile)
-	{
-		if (auto val = _Data.GetFile(path))
+		auto& _Data = files._Data;
+		if (_Data._Type == GameFilesData::Type::Redirect)
 		{
-			_FileBuffer.Set_FileReadIndex(val->FileOffset);
+			return GameFiles::ReadFileAsBytes(_Data._RedirectDir.native() + path.native());
+		}
+		else if (_Data._Type == GameFilesData::Type::ThisFile)
+		{
+			if (auto val = _Data.GetFile(path))
+			{
+				Unique_Bytes V;
+				V.Resize(val->FileSize);
 
-			Unique_Bytes V;
-			V.Resize(val->FileSize);
-			_FileBuffer.ReadBytes(V.Data(), V.Size());
+
+				GetCurrentFileBuffer([&](FileBuffer& _FileBuffer)
+						{
+							_FileBuffer.Set_FileReadIndex(val->FileOffset);
+							_FileBuffer.ReadBytes(V.Data(), V.Size());
+						});
 
 
-
-			return V;
+				return V;
+			}
+			else
+			{
+				return {};
+			}
 		}
 		else
 		{
-			return {};
+			UCodeGEUnreachable();
 		}
-	}
-	else
-	{
-		UCodeGEUnreachable();
-	}
+	});
 }
 Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& Path, size_t Offset, size_t Size)
 {
@@ -434,38 +450,49 @@ Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& Path, size_t Offset, siz
 
 bool GameFiles::CopyGameFileTo(const Path& path, const Path& outpath)
 {
-	if (_Data._Type == GameFilesData::Type::Redirect)
+	return _MainState.Lock_r<bool>([&](MainGameFilesState& files) -> bool
 	{
-		return fs::copy_file(_Data._RedirectDir.native() + path.native(),outpath);
-	}
-	else if (_Data._Type == GameFilesData::Type::ThisFile)
-	{
-		if (auto val = _Data.GetFile(path))
+		auto& _Data = files._Data;
+		if (_Data._Type == GameFilesData::Type::Redirect)
 		{
-			std::ofstream ofile(outpath, std::ios::out | std::ios::binary);
-			if (ofile.is_open()) 
+			return fs::copy_file(_Data._RedirectDir.native() + path.native(), outpath);
+		}
+		else if (_Data._Type == GameFilesData::Type::ThisFile)
+		{
+			if (auto val = _Data.GetFile(path))
 			{
-				//TODO pre allocate space for ofile
-
-				size_t BufferSize = GetPageSize();
-				_FileBuffer.Set_FileReadIndex(val->FileOffset);
-
-				Vector<Byte> Buffer;
-				Buffer.resize(BufferSize);
-
-				size_t fileleft = val->FileSize;
-
-				while (fileleft != 0)
+				std::ofstream ofile(outpath, std::ios::out | std::ios::binary);
+				if (ofile.is_open())
 				{
-					size_t MaxToRead = std::min(BufferSize, fileleft);
+					//TODO pre allocate space for ofile
 
-					_FileBuffer.ReadBytes(Buffer.data(), MaxToRead);
-					ofile.write((char*)Buffer.data(), MaxToRead);
 
-					fileleft -= MaxToRead;
+					GetCurrentFileBuffer([&](FileBuffer& _FileBuffer) 
+					{
+						size_t BufferSize = GetPageSize();
+						_FileBuffer.Set_FileReadIndex(val->FileOffset);
+						Vector<Byte> Buffer;
+						Buffer.resize(BufferSize);
+
+						size_t fileleft = val->FileSize;
+
+						while (fileleft != 0)
+						{
+							size_t MaxToRead = std::min(BufferSize, fileleft);
+
+							_FileBuffer.ReadBytes(Buffer.data(), MaxToRead);
+							ofile.write((char*)Buffer.data(), MaxToRead);
+
+							fileleft -= MaxToRead;
+						}
+					});
+					ofile.close();
+
 				}
-
-				ofile.close();
+				else
+				{
+					return false;
+				}
 			}
 			else
 			{
@@ -474,13 +501,9 @@ bool GameFiles::CopyGameFileTo(const Path& path, const Path& outpath)
 		}
 		else
 		{
-			return false;
+			UCodeGEUnreachable();
 		}
-	}
-	else
-	{
-		UCodeGEUnreachable();
-	}
+	});
 }
 
 bool GameFiles::MakeDir(const String& text)
@@ -502,26 +525,37 @@ inline Path GameFiles::GetMovedFilesPathAndMake()
 }
 bool GameFiles::GameFileExist(const Path& path)
 {
-	if (_Data._Type == GameFilesData::Type::Redirect)
+	return _MainState.Lock_r<bool>([&](MainGameFilesState& files) -> bool
 	{
-		return fs::exists(_Data._RedirectDir.native() + path.native());
-	}
-	else if (_Data._Type == GameFilesData::Type::ThisFile)
-	{
-		return _Data.GetFile(path);
-	}
-	else
-	{
-		return false;
-	}
+		auto& _Data = files._Data;
+
+		if (_Data._Type == GameFilesData::Type::Redirect)
+		{
+			return fs::exists(_Data._RedirectDir.native() + path.native());
+		}
+		else if (_Data._Type == GameFilesData::Type::ThisFile)
+		{
+			return _Data.GetFile(path);
+		}
+		else
+		{
+			return false;
+		}
+	});
 }
-GameFiles::GameFiles(Gamelibrary* lib, const GameFilesData& Data) :System(lib),_Data(Data), _DefaultShader(nullptr)
+GameFiles::GameFiles(Gamelibrary* lib, const GameFilesData& Data) :System(lib)
 {
+	_MainState.Unsafe_GetBaseType()._DefaultShader = nullptr;
+	_MainState.Unsafe_GetBaseType()._Data = Data;
 	if (lib->Get_StaticComponent(KeyIdex)) { Destroy(this); return; }
 	lib->SetStaticComponent(KeyIdex, this);
 }
 GameFiles::~GameFiles()
 {
+}
+void GameFiles::GetCurrentFileBuffer(std::function<void(FileBuffer&)> Scope)
+{
+	_FileBuffer.Lock(Scope);
 }
 GameFiles* GameFiles::Get(Gamelibrary* lib)
 {
@@ -545,7 +579,7 @@ GameFiles* GameFiles::Init(Gamelibrary* lib,const GameFilesData& Data)
 
 	auto GameF = lib->Get_StaticComponent(KeyIdex);
 	if (GameF) { 
-		((GameFiles*)GameF)->_Data = Data;
+		((GameFiles*)GameF)->_MainState.Unsafe_GetBaseType()._Data = Data;
 		return  (GameFiles*)GameF; 
 	}
 
@@ -558,21 +592,35 @@ GameFiles* GameFiles::Init(Gamelibrary* lib,const GameFilesData& Data)
 
 Shader* GameFiles::Get_DefaultShader()
 {
-	if (!_DefaultShader) 
+	return _MainState.Lock_r<Shader*>([&](MainGameFilesState& files) -> Shader*
 	{
-		_DefaultShader =std::make_unique<Shader>(Shader::GetDefaultVertexShader(), Shader::GetDefaultFragmentShader());
-	}
-	return _DefaultShader.get();
+		auto& _DefaultShader = files._DefaultShader;
+
+		if (!_DefaultShader)
+		{
+			_DefaultShader = std::make_unique<Shader>(Shader::GetDefaultVertexShader(), Shader::GetDefaultFragmentShader());
+		}
+		return _DefaultShader.get();
+	});
 }
 
 void GameFiles::ReInit(const GameFilesData& data)
 {
-	_Data = data;
+	return _MainState.Lock([&](MainGameFilesState& files) 
+		  {
+			  files._Data = data;
+		  });
 }
 
 Path GameFiles::GetFileFullName(const Path& FilePath) const
 {
-	return _Data._RedirectDir.native() + FilePath.native();
+	UCodeGEUnreachable();
+	/*
+	return _MainState.Lock_r<Path>([&](MainGameFilesState& files) -> Path
+	   {
+		   return  files._Data._RedirectDir.native() + FilePath.native();
+	   });
+	   */
 }
 
 
@@ -627,27 +675,32 @@ Path GameFiles::Get_PersistentDataPath(const AppData& data)
 }
 const Path& GameFiles::Get_PersistentDataPath()
 {
+	return _MainState.Lock_r<Path&>([&](MainGameFilesState& files) -> Path&
+			  {
+				  auto& _PersistentDataPath = files._PersistentDataPath;
+				  if (!_PersistentDataPath.has_value())
+				  {
+					  UCodeGEToDo();
+				  }
 
-
-	if (!_PersistentDataPath.has_value()) 
-	{
-		UCodeGEToDo();
-	}
-
-	auto& path = _CacheDataPath.value();
-	fs::create_directories(path);
-	return path;
+				  auto& path = _PersistentDataPath.value();
+				  fs::create_directories(path);
+				  return path;
+			});
 }
 const Path& GameFiles::Get_CacheDataPath()
 {
-	if (!_CacheDataPath.has_value()){
-		_CacheDataPath = Get_PersistentDataPath().native() 
-		+ Path("_Cache").native() + Path("/").native();
-	}
+	return _MainState.Lock_r<Path&>([&](MainGameFilesState& files) -> Path&
+		  {
+			  if (!files._CacheDataPath.has_value()) 
+			  {
+				  files._CacheDataPath = Path("Cache").native() + Path("/").native();
+			  }
 
-	auto& path = _CacheDataPath.value();
-	if (!fs::exists(path)) {fs::create_directory(path);}
-	return path;
+			  auto& path = files._CacheDataPath.value();
+			  if (!fs::exists(path)) { fs::create_directory(path); }
+			  return path;
+	   });
 }
 void GameFiles::Writetext(StringView text, const Path& Path)
 {
@@ -668,10 +721,11 @@ AsynTask_t<Unique_Bytes> GameFiles::AsynReadGameFileFullBytes(const Path& path)
 	auto threads = UCode::Threads::Get(Getlibrary());
 
 	Path p = path;
-	auto Func = [this,p]()
-	{
-		return GameFiles::ReadGameFileAsBytes(p);
-	};
+	auto Func = [this, p]()
+		{
+			auto v = GameFiles::ReadGameFileAsBytes(p);
+			return v;
+		};
 	UCode::Delegate<Unique_Bytes> V = Func;
 	return threads->AddTask_t(TaskType::File_Input, std::move(V), {});
 }
@@ -744,45 +798,50 @@ return std::filesystem::exists(OutPath)
 
 Path GameFiles::GetGameFilePathByMove(const Path& path)
 {
-	if (_Data._Type == GameFilesData::Type::ThisFile)
-	{
-		auto OutPath = GetMovedFilesPath().native() + path.native();
+	
+	return _MainState.Lock_r<Path>([&](MainGameFilesState& files) -> Path
+	   {
+		   auto& _Data = files._Data;
+		   if (_Data._Type == GameFilesData::Type::ThisFile)
+		   {
+			   auto OutPath = GetMovedFilesPath().native() + path.native();
 
-		if (auto Val = _Data.GetFile(path))
-		{
-			if (!ismovedvaild(OutPath,Val)) 
-			{
-				std::filesystem::create_directories(Path(OutPath).parent_path());
-				auto Bits = ReadGameFileAsBytes(path);
-				GameFiles::WriteBytes(Bits.Data(), Bits.Size(), OutPath);
-			}
-		}
-		else //most likely a folder 
-		{
-			for (auto& Item : _Data.Offsets)
-			{
-				bool issubfile = StringHelper::StartWith((PathSpan)Item.FileFullName.native(),(PathSpan)path.native());
+			   if (auto Val = _Data.GetFile(path))
+			   {
+				   if (!ismovedvaild(OutPath, Val))
+				   {
+					   std::filesystem::create_directories(Path(OutPath).parent_path());
+					   auto Bits = ReadGameFileAsBytes(path);
+					   GameFiles::WriteBytes(Bits.Data(), Bits.Size(), OutPath);
+				   }
+			   }
+			   else //most likely a folder 
+			   {
+				   for (auto& Item : _Data.Offsets)
+				   {
+					   bool issubfile = StringHelper::StartWith((PathSpan)Item.FileFullName.native(), (PathSpan)path.native());
 
-				if (issubfile)
-				{
-					auto OutPathfile = OutPath + Item.FileFullName.native().substr(path.native().size());
+					   if (issubfile)
+					   {
+						   auto OutPathfile = OutPath + Item.FileFullName.native().substr(path.native().size());
 
-					if (!ismovedvaild(OutPathfile, &Item))
-					{
-						std::filesystem::create_directories(Path(OutPathfile).parent_path());
-						auto Bits = ReadGameFileAsBytes(Item.FileFullName);
-						GameFiles::WriteBytes(Bits.Data(), Bits.Size(), OutPathfile);	
-					}
-				}
-			}
-		}
+						   if (!ismovedvaild(OutPathfile, &Item))
+						   {
+							   std::filesystem::create_directories(Path(OutPathfile).parent_path());
+							   auto Bits = ReadGameFileAsBytes(Item.FileFullName);
+							   GameFiles::WriteBytes(Bits.Data(), Bits.Size(), OutPathfile);
+						   }
+					   }
+				   }
+			   }
 
-		return OutPath;
-	}
-	else 
-	{
-		return Path(_Data._RedirectDir.native() + path.native());
-	}
+			   return OutPath;
+		   }
+		   else
+		   {
+			   return Path(_Data._RedirectDir.native() + path.native());
+		   }
+	});
 }
 AsynTask_t<Path> GameFiles::AsynGetGameFilePathByMove(const Path& path)
 {

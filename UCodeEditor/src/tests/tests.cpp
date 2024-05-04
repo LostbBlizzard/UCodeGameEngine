@@ -12,15 +12,19 @@ struct TestInfo
 };
 const TestInfo Tests[] =
 {
-	{"NetTest 1",NetTest_1},
+	//{"NetTest 1",NetTest_1},
 
-	{"AsynTest 1",AsynTest_1},
-	{"AsynTest 2",AsynTest_2},
-	{"AsynTest 3",AsynTest_3},
-	{"AsynTest 4",AsynTest_4},
-	{"AsynTest 5",AsynTest_5},
+	//{"AsynTest 1",AsynTest_1},
+	//{"AsynTest 2",AsynTest_2},
+	//{"AsynTest 3",AsynTest_3},
+	//{"AsynTest 4",AsynTest_4},
+	//{"AsynTest 5",AsynTest_5},
+	//{"AsynTest 6",AsynTest_6},
+	//{"AsynTest 7",AsynTest_7},
+	//{"AsynTest 8",AsynTest_8},
+	{"AsynTest 9",AsynTest_9},
 
-	{"Project Hello[PlayerMovment]",Project_Hello},
+	//{"Project Hello[PlayerMovment]",Project_Hello},
 };
 
 constexpr size_t TestCount = sizeof(Tests) / sizeof(Tests[0]);

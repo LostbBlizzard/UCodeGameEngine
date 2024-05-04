@@ -147,18 +147,18 @@ UC::Texture *AppFiles::GetTexture(texture tex)
 
             gamefiles->AsynReadGameFileFullBytes(Path)
                 .ContinueOnAnyThread(
-                    [id](Unique_Bytes &&Bytes)
+                    [id](Unique_Bytes&& Bytes)
                     {
                         return UC::AssetRendering::LoadTextureAsync(_GameLib, Bytes.AsView())
                             .ContinueOnMainThread(
-                                [id](Unique_ptr<UC::Texture> &&Val)
+                                [id](Unique_ptr<UC::Texture>&& Val)
                                 {
-                                    _textures.GetOrAdd(id, {}) = Val.release();
-                                    _loadtextures.GetOrAdd(id,{}) = true;
+                                    *_textures.GetValue(id) =std::move(*Val.release());
+                                    _loadtextures.GetOrAdd(id, true);
 
                                     return std::move(Val);
-                                });
-                    });
+                                }).Start();
+                    }).Start();
         }
 
         auto Tex = newtext.get();
@@ -208,19 +208,27 @@ AsynTask_t<UC::Texture *> AppFiles::AsynGetTexture(texture tex)
             Delegate<UC::Texture*, Unique_ptr<UC::Texture>&&> Func2 = [id](Unique_ptr<UC::Texture>&& Val)
                 {
                     auto RVal = Val.get();
-                    _textures.AddValue(id, Val.release());
-                    _loadtextures.AddValue(id, true);
+                    _textures.GetValue(id) = Val.release();
+                    _loadtextures.GetOrAdd(id,true);
 
                     if (id != (texture_t)texture::AppIcon)
                     {
+                        Unique_ptr<UC::Texture> newtext;
                         RVal->FreeFromCPU();
                     }
 
                     return RVal;
                 };
-
             auto Task = UC::AssetRendering::LoadTextureAsync(_GameLib, Path)
                 .ContinueOnMainThread(std::move(Func2)).Start();
+
+
+            Unique_ptr<UC::Texture> newtext;
+
+            auto Tex = newtext.get();
+
+            _textures.AddValue(id, Tex);
+            _LoadedTextures.push_back(std::move(newtext));
 
             return Task;
         }
