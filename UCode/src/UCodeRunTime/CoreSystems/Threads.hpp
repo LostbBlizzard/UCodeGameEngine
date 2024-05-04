@@ -195,7 +195,53 @@ struct TaskProgress
 		return (float)DoneTasks / (float)TotalTasks;
 	}
 };
+struct TaskInfo
+{
+	std::shared_ptr<Delegate<void>> _Func;
+	Vector<TaskID> TaskDependencies;
+	TaskID taskID = NullTaskID;
+};
+struct ThreadData
+{
+	Vector<TaskInfo> _TaskToDo;
+};
+struct ThreadInfo
+{
+	std::shared_ptr<std::condition_variable> _NewTask;
+	std::shared_ptr<std::thread> thread;
+	ThreadData _Data;
+	const ThreadToRunID _ThreadID;
+	ThreadInfo(ThreadToRunID id)
+		: _ThreadID(id)
+	{
+		_NewTask = std::make_shared<std::condition_variable>();
+	}
+};
+struct MainThreadTaskData
+{
+	ThreadData _MainThreadData;
+	Vector<TaskInfo> _TaskToReAddOnToMainThread;
+};
+struct MainTaskData
+{
+	//AnyThradInfo
+	ThreadData _AnyThread;
+	TaskID _TaskID;
+	ThreadToRunID _NextLockKey;
 
+	TaskID GetNextTasksID()
+	{
+		auto R = _TaskID;
+		_TaskID = TaskID(R.Get_Base() + 1);
+
+		return R;
+	}
+};
+struct RuningTaskDataList
+{
+	UnorderedMap<TaskID, RuningTaskData> _RuningTasks;
+	MainTaskData TaskData;
+};
 // Because incomplete types
 void Asyn_Map_Erase(TaskID id);
 bool Asyn_HasOnDone(TaskID id);
@@ -225,10 +271,7 @@ struct AsynTask_t;
 template <typename T2>
 AsynTask_t<T2> Asyn_AddTask_t(ThreadToRunID Thread, Delegate<T2> &&Func, const Vector<TaskID> &Deps);
 
-struct RuningTaskDataList
-{
-	UnorderedMap<TaskID, RuningTaskData> _RuningTasks;
-};
+
 template <typename T>
 struct AsynTask_t
 {
@@ -669,66 +712,46 @@ public:
 	#define MoveParPack(Pack_t, P) std::forward<Pack_t>(P)...
 	#define MovedParsParam(Pars) Pars...
 
-	struct TaskInfo
-	{
-		std::shared_ptr<FuncPtr> _Func;
-		Vector<TaskID> TaskDependencies;
-		TaskID taskID = NullTaskID;
-	};	
-	struct ThreadData
-	{
-		Vector<TaskInfo> _TaskToDo;
-	};
-	struct ThreadInfo
-	{
-		std::shared_ptr<std::condition_variable> _NewTask;
-		std::shared_ptr<std::thread> thread;
-		ThreadData _Data;
-		const ThreadToRunID _ThreadID;
-		ThreadInfo(ThreadToRunID id)
-			: _ThreadID(id)
-		{
-			_NewTask = std::make_shared<std::condition_variable>();
-		}
-	};
-	struct MainThreadTaskData
-	{
-		ThreadData _MainThreadData;
-		Vector<TaskInfo> _TaskToReAddOnToMainThread;
-	};
-	struct MainTaskData
-	{
-		//AnyThradInfo
-		ThreadData _AnyThread;
-		TaskID _TaskID;
-		ThreadToRunID _NextLockKey;
-
-		TaskID GetNextTasksID()
-		{
-			auto R = _TaskID;
-			_TaskID = TaskID(R.Get_Base() + 1);
-
-			return R;
-		}
-	};
+	
 
 	static Threads *Get(Gamelibrary *lib);
 	static Threads *Find(const Gamelibrary *lib);
 
 	ThreadToRunID GetNewThreadLockKey(MainTaskData& taskdata);
-	ThreadToRunID GetNewThreadLockKey()
+	inline ThreadToRunID GetNewThreadLockKey()
 	{
-		return	TaskData.Lock_r<ThreadToRunID>([this](MainTaskData& taskdata)
+		return	RuningTasks.Lock_r<ThreadToRunID>([this](RuningTaskDataList& taskdata)
 		{
-			return GetNewThreadLockKey(taskdata);
+			return GetNewThreadLockKey(taskdata.TaskData);
 		});
 	}
 
-	AsynTask AddTask(ThreadToRunID thread, FuncPtr &&Func, const Vector<TaskID> &TaskDependencies);
-	AsynTask AddTask(TaskType TaskType, FuncPtr &&Func, const Vector<TaskID> &TaskDependencies)
+
+	AsynTask AddTask(ThreadToRunID thread, FuncPtr &&Func, const Vector<TaskID> &TaskDependencies,RuningTaskDataList& List);
+	inline AsynTask AddTask(TaskType TaskType, FuncPtr &&Func, const Vector<TaskID> &TaskDependencies,RuningTaskDataList& List)
 	{
-		return AddTask(GetThreadFromTask(TaskType), std::move(Func), TaskDependencies);
+		return AddTask(GetThreadFromTask(TaskType), std::move(Func), TaskDependencies,List);
 	}
+	
+	
+	
+	inline AsynTask AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vector<TaskID>& TaskDependencies)
+	{
+		return	RuningTasks.Lock_r<AsynTask>([thread,&Func,&TaskDependencies,this](RuningTaskDataList& taskdata)
+		   {
+			   return AddTask(thread, std::move(Func), TaskDependencies, taskdata);
+		   });
+	}
+	
+	inline AsynTask AddTask(TaskType TaskType, FuncPtr&& Func, const Vector<TaskID>& TaskDependencies)
+	{
+		return	RuningTasks.Lock_r<AsynTask>([TaskType, &Func, &TaskDependencies, this](RuningTaskDataList& taskdata)
+		   {
+			   return AddTask(TaskType, std::move(Func), TaskDependencies, taskdata);
+		   });
+	}
+	
+	
 
 	template <typename... Pars>
 	AsynTask_t<AsynNonVoidType> AddTask_t(TaskType TaskType, Delegate<void, Pars...> task_function, const Vector<TaskID> &TaskDependencies, MovedParsParam(Pars) pars)
@@ -758,10 +781,8 @@ public:
 		auto r = task_promise->get_future();
 		AsynTask_t<R> Ret;
 
-		Ret._TaskID = TaskData.Lock_r<TaskID>([this](MainTaskData& Maintasks) 
-			{
-				return Maintasks.GetNextTasksID();
-			});
+		Ret._TaskID = List.TaskData.GetNextTasksID();
+			
 		TaskID NewTasklID = Ret._TaskID;
 
 		Asyn_SetFuture(Ret._TaskID, std::move(r), List);
@@ -790,7 +811,7 @@ public:
 			}
 		};
 
-		AddTask(TaskType, std::move(NewPtr), TaskDependencies);
+		AddTask(TaskType, std::move(NewPtr), TaskDependencies,List);
 		return Ret;
 
 
@@ -800,7 +821,7 @@ public:
 	{
 		return RuningTasks.Lock_r<AsynTask_t<R>>([&](RuningTaskDataList& List)
 			{
-				return AddTask_t<R,Pars...>(TaskType, std::move(task_function),TaskDependencies,List,MoveParPack(Pars, pars));
+				return AddTask_t<Pars...>(TaskType, std::move(task_function),TaskDependencies,List,MoveParPack(Pars, pars));
 			});
 	}
 
@@ -827,7 +848,7 @@ public:
 			return AsynNonVoidValue;
 		};
 
-		return AddTask_t<AsynNonVoidType, Pars...>(TaskType, std::move(Func), TaskDependencies, MoveParPack(Pars, pars));
+		return AddTask_t<AsynNonVoidType, Pars...>(TaskType, std::move(Func), TaskDependencies, MoveParPack(Pars, pars));	
 	}
 
 	inline static Threads *Get_Threads()
@@ -846,7 +867,13 @@ public:
 	template <typename... Pars>
 	AsynTask_t<AsynNonVoidType> RunOnOnMainThread(Delegate<void, Pars...> &&task_function, const Vector<TaskID> &TaskDependencies, MovedParsParam(Pars) pars)
 	{
-		return AddTask_t<AsynNonVoidType>(MainThread, std::move(task_function), TaskDependencies, MoveParPack(Pars, pars));
+		return AddTask_t(MainThread, std::move(task_function), TaskDependencies, MoveParPack(Pars, pars));
+	}
+
+	template <typename... Pars>
+	AsynTask_t<AsynNonVoidType> RunOnOnMainThread(Delegate<void, Pars...> &&task_function, const Vector<TaskID> &TaskDependencies,RuningTaskDataList& List, MovedParsParam(Pars) pars)
+	{
+		return AddTask_t(MainThread, std::move(task_function), TaskDependencies, List, MoveParPack(Pars, pars));
 	}
 
 	static bool IsOnMainThread();
@@ -969,10 +996,10 @@ public:
 					};
 
 					List._RuningTasks.erase(ID);
-					tep = Threads::_GlobalThreads->AddTask_t(
+					tep = AddTask_t(
 						V.ThreadToRun,
 						std::move(Func),
-						{});
+						{},List);
 				}
 			}
 		}
@@ -1106,7 +1133,6 @@ private:
 	~Threads();
 	static void ThreadLoop(Threads *_This, ThreadInfo *Info);
 
-	Mutex<MainTaskData> TaskData;
 	Mutex<MainThreadTaskData> MainThreadData;
 
 	std::condition_variable _NewTask;
