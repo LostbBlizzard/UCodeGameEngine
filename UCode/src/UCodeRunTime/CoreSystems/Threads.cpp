@@ -74,7 +74,8 @@ Threads::~Threads()
 
 	//
 	
-	_Threads.Lock([](Vector<ThreadInfo>& val)
+	Vector<std::shared_ptr<std::thread>> list;
+	_Threads.Lock([&list](Vector<ThreadInfo>& val)
 		{
 			for (auto& Item : val)
 			{
@@ -82,10 +83,14 @@ Threads::~Threads()
 			}
 			for (auto& Item : val)
 			{
-				Item.thread->join();
+				list.push_back(std::move(Item.thread));
 			}
 			val.clear();
 	});
+	for (auto& Item : list)
+	{
+		Item->join();
+	}
 
 	_GlobalThreads = nullptr;
 }

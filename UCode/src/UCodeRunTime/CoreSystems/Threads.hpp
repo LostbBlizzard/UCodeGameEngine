@@ -1047,7 +1047,7 @@ public:
 					donefunc(std::move(Move));
 
 					List._RuningTasks.erase(ID);
-					return false;
+					return true;
 				}
 				else
 				{
