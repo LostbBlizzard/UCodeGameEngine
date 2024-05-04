@@ -345,7 +345,7 @@ AsynTask Threads::AddTask(ThreadToRunID thread, FuncPtr&& Func, const Vector<Tas
 
 		Task.taskID = TaskID(taskid - 1);
 
-		List._RuningTasks.GetValue(Task.taskID).ThreadToRun = thread;
+		List._RuningTasks.GetValue(Task.taskID).ThreadToRun = MainThread;
 		MainThreadData.Lock([&Task](MainThreadTaskData& data)
 		{
 			data._MainThreadData._TaskToDo.push_back(std::move(Task));
@@ -507,7 +507,8 @@ ThreadToRunID GetThreadFromTask(TaskType type)
 	if (type == TaskType::Main
 		|| type == TaskType::Rendering
 		|| type == TaskType::Physics
-		|| type == TaskType::Audio)
+		|| type == TaskType::Audio
+		|| threads_count == 0)
 	{
 		return MainThread;
 	}
@@ -516,18 +517,8 @@ ThreadToRunID GetThreadFromTask(TaskType type)
 	}
 	else
 	{
-		TaskType_t TypeAsInt = (TaskType_t)type;
-		ThreadToRunID_t NewV;
-		if (TypeAsInt > threads_count)
-		{
-			NewV = TypeAsInt-threads_count;
-		}
-		else
-		{
-			NewV = TypeAsInt;
-		}
-
-		return ThreadToRunID(NewV);
+		TaskType_t TypeAsInt = (TaskType_t)type;	
+		return ThreadToRunID(TypeAsInt % threads_count);
 	}
 }
 
