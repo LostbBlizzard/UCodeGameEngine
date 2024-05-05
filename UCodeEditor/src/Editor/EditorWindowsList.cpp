@@ -7,13 +7,15 @@
 #include <EditorWindows/ProjectManagement/ProjectWindow.hpp>
 #include <EditorWindows/ProjectManagement/OpenProjectWindow.hpp>
 #include <EditorWindows/ProjectManagement/ExportProjectWindow.hpp>
+#include <EditorWindows/ProjectManagement/ProfilerWindow.hpp>
+
 #include <EditorWindows/GraphWindows/ShaderGraphWindow.hpp>
 #include <EditorWindows/GraphWindows/UCodeGraph.hpp>
-#include <EditorWindows/Git/GitWindow.hpp>
 #include <EditorWindows/ExternalServices/LibraryWindow.hpp>
 
 #include <EditorWindows/BasicWindows/UserSettingsWindow.hpp>
 #include <EditorWindows/BasicWindows/DebugingWindow.hpp>
+
 EditorStart
 
 Variant<EditorWindowData, EditorWindowsList::NewMenu, EditorWindowsList::EndMenu> Data2[] =
@@ -36,7 +38,7 @@ Variant<EditorWindowData, EditorWindowsList::NewMenu, EditorWindowsList::EndMenu
 	ConsoleWindow::GetEditorData(),
 	ProjectWindow::GetEditorData(),
 	ExportProjectWindow::GetEditorData(),
-
+	ProfilerWindow::GetEditorData(),
 	EditorWindowsList::EndMenu(),
 	
 	/*
