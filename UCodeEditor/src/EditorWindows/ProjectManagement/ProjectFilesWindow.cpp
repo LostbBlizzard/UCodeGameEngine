@@ -147,9 +147,17 @@ void ProjectFilesWindow::UpdateWindow()
             ImGui::BeginDisabled(CantGoBack);
             if (ImGui::Button("Back") || (settings.IsKeybindActive(KeyBindList::Alternative) && !CantGoBack))
             {
-                Path oldpath = _LookingAtDir.value();
-                _LookingAtDir = oldpath.parent_path().parent_path().generic_u8string() + '/';
-                UpdateDir();
+                if (_LookingAtAssetForSubAssets.has_value())
+                {
+                    _LookingAtAssetForSubAssets = {};
+                    UpdateDir();
+                }
+                else
+                {
+                    Path oldpath = _LookingAtDir.value();
+                    _LookingAtDir = oldpath.parent_path().parent_path().generic_u8string() + '/';
+                    UpdateDir();
+                }
             }
             ImGui::EndDisabled();
 
@@ -205,10 +213,29 @@ void ProjectFilesWindow::UpdateWindow()
                     ClickedIndex = i;
                 }
             }
+            if (_LookingAtAssetForSubAssets.has_value())
+            {
+                ImGui::SameLine();
+                itemstr = "~" + _LookingAtAssetForSubAssets.value().generic_string();
+                auto s = ImGui::CalcTextSize(itemstr.c_str());
+                auto roundsize = 10;
+
+                ImGui::PushID(&_LookingAtAssetForSubAssets.value());
+
+                ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_::ImGuiCol_FrameBgActive]);
+                bool onclick = ImGui::Button(itemstr.c_str(), ImVec2(std::ceil(s.x / roundsize) * roundsize + 10, 0));
+                ImGui::PopStyleColor();
+                ImGui::PopID();
+
+            }
             ImGui::PopStyleVar();
 
             if (ClickedIndex.has_value())
             {
+                if (_LookingAtAssetForSubAssets.has_value())
+                {
+                    _LookingAtAssetForSubAssets = {};
+                }
                 Path oldpath = _LookingAtDir.value();
                 for (size_t i = 0; i < (list.size() - ClickedIndex.value() - 1); i++)
                 {
@@ -239,7 +266,66 @@ void ProjectFilesWindow::UpdateWindow()
             ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonActive, { 0,0,0,0 });
             ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonHovered, { 1,1,1,0.1 });
 
-            ShowFileCells();
+            if (_LookingAtAssetForSubAssets.has_value())
+            {
+                auto& files = Get_ProjectFiles()._AssetFiles;
+
+                ProjectFiles::AssetFile* myassetfile = nullptr;
+                Path currentpath = _LookingAtDir.value().native() + _LookingAtAssetForSubAssets.value().native();
+                for (auto& Item : files)
+                {
+                    if (Item._File->FileFullPath == currentpath)
+                    {
+                        myassetfile = &Item;
+                        break;
+                    }
+                }
+
+                if (myassetfile == nullptr)
+                {
+                    _LookingAtAssetForSubAssets = {};
+                }
+                else
+                {
+
+                    if (!myassetfile->_ManageFile.Get_Value()->HasSubAssets)
+                    {
+
+                        _LookingAtAssetForSubAssets = {};
+                    }
+                    else
+                    {
+                        auto val = myassetfile->_ManageFile.Get_Value();
+                        auto buttioninfo = GetButtionSize();
+
+                        ImVec2 CeSize = { buttioninfo.thumbnail.X,buttioninfo.thumbnail.Y };
+                        float cellSize = buttioninfo.cellSize;
+                        
+                        float panelWidth = ImGui::GetContentRegionAvail().x;
+                        i32 columnCount = (i8)(panelWidth / cellSize);
+                        if (columnCount < 1) {
+                            columnCount = 1;
+                        }
+
+                        ImGui::Columns(columnCount, 0, false);
+
+
+
+                        UEditorDrawSubAssetContext context;
+                        context._ManageFile = AnyManagedPtr::As(myassetfile->_ManageFile);
+                        context.ButtionSize = { CeSize.x,CeSize.y };
+                        context.OnDoneDrawingAssetButton = [](UEditorDrawSubAssetContext::DoneDraw& context)
+                            {
+                                ImGui::NextColumn();
+                            };
+                        val->DrawSubAssets(context);
+                    }
+                }
+            }
+            else 
+            {
+                ShowFileCells();
+            }
 
             ImGui::PopStyleColor();
             ImGui::PopStyleColor();
@@ -400,13 +486,11 @@ void ProjectFilesWindow::UpdateWindow()
     }
 }
 void ProjectFilesWindow::ShowFileCells()
-{
-    static float padding = 32;
-    static float thumbnailSize = 64;
-    //ImGui::SliderFloat("Thumbnail Size", &thumbnailSize, 16, 512);
-    // ImGui::SliderFloat("Padding", &padding, 0, 32);
-    float cellSize = thumbnailSize + padding;
-    ImVec2 CeSize = { thumbnailSize, thumbnailSize };
+{ 
+    auto buttioninfo =GetButtionSize();
+
+    ImVec2 CeSize = { buttioninfo.thumbnail.X,buttioninfo.thumbnail.Y };
+    float cellSize = buttioninfo.cellSize;
     float panelWidth = ImGui::GetContentRegionAvail().x;
     i32 columnCount = (i8)(panelWidth / cellSize);
     if (columnCount < 1) {
@@ -785,10 +869,24 @@ struct TepFilesToRemove
 };
 static TepFilesToRemove fileinteptoremove;
 
+ProjectFilesWindow::ButtionSizeData ProjectFilesWindow::GetButtionSize()
+{
+    float padding = 32;
+    float thumbnailSize = 64;
+    //ImGui::SliderFloat("Thumbnail Size", &thumbnailSize, 16, 512);
+    // ImGui::SliderFloat("Padding", &padding, 0, 32);
+    float cellSize = thumbnailSize + padding;
+    ButtionSizeData r;
+    r.cellSize = cellSize;
+    r.thumbnail = { thumbnailSize, thumbnailSize };
+    return r;
+}
 
 bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData& Item, ImVec2& ButtionSize)
 {
 
+    Optional<std::function<void()>> OnInspect;
+    Optional<std::function<void()>> OnShowSubAssets;
     if (Item.FileType == FileHelper::FileType::Dir)
     {
         if (ImGuIHelper::ImageButton(&Item, AppFiles::sprite::Dir_folder_image, ButtionSize))
@@ -850,33 +948,44 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
                         HG.LastUsed = ProjectFiles.AssetFileMaxLastUsed;
                     }
 
+                    OnInspect = [&]()
+                        {
+                            InspectWindow::InspectData V;
+                            V._Data = AnyManagedPtr::As(File->_ManageFile);
 
+                            static auto Func = Get_ProjectFiles()._newuid;
+                            V._Draw = [](InspectWindow::InspectDrawer& data)
+                                {
+                                    UEditorAssetDrawInspectContext Data;
+                                    Data.Drawer = &data;
+                                    Data._newuid = Func;
+
+                                    auto AssetFile = data.GetPtr().As_ptr<UEditorAssetFile>();
+                                    if (AssetFile.Has_Value())
+                                    {
+                                        AssetFile.Get_Value()->DrawInspect(Data);
+                                    }
+                                    else
+                                    {
+                                        data.SetPtrNull();
+                                    }
+                                };
+
+
+                            auto inpswin = Get_App()->Get_Window<InspectWindow>();
+                            inpswin->Inspect(V);
+                        };
+
+                    if (File->_File->HasSubAssets)
+                    {
+                        OnShowSubAssets = [&]()
+                            {
+                                _LookingAtAssetForSubAssets = File->_File->FileFullPath.filename();
+                            };
+                    }
                     if (File->_File->DrawButtion(Context))
                     {
-                        InspectWindow::InspectData V;
-                        V._Data = AnyManagedPtr::As(File->_ManageFile);
-
-                        static auto Func = Get_ProjectFiles()._newuid;
-                        V._Draw = [](InspectWindow::InspectDrawer& data)
-                            {
-                                UEditorAssetDrawInspectContext Data;
-                                Data.Drawer = &data;
-                                Data._newuid = Func;
-
-                                auto AssetFile = data.GetPtr().As_ptr<UEditorAssetFile>();
-                                if (AssetFile.Has_Value())
-                                {
-                                    AssetFile.Get_Value()->DrawInspect(Data);
-                                }
-                                else
-                                {
-                                    data.SetPtrNull();
-                                }
-                            };
-
-
-                        auto inpswin = Get_App()->Get_Window<InspectWindow>();
-                        inpswin->Inspect(V);
+                        (*OnInspect)();
                     }
                 }
                 else
@@ -912,17 +1021,22 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
 
         if (settings.IsKeybindActive(KeyBindList::Inspect))
         {
-            if (ImGui::IsKeyDown(ImGuiMod_Ctrl)) 
+            if (ImGui::IsKeyDown(ImGuiMod_Ctrl))
             {
-                FileHelper::OpenPathinFiles(Item.FullFileName);
+                if (OnShowSubAssets.has_value())
+                {
+                    (*OnShowSubAssets)();
+                }
             }
             else
             {
-
-                FileHelper::OpenPathinFiles(_LookingAtDir.value());
+                if (OnInspect.has_value())
+                {
+                    (*OnInspect)();
+                }
             }
         }
-
+        
         
         if (settings.IsKeybindActive(KeyBindList::Copy))
         {
@@ -990,14 +1104,27 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
 
         auto str = settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
 
-        if (ImGui::MenuItem("Open File", str.c_str()) || settings.IsKeybindActive(KeyBindList::Inspect))
+        if (ImGui::MenuItem("Inspect", str.c_str(),nullptr, OnInspect.has_value()) || settings.IsKeybindActive(KeyBindList::Inspect))
         {
-            FileHelper::OpenPathinFiles(Item.FullFileName);
+            if (OnInspect.has_value()) 
+            {
+                (*OnInspect)();
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        
+        str = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
+        if (ImGui::MenuItem("Show SubAssets", str.c_str(),nullptr,OnShowSubAssets.has_value()) || (ImGui::IsKeyDown(ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
+        {
+            if (OnShowSubAssets.has_value())
+            {
+                (*OnShowSubAssets)();
+            }
             ImGui::CloseCurrentPopup();
         }
 
-        str = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
-        if (ImGui::MenuItem("Show in Files", str.c_str()) || (ImGui::IsKeyDown(ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
+        //str = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
+        if (ImGui::MenuItem("Show in Files"))
         {
             FileHelper::OpenPathinFiles(_LookingAtDir.value());
             ImGui::CloseCurrentPopup();

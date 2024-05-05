@@ -267,12 +267,27 @@ struct UEditorAssetShouldUnloadContext
 {
 
 };
+
+
+struct UEditorDrawSubAssetContext
+{
+	struct DoneDraw
+	{
+		String AssetName;
+		Optional<std::function<void(String& NewAsset)>> OnAssetRename;
+		Optional<std::function<void()>> OnDestroy;
+	};
+	AnyManagedPtr _ManageFile;
+	Vec2 ButtionSize;
+	std::function<void(DoneDraw&)> OnDoneDrawingAssetButton;
+};
 class UEditorAssetFile
 {
 public:
 	Path FileFullPath;
 	Optional<Path> FileMetaFullPath;//if  UEditorAssetFileData::FileMetaExtWithDot HasValue
 	Path TemporaryPath;
+	bool HasSubAssets = false;
 
 	virtual ~UEditorAssetFile()
 	{
@@ -295,6 +310,11 @@ public:
 	}
 
 	virtual void DrawInspect(const UEditorAssetDrawInspectContext& Item)
+	{
+
+	}
+
+	virtual void DrawSubAssets(const UEditorDrawSubAssetContext& Item)
 	{
 
 	}
