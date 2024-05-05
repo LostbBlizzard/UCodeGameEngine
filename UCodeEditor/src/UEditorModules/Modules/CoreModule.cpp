@@ -16,6 +16,7 @@
 
 #include "UCodeRunTime/ULibrarys/AssetManagement/AssetRendering.hpp"
 #include "UCodeRunTime/ULibrarys/Audio/AudioSystem.hpp"
+#include <Imgui/misc/cpp/imgui_stdlib.h>
 EditorStart
 
 
@@ -120,18 +121,30 @@ public:
 			ImGui::BeginDisabled(true);
 
 
-			ImGuIHelper::Image(AppFiles::sprite::Uility_image, { 20 ,20 });
+
+			const float square_sz = ImGui::GetFrameHeight();
+			ImGuIHelper::Image(AppFiles::sprite::Uility_image, { square_sz ,square_sz });
 			ImGui::SameLine();
 
 			String tep = "Compoent/SpriteRenderer";
-			ImGuIHelper::InputText("Type", tep);
+
+			ImGuIHelper::ItemLabel(StringView("Type"), ImGuIHelper::ItemLabelFlag::Left);
+
+			ImGui::PushItemWidth(ImGui::CalcItemWidth() - (ImGuIHelper::CheckBoxSizeWithPadding().x));
+			ImGui::PushID(&tep);
+			ImGui::InputText("", &tep);
+			ImGui::PopID();
+			ImGui::PopItemWidth();
+
+			ImGui::SameLine();
 
 			ImGui::EndDisabled();
-			ImGui::SameLine();
-			bool V = Component->Get_IsActive();
-			ImGuIHelper::ToggleField("Active", V);
-			Component->Set_CompoentActive(V);
 
+			bool V = Component->Get_IsActive();
+			ImGui::PushID(&V);
+			ImGui::Checkbox("", &V);
+			ImGui::PopID();
+			Component->Set_CompoentActive(V);
 		}
 
 		Data.Draw->AsssetField("Shader", Component->shader);
@@ -192,18 +205,29 @@ public:
 			ImGui::BeginDisabled(true);
 
 
-			ImGuIHelper::Image(AppFiles::sprite::Uility_image, { 20 ,20 });
+			const float square_sz = ImGui::GetFrameHeight();
+			ImGuIHelper::Image(AppFiles::sprite::Uility_image, { square_sz ,square_sz });
 			ImGui::SameLine();
 
 			String tep = "Compoent/Camera";
-			ImGuIHelper::InputText("Type", tep);
-			ImGui::EndDisabled();
-			ImGui::SameLine();
-			bool V = Component->Get_IsActive();
-			ImGuIHelper::ToggleField("Active", V);
-			Component->Set_CompoentActive(V);
 
-			
+			ImGuIHelper::ItemLabel(StringView("Type"), ImGuIHelper::ItemLabelFlag::Left);
+
+			ImGui::PushItemWidth(ImGui::CalcItemWidth() - (ImGuIHelper::CheckBoxSizeWithPadding().x));
+			ImGui::PushID(&tep);
+			ImGui::InputText("", &tep);
+			ImGui::PopID();
+			ImGui::PopItemWidth();
+
+			ImGui::SameLine();
+
+			ImGui::EndDisabled();
+
+			bool V = Component->Get_IsActive();
+			ImGui::PushID(&V);
+			ImGui::Checkbox("", &V);
+			ImGui::PopID();
+
 		}
 		auto CamTV = Component->Get_CamType();
 		ImGuIHelper::EnumField("Type", CamTV, CamTypes, CamTypesCount);

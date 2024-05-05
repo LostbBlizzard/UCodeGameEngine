@@ -310,6 +310,18 @@ void ImGuIHelper::GetSpriteUV(UCode::Sprite* Sprite, ImVec2& uvo, ImVec2& uv1)
 	}
 }
 
+ImVec2 ImGuIHelper::CheckBoxSize()
+{
+	const float square_sz = ImGui::GetFrameHeight();
+	return ImVec2(square_sz, square_sz);
+}
+ImVec2 ImGuIHelper::CheckBoxSizeWithPadding()
+{
+	const float square_sz = ImGui::GetFrameHeight();
+
+    const float pad = ImMax(1.0f, IM_TRUNC(square_sz / 6.0f));
+	return ImVec2(square_sz + 2 + pad * 2, square_sz + 2 + pad * 2);
+}
 
 //From https://github.com/ocornut/imgui/issues/3469
 void ImGuIHelper::ItemLabel(StringView title, ItemLabelFlag flags)
@@ -1213,8 +1225,8 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 	const void* ObjectList, size_t ObjectListSize, size_t ItemObjectSize,
 	ObjectFieldFuncPtr DrawObject, const String& Name)
 {
-	const ImVec2 imagesize = { 20,20 };
-	ImGuIHelper::Image(Sprite, imagesize);
+	const float square_sz = ImGui::GetFrameHeight();
+	const ImVec2 imagesize = { square_sz,square_sz };
 	auto winwidth = ImGui::GetWindowWidth();
 
 
@@ -1267,6 +1279,8 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 	}
 	ImGui::PopItemWidth();
 
+	ImGui::SameLine();
+	ImGuIHelper::Image(Sprite, imagesize);
 
 	return ok;
 }

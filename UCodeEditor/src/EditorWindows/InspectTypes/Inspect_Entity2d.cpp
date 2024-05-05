@@ -15,6 +15,7 @@
 #include "UEditorModules/UEditorModule.hpp"
 #include "ULang/UCompiler.hpp"
 #include "UEditorModules/Modules/CodeModule.hpp"
+#include <Imgui/misc/cpp/imgui_stdlib.h>
 EditorStart
 
 
@@ -43,21 +44,28 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
         ImGui::BeginDisabled(true);
 
 
-        ImGuIHelper::Image(AppFiles::sprite::Entity, { 20 ,20 });
+        const float square_sz = ImGui::GetFrameHeight();
+        ImGuIHelper::Image(AppFiles::sprite::Entity, { square_sz ,square_sz });
         ImGui::SameLine();
 
-        String tep ="Entity";
-        ImGuIHelper::InputText("Type",tep);
+        String tep = "Entity";
+        ImGuIHelper::ItemLabel(StringView("Type"), ImGuIHelper::ItemLabelFlag::Left);
+
+        ImGui::PushItemWidth(ImGui::CalcItemWidth() - (ImGuIHelper::CheckBoxSizeWithPadding().x));
+        ImGui::PushID(&tep);
+        ImGui::InputText("", &tep);
+        ImGui::PopID();
+        ImGui::PopItemWidth();
+
+        ImGui::SameLine();
+
         ImGui::EndDisabled();
 
-        ImGui::SameLine();
-
         bool V = item->GetActive();
-        ImGuIHelper::ToggleField("Active", V);
-        item->SetActive(V);
-
-
-        ImGuIHelper::InputText("Name", item->NativeName());
+        ImGui::PushID(&V);
+        ImGui::Checkbox("", &V);
+        ImGui::PopID();
+		item->SetActive(V);
     }
    
     bool Is2D = true;
