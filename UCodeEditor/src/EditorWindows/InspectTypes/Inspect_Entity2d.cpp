@@ -16,6 +16,7 @@
 #include "ULang/UCompiler.hpp"
 #include "UEditorModules/Modules/CodeModule.hpp"
 #include <Imgui/misc/cpp/imgui_stdlib.h>
+#include "Helper/UserSettings.hpp"
 EditorStart
 
 
@@ -229,8 +230,47 @@ void Inspect_Compoent2d::DrawCompoentButtion(UCode::Compoent* Item, EditorAppCom
         g.DisabledAlphaBackup = g.Style.Alpha;
         g.Style.Alpha *= g.Style.DisabledAlpha;
     }
+    
 
-    bool node_open = ImGuIHelper::TreeNode(Item,CompoentName, GetCompoentSprite(Type));
+    
+    auto& g = *GImGui;
+	auto SizeY = g.FontSize + g.Style.FramePadding.y * 2;
+	ImGuIHelper::Image(GetCompoentSprite(Type), ImVec2(SizeY, SizeY)); ImGui::SameLine();
+   
+    
+    bool node_open = ImGui::TreeNode(Item, CompoentName);
+    if (ImGui::IsItemFocused() && !ImGui::GetIO().WantTextInput)
+    {
+        auto& settings = UserSettings::GetSettings();
+
+
+        if (settings.IsKeybindActive(KeyBindList::Inspect))
+        {
+            auto inpswin = App->Get_Window<InspectWindow>();
+            inpswin->Inspect(Inspect_Compoent2d::Get(Item));
+        }
+        if (settings.IsKeybindActive(KeyBindList::Copy))
+        {
+            UCode::Scene2dData::Compoent_Data v;
+            UCode::Scene2dData::SaveCompoentData(Item, v, USerializerType::YAML);
+
+            USerializer V(USerializerType::YAML);
+            V.Write("UData", v);
+            V.Write("UType", "Compoent");
+
+            auto copytext = V.Get_TextMaker().c_str();
+
+            ImGui::SetClipboardText(copytext); 
+        }
+        if (settings.IsKeybindActive(KeyBindList::Paste))
+        {
+ 
+        }
+        if (settings.IsKeybindActive(KeyBindList::Delete))
+        {
+            UCode::Compoent::Destroy(Item); 
+        }
+    }
 
     if (IsNotActive) 
     {
@@ -239,14 +279,47 @@ void Inspect_Compoent2d::DrawCompoentButtion(UCode::Compoent* Item, EditorAppCom
     }
     if (ImGuIHelper::BeginPopupContextItem())
     {
-        ImGuIHelper::Text(StringView(CompoentName));  ImGui::SameLine(); ImGuIHelper::Text(StringView("options"));
+        ImGuIHelper::Text(StringView(CompoentName));  ImGui::SameLine(); ImGuIHelper::Text(StringView("Options"));
         ImGui::Separator();
-        if (ImGui::MenuItem("Inspect"))
+
+        auto& settings = UserSettings::GetSettings();
+        auto keybindstring = settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
+
+        if (ImGui::MenuItem("Inspect", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Inspect))
         {
             auto inpswin = App->Get_Window<InspectWindow>();
             inpswin->Inspect(Inspect_Compoent2d::Get(Item));
         }
-        if (ImGui::MenuItem("Destroy")) { UCode::Compoent::Destroy(Item); }
+
+
+        keybindstring = settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
+        if (ImGui::MenuItem("Copy", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Copy))
+        {
+            UCode::Scene2dData::Compoent_Data v;
+            UCode::Scene2dData::SaveCompoentData(Item, v, USerializerType::YAML);
+
+            USerializer V(USerializerType::YAML);
+            V.Write("UData", v);
+            V.Write("UType", "Compoent");
+
+            auto copytext = V.Get_TextMaker().c_str();
+
+            ImGui::SetClipboardText(copytext);
+        }
+
+
+        keybindstring = settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
+        if (ImGui::MenuItem("Paste", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Paste))
+        {
+
+        }
+
+
+        keybindstring = settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
+        if (ImGui::MenuItem("Destroy", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Inspect)) 
+        {
+            UCode::Compoent::Destroy(Item); 
+        }
         ImGui::EndPopup();
     }
     
