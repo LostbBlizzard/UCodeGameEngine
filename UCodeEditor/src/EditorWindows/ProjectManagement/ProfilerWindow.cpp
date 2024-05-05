@@ -1,18 +1,17 @@
 #include "ProfilerWindow.hpp"
-
 EditorStart
+
+
 ProfilerWindow::ProfilerWindow(const NewEditorWindowData& project)
 	: EditorWindow(project)
 {
-
 }
 ProfilerWindow::~ProfilerWindow() 
 {
 
 }
-void ProfilerWindow::UpdateWindow() 
+void ProfilerWindow::UpdateWindow()
 {
-
 }
 void ProfilerWindow::OnSaveWindow(USerializer& JsonToSaveIn) 
 {
