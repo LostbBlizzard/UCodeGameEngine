@@ -50,9 +50,15 @@ private:
 	DirectoryViewer Viewer;
 	bool _ShowingAddNewItemWindow =false;
 	Optional<Path> RenameFile;
-	
+	Optional<Path> _LookingAtAssetForSubAssets;
 	ProjectFiles& Get_ProjectFiles();
 
+	struct ButtionSizeData
+	{
+		float cellSize;
+		Vec2 thumbnail;
+	};
+	ButtionSizeData GetButtionSize();
 	bool DrawFileItem(ProjectFilesWindow::FileData& Item, ImVec2& ButtionSize);
 	static void DirectoryViewerOpenFile(DirectoryViewer& From, void* Ptr, const Path& Path);
 };

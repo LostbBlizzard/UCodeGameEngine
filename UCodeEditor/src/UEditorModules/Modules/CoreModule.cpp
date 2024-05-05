@@ -17,6 +17,7 @@
 #include "UCodeRunTime/ULibrarys/AssetManagement/AssetRendering.hpp"
 #include "UCodeRunTime/ULibrarys/Audio/AudioSystem.hpp"
 #include <Imgui/misc/cpp/imgui_stdlib.h>
+#include "Imgui/imgui_internal.h"
 EditorStart
 
 
@@ -355,6 +356,7 @@ public:
 
 		LiveingPng()
 		{
+			HasSubAssets = true;
 
 		}
 		
@@ -380,7 +382,76 @@ public:
 		};
 		static constexpr size_t FilterEnumValuesSize = sizeof(FilterEnumValues) / sizeof(FilterEnumValues[0]);
 
-	
+		void LoadAssetIfNeeded(SpriteItem& spr)
+		{
+			if (!spr._Asset.get())
+			{
+				auto& textureasset = asset.value();
+				auto& tex = textureasset._Base;
+				UCode::Sprite sprite(&tex, spr.offset.X, spr.offset.Y, spr.size.X, spr.size.Y);
+
+				spr._Asset = std::make_shared<UCode::SpriteAsset>(sprite, textureasset.GetManaged());
+				spr._Asset->Uid = spr.uid;
+
+
+				auto runtimeproject = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+				auto p = FileFullPath.generic_string();
+				auto relpath = p.substr(runtimeproject->GetAssetsDir().generic_string().size());
+
+				spr._Asset->ObjectPath = relpath + EditorIndex::SubAssetSeparator + spr.spritename + UCode::SpriteData::FileExtDot;
+			}
+		}
+
+		Optional<UID> OpenSpriteEditor;
+		void DrawSubAssets(const UEditorDrawSubAssetContext& Item) override
+		{
+
+			for (auto& Spr : setting.sprites)
+			{
+				UEditorDrawSubAssetContext::DoneDraw ondraw;
+				ondraw.AssetName = Spr .spritename;
+				ondraw.OnAssetRename = [](String&)
+					{
+
+					};
+				ondraw.OnDestroy = []()
+					{
+
+					};
+				LoadAssetIfNeeded(Spr);
+				if (ImGuIHelper::ImageButton(&Spr, &Spr._Asset.get()->_Base, *(ImVec2*)&Item.ButtionSize))
+				{
+					auto App = EditorAppCompoent::GetCurrentEditorAppCompoent();
+					auto inpswin = App->Get_Window<InspectWindow>();
+
+
+                    static auto Func = App->GetPrjectFiles()._newuid;
+					InspectWindow::InspectData V;
+                    V._Data = Item._ManageFile;
+					V._Draw = [](InspectWindow::InspectDrawer& data)
+						{
+							UEditorAssetDrawInspectContext Data;
+							Data.Drawer = &data;
+							Data._newuid = Func;
+
+							auto AssetFile = data.GetPtr().As_ptr<UEditorAssetFile>();
+							if (AssetFile.Has_Value())
+							{
+								AssetFile.Get_Value()->DrawInspect(Data);
+							}
+							else
+							{
+								data.SetPtrNull();
+							}
+						};
+                                
+					inpswin->Inspect(V);
+
+					OpenSpriteEditor = Spr.uid;
+				}
+				Item.OnDoneDrawingAssetButton(ondraw);
+			}
+		}
 		void Init(const UEditorAssetFileInitContext& Context) override
 		{
 			this->FileMetaFullPath = this->FileFullPath.native() + Path(UEditorAssetFileData::DefaultMetaFileExtWithDot).native();
@@ -550,22 +621,7 @@ public:
 				{
 					if (Item._AssetToLoad == spr.uid)
 					{
-						if (!spr._Asset.get())
-						{
-							auto& textureasset = asset.value();
-							auto& tex = textureasset._Base;
-							UCode::Sprite sprite(&tex, spr.offset.X, spr.offset.Y, spr.size.X, spr.size.Y);
-
-							spr._Asset = std::make_shared<UCode::SpriteAsset>(sprite, textureasset.GetManaged());
-							spr._Asset->Uid = spr.uid;
-
-
-							auto runtimeproject = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
-							auto p = FileFullPath.generic_string();
-							auto relpath = p.substr(runtimeproject->GetAssetsDir().generic_string().size());
-
-							spr._Asset->ObjectPath = relpath + EditorIndex::SubAssetSeparator + spr.spritename + UCode::SpriteData::FileExtDot;
-						}
+						LoadAssetIfNeeded(spr);
 						auto asset = spr._Asset.get();
 
 						return asset->GetAsset();
@@ -611,7 +667,7 @@ public:
 			ImGui::EndDisabled();
 			static void* p = nullptr;
 
-			if (ImGui::Button("Open Sprite Editor"))
+			if (ImGui::Button("Open Sprite Editor")  || OpenSpriteEditor)
 			{
 				p = this;
 				ImGui::OpenPopup("SpriteAssetEditor");
@@ -692,8 +748,34 @@ public:
 							auto& Item = setting.sprites[i];
 						
 							UCode::Sprite sp{ tex,(i32)Item.offset.X,(i32)Item.offset.Y,(i32)Item.size.X,(i32)Item.size.Y };
-							if (ImGuIHelper::TreeNode(&Item,StringView(Item.spritename), &sp))
+							
+							
+							
+							auto& g = *GImGui;
+							ImGuIHelper::Image(&sp, ImVec2(20, g.FontSize + g.Style.FramePadding.y * 2)); ImGui::SameLine();
+
+
+							bool focusitem = false;
+							if (OpenSpriteEditor.has_value())
 							{
+								if (OpenSpriteEditor.value() == Item.uid)
+								{
+									focusitem = true;
+									ImGui::SetNextItemOpen(true);
+									OpenSpriteEditor = {};
+								}
+								else
+								{
+									ImGui::SetNextItemOpen(false);
+								}
+							}
+
+							if (ImGui::TreeNode(&Item,ImGuIHelper::ToCStr(StringView(Item.spritename))))
+							{
+								if (focusitem)
+								{
+									ImGui::FocusItem();
+								}
 								hasoneopen = true;
 								windowdata.SelcedSpriteIndex = i;
 

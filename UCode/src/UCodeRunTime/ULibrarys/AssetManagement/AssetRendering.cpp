@@ -178,7 +178,6 @@ AsynTask_t<Unique_ptr<Texture>> AssetRendering::LoadTextureAsync(Gamelibrary* li
 
 	Delegate<Unique_ptr<Texture>, Unique_ptr<Texture>> Func3 = [](Unique_ptr<Texture>&& Tex) mutable
 		{
-			UCodeGELog("hello" << "\n");
 			Tex->InitTexture();
 
 			return std::move(Tex);
