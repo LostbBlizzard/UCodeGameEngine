@@ -1555,7 +1555,7 @@ void GameEditorWindow::GameTab()
     float Sizey = ImGui::GetItemRectSize().y;
     ImGui::SameLine();
 
-    WindowTypeButtionDown = ImGui::Button(WindowTypeText, { 0,Sizey });
+    WindowTypeButtionDown = ImGui::Button(WindowTypeText, { 0,ButtionSize.y + 6 });
 
     ImGui::Separator();
 

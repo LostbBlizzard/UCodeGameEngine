@@ -309,13 +309,65 @@ void ImGuIHelper::GetSpriteUV(UCode::Sprite* Sprite, ImVec2& uvo, ImVec2& uv1)
 		uv1 = { 1,1 };
 	}
 }
+
+
+//From https://github.com/ocornut/imgui/issues/3469
+void ImGuIHelper::ItemLabel(StringView title, ItemLabelFlag flags)
+{
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    const ImVec2 lineStart = ImGui::GetCursorScreenPos();
+    const ImGuiStyle& style = ImGui::GetStyle();
+    float fullWidth = ImGui::GetContentRegionAvail().x;
+    float itemWidth = ImGui::CalcItemWidth() + style.ItemSpacing.x;
+    ImVec2 textSize = ImGui::CalcTextSize(title.data(), title.data() + title.size());
+    ImRect textRect;
+    textRect.Min = ImGui::GetCursorScreenPos();
+    if (flags & ItemLabelFlag::Right)
+        textRect.Min.x = textRect.Min.x + itemWidth;
+    textRect.Max = textRect.Min;
+    textRect.Max.x += fullWidth - itemWidth;
+    textRect.Max.y += textSize.y;
+
+    ImGui::SetCursorScreenPos(textRect.Min);
+
+    ImGui::AlignTextToFramePadding();
+    // Adjust text rect manually because we render it directly into a drawlist instead of using public functions.
+    textRect.Min.y += window->DC.CurrLineTextBaseOffset;
+    textRect.Max.y += window->DC.CurrLineTextBaseOffset;
+
+    ImGui::ItemSize(textRect);
+    if (ImGui::ItemAdd(textRect, window->GetID(title.data(), title.data() + title.size())))
+    {
+        ImGui::RenderTextEllipsis(ImGui::GetWindowDrawList(), textRect.Min, textRect.Max, textRect.Max.x,
+            textRect.Max.x, title.data(), title.data() + title.size(), &textSize);
+
+        if (textRect.GetWidth() < textSize.x && ImGui::IsItemHovered())
+            ImGui::SetTooltip("%.*s", (int)title.size(), title.data());
+    }
+    if (flags & ItemLabelFlag::Left)
+    {
+		auto v = ImVec2{ 0, textSize.y + window->DC.CurrLineTextBaseOffset };
+		auto n = textRect.Max;
+		n.x -= v.x;
+		n.x -= v.x;
+        ImGui::SetCursorScreenPos(n);
+        ImGui::SameLine();
+    }
+    else if (flags & ItemLabelFlag::Right)
+        ImGui::SetCursorScreenPos(lineStart);
+}
+
 bool ImGuIHelper::InputText(const char* label, String& buffer, ImGuiInputTextFlags flags)
 {
-	ImGuIHelper::Text(StringView(label));
-	ImGui::SameLine();
+	ItemLabel(StringView(label), ItemLabelFlag::Left);
+
+	//ImGui::SameLine();
+
 
 	ImGui::PushID(&buffer);
+	//ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 	auto V = ImGui::InputText("", &buffer, flags);
+	//ImGui::PopItemWidth();
 	ImGui::PopID();
 
 	return V;
@@ -439,8 +491,7 @@ bool ImGuIHelper::TreeNode(const void* id, StringView label, AppFiles::sprite Sp
 
 bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
 
 	ImGui::PushID(&Value);
 	auto V = ImGui::Checkbox("", &Value);
@@ -450,9 +501,9 @@ bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 }
 
 bool ImGuIHelper::Vec2Field(const char* FieldName, UCode::Vec2& Value)
-{
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
+{	
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+
 
 	ImGui::PushID(&Value);
 	auto V = ImGui::DragFloat2("", &Value.X);
@@ -463,9 +514,8 @@ bool ImGuIHelper::Vec2Field(const char* FieldName, UCode::Vec2& Value)
 
 bool ImGuIHelper::Vec2Field(const char* FieldName, UCode::Vec2i& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::DragInt2("", &Value.X);
 	ImGui::PopID();
@@ -475,9 +525,8 @@ bool ImGuIHelper::Vec2Field(const char* FieldName, UCode::Vec2i& Value)
 
 bool ImGuIHelper::Vec3Field(const char* FieldName, UCode::Vec3& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::DragFloat3("", &Value.X);
 	ImGui::PopID();
@@ -487,9 +536,8 @@ bool ImGuIHelper::Vec3Field(const char* FieldName, UCode::Vec3& Value)
 
 bool ImGuIHelper::Vec3Field(const char* FieldName, UCode::Vec3i& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::DragInt3("", &Value.X);
 	ImGui::PopID();
@@ -499,9 +547,8 @@ bool ImGuIHelper::Vec3Field(const char* FieldName, UCode::Vec3i& Value)
 
 bool ImGuIHelper::ColorField(const char* FieldName, UCode::ColorRGBA& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::ColorEdit4("", &Value.R);
 	ImGui::PopID();
@@ -511,9 +558,8 @@ bool ImGuIHelper::ColorField(const char* FieldName, UCode::ColorRGBA& Value)
 
 bool ImGuIHelper::ColorField(const char* FieldName, UCode::ColorRGB& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::ColorEdit3("", &Value.R);
 	ImGui::PopID();
@@ -523,9 +569,8 @@ bool ImGuIHelper::ColorField(const char* FieldName, UCode::ColorRGB& Value)
 
 bool ImGuIHelper::ColorField(const char* FieldName, UCode::Color32& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::ColorEdit4("", (float*)&Value.R, ImGuiColorEditFlags_::ImGuiColorEditFlags_Uint8);
 	ImGui::PopID();
@@ -535,9 +580,8 @@ bool ImGuIHelper::ColorField(const char* FieldName, UCode::Color32& Value)
 
 bool ImGuIHelper::ColorField(const char* FieldName, UCode::Color24& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::ColorEdit3("", (float*)&Value.R, ImGuiColorEditFlags_::ImGuiColorEditFlags_Uint8);
 
@@ -548,9 +592,8 @@ bool ImGuIHelper::ColorField(const char* FieldName, UCode::Color24& Value)
 
 bool ImGuIHelper::uInt64Field(const char* FieldName, u64& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::DragScalar("", ImGuiDataType_U64, (void*)&Value);
 	ImGui::PopID();
@@ -560,9 +603,8 @@ bool ImGuIHelper::uInt64Field(const char* FieldName, u64& Value)
 
 bool ImGuIHelper::uInt32Field(const char* FieldName, u32& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::DragScalar("", ImGuiDataType_U32, (void*)&Value);
 	ImGui::PopID();
@@ -572,9 +614,8 @@ bool ImGuIHelper::uInt32Field(const char* FieldName, u32& Value)
 
 bool ImGuIHelper::uInt16Field(const char* FieldName, u16& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::DragScalar("", ImGuiDataType_U16, (void*)&Value);
 	ImGui::PopID();
@@ -584,9 +625,8 @@ bool ImGuIHelper::uInt16Field(const char* FieldName, u16& Value)
 
 bool ImGuIHelper::uInt8Field(const char* FieldName, u8& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::DragScalar("", ImGuiDataType_U8, (void*)&Value);
 	ImGui::PopID();
@@ -713,16 +753,31 @@ bool ImGuIHelper::DrawRenameName(String& label, bool& IsRenameing)
 bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size_t Size, const DrawVectorInfo& Item)
 {
 	bool WasUpdated = false;
-	bool Value = ImGui::TreeNode(label);
 
-	size_t NewSize = Size;
+	ItemLabel(StringView(label), ItemLabelFlag::Left);
+	
+	const ImVec2 imagesize = { 20,20 };	
+	auto& spaceing = ImGui::GetStyle().ItemSpacing;
+	
+	
+	ImGui::PushID(label);
+	//ImGui::PushItemWidth(ImGui::CalcItemWidth() - (imagesize.x + spaceing.x));
+	bool Value = ImGui::TreeNode("");
+	//ImGui::PopItemWidth();
+	ImGui::PopID();
 
 	ImGui::SameLine();
+	size_t NewSize = Size;
+
 
 	ImGui::BeginDisabled(!Item._ResizeVector.has_value());
 	{
+		float mult = Value ? 3 : 1;
+
 		ImGui::PushID(&Item);
+		ImGui::PushItemWidth(ImGui::CalcItemWidth() + 5 - ( (imagesize.x +spaceing.x) * mult));
 		bool ResizeWasUpdated = InputSize_t("", &NewSize, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue);
+		ImGui::PopItemWidth();
 		ImGui::PopID();
 
 		if (ResizeWasUpdated && Item._ResizeVector.has_value())
@@ -763,18 +818,19 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 		}
 
 		//ImGui::Separator();
-		if (!WasUpdated) {
-
+		if (!WasUpdated) 
+		{
+			String Label;
 			for (size_t i = 0; i < Size; i++)
 			{
-				String Lable = "Item:" + std::to_string(i);
-				ImGuIHelper::Text(Lable);
+				Label = "Item:" + std::to_string(i);
 
+				ItemLabel(Label,ItemLabelFlag::Left);
 
 				bool RemoveItem = false;
 				{
 					void* ItemPtr = (Byte*)Buffer + (i * Item.ItemSize);
-					ImGui::PushID(Lable.c_str());
+					ImGui::PushID(Label.c_str());
 					if (ImGuIHelper::BeginPopupContextItem("????"))
 					{
 						if (ImGui::MenuItem("Remove Item"))
@@ -826,8 +882,7 @@ bool ImGuIHelper::InputSize_t(const char* label, size_t* v, int step, int step_f
 #define ObjectNullStr "[empty]"
 bool ImGuIHelper::Draw_UniquePtr(const char* label, void* Uniqueptr, const DrawUniquePtrInfo& Info)
 {
-	ImGuIHelper::Text(StringView(label));
-	ImGui::SameLine();
+	ItemLabel(StringView(label), ItemLabelFlag::Left);
 
 
 	Unique_ptr<Byte>& Ptr = *(Unique_ptr<Byte>*)Uniqueptr;
@@ -883,10 +938,8 @@ bool ImGuIHelper::Draw_UniquePtr(const char* label, void* Uniqueptr, const DrawU
 
 bool ImGuIHelper::Draw_Optional(const char* label, void* Optionalptr, const DrawOptionalInfo& Info)
 {
-
-	ImGuIHelper::Text(StringView(label));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(label), ItemLabelFlag::Left);
+	
 	bool HasValue = Info._HasValue(Optionalptr);
 
 	ImGui::BeginDisabled(!HasValue);
@@ -953,9 +1006,8 @@ bool ImGuIHelper::CharField(const char* FieldName, char& Value)
 }
 bool ImGuIHelper::Int64Field(const char* FieldName, i64& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::DragScalar("", ImGuiDataType_S64, (void*)&Value);
 	ImGui::PopID();
@@ -964,9 +1016,8 @@ bool ImGuIHelper::Int64Field(const char* FieldName, i64& Value)
 }
 bool ImGuIHelper::Int32Field(const char* FieldName, i32& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::DragScalar("", ImGuiDataType_S32, (void*)&Value);
 	ImGui::PopID();
@@ -975,9 +1026,8 @@ bool ImGuIHelper::Int32Field(const char* FieldName, i32& Value)
 }
 bool ImGuIHelper::Int16Field(const char* FieldName, i16& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::DragScalar("", ImGuiDataType_S16, (void*)&Value);
 	ImGui::PopID();
@@ -986,9 +1036,8 @@ bool ImGuIHelper::Int16Field(const char* FieldName, i16& Value)
 }
 bool ImGuIHelper::Int8Field(const char* FieldName, i8& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::DragScalar("", ImGuiDataType_S8, (void*)&Value);
 	ImGui::PopID();
@@ -997,9 +1046,8 @@ bool ImGuIHelper::Int8Field(const char* FieldName, i8& Value)
 }
 bool ImGuIHelper::f32Field(const char* FieldName, f32& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::DragScalar("", ImGuiDataType_Float, (void*)&Value);
 	ImGui::PopID();
@@ -1008,9 +1056,8 @@ bool ImGuIHelper::f32Field(const char* FieldName, f32& Value)
 }
 bool ImGuIHelper::f64Field(const char* FieldName, f64& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = ImGui::DragScalar("", ImGuiDataType_Double, (void*)&Value);
 	ImGui::PopID();
@@ -1019,9 +1066,8 @@ bool ImGuIHelper::f64Field(const char* FieldName, f64& Value)
 }
 bool ImGuIHelper::DrawOrdeField(const char* FieldName, unsigned char& Value)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
-
+	ItemLabel(StringView(FieldName), ItemLabelFlag::Left);	
+	
 	ImGui::PushID(&Value);
 	auto V = uInt8Field("", Value);
 	ImGui::PopID();
@@ -1047,7 +1093,8 @@ bool ImGuIHelper::EnumField(const char* label, void* Value, const EnumValue2* Va
 	{
 		if (ValuesSize == 0)
 		{
-			ImGuIHelper::Text(StringView("Cant show EnumField because there is no EnumValues"));
+			ItemLabel(StringView(label), ItemLabelFlag::Left);	
+			ImGuIHelper::Text(StringView("No EnumValues"));
 			return false;
 		}
 		current_item = &Values[0];
@@ -1055,7 +1102,7 @@ bool ImGuIHelper::EnumField(const char* label, void* Value, const EnumValue2* Va
 	}
 
 
-	ImGuIHelper::Text(StringView(label)); ImGui::SameLine();
+	ItemLabel(StringView(label), ItemLabelFlag::Left);	
 
 	ImGui::PushID(Value);
 	if (ImGui::BeginCombo("", current_item->label, ImGuiComboFlags_NoArrowButton))
@@ -1166,7 +1213,8 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 	const void* ObjectList, size_t ObjectListSize, size_t ItemObjectSize,
 	ObjectFieldFuncPtr DrawObject, const String& Name)
 {
-	ImGuIHelper::Image(Sprite, { 20,20 });
+	const ImVec2 imagesize = { 20,20 };
+	ImGuIHelper::Image(Sprite, imagesize);
 	auto winwidth = ImGui::GetWindowWidth();
 
 
@@ -1174,7 +1222,10 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 	ImGui::SameLine();
 
 	static bool someid = false;
-	bool r = ImGui::BeginCombo("##oiwj", Name.c_str());
+
+	auto& spaceing = ImGui::GetStyle().ItemSpacing;
+	ImGui::PushItemWidth(ImGui::CalcItemWidth() - (imagesize.x + spaceing.x));
+	bool r = ImGui::BeginCombo("##oiwj", Name.c_str(),ImGuiComboFlags_::ImGuiComboFlags_NoArrowButton);
 	if (r)
 	{
 		static String V;
@@ -1214,7 +1265,7 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 
 		ImGui::EndCombo();
 	}
-
+	ImGui::PopItemWidth();
 
 
 	return ok;
