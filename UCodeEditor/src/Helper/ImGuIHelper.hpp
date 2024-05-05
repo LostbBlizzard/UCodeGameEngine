@@ -78,6 +78,8 @@ public:
 		Right = 1u << 1u,
 		Default = Left,
 	};
+	static ImVec2 CheckBoxSize();
+	static ImVec2 CheckBoxSizeWithPadding();
 	static void ItemLabel(StringView title, ItemLabelFlag flags);
 	static bool InputText(const char* label, String& buffer, ImGuiInputTextFlags flags = 0);
 	static bool MultLineText(const char* label, String& buffer, ImVec2 Size, ImGuiInputTextFlags flags = 0);
