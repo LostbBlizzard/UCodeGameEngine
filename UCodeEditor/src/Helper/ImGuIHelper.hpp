@@ -71,6 +71,14 @@ public:
 	{
 		return ImageButton(id, AppFiles::GetSprite(Sprite), ButtionSize);
 	}
+	
+	enum ItemLabelFlag
+	{
+		Left = 1u << 0u,
+		Right = 1u << 1u,
+		Default = Left,
+	};
+	static void ItemLabel(StringView title, ItemLabelFlag flags);
 	static bool InputText(const char* label, String& buffer, ImGuiInputTextFlags flags = 0);
 	static bool MultLineText(const char* label, String& buffer, ImVec2 Size, ImGuiInputTextFlags flags = 0);
 
@@ -1006,8 +1014,7 @@ public:
 		const void* ObjectList, size_t ObjectListSize, size_t ItemObjectSize,
 		ObjectFieldFuncPtr DrawObject, const String& Name = "Put/Name/Here")
 	{
-		ImGuIHelper::Text(StringView(Label));
-		ImGui::SameLine();
+		ItemLabel(StringView(Label),ItemLabelFlag::Left);	
 		return DrawObjectField(Sprite, object, ObjectList, ObjectListSize, ItemObjectSize, DrawObject, Name);
 	}
 

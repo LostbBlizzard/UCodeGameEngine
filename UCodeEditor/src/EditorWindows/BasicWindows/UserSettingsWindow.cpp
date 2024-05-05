@@ -216,6 +216,8 @@ void UserSettingsWindow::UpdateWindow()
 
 			ImGuIHelper::Text(StringView("Key Binds"));
 			static String tep;
+
+			ImGui::SameLine();
 			if (ImGui::Button("Reset All KeyBinds"))
 			{
 				for (size_t i = 0; i < Settings.KeyBinds.size(); i++)
@@ -226,6 +228,8 @@ void UserSettingsWindow::UpdateWindow()
 					key = data.Default;
 				}
 			}
+
+			bool Popuplock = false;
 			for (size_t i = 0; i < Settings.KeyBinds.size(); i++)
 			{
 				auto& data = UserSettings::KeyBindDataList[i];
@@ -233,19 +237,24 @@ void UserSettingsWindow::UpdateWindow()
 
 				tep = "   ";
 				tep += data.KeyBindName;
-				ImGuIHelper::Text(tep);
-				ImGui::SameLine();
+				ImGuIHelper::ItemLabel(tep,ImGuIHelper::Left);
 
 				DrawKeyBind(key);
 
-				ImGui::SameLine();
 
-				ImGui::PushID(&key);
-				if (ImGui::Button("Reset"))
+				if (Popuplock == false)
 				{
-					key = data.Default;
+					if (ImGuIHelper::BeginPopupContextItem("KeyPopup"))
+					{
+						Popuplock = true;
+
+						if (ImGui::MenuItem("Reset"))
+						{
+							key = data.Default;
+						}
+						ImGui::EndPopup();
+					}
 				}
-				ImGui::PopID();
 			}
 		}	
 		

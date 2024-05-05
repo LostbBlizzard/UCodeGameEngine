@@ -574,11 +574,10 @@ public:
 			ImGui::BeginDisabled(true);
 
 
-			ImGuIHelper::Image(AppFiles::sprite::Uility_image, { 20 ,20 });
-			ImGui::SameLine();
-
 			String tep ="Image/Png";
 			Item.Drawer->StringField("Type",tep);
+			ImGui::SameLine();
+			ImGuIHelper::Image(AppFiles::sprite::Uility_image, { 20 ,20 });
 
 
 			String tep2 = FileFullPath.filename().replace_extension("").generic_string();
