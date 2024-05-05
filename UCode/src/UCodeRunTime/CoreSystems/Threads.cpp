@@ -123,6 +123,9 @@ void Threads::Notify_AllThreadsWhoDepens(TaskID id)
 }
 void Threads::ThreadLoop(Threads* _This,ThreadInfo* Info)
 {
+	String v;
+	v += "Threading::WorkerThread " + std::to_string(Info->_ThreadID.Get_Base());
+	UCodeGEDebugStackFrame(v);
 	CurrentThreadInfo::CurrentThread = Info->_ThreadID;
 
 	while (true)
@@ -269,6 +272,8 @@ void Threads::GetThreadNoneWorkingThread(std::function<void(ThreadData&, ThreadT
 void Threads::CallTaskToDoOnMainThread()
 {
 	Vector<std::shared_ptr<FuncPtr>> FuncList;
+
+	UCodeGEDebugStackFrame("Threading::TaskToRunOnMainThread");
 	MainThreadData.TryLock([&FuncList,this](MainThreadTaskData& val)
 	{
 		for (auto& Item : val._TaskToReAddOnToMainThread)

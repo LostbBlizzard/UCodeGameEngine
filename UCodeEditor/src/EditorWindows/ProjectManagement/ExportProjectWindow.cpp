@@ -206,6 +206,7 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 
 		Delegate<void> Func = [Threads,buildSytem = &buildSytem]()
 		{
+			  UCodeGEStackFrame("BuildSytem:BuildProject");
 			  auto r = buildSytem->BuildProject();
 		
 			  

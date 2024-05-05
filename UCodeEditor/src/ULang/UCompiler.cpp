@@ -22,6 +22,7 @@ bool HasModule(const UCodeLang::ModuleIndex& index,const String& name)
 
 bool UCompiler::CompileProject(const CompileData& Data)
 {
+	UCodeGEStackFrame("UCompiler:CompileProject");
 	const Path& InPath = Data.InPath;
 	const Path& intPath = Data.IntPath;
 	const Path& outlibPath = Data.OutPath;

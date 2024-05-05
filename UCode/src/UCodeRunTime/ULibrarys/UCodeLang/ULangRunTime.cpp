@@ -284,10 +284,12 @@ void ULangScript::UnLoadClassInfo()
 }
 void ULangScript::HotReLoad()
 {
+	UCodeGEDebugStackFrame("ULangScript::HotReloadScript");
 	UnLoadClassInfo(); GetCallBinds();
 }
 void ULangScript::ReLoad(bool callAwake)
 {
+	UCodeGEDebugStackFrame("ULangScript::ReloadScript");
 	UnLoad();
 	auto ULang = GetULang();
 	for (const auto& Item : ULang->Get_Assembly().Classes)
@@ -309,6 +311,7 @@ void ULangScript::CallAwake()
 }
 void ULangScript::LoadScript(const UCodeLang::AssemblyNode* ClassData, bool callAwake)
 {
+	UCodeGEDebugStackFrame("ULangScript::LoadScript");
 	auto ULang = GetULang();
 	if (_UObj) { UnLoad(); }
 
@@ -349,6 +352,7 @@ void ULangScript::GetCallBinds()
 
 void ULangScript::Serialize(USerializer& Serializer) const
 {
+	UCodeGEDebugStackFrame("ULangScript::Serialize");
 	Serializer.Write("_ScriptType", GetClassName());
 	if (HasScript())
 	{
@@ -363,6 +367,7 @@ void ULangScript::Serialize(USerializer& Serializer) const
 
 void ULangScript::Deserialize(UDeserializer& Serializer)
 {
+	UCodeGEDebugStackFrame("ULangScript::Deserialize");
 	String ScriptType = NoClassScript;
 	Serializer.ReadType("_ScriptType", ScriptType, ScriptType);
 	if (ScriptType != NoClassScript)
@@ -788,7 +793,7 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 
 void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const UCodeLang::Class_Data& Type, const UCodeLang::ClassAssembly& Assembly, bool Is32Mode)
 {
-
+	UCodeGEDebugStackFrame("ULangObject::Serialize");
 	for (const auto& Item : Type.Fields)
 	{
 		uintptr_t FieldPtr = (uintptr_t)Pointer + (uintptr_t)Item.offset;
@@ -1106,6 +1111,7 @@ uInt64Case:
 }
 void ULangHelper::Deserialize(UDeserializer& Serializer, void* Pointer, const UCodeLang::Class_Data& Type, const UCodeLang::ClassAssembly& Assembly, bool Is32Mode)
 {
+	UCodeGEDebugStackFrame("ULangObject::Deserialize");
 	for (const auto& Item : Type.Fields)
 	{
 		uintptr_t FieldPtr = (uintptr_t)Pointer + (uintptr_t)Item.offset;

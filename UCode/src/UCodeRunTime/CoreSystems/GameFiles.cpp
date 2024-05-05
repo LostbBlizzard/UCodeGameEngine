@@ -372,6 +372,7 @@ String GameFiles::ReadGameFileAsString(const Path& path)
 {
 	return _MainState.Lock_r<String>([&](MainGameFilesState& files) -> String
 		{
+			UCodeGEDebugStackFrame("GameFiles:ReadGameFileAsString");
 			auto& _Data = files._Data;
 			if (_Data._Type == GameFilesData::Type::Redirect)
 			{
@@ -409,6 +410,7 @@ Unique_Bytes GameFiles::ReadGameFileAsBytes(const Path& path)
 	
 	return _MainState.Lock_r<Unique_Bytes>([&](MainGameFilesState& files) -> Unique_Bytes
 	{
+		UCodeGEDebugStackFrame("GameFiles:ReadGameFileAsReadGameFileAsBytes");
 		auto& _Data = files._Data;
 		if (_Data._Type == GameFilesData::Type::Redirect)
 		{

@@ -131,6 +131,15 @@ public:
 	}
 };
 
+thread_local Vector<String> EngineStackFrames;
+void Loger::PushStackFrame(StringView FrameName)
+{
+	EngineStackFrames.push_back(String(FrameName));
+}
+void Loger::PopStackFrame()
+{
+	EngineStackFrames.pop_back();
+}
 void Loger::Log(const StringView& Msg, LogType Type)
 {
 	InitCheck();

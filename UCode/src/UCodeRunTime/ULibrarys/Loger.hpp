@@ -14,6 +14,19 @@ CoreStart
 #define UCodeGEFatal(x)  UCodeGELog_t(Core::LogType::Fatal,x)
 #define UCodeGEWarning(x)  UCodeGELog_t(Core::LogType::Warning,x)
 
+
+#ifdef DebugMode
+#define UCodeGEDebugMode 1
+#define UCodeGEPublishMode 0
+#else
+#define UCodeGEDebugMode 0
+#define UCodeGEPublishMode 1
+#endif 
+
+#define UCodeGEStackFrame(x) Core::Loger::InitCheck(); Core::Loger::PushStackFrame(x); UCodeGEDefer({Core::Loger::PopStackFrame();});
+
+#define UCodeGEDebugStackFrame(x) if (UCodeGEDebugMode) { UCodeGEStackFrame(x);}
+
 enum class LogType : Byte
 {
 	Fatal,
@@ -54,6 +67,10 @@ public:
 		Log(StringView(Msg), Type);
 	}
 
+
+	static void PushStackFrame(StringView FrameName);
+	static void PopStackFrame();
+	
 	static void Log(const StringView& Msg, LogType Type = LogType::Default);
 
 

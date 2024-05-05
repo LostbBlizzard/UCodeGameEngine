@@ -412,7 +412,8 @@ project "UCodeAppPub"
 project "UCodeEditor"
    location "UCodeEditor"
    kind "ConsoleApp"
-   language "C++"
+   language "C++" 
+   defines {"DebugMode"}
    
    dependson {
    "UCodeApp",

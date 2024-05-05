@@ -11,6 +11,7 @@ Optional<Unique_ptr<Asset>> StandardAssetLoader::LoadAsset(const Path& Path)
 	{
 		UDeserializer V;
 		V.SetData(bytes.AsView());
+		UCodeGEDebugStackFrame("AssetLoader:LoadAsset");
 		return Val->LoadAsset(V);
 	}
 	return {};
