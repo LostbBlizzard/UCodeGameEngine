@@ -523,7 +523,7 @@ void GameEditorWindow::ShowSceneData()
     }
     if (ImGuIHelper::BeginPopupContextItem())
     {
-        ImGuIHelper::Text(StringView("RunTime options"));
+        ImGuIHelper::Text(StringView("RunTime Options"));
         ImGui::Separator();
 
         auto& settings = UserSettings::GetSettings();
@@ -764,7 +764,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
 
     if (ImGuIHelper::BeginPopupContextItem())
     {
-        ImGuIHelper::Text(StringView("Scene options"));
+        ImGuIHelper::Text(StringView("Scene Options"));
         ImGui::Separator();
 
         auto& settings = UserSettings::GetSettings();
@@ -1267,7 +1267,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
     }
     if (ImGuIHelper::BeginPopupContextItem(EntityOptions))
     {
-        ImGuIHelper::Text(StringView("Entity options"));
+        ImGuIHelper::Text(StringView("Entity Options"));
         ImGui::Separator();
 
         auto& settings = UserSettings::GetSettings();
@@ -1281,7 +1281,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
             SetScelected(Item);
         }
         keybindstring = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
-        if (ImGui::MenuItem("Set Scenc Cam To ", keybindstring.c_str()) || (ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
+        if (ImGui::MenuItem("Set Scene Camera To", keybindstring.c_str()) || (ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
         {
             _SceneCameraData._Pos = Item->worldposition();
             ImGui::CloseCurrentPopup();
