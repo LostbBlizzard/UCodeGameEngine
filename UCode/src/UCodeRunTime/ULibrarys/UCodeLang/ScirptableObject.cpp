@@ -60,6 +60,7 @@ bool ScirptableObjectData::ToFile(const Path& path, ScirptableObjectData& data, 
 
 void ScirptableObject::LoadScript(const UCodeLang::AssemblyNode* scriptnode)
 {
+	UCodeGEDebugStackFrame("ScirptableObject::LoadScript");
     const UCodeLang::Class_Data* ClassData = &scriptnode->Get_ClassData();
 
     if (_ClassData)
@@ -85,6 +86,7 @@ void ScirptableObject::LoadScript(const UCodeLang::AssemblyNode* scriptnode)
 }
 void ScirptableObject::LoadScript(const ScirptableObjectData& out)
 {   
+	UCodeGEDebugStackFrame("ScirptableObject::LoadScript");
     if (_ClassData)
     {
         UnLoadScript();
@@ -123,6 +125,7 @@ void ScirptableObject::LoadScript(const ScirptableObjectData& out)
 }
 void ScirptableObject::UnLoadScript()
 {
+	UCodeGEDebugStackFrame("ScirptableObject::UnLoadScript");
     if (_LangDestructor)
     {
         UCodeRunTimeState::LangThisCall(_LangDestructor, _UObj);
@@ -137,6 +140,7 @@ void ScirptableObject::UnLoadScript()
 
 void ScirptableObject::SaveTo(ScirptableObjectData& out, USerializerType type) const
 {
+	UCodeGEDebugStackFrame("ScirptableObject::Serialize");
     out._ObjectType = _ClassName;
 
     USerializer serlalizer(type);

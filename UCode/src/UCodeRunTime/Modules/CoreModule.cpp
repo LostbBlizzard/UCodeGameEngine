@@ -17,6 +17,7 @@ CoreModule::CoreModule()
 
 	_Assets[0] = UModuleAssetData(Path(UCode::Scene2dData::FileExtDot),[](UDeserializer& serializer)
 	{
+			UCodeGEDebugStackFrame("AssetLoader:LoadAsset:SceneData");
 			Optional<Unique_ptr<Asset>> r;
 			UCode::Scene2dData scene;
 
@@ -33,6 +34,7 @@ CoreModule::CoreModule()
 	});
 	_Assets[1] = UModuleAssetData(Path(UCode::ScirptableObjectData::FileExtDot),[](UDeserializer& serializer)
 	{
+			UCodeGEDebugStackFrame("AssetLoader:LoadAsset:ScirptableObject");
 			Optional<Unique_ptr<Asset>> r;
 			UCode::ScirptableObjectData scene;
 
@@ -55,6 +57,7 @@ CoreModule::CoreModule()
 	});
 	_Assets[2] = UModuleAssetData(Path(UCode::TextureData::FileExtDot),[](UDeserializer& serializer)
 	{
+			UCodeGEDebugStackFrame("AssetLoader:LoadAsset:TextureAsset");
 			Optional<Unique_ptr<Asset>> r;
 			UCode::TextureData scene;
 
@@ -80,6 +83,7 @@ CoreModule::CoreModule()
 	});
 	_Assets[3] = UModuleAssetData(Path(UCode::SpriteData::FileExtDot),[](UDeserializer& serializer)
 	{
+			UCodeGEDebugStackFrame("AssetLoader:LoadAsset:SpriteAsset");
 			Optional<Unique_ptr<Asset>> r;
 			UCode::SpriteData scene;
 

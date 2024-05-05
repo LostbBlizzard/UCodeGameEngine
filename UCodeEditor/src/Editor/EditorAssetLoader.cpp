@@ -58,6 +58,7 @@ NullablePtr<UCode::Asset> EditorAssetLoader::LoadAssetPtr(const UID& Path)
 			{
 				LoadAssetContext context;
 				context._AssetToLoad = Path;
+				UCodeGEStackFrame("EditorAssetLoader:LoadAsset");
 				return runingfiles._ManageFile.Get_Value()->LoadAsset(context);
 			}
 		}

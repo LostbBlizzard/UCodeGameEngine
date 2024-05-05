@@ -57,6 +57,7 @@ public:
 
 	ExportFileRet ExportFile(const Path& path, const ExportFileContext& Item) override
 	{
+		UCodeGEStackFrame("SceneAsset:Export");
 		std::filesystem::copy_file(path, Item.Output, std::filesystem::copy_options::overwrite_existing);
 	
 		UCode::Scene2dData V;
@@ -1017,6 +1018,7 @@ public:
 	}
 	ExportFileRet ExportFile(const Path& path, const ExportFileContext& Item) override
 	{
+		UCodeGEStackFrame("PngAsset:Export");
 		Path metapath = path.native() + Path(UEditorAssetFileData::DefaultMetaFileExtWithDot).native();
 
 		TextureSettings settings;

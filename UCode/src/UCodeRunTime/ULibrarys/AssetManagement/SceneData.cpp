@@ -98,6 +98,7 @@ bool Scene2dData::SaveCompoentDataAsText(const Compoent *Item, USerializer &seri
 }
 RunTimeScene *Scene2dData::LoadScene(GameRunTime *runtime, const Scene2dData &Data)
 {
+	UCodeGEDebugStackFrame("SceneData::LoadScene");
     RunTimeScene *r = runtime->Add_NewScene();
     r->Get_Name() = Data._Name;
     r->Get_UID() = Data._UID;

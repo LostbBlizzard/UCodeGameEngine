@@ -94,6 +94,7 @@ EditorWindow* EditorAppCompoent::MakeNewWindow(const EditorWindowData& windata, 
 }
 void  EditorAppCompoent::EndProject()
 {
+	UCodeGEStackFrame("EditorApp::CloseProject");
     SaveApp();
     _EditorWindows.clear();
 
@@ -112,6 +113,7 @@ void  EditorAppCompoent::EndProject()
 
 Result<bool,String> EditorAppCompoent::OpenProject(const Path& ProjectDir)
 {
+	UCodeGEStackFrame("EditorApp::OpenProject");
     bool IsOpenInProject = _RunTimeProjectData.Is_ProjLoaded();
     if (IsOpenInProject)
     {
@@ -784,6 +786,7 @@ Path EditorAppCompoent::GetWindows_prefPath()
 }
 void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileType Type)
 { 
+	UCodeGEStackFrame("EditorApp::FileUpdate");
     auto Info = UEditorModules::GetModuleFromFileExt(path.extension());
 
     auto Modules = UEditorModules::GetModules();
@@ -980,6 +983,8 @@ void EditorAppCompoent::OnDraw()
         if (_AutoSaveTimer <= 0.0f)
         {
             _AutoSaveTimer = MaxAutoTimer;
+
+	        UCodeGEStackFrame("EditorApp::AutoSave");
             SaveApp();
             UCodeGELog("[ConsoleWindowSkip]:Auto Saved");
         }
@@ -1160,6 +1165,7 @@ void EditorAppCompoent::OnDraw()
     }
   
 
+	UCodeGEStackFrame("EditorApp::Update");
     ShowEditiorWindows();
 
 

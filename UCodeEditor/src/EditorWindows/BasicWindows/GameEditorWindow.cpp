@@ -1709,6 +1709,7 @@ void GameEditorWindow::ShowGameImage()
 }
 void GameEditorWindow::UpdateGame()
 {
+    UCodeGEStackFrame("Scene:Update");
 
     ImVec2 EditorWindowsize = { _Size.X , _Size.Y };
     if (EditorWindowsize.x <= 0 && EditorWindowsize.y <= 0) { return; }
