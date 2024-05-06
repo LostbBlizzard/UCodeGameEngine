@@ -418,8 +418,9 @@ public:
 					{
 
 					};
-				LoadAssetIfNeeded(Spr);
-				if (ImGuIHelper::ImageButton(&Spr, &Spr._Asset.get()->_Base, *(ImVec2*)&Item.ButtionSize))
+
+				UCode::Sprite sp{ &asset.value()._Base,(i32)Spr.offset.X,(i32)Spr.offset.Y,(i32)Spr.size.X,(i32)Spr.size.Y };
+				if (ImGuIHelper::ImageButton(&Spr, &sp, *(ImVec2*)&Item.ButtionSize))
 				{
 					auto App = EditorAppCompoent::GetCurrentEditorAppCompoent();
 					auto inpswin = App->Get_Window<InspectWindow>();
@@ -761,6 +762,7 @@ public:
 								if (OpenSpriteEditor.value() == Item.uid)
 								{
 									focusitem = true;
+									ImGui::SetWindowFocus();
 									ImGui::SetNextItemOpen(true);
 									OpenSpriteEditor = {};
 								}
