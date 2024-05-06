@@ -7,6 +7,7 @@
 #include "Helper/FileHelper.hpp"
 
 #include "UEditorModules/UEditorModule.hpp"
+#include "../ProjectManagement/ProjectFiles.hpp"
 EditorStart
 
 class ProjectFilesWindow :public EditorWindow
@@ -39,7 +40,8 @@ private:
 		FileHelper::FileType FileType = FileHelper::FileType::Null;
 	};
 
-
+	NullablePtr<UEditorAssetFileData> GetAssetData(Path fullpath);
+	NullablePtr<ProjectFiles::AssetFile> TryLoadAsset(Path fullpath);
 	void ShowDirButtionsPaste();
 	void UpdateDir();
 	

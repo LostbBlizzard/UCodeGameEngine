@@ -254,7 +254,7 @@ bool ImGuIHelper::ImageButton(const void* id, UCode::Sprite* Sprite, const ImVec
 			auto tep2 = (*(Vec2*)&bb.Max - *(Vec2*)&padding);
 
 			window->DrawList->AddImage(texid,
-				*(ImVec2*)&tep, *(ImVec2*)&tep2, { 0,0, }, { 1,1 });
+				*(ImVec2*)&tep, *(ImVec2*)&tep2, uvo, uv1);
 		}
 	}
 
