@@ -2,6 +2,7 @@
 #include "Imgui/imgui_internal.h"
 #include <Imgui/misc/cpp/imgui_stdlib.h>
 #include "Helper/UserSettings.hpp"
+#include "EditorWindows/DragAndDropNames.hpp"
 EditorStart
 
 bool IsPopUpKey()
@@ -1256,7 +1257,7 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 			target_flags |= ImGuiDragDropFlags_AcceptBeforeDelivery;
 			target_flags |= ImGuiDragDropFlags_AcceptNoDrawDefaultRect;
 
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("AssetPath", target_flags))
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragAndDropType_AssetPath, target_flags))
 			{
 				const Path* fullpath = *(Path**)payload->Data;
 				bool canbedroped = filedrop(*fullpath,object,ObjectDropState::CanBeDroped);

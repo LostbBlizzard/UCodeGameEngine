@@ -8,3 +8,4 @@
 #define DragAndDropType_ULangFilePath "_ULangFilePath"
 #define DragAndDropType_GlslFilePath "_GlslFilePath"
 #define DragAndDropType_txtFilePath "_txtFilePath"
+#define DragAndDropType_AssetPath "_AssetPath"

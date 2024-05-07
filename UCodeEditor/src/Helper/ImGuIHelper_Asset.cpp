@@ -170,11 +170,24 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 
 			if (state == ImGuIHelper::ObjectDropState::CanBeDroped)
 			{
-
-				return (fullpath.extension() == ".png");	
+				return (fullpath.extension() == UCode::SpriteData::FileExtDot);	
 			}
 			else if (state == ImGuIHelper::ObjectDropState::OnDroped)
 			{
+				auto& editorindex = ProjectData->Get_AssetIndex();
+				auto assetpath = ProjectData->GetAssetsDir();
+				Path relativepath = fullpath.native().substr(assetpath.native().size());
+
+				auto opasset = editorindex.FindFileRelativeAssetName(relativepath.generic_string());
+				if (opasset.has_value())
+				{
+					auto& asset = opasset.value();
+					if (asset.UserID.has_value())
+					{
+						objectas = asset.UserID.value();
+						return true;
+					}
+				}
 				return false;
 			}
 
@@ -215,8 +228,10 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 
 				if (Listmode)
 				{
-					if (sp.has_value()) {
-						ImGuIHelper::Image(sp.value().value(), { 20,20 });
+					if (sp.has_value()) 
+					{
+						auto imagesize = ImGui::GetFrameHeight();
+						ImGuIHelper::Image(sp.value().value(), { imagesize,imagesize });
 						ImGui::SameLine();
 					}
 
@@ -346,7 +361,6 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 		UID _UID;
 	};
 
-
 	Vector<ObjectSceneAssetInfo> List;
 	{
 		ObjectSceneAssetInfo P;
@@ -390,6 +404,34 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 	}
 
 	ImGuIHelper::ObjectFieldData data;
+	data.OnFileDroped = [](const Path& fullpath, void* object, ImGuIHelper::ObjectDropState state) -> bool
+		{
+			UCode::ScencPtr& objectas =*(UCode::ScencPtr*)object;
+
+			if (state == ImGuIHelper::ObjectDropState::CanBeDroped)
+			{
+				return (fullpath.extension() == UCode::Scene2dData::FileExtDot);	
+			}
+			else if (state == ImGuIHelper::ObjectDropState::OnDroped)
+			{
+				auto& editorindex = ProjectData->Get_AssetIndex();
+				auto assetpath = ProjectData->GetAssetsDir();
+				Path relativepath = fullpath.native().substr(assetpath.native().size());
+
+				auto opasset = editorindex.FindFileRelativeAssetName(relativepath.generic_string());
+				if (opasset.has_value())
+				{
+					auto& asset = opasset.value();
+					if (asset.UserID.has_value())
+					{
+						objectas = asset.UserID.value();
+						return true;
+					}
+				}
+				return false;
+			}
+
+		};
 	data.OnObjectInList = [](void* Ptr, void* Object, bool Listmode, const String& Find)
 		{
 			UCode::ScencPtr& Value = *(UCode::ScencPtr*)Ptr;
@@ -404,7 +446,8 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 
 				if (Listmode)
 				{
-					ImGuIHelper::Image(AppFiles::sprite::Scene2dData, { 20,20 });
+					auto imagesize = ImGui::GetFrameHeight();
+					ImGuIHelper::Image(AppFiles::sprite::Scene2dData, { imagesize,imagesize });
 					ImGui::SameLine();
 
 					//ImGui::PushID(Object);
@@ -421,7 +464,8 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 				{
 					auto NewName = Name;
 					ImGuIHelper::Text(NewName);
-					if (ImGuIHelper::ImageButton(obj + NewName.size(), AppFiles::sprite::Scene2dData, { 30,30 }))
+					auto imagesize = ImGui::GetFrameHeight();
+					if (ImGuIHelper::ImageButton(obj + NewName.size(), AppFiles::sprite::Scene2dData, { imagesize,imagesize }))
 					{
 						Value = obj->_UID;
 						r = true;
@@ -459,6 +503,12 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencAssetPtr&
 	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
 	data);
 }
+
+UCode::Sprite* GetAssetSpriteFromUID(const UID& value)
+{
+	return AppFiles::GetSprite(AppFiles::sprite::UCodeAssetIcon);
+}
+
 bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 {
 	struct ObjectSceneAssetInfo
@@ -534,8 +584,45 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 			break;
 		}
 	}
-
+	
 	ImGuIHelper::ObjectFieldData data;
+	data.OnFileDroped = [](const Path& fullpath, void* object, ImGuIHelper::ObjectDropState state) -> bool
+		{
+			UCode::UID& objectas = *(UCode::UID*)object;
+
+			if (state == ImGuIHelper::ObjectDropState::CanBeDroped)
+			{
+				auto& editorindex = ProjectData->Get_AssetIndex();
+				auto assetpath = ProjectData->GetAssetsDir();
+				Path relativepath = fullpath.native().substr(assetpath.native().size());
+
+				auto opasset = editorindex.FindFileRelativeAssetName(relativepath.generic_string());
+				if (opasset.has_value())
+				{
+					auto& asset = opasset.value();
+					return asset.UserID.has_value();
+				}
+				return false;
+			}
+			else if (state == ImGuIHelper::ObjectDropState::OnDroped)
+			{
+				auto& editorindex = ProjectData->Get_AssetIndex();
+				auto assetpath = ProjectData->GetAssetsDir();
+				Path relativepath = fullpath.native().substr(assetpath.native().size());
+
+				auto opasset = editorindex.FindFileRelativeAssetName(relativepath.generic_string());
+				if (opasset.has_value())
+				{
+					auto& asset = opasset.value();
+					if (asset.UserID.has_value())
+					{
+						objectas = asset.UserID.value();
+						return true;
+					}
+				}
+				return false;
+			}
+		};
 	data.OnObjectInList = [](void* Ptr, void* Object, bool Listmode, const String& Find)
 		{
 			if (Find != OldFind)
@@ -556,7 +643,8 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 
 				if (Listmode)
 				{
-					ImGuIHelper::Image(AppFiles::sprite::UCodeAssetIcon, { 20,20 });
+					auto imagesize = ImGui::GetFrameHeight();
+					ImGuIHelper::Image(AppFiles::sprite::UCodeAssetIcon, { imagesize,imagesize });
 					ImGui::SameLine();
 
 					//ImGui::PushID(Object);
@@ -573,7 +661,8 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 				{
 					auto NewName = Name;
 					ImGuIHelper::Text(NewName);
-					if (ImGuIHelper::ImageButton(obj + NewName.size(), AppFiles::sprite::UCodeAssetIcon, { 30,30 }))
+					auto imagesize = ImGui::GetFrameHeight();
+					if (ImGuIHelper::ImageButton(obj + NewName.size(), GetAssetSpriteFromUID(obj->_UID), { imagesize,imagesize }))
 					{
 						Value = obj->_UID;
 						r = true;
@@ -584,8 +673,8 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 			return r;
 		};
 
-	return ImGuIHelper::DrawObjectField(&Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
-		data, AppFiles::sprite::UCodeAssetIcon, MyName);
+	return ImGuIHelper::DrawObjectField(GetAssetSpriteFromUID(Value),&Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
+		data, MyName);
 }
 bool ImGuIHelper_Asset::AnyAsssetsField(StringView FieldName, Vector<UID>& Value)
 {
