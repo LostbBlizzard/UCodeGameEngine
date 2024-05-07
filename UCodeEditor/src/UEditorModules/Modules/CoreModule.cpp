@@ -18,6 +18,7 @@
 #include "UCodeRunTime/ULibrarys/Audio/AudioSystem.hpp"
 #include <Imgui/misc/cpp/imgui_stdlib.h>
 #include "Imgui/imgui_internal.h"
+#include "Helper/UserSettings.hpp"
 EditorStart
 
 
@@ -405,6 +406,26 @@ public:
 		Optional<UID> OpenSpriteEditor;
 		void DrawSubAssets(const UEditorDrawSubAssetContext& Item) override
 		{
+			if (!asset.has_value())
+			{
+				if (fs::exists(this->FileMetaFullPath.value()))
+				{
+					fromfile(FileMetaFullPath.value(), setting);
+				}
+				else
+				{
+					auto runinfo = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+					RemoveSubAssets(runinfo->GetAssetsDir(), runinfo->Get_AssetIndex());
+					setting.uid = runinfo->GetNewUID();
+					tofile(FileMetaFullPath.value(), setting);
+				}
+
+
+
+				UCode::TextureAsset V(UCode::Texture(this->FileFullPath));
+				SetupTexture(&V._Base);
+				asset = std::move(V);
+			}
 
 			for (auto& Spr : setting.sprites)
 			{
@@ -702,8 +723,15 @@ public:
 
 					ImGuiWindowFlags flags = ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollbar;
 					flags |= ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollWithMouse;
-				
-					if (ImGui::Button("New Sprite"))
+					auto& USettings = UserSettings::GetSettings();
+					
+					bool newspritebuttion = ImGui::Button("New Sprite");
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+					{
+						String tip = "ShortCut '" + USettings.KeyBinds[(size_t)KeyBindList::New].ToString() + "'";
+						ImGui::SetTooltip(tip.c_str());
+					}
+					if (newspritebuttion || (ImGui::IsWindowFocused() && USettings.IsKeybindActive(KeyBindList::New)))
 					{
 						SpriteItem val;
 						val.size = { 16,16 };
@@ -860,17 +888,28 @@ public:
 							}
 
 							bool remove = false;
+							if (ImGui::IsItemFocused())
+							{
+								if (USettings.IsKeybindActive(KeyBindList::Delete))
+								{
+									RemoveSprite(Item.uid);
+									setting.sprites.erase(setting.sprites.begin() + i);
+									remove = true;
+								}
+							}
 
 							if (ImGuIHelper::BeginPopupContextItem(Item.spritename.c_str()))
 							{
-								ImGuIHelper::Text(StringView("Sprite options"));
+								ImGuIHelper::Text(StringView("Sprite Options"));
 
-								if (ImGui::MenuItem("Destroy"))
+								auto str = USettings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
+								if (ImGui::MenuItem("Destroy",str.c_str()) || USettings.IsKeybindActive(KeyBindList::Delete))
 								{
 									RemoveSprite(Item.uid);
 									setting.sprites.erase(setting.sprites.begin() + i);
 									remove = true;
 
+									ImGui::CloseCurrentPopup();
 								}
 								
 								ImGui::EndPopup();
