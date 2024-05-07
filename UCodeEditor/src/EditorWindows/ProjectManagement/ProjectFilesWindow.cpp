@@ -522,7 +522,7 @@ void ProjectFilesWindow::UpdateWindow()
             ImGui::EndChild();
  
             ShowDirButtions();
-
+            
 
 
             if (ImGui::BeginDragDropTarget())
@@ -801,10 +801,10 @@ void ProjectFilesWindow::ShowDirButtionsPaste()
 }
 void ProjectFilesWindow::ShowDirButtions()
 {
-    
+
     if (Get_App()->GetInputMode() == KeyInputMode::Window)
     {
-        if (UserSettings().GetSettings().IsKeybindActive(KeyBindList::FilesWindow))
+        if (UserSettings::GetSettings().IsKeybindActive(KeyBindList::FilesWindow))
         {
             ImGui::SetWindowFocus();
             Get_App()->SetToNormal();
@@ -828,210 +828,228 @@ void ProjectFilesWindow::ShowDirButtions()
         }
 
     }
-    if (ImGuIHelper::BeginPopupContextItem("f"))
+
+
+    bool showcontextitem = false;
+    const char* popupname = "f";
+    if (ImGui::IsPopupOpen(nullptr, ImGuiPopupFlags_::ImGuiPopupFlags_AnyPopup))
     {
-        if (ImGui::BeginMenu("Create"))
+        if (ImGui::IsPopupOpen(popupname))
         {
-            if (ImGui::BeginMenu("Files"))
+            showcontextitem = true;
+        }
+    }
+    else
+    {
+        showcontextitem = true;
+    }
+    if (showcontextitem) 
+    {
+        if (ImGuIHelper::BeginPopupContextItem(popupname))
+        {
+            if (ImGui::BeginMenu("Create"))
             {
-                if (ImGui::MenuItem("Folder"))
+                if (ImGui::BeginMenu("Files"))
                 {
-                    Path NewFolderPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New folder").native()) / "";
-                    if (fs::create_directory(NewFolderPath))
+                    if (ImGui::MenuItem("Folder"))
                     {
+                        Path NewFolderPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New folder").native()) / "";
+                        if (fs::create_directory(NewFolderPath))
+                        {
+                            UpdateDir();
+                        }
+
+                    }
+
+                    ImGui::EndMenu();
+                }
+
+
+                if (ImGui::BeginMenu("GameEngine"))
+                {
+                    if (ImGui::MenuItem("Scene"))
+                    {
+                        Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New 2DScene").native()
+                            , Path("." + (UCode::String)UCode::Scene2dData::FileExt));
+                        UCode::Scene2dData newScene = UCode::Scene2dData();
+                        UCode::Scene2dData::ToFile(NewPath, newScene, Get_ProjectData()->Get_ProjData()._SerializeType);
                         UpdateDir();
                     }
 
+                    ImGui::EndMenu();
                 }
 
-                ImGui::EndMenu();
-            }
-
-
-            if (ImGui::BeginMenu("GameEngine"))
-            {
-                if (ImGui::MenuItem("Scene"))
+                if (ImGui::BeginMenu("Script"))
                 {
-                    Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New 2DScene").native()
-                        , Path("." + (UCode::String)UCode::Scene2dData::FileExt));
-                    UCode::Scene2dData newScene = UCode::Scene2dData();
-                    UCode::Scene2dData::ToFile(NewPath, newScene, Get_ProjectData()->Get_ProjData()._SerializeType);
-                    UpdateDir();
-                }
-
-                ImGui::EndMenu();
-            }
-
-            if (ImGui::BeginMenu("Script"))
-            {
-                if (ImGui::MenuItem("File"))
-                {
-                    Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("File").native(),
-                        Path("." + (UCode::String)UCodeLang::FileExt::SourceFile));
-
-                    std::ofstream NewScirpt(NewPath);
-                    NewScirpt << "use ULang;\n";
-                    NewScirpt << "use UCodeGameEngine;\n\n";
-                    NewScirpt.close();
-                    //Go To TextEditor
-                    UpdateDir();
-
-                }
-                if (ImGui::MenuItem("Component"))
-                {
-                    Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New_Script").native(),
-                        Path("." + (UCode::String)UCodeLang::FileExt::SourceFile));
-
-                    std::ofstream NewScirpt(NewPath);
-                    NewScirpt << UCompiler::NewComponentTemplate("Script");
-                    NewScirpt.close();
-                    UpdateDir();
-                }
-                if (ImGui::MenuItem("Asset"))
-                {
-                    Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New_Asset_Script").native(),
-                        Path("." + (UCode::String)UCodeLang::FileExt::SourceFile));
-
-                    std::ofstream NewScirpt(NewPath);
-                    NewScirpt << UCompiler::NewAssetTemplate("NewAsset");
-                    NewScirpt.close();
-                    //Go To TextEditor
-                    UpdateDir();
-                }
-                ImGui::EndMenu();
-            }
-
-            if (ImGui::BeginMenu("Art"))
-            {
-                if (ImGui::MenuItem("Color"))
-                {
-                    OpenPopUp = true;
-                }
-                ImGui::EndMenu();
-
-            }
-
-            auto currentulangkey = Get_App()->GetULangAssemblyID();
-            auto ULang = UCode::ULangRunTime::Get(Get_App()->GetGameRunTime()->Get_Library_Edit());
-
-            struct ScriptMenuInfo
-            {
-                String MenuName;
-                const UCodeLang::AssemblyNode* node = nullptr;
-            };
-
-            thread_local Vector<ScriptMenuInfo> MenuInfo;
-            thread_local Optional<ULangAssemblyID> Myulangkey;
-            {
-                bool isoutofdate = Myulangkey.has_value() ? currentulangkey != Myulangkey.value() : true;
-                if (isoutofdate)
-                {
-                    Myulangkey = currentulangkey;
-                    const UCodeLang::ClassAssembly& CurrentAssembly = ULang->Get_Assembly();
-
-                    for (auto& Item : CurrentAssembly.Classes)
+                    if (ImGui::MenuItem("File"))
                     {
+                        Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("File").native(),
+                            Path("." + (UCode::String)UCodeLang::FileExt::SourceFile));
 
-                        Optional<const UCodeLang::UsedTags*> tagsop;
+                        std::ofstream NewScirpt(NewPath);
+                        NewScirpt << "use ULang;\n";
+                        NewScirpt << "use UCodeGameEngine;\n\n";
+                        NewScirpt.close();
+                        //Go To TextEditor
+                        UpdateDir();
 
-                        if (Item->Get_Type() == UCodeLang::ClassType::Class)
+                    }
+                    if (ImGui::MenuItem("Component"))
+                    {
+                        Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New_Script").native(),
+                            Path("." + (UCode::String)UCodeLang::FileExt::SourceFile));
+
+                        std::ofstream NewScirpt(NewPath);
+                        NewScirpt << UCompiler::NewComponentTemplate("Script");
+                        NewScirpt.close();
+                        UpdateDir();
+                    }
+                    if (ImGui::MenuItem("Asset"))
+                    {
+                        Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New_Asset_Script").native(),
+                            Path("." + (UCode::String)UCodeLang::FileExt::SourceFile));
+
+                        std::ofstream NewScirpt(NewPath);
+                        NewScirpt << UCompiler::NewAssetTemplate("NewAsset");
+                        NewScirpt.close();
+                        //Go To TextEditor
+                        UpdateDir();
+                    }
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu("Art"))
+                {
+                    if (ImGui::MenuItem("Color"))
+                    {
+                        OpenPopUp = true;
+                    }
+                    ImGui::EndMenu();
+
+                }
+
+                auto currentulangkey = Get_App()->GetULangAssemblyID();
+                auto ULang = UCode::ULangRunTime::Get(Get_App()->GetGameRunTime()->Get_Library_Edit());
+
+                struct ScriptMenuInfo
+                {
+                    String MenuName;
+                    const UCodeLang::AssemblyNode* node = nullptr;
+                };
+
+                thread_local Vector<ScriptMenuInfo> MenuInfo;
+                thread_local Optional<ULangAssemblyID> Myulangkey;
+                {
+                    bool isoutofdate = Myulangkey.has_value() ? currentulangkey != Myulangkey.value() : true;
+                    if (isoutofdate)
+                    {
+                        Myulangkey = currentulangkey;
+                        const UCodeLang::ClassAssembly& CurrentAssembly = ULang->Get_Assembly();
+
+                        for (auto& Item : CurrentAssembly.Classes)
                         {
-                            auto& nod = Item->Get_ClassData();
 
-                            tagsop = &nod.Attributes;
-                        }
+                            Optional<const UCodeLang::UsedTags*> tagsop;
 
-                        if (tagsop.has_value())
-                        {
-                            const UCodeLang::UsedTags& tags = *tagsop.value();
-
-                            for (auto& tag : tags.Attributes)
+                            if (Item->Get_Type() == UCodeLang::ClassType::Class)
                             {
-                                const auto& nod = CurrentAssembly.Find_Node(tag.TypeID);
-                                if (nod) {
-                                    if (StringHelper::StartsWith(nod->FullName, "UCodeGameEngine:MenuItem"))
-                                    {
-                                        StringView menuname = StringView((const char*)tag._Data.Get_Data(), tag._Data.Size);
+                                auto& nod = Item->Get_ClassData();
 
-                                        bool hasItem = false;
+                                tagsop = &nod.Attributes;
+                            }
 
-                                        for (auto& Item : MenuInfo)
+                            if (tagsop.has_value())
+                            {
+                                const UCodeLang::UsedTags& tags = *tagsop.value();
+
+                                for (auto& tag : tags.Attributes)
+                                {
+                                    const auto& nod = CurrentAssembly.Find_Node(tag.TypeID);
+                                    if (nod) {
+                                        if (StringHelper::StartsWith(nod->FullName, "UCodeGameEngine:MenuItem"))
                                         {
-                                            if (Item.MenuName == menuname)
+                                            StringView menuname = StringView((const char*)tag._Data.Get_Data(), tag._Data.Size);
+
+                                            bool hasItem = false;
+
+                                            for (auto& Item : MenuInfo)
                                             {
-                                                hasItem = true;
-                                                break;
+                                                if (Item.MenuName == menuname)
+                                                {
+                                                    hasItem = true;
+                                                    break;
+                                                }
                                             }
-                                        }
 
-                                        if (!hasItem) {
-                                            ScriptMenuInfo info;
-                                            info.MenuName = menuname;
-                                            info.node = Item.get();
-                                            MenuInfo.push_back(info);
-                                        }
+                                            if (!hasItem) {
+                                                ScriptMenuInfo info;
+                                                info.MenuName = menuname;
+                                                info.node = Item.get();
+                                                MenuInfo.push_back(info);
+                                            }
 
+                                        }
                                     }
                                 }
                             }
                         }
+
+                        //sort by name
+                        std::sort(MenuInfo.begin(), MenuInfo.end(), [](ScriptMenuInfo& A, ScriptMenuInfo& B)
+                        {
+                                return A.MenuName.compare(B.MenuName) < 0;
+                        });
+                    }
+                }
+
+                ImGui::Separator();
+
+
+
+                Optional<size_t> ClickedIndex = DrawMenu<ScriptMenuInfo>(spanof(MenuInfo), [](const ScriptMenuInfo& Item) -> StringView {return StringView(Item.MenuName); });
+                if (ClickedIndex.has_value())
+                {
+                    auto& Script = MenuInfo[ClickedIndex.value()];
+                    auto SaveType = Get_ProjectData()->Get_ProjData()._SerializeType;
+
+                    UC::ScirptableObjectData data;
+                    UC::ScirptableObject obj;
+
+                    obj.LoadScript(Script.node);
+
+                    obj.SaveTo(data, SaveType);
+
+                    data._UID = Get_ProjectData()->GetNewUID();
+
+                    Path pathout = FileHelper::GetNewFileName(_LookingAtDir.value() / Script.node->Name, UC::ScirptableObjectData::FileExtDot);
+
+                    if (!UC::ScirptableObjectData::ToFile(pathout, data, SaveType))
+                    {
+                        UCodeGEError("Unable to save Asset at " << pathout);
                     }
 
-                    //sort by name
-                    std::sort(MenuInfo.begin(), MenuInfo.end(), [](ScriptMenuInfo& A, ScriptMenuInfo& B)
-                    {
-                        return A.MenuName.compare(B.MenuName) < 0;
-                    });
                 }
+
+                ImGui::EndMenu();
             }
 
-            ImGui::Separator();
 
-
-
-            Optional<size_t> ClickedIndex = DrawMenu<ScriptMenuInfo>(spanof(MenuInfo), [](const ScriptMenuInfo& Item) -> StringView {return StringView(Item.MenuName); });
-            if (ClickedIndex.has_value())
             {
-                auto& Script = MenuInfo[ClickedIndex.value()];
-                auto SaveType = Get_ProjectData()->Get_ProjData()._SerializeType;
+                Optional<String> PasteType = CanPasteShowDirButtionsPaste();
 
-                UC::ScirptableObjectData data;
-                UC::ScirptableObject obj;
 
-                obj.LoadScript(Script.node);
+                auto& userseting = UserSettings::GetSettings();
+                auto str = userseting.KeyBinds[(size_t)KeyBindList::Paste].ToString();
 
-                obj.SaveTo(data, SaveType);
-
-                data._UID = Get_ProjectData()->GetNewUID();
-
-                Path pathout = FileHelper::GetNewFileName(_LookingAtDir.value() / Script.node->Name, UC::ScirptableObjectData::FileExtDot);
-
-                if (!UC::ScirptableObjectData::ToFile(pathout, data, SaveType))
+                if (ImGui::MenuItem("Paste", str.c_str(), false, PasteType.has_value()) ||
+                    (userseting.IsKeybindActive(KeyBindList::Paste) && PasteType.has_value()))
                 {
-                    UCodeGEError("Unable to save Asset at " << pathout);
+                    ShowDirButtionsPaste();
+                    ImGui::CloseCurrentPopup();
                 }
-
             }
-
-            ImGui::EndMenu();
+            ImGui::EndPopup();
         }
-        
-    
-        {
-            Optional<String> PasteType = CanPasteShowDirButtionsPaste();
-            
-
-            auto& userseting = UserSettings::GetSettings();
-            auto str = userseting.KeyBinds[(size_t)KeyBindList::Paste].ToString();
-            
-            if (ImGui::MenuItem("Paste", str.c_str(), false, PasteType.has_value()) ||
-                (userseting.IsKeybindActive(KeyBindList::Paste) && PasteType.has_value()))
-            {
-                ShowDirButtionsPaste();
-                ImGui::CloseCurrentPopup();
-            }
-        }
-        ImGui::EndPopup();
     }
 }
 
