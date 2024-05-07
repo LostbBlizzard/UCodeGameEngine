@@ -512,39 +512,7 @@ void GameEditorWindow::ShowSceneData()
 {
     bool HasSceneRightPrivilege = true;//add this to stop updateing the same scene data file.
 
-    if (ImGui::IsItemFocused())
-    {
-        auto& settings = UserSettings::GetSettings();
-
-        if (settings.IsKeybindActive(KeyBindList::New))
-        {
-            ShowSceneDataAddNewScene();
-        }
-    }
-    if (ImGuIHelper::BeginPopupContextItem())
-    {
-        ImGuIHelper::Text(StringView("RunTime Options"));
-        ImGui::Separator();
-
-        auto& settings = UserSettings::GetSettings();
-        auto keybindstring = settings.KeyBinds[(size_t)KeyBindList::New].ToString();
-        if (ImGui::MenuItem("Add New Scene", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::New))
-        {
-            ShowSceneDataAddNewScene();
-            ImGui::CloseCurrentPopup();
-        }
-        ImGui::BeginDisabled(_IsRuningGame);
-
-        if (ImGui::MenuItem("ReLoad RunTime"))
-        {
-            UnLoadRunTime();
-            LoadRunTime();
-        }
-
-        ImGui::EndDisabled();
-
-        ImGui::EndPopup();
-    }
+    
 
 
 
@@ -578,6 +546,39 @@ void GameEditorWindow::ShowSceneData()
     if (Size.x == 0 || Size.y == 0) { Size = { 1,1 }; }
     ImGui::InvisibleButton("Data", Size);
     DropSceneFromPath();
+    if (ImGui::IsItemFocused())
+    {
+        auto& settings = UserSettings::GetSettings();
+
+        if (settings.IsKeybindActive(KeyBindList::New))
+        {
+            ShowSceneDataAddNewScene();
+        }
+    }
+    if (ImGuIHelper::BeginPopupContextItem())
+    {
+        ImGuIHelper::Text(StringView("RunTime Options"));
+        ImGui::Separator();
+
+        auto& settings = UserSettings::GetSettings();
+        auto keybindstring = settings.KeyBinds[(size_t)KeyBindList::New].ToString();
+        if (ImGui::MenuItem("Add New Scene", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::New))
+        {
+            ShowSceneDataAddNewScene();
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::BeginDisabled(_IsRuningGame);
+
+        if (ImGui::MenuItem("ReLoad RunTime"))
+        {
+            UnLoadRunTime();
+            LoadRunTime();
+        }
+
+        ImGui::EndDisabled();
+
+        ImGui::EndPopup();
+    }
 }
 void GameEditorWindow::DropSceneFromPath()
 {
