@@ -5,21 +5,31 @@
 #include <UCodeRunTime/ULibrarys/Serialization/USerializer.hpp>
 #include <Serialization.hpp>
 #include <Typedefs.hpp>
+#include <UCodeRunTime/ULibrarys/Serialization/SerlizeableType.hpp>
+
+EditorStart
+struct WindowDataForWindowPrefData
+{
+public:
+	String _Windowid;
+	String _WindowData;
+	String _ImguiName;
+};
+EditorEnd
+
+MakeSerlizeType(UCodeEditor::WindowDataForWindowPrefData,
+		Field("_Windowid", _this->_Windowid);
+		Field("_WindowData", _this->_WindowData);
+		Field("_ImguiName", _this->_ImguiName);
+);
+
 EditorStart
 class WindowPrefData
 {
 public:
 	static const char* FileName;
-	struct WindowData
-	{
-	public:
-		String _Windowid;
-		Vector<Byte> _WindowData;
-		String _ImguiName;
-		static void PushData(USerializer& USerializer,const WindowData& Data);
-		static void PullData(UDeserializer& USerializer,WindowData& Out);
-	};
-	Vector< WindowData> _Windows;
+	
+	Vector<WindowDataForWindowPrefData> _Windows;
 
 	
 

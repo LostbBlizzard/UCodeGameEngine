@@ -744,7 +744,6 @@ void EditorAppCompoent::LoadWindowsPref()
         newwin->OnLoadWindow(Data);
     }
 
-    //ImGui::LoadIniSettingsFromDisk(IniPrePath);
 }
 void EditorAppCompoent::SaveWindowsPref()
 {
@@ -753,19 +752,18 @@ void EditorAppCompoent::SaveWindowsPref()
 
     WindowPrefData data = WindowPrefData();
 
-    auto TypeSerializer = USerializerType::Bytes;// _RunTimeProjectData.Get_ProjData()._SerializeType;
-    //Text is too unstable
+    auto TypeSerializer = USerializerType::YAML;
     USerializer SWindowData = USerializer(TypeSerializer);
 
     for (auto& Item : _EditorWindows)
     {
-        WindowPrefData::WindowData windata;
+        WindowDataForWindowPrefData windata;
 
         windata._Windowid = Item->WindowName;
         windata._ImguiName = Item->_ImGuiName;
 
         Item->OnSaveWindow(SWindowData);
-        SWindowData.ToBytes(windata._WindowData, true);
+        SWindowData.ToString(windata._WindowData, true);
 
         data._Windows.push_back(std::move(windata));
 
