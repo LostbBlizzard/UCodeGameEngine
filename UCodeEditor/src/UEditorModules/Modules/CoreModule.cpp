@@ -45,7 +45,8 @@ public:
         {
             const Path* Value = &path;
             bool OnDropable = ImGui::SetDragDropPayload(DragAndDropType_Scene2dPathType, &Value, sizeof(Path*));
-            if (OnDropable)
+            bool OnDropable2 = ImGui::SetDragDropPayload(DragAndDropType_AssetPath, &Value, sizeof(Path*));
+            if (OnDropable || OnDropable2)
             {
                 ImGuIHelper::Text(StringView("Drop Scene Here?"));
             }
@@ -475,9 +476,9 @@ public:
 				if (ImGui::BeginDragDropSource())
 				{
 					static Path tepAssetPath;
-					tepAssetPath = this->FileFullPath + EditorIndex::SubAssetSeparator + Spr.spritename;
+					tepAssetPath = this->FileFullPath.native() + Path(EditorIndex::SubAssetSeparator).native() + Path(Spr.spritename).native() + Path(UCode::SpriteData::FileExtDot).native();
 					Path* p = &tepAssetPath;
-					bool OnDropable = ImGui::SetDragDropPayload("AssetPath", &p, sizeof(UCode::Path*));
+					bool OnDropable = ImGui::SetDragDropPayload(DragAndDropType_AssetPath, &p, sizeof(UCode::Path*));
 
 					auto& g = *GImGui;
 					auto ImageHight = ImGui::GetFrameHeight();
