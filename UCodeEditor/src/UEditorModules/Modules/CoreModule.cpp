@@ -430,7 +430,7 @@ public:
 			for (auto& Spr : setting.sprites)
 			{
 				UEditorDrawSubAssetContext::DoneDraw ondraw;
-				ondraw.AssetName = Spr .spritename;
+				ondraw.AssetName = Spr.spritename;
 				ondraw.OnAssetRename = [](String&)
 					{
 
@@ -447,9 +447,9 @@ public:
 					auto inpswin = App->Get_Window<InspectWindow>();
 
 
-                    static auto Func = App->GetPrjectFiles()._newuid;
+					static auto Func = App->GetPrjectFiles()._newuid;
 					InspectWindow::InspectData V;
-                    V._Data = Item._ManageFile;
+					V._Data = Item._ManageFile;
 					V._Draw = [](InspectWindow::InspectDrawer& data)
 						{
 							UEditorAssetDrawInspectContext Data;
@@ -466,11 +466,42 @@ public:
 								data.SetPtrNull();
 							}
 						};
-                                
+
 					inpswin->Inspect(V);
 
 					OpenSpriteEditor = Spr.uid;
 				}
+
+				if (ImGui::BeginDragDropSource())
+				{
+					static Path tepAssetPath;
+					tepAssetPath = this->FileFullPath + EditorIndex::SubAssetSeparator + Spr.spritename;
+					Path* p = &tepAssetPath;
+					bool OnDropable = ImGui::SetDragDropPayload("AssetPath", &p, sizeof(UCode::Path*));
+
+					auto& g = *GImGui;
+					auto ImageHight = ImGui::GetFrameHeight();
+
+
+					Vec2 imagesize = { ImageHight,ImageHight };
+					if (OnDropable)
+					{
+						String Text = "Drop " + Spr.spritename + "Here?";
+
+						ImGuIHelper::Text(Text);
+						ImGui::SameLine();
+						ImGuIHelper::Image(&sp, *(ImVec2*)&imagesize);
+					}
+					else
+					{
+						ImGuIHelper::Text(Spr.spritename);
+						ImGui::SameLine();
+						ImGuIHelper::Image(&sp, *(ImVec2*)&imagesize);
+					}
+
+					ImGui::EndDragDropSource();
+				}
+
 				Item.OnDoneDrawingAssetButton(ondraw);
 			}
 		}

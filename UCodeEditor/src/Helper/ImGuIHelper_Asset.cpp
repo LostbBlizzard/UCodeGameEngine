@@ -30,15 +30,16 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::TexturePtr& Va
 
 		List.push_back(std::move(P));
 	}
-
-
-
-	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectTextureAssetInfo),
-		[](void* Ptr, void* Object, bool Listmode, const String& Find)
+	ImGuIHelper::ObjectFieldData data;
+	data.OnObjectInList = [](void* Ptr, void* Object, bool Listmode, const String& Find)
 		{
 			bool r = false;
 			return r;
-		});
+		};
+
+
+	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectTextureAssetInfo),
+		data);
 }
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::TextureAssetPtr& Value)
 {
@@ -53,24 +54,25 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::TextureAssetPt
 
 		List.push_back(std::move(P));
 	}
-
-
-
-	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectTextureAssetInfo),
-		[](void* Ptr, void* Object, bool Listmode, const String& Find)
+	ImGuIHelper::ObjectFieldData data;
+	data.OnObjectInList = [](void* Ptr, void* Object, bool Listmode, const String& Find)
 		{
 			bool r = false;
 			return r;
-		});
+		};
+
+
+	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectTextureAssetInfo),
+	data);
 }
-bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Value) 
-{ 
+bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Value)
+{
 	struct ObjectSpriteAssetInfo
 	{
 		String _ShowAbleName;
 		Path _RelativePath;
 		Optional<UID> _UID;
-		float score=0;
+		float score = 0;
 	};
 	static Vector<ObjectSpriteAssetInfo> List = {};
 	static String OldFind;
@@ -109,7 +111,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 			Item.score = OldFind.size() ? FuzzHelper::GetFuzzRotio(OldFind, Item._ShowAbleName) : minscorebefordontshow();
 		}
 
-		std::sort(List.begin(), List.end(), [](const ObjectSpriteAssetInfo& A,const ObjectSpriteAssetInfo& B)
+		std::sort(List.begin(), List.end(), [](const ObjectSpriteAssetInfo& A, const ObjectSpriteAssetInfo& B)
 			{
 				return A.score > B.score;
 			});
@@ -124,15 +126,15 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 			Item.score = FuzzHelper::GetFuzzRotio(OldFind, Item._ShowAbleName);
 		}
 
-		std::sort(List.begin(), List.end(), [](const ObjectSpriteAssetInfo& A,const ObjectSpriteAssetInfo& B)
+		std::sort(List.begin(), List.end(), [](const ObjectSpriteAssetInfo& A, const ObjectSpriteAssetInfo& B)
 			{
 				return A.score > B.score;
-			});	
+			});
 	}
 
 	String MyName = "None";
 	UCode::Sprite* spr = nullptr;
-	if (Value.Has_UID()) 
+	if (Value.Has_UID())
 	{
 		auto id = Value.Get_UID();
 		for (auto& Item : List)
@@ -161,9 +163,23 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 	{
 		spr = AppFiles::GetSprite(AppFiles::sprite::AppIcon);
 	}
+	ImGuIHelper::ObjectFieldData data;
+	data.OnFileDroped = [](const Path& fullpath, void* object, ImGuIHelper::ObjectDropState state) -> bool
+		{
+			UCode::SpritePtr& objectas =*(UCode::SpritePtr*)object;
 
-	return ImGuIHelper::DrawObjectField(spr,FieldName, &Value, List.data(), List.size(), sizeof(ObjectSpriteAssetInfo),
-		[](void* Ptr, void* Object, bool Listmode, const String& Find)
+			if (state == ImGuIHelper::ObjectDropState::CanBeDroped)
+			{
+
+				return (fullpath.extension() == ".png");	
+			}
+			else if (state == ImGuIHelper::ObjectDropState::OnDroped)
+			{
+				return false;
+			}
+
+		};
+	data.OnObjectInList = [](void* Ptr, void* Object, bool Listmode, const String& Find)
 		{
 			if (Find != OldFind)
 			{
@@ -181,8 +197,8 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 			if (obj->score >= minscorebefordontshow())
 			{
 				NullablePtr<UCode::Sprite> sp;
-			
-				if (obj->_UID.has_value()) 
+
+				if (obj->_UID.has_value())
 				{
 					auto v = AssetManager->FindOrLoad(obj->_UID.value());
 					if (v.has_value())
@@ -200,17 +216,17 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 				if (Listmode)
 				{
 					if (sp.has_value()) {
-						ImGuIHelper::Image(sp.value().value(), {20,20});
+						ImGuIHelper::Image(sp.value().value(), { 20,20 });
 						ImGui::SameLine();
 					}
-				
+
 					//ImGui::PushID(Object);
 					r = ImGui::Selectable(Name.c_str(), _idval.has_value() ? _idval.value() == obj->_UID : false);
 					//ImGui::PopID();
-					
+
 					if (r)
 					{
-						if (obj->_UID.has_value()) 
+						if (obj->_UID.has_value())
 						{
 							Value = obj->_UID.value();
 						}
@@ -232,11 +248,14 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 						//Value = obj->_UID;
 						//r = true;
 					}
-				}	
+				}
 			}
 
 			return r;
-		},MyName);
+		};
+
+	return ImGuIHelper::DrawObjectField(spr, FieldName, &Value, List.data(), List.size(), sizeof(ObjectSpriteAssetInfo),
+			data, MyName);
 }
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpriteAssetPtr& Value)
 {
@@ -258,16 +277,17 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpriteAssetPtr
 			List.push_back(std::move(P));
 		}
 	}
-
-	
-
-
-	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSpriteAssetInfo),
-		[](void* Ptr, void* Object, bool Listmode, const String& Find)
+	ImGuIHelper::ObjectFieldData data;
+	data.OnObjectInList = [](void* Ptr, void* Object, bool Listmode, const String& Find)
 		{
 			bool r = false;
 			return r;
-		});
+		};
+
+
+
+	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSpriteAssetInfo),
+		data);
 }
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ShaderAssetPtr& Value)
 {
@@ -282,17 +302,18 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ShaderAssetPtr
 
 		List.push_back(std::move(P));
 	}
-
-
-
-	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectShaderAssetInfo),
-		[](void* Ptr, void* Object, bool Listmode, const String& Find)
+	ImGuIHelper::ObjectFieldData data;
+	data.OnObjectInList = [](void* Ptr, void* Object, bool Listmode, const String& Find)
 		{
 			bool r = false;
 			return r;
-		});
+		};
+
+
+	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectShaderAssetInfo),
+		data);
 }
-bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ShaderPtr& Value) 
+bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ShaderPtr& Value)
 {
 	return false;
 	struct ObjectShaderAssetInfo
@@ -306,24 +327,25 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ShaderPtr& Val
 
 		List.push_back(std::move(P));
 	}
-
-
-
-	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectShaderAssetInfo),
-		[](void* Ptr, void* Object, bool Listmode, const String& Find)
+	ImGuIHelper::ObjectFieldData data;
+	data.OnObjectInList = [](void* Ptr, void* Object, bool Listmode, const String& Find)
 		{
 			bool r = false;
 			return r;
-		});
+		};
+
+
+	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectShaderAssetInfo),
+	data);
 }
-bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Value) 
+bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Value)
 {
 	struct ObjectSceneAssetInfo
 	{
 		Path _RelativePath;
 		UID _UID;
 	};
-	
+
 
 	Vector<ObjectSceneAssetInfo> List;
 	{
@@ -341,7 +363,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 		{
 			continue;
 		}
-			
+
 		if (Path(Item.RelativePath).extension() != Path(ext))
 		{
 			continue;
@@ -367,8 +389,8 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 		}
 	}
 
-	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
-		[](void* Ptr, void* Object, bool Listmode,const String& Find)
+	ImGuIHelper::ObjectFieldData data;
+	data.OnObjectInList = [](void* Ptr, void* Object, bool Listmode, const String& Find)
 		{
 			UCode::ScencPtr& Value = *(UCode::ScencPtr*)Ptr;
 			ObjectSceneAssetInfo* obj = (ObjectSceneAssetInfo*)Object;
@@ -377,18 +399,18 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 			bool r = false;
 
 
-			if (StringHelper::Fllter(Find,Name))
+			if (StringHelper::Fllter(Find, Name))
 			{
-				
+
 				if (Listmode)
 				{
 					ImGuIHelper::Image(AppFiles::sprite::Scene2dData, { 20,20 });
 					ImGui::SameLine();
-				
+
 					//ImGui::PushID(Object);
 					r = ImGui::Selectable(Name.c_str(), Value.Get_UID() == obj->_UID);
 					//ImGui::PopID();
-					
+
 					if (r)
 					{
 						Value = obj->_UID;
@@ -399,16 +421,19 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 				{
 					auto NewName = Name;
 					ImGuIHelper::Text(NewName);
-					if (ImGuIHelper::ImageButton(obj +NewName.size(), AppFiles::sprite::Scene2dData, {30,30}))
+					if (ImGuIHelper::ImageButton(obj + NewName.size(), AppFiles::sprite::Scene2dData, { 30,30 }))
 					{
 						Value = obj->_UID;
 						r = true;
 					}
-				}	
+				}
 			}
 
 			return r;
-		}, AppFiles::sprite::Scene2dData, MyName);
+		};
+
+	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
+		data, AppFiles::sprite::Scene2dData, MyName);
 }
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencAssetPtr& Value)
 {
@@ -423,15 +448,16 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencAssetPtr&
 
 		List.push_back(std::move(P));
 	}
-
-
-
-	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
-		[](void* Ptr, void* Object, bool Listmode, const String& Find)
+	ImGuIHelper::ObjectFieldData data;
+	data.OnObjectInList = [](void* Ptr, void* Object, bool Listmode, const String& Find)
 		{
 			bool r = false;
 			return r;
-		});
+		};
+
+
+	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
+	data);
 }
 bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 {
@@ -508,8 +534,9 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 			break;
 		}
 	}
-	return ImGuIHelper::DrawObjectField(&Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
-		[](void* Ptr, void* Object, bool Listmode,const String& Find)
+
+	ImGuIHelper::ObjectFieldData data;
+	data.OnObjectInList = [](void* Ptr, void* Object, bool Listmode, const String& Find)
 		{
 			if (Find != OldFind)
 			{
@@ -526,16 +553,16 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 
 			if (obj->score >= minscorebefordontshow())
 			{
-				
+
 				if (Listmode)
 				{
 					ImGuIHelper::Image(AppFiles::sprite::UCodeAssetIcon, { 20,20 });
 					ImGui::SameLine();
-				
+
 					//ImGui::PushID(Object);
 					r = ImGui::Selectable(Name.c_str(), Value == obj->_UID);
 					//ImGui::PopID();
-					
+
 					if (r)
 					{
 						Value = obj->_UID;
@@ -546,16 +573,19 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 				{
 					auto NewName = Name;
 					ImGuIHelper::Text(NewName);
-					if (ImGuIHelper::ImageButton(obj +NewName.size(), AppFiles::sprite::UCodeAssetIcon, {30,30}))
+					if (ImGuIHelper::ImageButton(obj + NewName.size(), AppFiles::sprite::UCodeAssetIcon, { 30,30 }))
 					{
 						Value = obj->_UID;
 						r = true;
 					}
-				}	
+				}
 			}
 
 			return r;
-		}, AppFiles::sprite::UCodeAssetIcon, MyName);
+		};
+
+	return ImGuIHelper::DrawObjectField(&Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
+		data, AppFiles::sprite::UCodeAssetIcon, MyName);
 }
 bool ImGuIHelper_Asset::AnyAsssetsField(StringView FieldName, Vector<UID>& Value)
 {

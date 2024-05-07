@@ -492,7 +492,8 @@ ImGuIHelper::TreeNodeText ImGuIHelper::TreeNode(const void* id, String& buffer, 
 	auto& g = *GImGui;
 
 
-	ImGuIHelper::Image(Sprite, ImVec2(20, g.FontSize + g.Style.FramePadding.y * 2)); ImGui::SameLine();
+	auto Size = g.FontSize + g.Style.FramePadding.y * 2;
+	ImGuIHelper::Image(Sprite, ImVec2(Size, Size)); ImGui::SameLine();
 	return TreeNode(id, buffer);
 }
 
@@ -717,7 +718,9 @@ bool ImGuIHelper::DrawRenameTree(String& label, bool TreeIsOpened, bool& IsRenam
 bool ImGuIHelper::DrawRenameTree(String& label, bool TreeIsOpened, bool& IsRenameing, UCode::Sprite* sprite)
 {
 	ImGuiContext& g = *GImGui;
-	Image(sprite, ImVec2(20, g.FontSize + g.Style.FramePadding.y * 2));
+
+	auto Size = g.FontSize + g.Style.FramePadding.y * 2;
+	Image(sprite, ImVec2(Size, Size));
 	ImGui::SameLine();
 
 	ImGui::SetKeyboardFocusHere();
@@ -768,7 +771,9 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 
 	ItemLabel(StringView(label), ItemLabelFlag::Left);
 	
-	const ImVec2 imagesize = { 20,20 };	
+	auto& g = *GImGui;
+	auto ImageHight = g.FontSize + g.Style.FramePadding.y * 2;
+	const ImVec2 imagesize = { (float)Size,(float)Size };	
 	auto& spaceing = ImGui::GetStyle().ItemSpacing;
 	
 	
@@ -808,7 +813,7 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 		{
 			ImGui::SameLine();
 
-			ImVec2 ButtionSize = { 20,20 };
+			ImVec2 ButtionSize = { ImageHight,ImageHight };
 
 			ImGui::BeginDisabled(!Item._AddNewValue.has_value());
 			if (ImGui::Button("+", ButtionSize))
@@ -896,6 +901,8 @@ bool ImGuIHelper::Draw_UniquePtr(const char* label, void* Uniqueptr, const DrawU
 {
 	ItemLabel(StringView(label), ItemLabelFlag::Left);
 
+	auto& g = *GImGui;
+	auto ImageHight = g.FontSize + g.Style.FramePadding.y * 2;
 
 	Unique_ptr<Byte>& Ptr = *(Unique_ptr<Byte>*)Uniqueptr;
 	bool WasUpdated = false;
@@ -907,7 +914,7 @@ bool ImGuIHelper::Draw_UniquePtr(const char* label, void* Uniqueptr, const DrawU
 		if (Info._FreeItem.has_value())
 		{
 			ImGui::SameLine();
-			if (ImGui::Button("-", { 20,20 }))
+			if (ImGui::Button("-", { ImageHight,ImageHight }))
 			{
 				WasUpdated = true;
 				Info._FreeItem.value()(Uniqueptr);
@@ -1223,7 +1230,7 @@ bool ImGuIHelper::Draw_Dictionary(const char* label, void* Dictionaryptr, size_t
 }
 bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 	const void* ObjectList, size_t ObjectListSize, size_t ItemObjectSize,
-	ObjectFieldFuncPtr DrawObject, const String& Name)
+	const ObjectFieldData& DrawObject, const String& Name)
 {
 	const float square_sz = ImGui::GetFrameHeight();
 	const ImVec2 imagesize = { square_sz,square_sz };
@@ -1238,6 +1245,40 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 	auto& spaceing = ImGui::GetStyle().ItemSpacing;
 	ImGui::PushItemWidth(ImGui::CalcItemWidth() - (imagesize.x + spaceing.x));
 	bool r = ImGui::BeginCombo("##oiwj", Name.c_str(),ImGuiComboFlags_::ImGuiComboFlags_NoArrowButton);
+	
+	
+	if (DrawObject.OnFileDroped.has_value()) 
+	{
+		auto& filedrop = DrawObject.OnFileDroped.value();
+		if (ImGui::BeginDragDropTarget())
+		{
+			ImGuiDragDropFlags target_flags = 0;
+			target_flags |= ImGuiDragDropFlags_AcceptBeforeDelivery;
+			target_flags |= ImGuiDragDropFlags_AcceptNoDrawDefaultRect;
+
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("AssetPath", target_flags))
+			{
+				const Path* fullpath = *(Path**)payload->Data;
+				bool canbedroped = filedrop(*fullpath,object,ObjectDropState::CanBeDroped);
+				if (payload->IsDelivery())
+				{
+					if (canbedroped)
+					{
+						filedrop(*fullpath, object, ObjectDropState::OnDroped);
+						ok = true;
+					}
+				}
+
+				if (canbedroped)
+				{
+					ImGuiContext& g = *GImGui;
+					ImGui::RenderDragDropTargetRect(g.DragDropTargetRect, g.DragDropTargetClipRect);
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
+	}
+
 	if (r)
 	{
 		static String V;
@@ -1264,7 +1305,7 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 		for (size_t i = 0; i < ObjectListSize; i++)
 		{
 
-			ok = DrawObject(object, (void*)ptr, ListMode, V);
+			ok = DrawObject.OnObjectInList(object, (void*)ptr, ListMode, V);
 
 			ptr += (uintptr_t)ItemObjectSize;
 

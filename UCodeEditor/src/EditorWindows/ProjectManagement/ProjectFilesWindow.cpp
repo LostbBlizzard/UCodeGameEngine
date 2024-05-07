@@ -402,7 +402,7 @@ void ProjectFilesWindow::UpdateWindow()
                                     }
                                     if (settings.IsKeybindActive(KeyBindList::Rename))
                                     {
-                                        if (context.OnDestroy.has_value())
+                                        if (context.OnAssetRename.has_value())
                                         {
 
                                         }
@@ -453,7 +453,7 @@ void ProjectFilesWindow::UpdateWindow()
 
                                         ImGui::CloseCurrentPopup();
                                     }
-                                    
+
                                     str = settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
                                     if (ImGui::MenuItem("Copy", str.c_str(), nullptr, context.OnAssetRename.has_value()) || settings.IsKeybindActive(KeyBindList::Copy))
                                     {
@@ -481,8 +481,8 @@ void ProjectFilesWindow::UpdateWindow()
 
                                     ImGui::EndPopup();
                                 }
-                                
-                                
+
+                               
                                 auto App = EditorAppCompoent::GetCurrentEditorAppCompoent();
                                 if (App->GetInputMode() == KeyInputMode::Window)
                                 {
