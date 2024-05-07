@@ -1006,15 +1006,28 @@ public:
 		ImGui::PopID();
 		return R;
 	}
+
+	enum class ObjectDropState 
+	{
+		CanBeDroped,
+		OnDroped,
+	};
+	using ObjectDroped = std::function<bool(const Path& fullpath,void* object,ObjectDropState State)>;
 	using ObjectFieldFuncPtr = std::function<bool(void* Ptr, void* Object, bool Listmode, const String& Find)>;
+
+	struct ObjectFieldData
+	{
+		ObjectFieldFuncPtr OnObjectInList;
+		Optional<ObjectDroped> OnFileDroped;
+	};
 
 	static bool DrawObjectField(UCode::Sprite* Sprite, void* object,
 		const void* ObjectList, size_t ObjectListSize, size_t ItemObjectSize,
-		ObjectFieldFuncPtr DrawObject, const String& Name = "Put/Name/Here");
+		const ObjectFieldData& DrawObject, const String& Name = "Put/Name/Here");
 
 	static bool DrawObjectField(UCode::Sprite* Sprite, const char* Label, void* object,
 		const void* ObjectList, size_t ObjectListSize, size_t ItemObjectSize,
-		ObjectFieldFuncPtr DrawObject, const String& Name = "Put/Name/Here")
+		const ObjectFieldData& DrawObject, const String& Name = "Put/Name/Here")
 	{
 		ItemLabel(StringView(Label),ItemLabelFlag::Left);	
 		return DrawObjectField(Sprite, object, ObjectList, ObjectListSize, ItemObjectSize, DrawObject, Name);
@@ -1022,13 +1035,13 @@ public:
 
 	static bool DrawObjectField(const char* Label, void* object,
 		const void* ObjectList, size_t ObjectListSize, size_t ItemObjectSize,
-		ObjectFieldFuncPtr DrawObject, AppFiles::sprite Sprite = AppFiles::sprite::AppIcon, const String& Name = "Put/Name/Here")
+		const ObjectFieldData& DrawObject, AppFiles::sprite Sprite = AppFiles::sprite::AppIcon, const String& Name = "Put/Name/Here")
 	{
 		return DrawObjectField(AppFiles::GetSprite(Sprite), Label, object, ObjectList, ObjectListSize, ItemObjectSize, DrawObject, Name);
 	}
 	static bool DrawObjectField(void* object,
 		const void* ObjectList, size_t ObjectListSize, size_t ItemObjectSize,
-		ObjectFieldFuncPtr DrawObject, AppFiles::sprite Sprite = AppFiles::sprite::AppIcon, const String& Name = "Put/Name/Here")
+		const ObjectFieldData& DrawObject, AppFiles::sprite Sprite = AppFiles::sprite::AppIcon, const String& Name = "Put/Name/Here")
 	{
 		return DrawObjectField(AppFiles::GetSprite(Sprite), object, ObjectList, ObjectListSize, ItemObjectSize, DrawObject, Name);
 	}
