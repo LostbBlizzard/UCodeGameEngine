@@ -17,6 +17,7 @@ public:
 	USerializerType _SerializeType= USerializerType::Default;
 	
 	UID StartScene;
+	UID GameIcon;
 	Vector<UPluginID> _Plugins;
 	Vector<UID> _AssetsToKeepLoaded;
 

@@ -1015,6 +1015,13 @@ public:
 	using ObjectDroped = std::function<bool(const Path& fullpath,void* object,ObjectDropState State)>;
 	using ObjectFieldFuncPtr = std::function<bool(void* Ptr, void* Object, bool Listmode, const String& Find)>;
 
+
+	struct DrawMenuObjectReturn
+	{
+		String* Search = nullptr;
+		bool ListMode = false;
+	};
+	static DrawMenuObjectReturn DrawStarOfMenuObjects();
 	struct ObjectFieldData
 	{
 		ObjectFieldFuncPtr OnObjectInList;

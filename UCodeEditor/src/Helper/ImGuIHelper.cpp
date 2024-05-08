@@ -1172,6 +1172,7 @@ bool ImGuIHelper::Draw_StringView(const char* label, StringView& Item)
 	}
 	return R;
 }
+
 bool ImGuIHelper::Draw_Dictionary(const char* label, void* Dictionaryptr, size_t DictionarySize, const DrawDictionaryInfo& Info)
 {
 	bool WasUpdated = false;
@@ -1229,6 +1230,35 @@ bool ImGuIHelper::Draw_Dictionary(const char* label, void* Dictionaryptr, size_t
 	}
 	return Value;
 }
+
+
+ImGuIHelper::DrawMenuObjectReturn ImGuIHelper::DrawStarOfMenuObjects()
+{
+	ImGuIHelper::DrawMenuObjectReturn r;
+
+	static String V;
+	static bool t = false;
+
+
+	ImGui::PushID(&t);
+	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.96);
+	ImGuIHelper::InputText("", V);
+	ImGui::PopItemWidth();
+	ImGui::PopID();
+
+	//ImGui::SameLine();
+	static bool ListMode = true;
+	//ImGuIHelper::BoolEnumField("List",ListMode);
+
+
+	ImGui::Separator();
+	//ImGui::Columns(1, 0, false);
+
+
+	r.ListMode = ListMode;
+	r.Search = &V;
+	return r;
+}
 bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 	const void* ObjectList, size_t ObjectListSize, size_t ItemObjectSize,
 	const ObjectFieldData& DrawObject, const String& Name)
@@ -1282,31 +1312,13 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 
 	if (r)
 	{
-		static String V;
-		static bool t = false;
-
-
-		ImGui::PushID(&t);
-		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.96);
-		ImGuIHelper::InputText("", V);
-		ImGui::PopItemWidth();
-		ImGui::PopID();
-
-		//ImGui::SameLine();
-		static bool ListMode = true;
-		//ImGuIHelper::BoolEnumField("List",ListMode);
-
-
-		ImGui::Separator();
-		//ImGui::Columns(1, 0, false);
-
+		auto start = DrawStarOfMenuObjects();
 		uintptr_t ptr = (uintptr_t)ObjectList;
 
 
 		for (size_t i = 0; i < ObjectListSize; i++)
 		{
-
-			ok = DrawObject.OnObjectInList(object, (void*)ptr, ListMode, V);
+			ok = DrawObject.OnObjectInList(object, (void*)ptr, start.ListMode, *start.Search);
 
 			ptr += (uintptr_t)ItemObjectSize;
 

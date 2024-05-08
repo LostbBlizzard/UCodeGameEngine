@@ -655,7 +655,7 @@ public:
 				UCode::TextureAsset V(UCode::Texture(1,1,&colordata));
 				SetupTexture(&V._Base);
 				asset = std::move(V);
-				UC::AssetRendering::LoadTextureAsync(UC::Gamelibrary::Current(), this->FileFullPath)
+				UC::AssetRendering::LoadTextureAsync(EditorAppCompoent::GetCurrentEditorAppCompoent()->GetGameRunTime()->Get_Library_Edit(), this->FileFullPath)
 					.OnCompletedOnThread([this,v = asset.value().GetManaged()](Unique_ptr<UC::Texture>& text)
 				{
 					if (v.Has_Value())
