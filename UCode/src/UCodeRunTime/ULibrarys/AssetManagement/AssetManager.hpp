@@ -38,6 +38,15 @@ public:
 	{
 		_Managed.Set_Value(this);
 	}
+	Asset(Asset&& asset) noexcept
+	{
+		_Managed.Set_Value(this);
+	}
+	Asset& operator=(Asset&& asset) noexcept
+	{
+		_Managed.Set_Value(this);
+		return *this;
+	}
 
 	virtual ~Asset()
 	{
