@@ -4,6 +4,8 @@
 #include "ImGuIHelper.hpp"
 #include "StringHelper.hpp"
 #include "Helper/Fuzzhelper.hpp"
+#include "EditorWindows/DragAndDropNames.hpp"
+#include "Imgui/imgui_internal.h"
 EditorStart
 
 
@@ -673,8 +675,8 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 			return r;
 		};
 
-	return ImGuIHelper::DrawObjectField(GetAssetSpriteFromUID(Value),&Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
-		data, MyName);
+		return ImGuIHelper::DrawObjectField(GetAssetSpriteFromUID(Value), &Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
+			data, MyName);
 }
 bool ImGuIHelper_Asset::AnyAsssetsField(StringView FieldName, Vector<UID>& Value)
 {
@@ -693,7 +695,7 @@ bool ImGuIHelper_Asset::IconField(StringView FieldName, UCode::SpritePtr& Value,
 		auto id = Value.Get_UID();
 		for (auto& Item : ProjectData->Get_AssetIndex()._Files)
 		{
-			if (Item.UserID.has_value()) 
+			if (Item.UserID.has_value())
 			{
 				if (Item.UserID.value() == id)
 				{
@@ -735,7 +737,13 @@ bool ImGuIHelper_Asset::IconField(StringView FieldName, UCode::SpritePtr& Value,
 	if (ImGui::BeginPopup(popupid))
 	{
 		auto start = ImGuIHelper::DrawStarOfMenuObjects();
-	
+
+		if (ImGui::Selectable("None", Value.Has_UID() ? Value.Get_UID() == UID() : false))
+		{
+			Value = UID();
+			changed = true;
+		}
+
 		for (auto& Item : ProjectData->Get_AssetIndex()._Files)
 		{
 			auto ext = Path(Item.RelativeAssetName).extension().generic_string();
@@ -780,6 +788,50 @@ bool ImGuIHelper_Asset::IconField(StringView FieldName, UCode::SpritePtr& Value,
 			}
 		}
 		ImGui::EndPopup();
+	}
+
+
+	if (ImGui::BeginDragDropTarget())
+	{
+		ImGuiDragDropFlags target_flags = 0;
+		target_flags |= ImGuiDragDropFlags_AcceptBeforeDelivery;
+		target_flags |= ImGuiDragDropFlags_AcceptNoDrawDefaultRect;
+
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragAndDropType_AssetPath, target_flags))
+		{
+			const Path* fullpath = *(Path**)payload->Data;
+
+
+			auto ext = Path(*fullpath).extension().generic_string();
+			bool canbedroped = ext == UCode::SpriteData::FileExtDot;
+			if (payload->IsDelivery())
+			{
+				if (canbedroped)
+				{
+					auto& editorindex = ProjectData->Get_AssetIndex();
+					auto assetpath = ProjectData->GetAssetsDir();
+					Path relativepath = (*fullpath).native().substr(assetpath.native().size());
+
+					auto opasset = editorindex.FindFileRelativeAssetName(relativepath.generic_string());
+					if (opasset.has_value())
+					{
+						auto& asset = opasset.value();
+						if (asset.UserID.has_value())
+						{
+							Value = asset.UserID.value();
+							changed = true;
+						}
+					}
+				}
+			}
+
+			if (canbedroped)
+			{
+				ImGuiContext& g = *GImGui;
+				ImGui::RenderDragDropTargetRect(g.DragDropTargetRect, g.DragDropTargetClipRect);
+			}
+		}
+		ImGui::EndDragDropTarget();
 	}
 
 	ImGui::PopStyleColor();
