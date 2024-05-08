@@ -595,34 +595,13 @@ public:
 		
 		bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override
 		{
+			LoadAssetContext context;
+			context._AssetToLoad = setting.uid;
+			LoadAsset(context);
 
-			if (!asset.has_value())
-			{
-				if (fs::exists(this->FileMetaFullPath.value()))
-				{
-					fromfile(FileMetaFullPath.value(),setting);
-				}
-				else
-				{
-					auto runinfo = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
-					RemoveSubAssets(runinfo->GetAssetsDir(),runinfo->Get_AssetIndex());
-					setting.uid = Item._newuid();
-					tofile(FileMetaFullPath.value(), setting);
-				}
 
-		
-				
-				UCode::TextureAsset V(UCode::Texture(this->FileFullPath));
-				SetupTexture(&V._Base);
-				asset = std::move(V);
 
-				return ImGuIHelper::ImageButton(Item.ObjectPtr, AppFiles::sprite::Entity, *(ImVec2*)&Item.ButtionSize);
-			}
-			else
-			{
-				
-				return ImGuIHelper::ImageButton(Item.ObjectPtr, &asset.value()._Base, *(ImVec2*)&Item.ButtionSize);
-			}
+			return ImGuIHelper::ImageButton(Item.ObjectPtr, &asset.value()._Base, *(ImVec2*)&Item.ButtionSize);
 		}
 		void RemoveSprite(UID id)
 		{
@@ -655,15 +634,45 @@ public:
 				UCode::TextureAsset V(UCode::Texture(1,1,&colordata));
 				SetupTexture(&V._Base);
 				asset = std::move(V);
-				UC::AssetRendering::LoadTextureAsync(EditorAppCompoent::GetCurrentEditorAppCompoent()->GetGameRunTime()->Get_Library_Edit(), this->FileFullPath)
-					.OnCompletedOnThread([this,v = asset.value().GetManaged()](Unique_ptr<UC::Texture>& text)
+
+				auto lib = EditorAppCompoent::GetCurrentEditorAppCompoent()->GetGameRunTime()->Get_Library_Edit();
+
+				UCode::Threads* threads = UCode::Threads::Get(lib);
+				Delegate<Vector<Byte>> Func = [lib,path = this->FileFullPath]()
+					{
+						UCode::GameFiles* f = UCode::GameFiles::Get(lib);
+						auto bytes = f->ReadFileAsBytes(path);
+
+						return bytes.MoveToVector();
+					};
+				Delegate<Unique_ptr<UCode::Texture>, Vector<Byte>&&> Func2 = [](Vector<Byte>&& Bits) mutable
+					{
+
+						auto teptex = new UCode::Texture();
+						teptex->SetTexture(BytesView::Make(Bits.data(), Bits.size()));
+
+
+						return Unique_ptr<UCode::Texture>(teptex);
+					};
+				Delegate<Unique_ptr<UCode::Texture>, Unique_ptr<UCode::Texture>> Func3 = [](Unique_ptr<UCode::Texture>&& Tex) mutable
+					{
+						Tex->InitTexture();
+
+						return std::move(Tex);
+					};
+				auto vg = asset.value().GetManaged();
+				
+				threads->AddTask_t(UCode::TaskType::File_Input,std::move(Func), {})
+				.ContinueOnThread<Unique_ptr<UCode::Texture>>(UCode::TaskType::DataProcessing, std::move(Func2))
+				.ContinueOnThread<Unique_ptr<UCode::Texture>>(UCode::TaskType::Rendering, std::move(Func3))
+				.OnCompletedOnThread([this,v = asset.value().GetManaged()](Unique_ptr<UC::Texture>& text)
 				{
 					if (v.Has_Value())
 					{
 						v.Get_Value()->_Base = std::move(*text.get());
 						IsLoadingTexture = false;
 					}
-				},UC::TaskType::Main);
+				},UC::TaskType::Main).Start();
 			}
 			if (Item._AssetToLoad == setting.uid)
 			{
