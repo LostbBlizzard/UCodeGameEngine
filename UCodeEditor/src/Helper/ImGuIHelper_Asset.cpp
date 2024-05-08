@@ -6,6 +6,7 @@
 #include "Helper/Fuzzhelper.hpp"
 #include "EditorWindows/DragAndDropNames.hpp"
 #include "Imgui/imgui_internal.h"
+#include "Helper/UserSettings.hpp"
 EditorStart
 
 
@@ -787,6 +788,52 @@ bool ImGuIHelper_Asset::IconField(StringView FieldName, UCode::SpritePtr& Value,
 				}
 			}
 		}
+		ImGui::EndPopup();
+	}
+	if (ImGui::IsItemFocused())
+	{
+		auto& Settings = UserSettings::GetSettings();
+
+		if (Settings.IsKeybindActive(KeyBindList::Inspect))
+		{
+
+		}
+		if (Settings.IsKeybindActive(KeyBindList::Copy))
+		{
+
+		}
+		if (Settings.IsKeybindActive(KeyBindList::Paste))
+		{
+
+		}
+	}
+	if (ImGuIHelper::BeginPopupContextItem("IconFieldPopup"))
+	{
+		auto& Settings = UserSettings::GetSettings();
+
+		auto str = Settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
+
+
+		if (ImGui::MenuItem("Show Location", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Inspect))
+		{
+			
+			ImGui::CloseCurrentPopup();
+		}
+
+		str = Settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
+		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
+		{
+
+			ImGui::CloseCurrentPopup();
+		}
+
+		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
+		if (ImGui::MenuItem("Paste",str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
+		{
+		
+			ImGui::CloseCurrentPopup();
+		}
+
 		ImGui::EndPopup();
 	}
 
