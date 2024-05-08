@@ -683,5 +683,111 @@ bool ImGuIHelper_Asset::AnyAsssetsField(StringView FieldName, Vector<UID>& Value
 			return AnyAsssetField(Value);
 		});
 }
+
+bool ImGuIHelper_Asset::IconField(StringView FieldName, UCode::SpritePtr& Value, ImVec2 IconSize)
+{
+	bool changed = false;
+	UCode::Sprite* spr = nullptr;
+	if (Value.Has_UID())
+	{
+		auto id = Value.Get_UID();
+		for (auto& Item : ProjectData->Get_AssetIndex()._Files)
+		{
+			if (Item.UserID.has_value()) 
+			{
+				if (Item.UserID.value() == id)
+				{
+					auto v = AssetManager->FindOrLoad(id);
+					if (v.has_value())
+					{
+						if (v.value().Has_Value()) {
+							UCode::SpriteAsset* asset = dynamic_cast<UCode::SpriteAsset*>(v.value().Get_Value());
+							if (asset)
+							{
+								spr = &asset->_Base;
+							}
+						}
+					}
+					break;
+				}
+			}
+		}
+	}
+	if (spr == nullptr)
+	{
+		spr = AppFiles::GetSprite(AppFiles::sprite::AppIcon);
+	}
+	ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_Button, { 0,0,0,0 });
+	ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonActive, { 0,0,0,0 });
+	ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_ButtonHovered, { 1,1,1,0.1 });
+
+	auto popupid = "IconFeildPopup";
+	if (ImGuIHelper::ImageButton(&Value, spr, IconSize))
+	{
+		ImGui::OpenPopup(popupid);
+	}
+	if (ImGui::IsItemHovered() || ImGui::IsItemFocused())
+	{
+		String v = String(FieldName);
+		ImGui::SetTooltip(v.c_str());
+	}
+
+	if (ImGui::BeginPopup(popupid))
+	{
+		auto start = ImGuIHelper::DrawStarOfMenuObjects();
+	
+		for (auto& Item : ProjectData->Get_AssetIndex()._Files)
+		{
+			auto ext = Path(Item.RelativeAssetName).extension().generic_string();
+
+			if (Item.UserID.has_value() && ext == UCode::SpriteData::FileExtDot)
+			{
+				NullablePtr<UCode::Sprite> sp;
+				auto v = AssetManager->FindOrLoad(Item.UserID.value());
+				if (v.has_value())
+				{
+					if (v.value().Has_Value()) {
+						UCode::SpriteAsset* asset = dynamic_cast<UCode::SpriteAsset*>(v.value().Get_Value());
+						if (asset)
+						{
+							sp = &asset->_Base;
+						}
+					}
+				}
+
+				if (start.ListMode)
+				{
+					if (sp.has_value())
+					{
+						auto imagesize = ImGui::GetFrameHeight();
+						ImGuIHelper::Image(sp.value().value(), { imagesize,imagesize });
+						ImGui::SameLine();
+					}
+
+					//ImGui::PushID(Object);
+					String Name = Item.RelativeAssetName;
+					bool r = ImGui::Selectable(Name.c_str(), Value.Has_UID() ? Value.Get_UID() == Item.UserID.value() : false);
+					if (r)
+					{
+						Value = Item.UserID.value();
+						changed = true;
+					}
+				}
+				else
+				{
+
+				}
+			}
+		}
+		ImGui::EndPopup();
+	}
+
+	ImGui::PopStyleColor();
+	ImGui::PopStyleColor();
+	ImGui::PopStyleColor();
+
+
+	return changed;
+}
 EditorEnd
 

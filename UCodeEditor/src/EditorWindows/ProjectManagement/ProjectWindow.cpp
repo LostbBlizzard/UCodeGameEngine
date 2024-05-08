@@ -53,13 +53,40 @@ void ProjectWindow::UpdateWindow()
 
 	bool UpdateValue = false;
 
-	if (ImGuIHelper::InputText("Project Name", ProjectData2._ProjectName))
+	auto currentpos = ImGui::GetCursorPos();
+	const float FieldHeight = ImGui::GetFrameHeight();
+	const float FieldCount = 2;
+
 	{
-		UpdateValue = true;
+
+	
+		const float ImageSize = FieldHeight * FieldCount;
+		UCode::SpritePtr Ptr;
+		Ptr = ProjectData2.GameIcon;
+		if (ImGuIHelper_Asset::IconField("Game Icon", Ptr, { ImageSize,ImageSize }))
+		{
+			UpdateValue = true;
+			ProjectData2.GameIcon = Ptr.Get_UID();
+		}
+
 	}
-	if (ImGuIHelper::InputText("Company Name", ProjectData2._CompanyName))
+
 	{
-		UpdateValue = true;
+		auto startdrawposx = FieldHeight * FieldCount + (ImGui::GetStyle().ItemSpacing.x * 3);
+
+		ImGui::SetCursorPosY(currentpos.y);
+		ImGui::SetCursorPosX(startdrawposx);
+		if (ImGuIHelper::InputText("Project Name", ProjectData2._ProjectName))
+		{
+			UpdateValue = true;
+		}
+
+		ImGui::SetCursorPosX(startdrawposx);
+		if (ImGuIHelper::InputText("Company Name", ProjectData2._CompanyName))
+		{
+			UpdateValue = true;
+		}
+
 	}
 
 	static const ImGuIHelper::EnumValue<USerializerType> Values[] =

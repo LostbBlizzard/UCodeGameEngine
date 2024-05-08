@@ -32,6 +32,7 @@ public:
 	}
 	static bool AnyAsssetsField(StringView FieldName,Vector<UID>& Value);
 
+	static bool IconField(StringView FieldName, UCode::SpritePtr& Value,ImVec2 IconSize);
 
 	inline static UCode::AssetManager* AssetManager =nullptr;
 	inline static RunTimeProjectData* ProjectData = nullptr;

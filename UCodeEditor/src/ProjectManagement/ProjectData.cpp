@@ -31,6 +31,7 @@ void ProjectData::ToBits(USerializer& output, const ProjectData& data)
 	
 	output.Write("_SerializeType", *(USerializerType_t*)&data._SerializeType);
 	output.Write("_StartScene", data.StartScene);
+	output.Write("_GameIcon", data.GameIcon);
 	output.Write("_Plugins", data._Plugins);
 	output.Write("_AssetsToKeepLoaded", data._AssetsToKeepLoaded);
 }
@@ -59,7 +60,10 @@ void ProjectData::FromBits(UDeserializer& input, ProjectData& Out)
 
 	input.ReadType("_SerializeType", *(USerializerType_t*)&Out._SerializeType, *(USerializerType_t*)&Out._SerializeType);
 	input.ReadType("_StartScene",Out.StartScene, Out.StartScene);
-
+	if (input.HasField("_GameIcon"))
+	{
+		input.ReadType("_GameIcon", Out.GameIcon, Out.GameIcon);
+	}
 	if (input.HasField("_Plugins"))
 	{
 		input.ReadType("_Plugins", Out._Plugins, Out._Plugins);
