@@ -790,11 +790,34 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 
 	ImGui::BeginDisabled(!Item._ResizeVector.has_value());
 	{
-		float mult = Value ? 3 : 1;
+		float mult = Value ? 7.5 : 0;
 
 		ImGui::PushID(&Item);
-		ImGui::PushItemWidth(ImGui::CalcItemWidth() + 5 - ( (imagesize.x +spaceing.x) * mult));
+		ImGui::PushItemWidth(ImGui::CalcItemWidth() - (ImageHight+(2)) - ( (imagesize.x +spaceing.x) * mult));
 		bool ResizeWasUpdated = InputSize_t("", &NewSize, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue);
+
+		if (ImGui::IsItemFocused() && ImGui::GetIO().WantCaptureKeyboard)
+		{
+			auto& settings = UserSettings::GetSettings();
+			if (settings.IsKeybindActive(KeyBindList::New))
+			{
+				if (Item._AddNewValue.has_value())
+				{
+					Item._AddNewValue.value()(Object, Size);
+
+					WasUpdated = true;
+				}
+			}
+
+			if (settings.IsKeybindActive(KeyBindList::Delete))
+			{
+				if (Item._AddNewRemove.has_value() && Size != 0)
+				{
+					Item._AddNewRemove.value()(Object, Size - 1);
+					WasUpdated = true;
+				}
+			}
+		}
 		ImGui::PopItemWidth();
 		ImGui::PopID();
 
@@ -848,12 +871,38 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 				bool RemoveItem = false;
 				{
 					void* ItemPtr = (Byte*)Buffer + (i * Item.ItemSize);
-					ImGui::PushID(Label.c_str());
-					if (ImGuIHelper::BeginPopupContextItem("????"))
+
+					ImGui::PushID(Label.c_str() + i);
+					if (ImGui::IsItemFocused() && ImGui::GetIO().WantCaptureKeyboard)
 					{
-						if (ImGui::MenuItem("Remove Item"))
+						auto& settings = UserSettings::GetSettings();
+
+						if (settings.IsKeybindActive(KeyBindList::New))
+						{
+							Item._AddNewValue.value()(Object, i + 1);
+						}
+						if (settings.IsKeybindActive(KeyBindList::Delete))
 						{
 							RemoveItem = true;
+						}
+					}
+					if (ImGuIHelper::BeginPopupContextItem("????"))
+					{
+						auto& settings = UserSettings::GetSettings();
+						auto str = settings.KeyBinds[(size_t)KeyBindList::New].ToString();
+
+						if (ImGui::MenuItem("New Item", str.c_str(), false) || settings.IsKeybindActive(KeyBindList::New))
+						{
+							Item._AddNewValue.value()(Object, i + 1);
+							ImGui::CloseCurrentPopup();
+						}
+
+						str = settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
+
+						if (ImGui::MenuItem("Remove Item", str.c_str(), false) || settings.IsKeybindActive(KeyBindList::Delete))
+						{
+							RemoveItem = true;
+							ImGui::CloseCurrentPopup();
 						}
 						ImGui::EndPopup();
 					}
@@ -862,8 +911,9 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 				ImGui::SameLine();
 
 
+				ImGui::PushID(i);
 				Item._OnDrawItem(Object, i);
-
+				ImGui::PopID();
 
 
 
