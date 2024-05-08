@@ -1014,6 +1014,9 @@ public:
 	};
 	using ObjectDroped = std::function<bool(const Path& fullpath,void* object,ObjectDropState State)>;
 	using ObjectFieldFuncPtr = std::function<bool(void* Ptr, void* Object, bool Listmode, const String& Find)>;
+	using ObjectFieldInspect = std::function<bool(void* Object)>;
+	using ObjectFieldCopy = std::function<String(void* Object)>;
+	using ObjectFieldPatse = std::function<bool(void* Object,const String& Paste)>;
 
 
 	struct DrawMenuObjectReturn
@@ -1026,6 +1029,9 @@ public:
 	{
 		ObjectFieldFuncPtr OnObjectInList;
 		Optional<ObjectDroped> OnFileDroped;
+		Optional<ObjectFieldInspect> OnInspect;
+		Optional<ObjectFieldCopy> OnCopy;
+		Optional<ObjectFieldPatse> OnPatse;
 	};
 
 	static bool DrawObjectField(UCode::Sprite* Sprite, void* object,

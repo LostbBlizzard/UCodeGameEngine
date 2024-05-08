@@ -217,12 +217,16 @@ void ProjectFilesWindow::UpdateWindow()
 
     if (_LookingAtDir.has_value())
     {
+        static bool iswindowfocused = false;
         {
             const auto AssetsDir = Get_ProjectData()->GetAssetsDir();
             bool CantGoBack = _LookingAtDir == AssetsDir;
 
+
+
             ImGui::BeginDisabled(CantGoBack);
-            if (ImGui::Button("Back") || (settings.IsKeybindActive(KeyBindList::Alternative) && !CantGoBack))
+            if (ImGui::Button("Back") 
+                || (iswindowfocused && settings.IsKeybindActive(KeyBindList::Alternative) && !CantGoBack))
             {
                 if (_LookingAtAssetForSubAssets.has_value())
                 {
@@ -242,6 +246,7 @@ void ProjectFilesWindow::UpdateWindow()
 
             ImGui::SameLine();
 
+            iswindowfocused = ImGui::IsWindowFocused();
 
             ImGui::PushID(&_LookingAtDir);
             ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
@@ -514,6 +519,11 @@ void ProjectFilesWindow::UpdateWindow()
             else 
             {
                 ShowFileCells();
+            }
+
+            if (ImGui::IsWindowFocused())
+            {
+                iswindowfocused = true;
             }
 
             ImGui::PopStyleColor();
