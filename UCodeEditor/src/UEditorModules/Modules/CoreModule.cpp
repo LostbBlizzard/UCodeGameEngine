@@ -407,26 +407,9 @@ public:
 		Optional<UID> OpenSpriteEditor;
 		void DrawSubAssets(const UEditorDrawSubAssetContext& Item) override
 		{
-			if (!asset.has_value())
-			{
-				if (fs::exists(this->FileMetaFullPath.value()))
-				{
-					fromfile(FileMetaFullPath.value(), setting);
-				}
-				else
-				{
-					auto runinfo = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
-					RemoveSubAssets(runinfo->GetAssetsDir(), runinfo->Get_AssetIndex());
-					setting.uid = runinfo->GetNewUID();
-					tofile(FileMetaFullPath.value(), setting);
-				}
-
-
-
-				UCode::TextureAsset V(UCode::Texture(this->FileFullPath));
-				SetupTexture(&V._Base);
-				asset = std::move(V);
-			}
+			LoadAssetContext context;
+			context._AssetToLoad = this->setting.uid;
+			LoadAsset(context);
 
 			for (auto& Spr : setting.sprites)
 			{

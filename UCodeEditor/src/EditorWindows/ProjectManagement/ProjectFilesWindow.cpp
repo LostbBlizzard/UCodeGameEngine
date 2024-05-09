@@ -69,7 +69,23 @@ void ProjectFilesWindow::OnFileUpdate(const Path& path)
         UpdateDir();
     }
 }
+void ProjectFilesWindow::OpenAndFocusOnAsset(UID id)
+{
+    auto& index = Get_App()->Get_RunTimeProjectData()->Get_AssetIndex();
 
+    auto val = index.FindFileUsingID(id);
+
+    if (val.has_value())
+    {
+        auto fullpath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir() / val.value().RelativeAssetName;
+
+        OpenAndFocusOnAsset(fullpath);
+    }
+}
+void ProjectFilesWindow::OpenAndFocusOnAsset(const Path& assetfullpath)
+{
+    _OpenAndFocus = assetfullpath;
+}
 Optional<Path> GetAssetMetaFileExt(const Path& Ext)
 {
 
@@ -214,6 +230,43 @@ void ProjectFilesWindow::UpdateWindow()
 
     window->Flags |= ImGuiWindowFlags_::ImGuiWindowFlags_MenuBar;
 
+    if (_OpenAndFocus.has_value())
+    {
+        const auto AssetsDir = Get_ProjectData()->GetAssetsDir();
+        auto& focus = _OpenAndFocus.value();
+
+        Path relativepath = focus.native().substr(AssetsDir.native().size());
+
+        const PathChar sep = Path(EditorIndex::SubAssetSeparator).native().front();
+        std::basic_string_view<PathChar> val(&sep,1);
+        _LookingAtAssetForSubAssets = {};
+        if (StringHelper::Contains<PathChar>(relativepath.native(), val))
+        {
+            auto rel = relativepath.native();
+            Path subasset;
+            Path assetpath;
+            for (size_t i = 0; i < rel.size(); i++)
+            {
+                PathChar v = rel[i];
+
+                if (v == sep)
+                {
+                    assetpath = rel.substr(0, i);
+                    subasset = rel.substr(i + 1);
+                    break;
+                }
+            }
+            _LookingAtDir = AssetsDir / assetpath.parent_path();
+            _LookingAtAssetForSubAssets = assetpath.filename();
+            _OpenAndFocus = subasset;
+        }
+        else
+        {
+            _LookingAtDir = AssetsDir /relativepath.parent_path();
+            _OpenAndFocus = relativepath.filename();
+        }
+        UpdateDir();
+    }
 
     if (_LookingAtDir.has_value())
     {
@@ -225,8 +278,9 @@ void ProjectFilesWindow::UpdateWindow()
 
 
             ImGui::BeginDisabled(CantGoBack);
-            if (ImGui::Button("Back") 
-                || (iswindowfocused && settings.IsKeybindActive(KeyBindList::Alternative) && !CantGoBack))
+            if (
+                (ImGui::Button("Back") 
+                || (iswindowfocused && settings.IsKeybindActive(KeyBindList::Alternative))) && !CantGoBack)
             {
                 if (_LookingAtAssetForSubAssets.has_value())
                 {
@@ -355,7 +409,7 @@ void ProjectFilesWindow::UpdateWindow()
                 
                 ProjectFiles::AssetFile* myassetfile = nullptr;
                 static Path currentpath;
-                currentpath = _LookingAtDir.value().native() + _LookingAtAssetForSubAssets.value().native();
+                currentpath = _LookingAtDir.value() / _LookingAtAssetForSubAssets.value().native();
                 
                 myassetfile = TryLoadAsset(currentpath).value_unchecked(); 
                 
@@ -393,7 +447,7 @@ void ProjectFilesWindow::UpdateWindow()
                         UEditorDrawSubAssetContext context;
                         context._ManageFile = AnyManagedPtr::As(myassetfile->_ManageFile);
                         context.ButtionSize = { CeSize.x,CeSize.y };
-                        context.OnDoneDrawingAssetButton = [](UEditorDrawSubAssetContext::DoneDraw& context)
+                        context.OnDoneDrawingAssetButton = [_OpenAndFocus =this->_OpenAndFocus](UEditorDrawSubAssetContext::DoneDraw& context)
                             {
 
                                 if (ImGui::IsItemFocused() && !ImGui::GetIO().WantTextInput)
@@ -495,6 +549,14 @@ void ProjectFilesWindow::UpdateWindow()
                                     {
                                         ImGui::FocusItem();
                                         App->SetToNormal();
+                                    }
+                                }
+                                if (_OpenAndFocus.has_value())
+                                {
+                                    auto subpath = _OpenAndFocus.value();
+                                    if (subpath.replace_extension().generic_string() == context.AssetName)
+                                    {
+                                        ImGui::FocusItem();
                                     }
                                 }
 
@@ -683,6 +745,7 @@ void ProjectFilesWindow::UpdateWindow()
             ImGui::EndPopup();
         }
     }
+    _OpenAndFocus = {};
 }
 void ProjectFilesWindow::ShowFileCells()
 { 
@@ -710,15 +773,23 @@ void ProjectFilesWindow::ShowFileCells()
     {
         if (Item.FullFileName.extension() != Path(UEditorAssetFileData::DefaultMetaFileExtWithDot))
         {
-            if (StringHelper::Fllter(findname, Item.FileName))
+            if (_OpenAndFocus.has_value() || StringHelper::Fllter(findname, Item.FileName))
             {
                 if (DrawFileItem(Item, CeSize)) { break; }
                 if (Get_App()->GetInputMode() == KeyInputMode::Window)
                 {
-                    if (UserSettings().GetSettings().IsKeybindActive(KeyBindList::FilesWindow))
+                    if (UserSettings::GetSettings().IsKeybindActive(KeyBindList::FilesWindow))
                     {
                         ImGui::FocusItem();
                         Get_App()->SetToNormal();
+                    }
+                }
+                if (_OpenAndFocus.has_value())
+                {
+                    auto subpath = _OpenAndFocus.value();
+                    if (subpath.generic_string() == Item.FileName) 
+                    {
+                        ImGui::FocusItem();
                     }
                 }
                 ImGui::NextColumn();

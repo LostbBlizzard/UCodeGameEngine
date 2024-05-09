@@ -31,6 +31,9 @@ public:
 	static EditorWindowData GetEditorData();
 	void OnSaveWindow(USerializer& JsonToSaveIn) override;
 	void OnLoadWindow(UDeserializer& JsonToOutof) override;
+
+	void OpenAndFocusOnAsset(UID id);
+	void OpenAndFocusOnAsset(const Path& assetfullpath);
 private:
 	static EditorWindow* MakeWin(const NewEditorWindowData& project);
 	struct FileData
@@ -53,6 +56,7 @@ private:
 	bool _ShowingAddNewItemWindow =false;
 	Optional<Path> RenameFile;
 	Optional<Path> _LookingAtAssetForSubAssets;
+	Optional<Path> _OpenAndFocus;
 	ProjectFiles& Get_ProjectFiles();
 
 	struct ButtionSizeData
