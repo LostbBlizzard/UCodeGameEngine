@@ -297,11 +297,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 
 			UID id = objectas.Has_UID() ? objectas.Get_UID() : UID();
 
-			USerializer V(USerializerType::YAML);
-			V.Write("UData", id);
-			V.Write("UType", "_AssetUID");
-
-			return V.Get_TextMaker().c_str();
+			return UserSettings::SetCopyBufferAsValueStr("_AssetUID",id);
 		};
 	data.OnPatse = [](void* object, const String& Paste) -> bool
 		{
@@ -309,31 +305,12 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 			auto clipboard = Paste;
 			bool isgood = false;
 
-			YAML::Node tep;
+			auto idop = UserSettings::ReadCopyBufferAs<UID>("_AssetUID",Paste);
+		
+			if (idop.has_value())
 			{
-				bool ok = true;
-				try
-				{
-					tep = YAML::Load(clipboard);
-				}
-				catch (YAML::ParserException ex)
-				{
-					ok = false;
-				}
-				if (ok && tep.IsMap())
-				{
-					isgood = (bool)tep["UType"];
-					if (isgood)
-					{
-						isgood = tep["UType"].as<String>("") == "_AssetUID" && (bool)tep["UData"];
-					}
-				}
-			}
-
-			if (isgood)
-			{
-				UID id = tep["UData"].as<UID>();
-
+				UID id = idop.value();
+		
 				auto& editorindex = ProjectData->Get_AssetIndex();
 				auto opasset = editorindex.FindFileUsingID(id);
 
@@ -584,43 +561,18 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 			UCode::ScencPtr& objectas = *(UCode::ScencPtr*)object;
 
 			UID id = objectas.Has_UID() ? objectas.Get_UID() : UID();
-			
-			USerializer V(USerializerType::YAML);
-			V.Write("UData",id);
-			V.Write("UType", "_AssetUID");
-
-			return V.Get_TextMaker().c_str();
+			return UserSettings::SetCopyBufferAsValueStr("_AssetUID",id);
 		};
 	data.OnPatse = [](void* object, const String& Paste) -> bool
 		{
-			UCode::ScencPtr& objectas = *(UCode::ScencPtr*)object;
-			auto clipboard = Paste;
 			bool isgood = false;
-
-			YAML::Node tep;
+			UCode::ScencPtr& objectas = *(UCode::ScencPtr*)object;
+			
+			auto idop = UserSettings::ReadCopyBufferAs<UID>("_AssetUID",Paste);
+		
+			if (idop.has_value())
 			{
-				bool ok = true;
-				try
-				{
-					tep = YAML::Load(clipboard);
-				}
-				catch (YAML::ParserException ex)
-				{
-					ok = false;
-				}
-				if (ok && tep.IsMap())
-				{
-					isgood = (bool)tep["UType"];
-					if (isgood)
-					{
-						isgood = tep["UType"].as<String>("") == "_AssetUID" && (bool)tep["UData"];
-					}
-				}
-			}
-
-			if (isgood)
-			{
-				UID id = tep["UData"].as<UID>();
+				UID id = idop.value();
 
 				auto& editorindex = ProjectData->Get_AssetIndex();
 				auto opasset = editorindex.FindFileUsingID(id);
@@ -855,43 +807,19 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 	data.OnCopy = [](void* object) -> String
 		{
 			UID& objectas = *(UID*)object;
-
-			USerializer V(USerializerType::YAML);
-			V.Write("UData",objectas);
-			V.Write("UType", "_AssetUID");
-
-			return V.Get_TextMaker().c_str();
+			return UserSettings::SetCopyBufferAsValueStr("_AssetUID",objectas);
 		};
 	data.OnPatse = [](void* object,const String& Paste)
-		{
-			UID& objectas = *(UID*)object;
-			auto clipboard = Paste;
+		{	
 			bool isgood = false;
-
-			YAML::Node tep;
+			
+			UID& objectas = *(UID*)object;
+			auto idop = UserSettings::ReadCopyBufferAs<UID>("_AssetUID",Paste);
+		
+			if (idop.has_value())
 			{
-				bool ok = true;
-				try
-				{
-					tep = YAML::Load(clipboard);
-				}
-				catch (YAML::ParserException ex)
-				{
-					ok = false;
-				}
-				if (ok && tep.IsMap())
-				{
-					isgood = (bool)tep["UType"];
-					if (isgood)
-					{
-						isgood = tep["UType"].as<String>("") == "_AssetUID" && (bool)tep["UData"];
-					}
-				}
-			}
-
-			if (isgood)
-			{
-				UID id = tep["UData"].as<UID>();
+				UID id = idop.value();
+		
 
 				auto& editorindex = ProjectData->Get_AssetIndex();
 				auto opasset = editorindex.FindFileUsingID(id);
@@ -1043,42 +971,16 @@ bool ImGuIHelper_Asset::IconField(StringView FieldName, UCode::SpritePtr& Value,
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
 		{
 			UID id = Value.Has_UID() ? Value.Get_UID() : UID();
-			USerializer V(USerializerType::YAML);
-			V.Write("UData", id);
-			V.Write("UType", "_AssetUID");
-
-			auto copytext = V.Get_TextMaker().c_str();
-			UserSettings::SetCopyBuffer(String(copytext));
+			
+			UserSettings::SetCopyBufferAsValue("_AssetUID", id);
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-			auto clipboard = UserSettings::GetCopyBuffer();
-			bool isgood = false;
-
-			YAML::Node tep;
+			auto idop = UserSettings::ReadCopyBufferAs<UID>("_AssetUID");
+			
+			if (idop.has_value())
 			{
-				bool ok = true;
-				try
-				{
-					tep = YAML::Load(clipboard);
-				}
-				catch (YAML::ParserException ex)
-				{
-					ok = false;
-				}
-				if (ok && tep.IsMap())
-				{
-					isgood = (bool)tep["UType"];
-					if (isgood)
-					{
-						isgood = tep["UType"].as<String>("") == "_AssetUID" && (bool)tep["UData"];
-					}
-				}
-			}
-
-			if (isgood)
-			{
-				UID id = tep["UData"].as<UID>();
+				UID id = idop.value();
 
 				auto& editorindex = ProjectData->Get_AssetIndex();
 				auto opasset = editorindex.FindFileUsingID(id);
@@ -1091,7 +993,7 @@ bool ImGuIHelper_Asset::IconField(StringView FieldName, UCode::SpritePtr& Value,
 						changed = true;
 					}
 				}
-			}
+			}	
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Delete))
 		{
@@ -1124,12 +1026,8 @@ bool ImGuIHelper_Asset::IconField(StringView FieldName, UCode::SpritePtr& Value,
 		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
 		{
 			UID id = Value.Has_UID() ? Value.Get_UID() : UID();
-			USerializer V(USerializerType::YAML);
-			V.Write("UData",id.Get_Value());
-			V.Write("UType", "_AssetUID");
-
-			auto copytext = V.Get_TextMaker().c_str();
-			UserSettings::SetCopyBuffer(String(copytext));
+	
+			UserSettings::SetCopyBufferAsValue("_AssetUID", id);
 
 			ImGui::CloseCurrentPopup();
 		}
@@ -1137,33 +1035,11 @@ bool ImGuIHelper_Asset::IconField(StringView FieldName, UCode::SpritePtr& Value,
 		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
 		if (ImGui::MenuItem("Paste", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-			auto clipboard = UserSettings::GetCopyBuffer();
-			bool isgood = false;
-
-			YAML::Node tep;
+			auto idop = UserSettings::ReadCopyBufferAs<UID>("_AssetUID");
+			
+			if (idop.has_value())
 			{
-				bool ok = true;
-				try
-				{
-					tep = YAML::Load(clipboard);
-				}
-				catch (YAML::ParserException ex)
-				{
-					ok = false;
-				}
-				if (ok && tep.IsMap())
-				{
-					isgood = (bool)tep["UType"];
-					if (isgood)
-					{
-						isgood = tep["UType"].as<String>("") == "_AssetUID" && (bool)tep["UData"];
-					}
-				}
-			}
-
-			if (isgood)
-			{
-				UID id = tep["UData"].as<UID>();
+				UID id = idop.value();
 
 				auto& editorindex = ProjectData->Get_AssetIndex();
 				auto opasset = editorindex.FindFileUsingID(id);

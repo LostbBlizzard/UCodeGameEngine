@@ -90,6 +90,62 @@ public:
 	static void SetCopyBuffer(String& str);
 	static String GetCopyBuffer();
 
+	template<typename T>
+	static Optional<T> ReadCopyBufferAs(const StringView& UType)
+	{
+		return ReadCopyBufferAs<T>(UType, GetCopyBuffer());
+	}
+	
+	template<typename T>
+	static Optional<T> ReadCopyBufferAs(const StringView& UType, const String& CopyBuffer)
+	{
+		bool isgood = false;
+
+		YAML::Node tep;
+		{
+			bool ok = true;
+			try
+			{
+				tep = YAML::Load(CopyBuffer);
+			}
+			catch (YAML::ParserException ex)
+			{
+				ok = false;
+			}
+			if (ok && tep.IsMap())
+			{
+				isgood = (bool)tep["UType"];
+				if (isgood)
+				{
+					isgood = tep["UType"].as<String>("") == UType && (bool)tep["UData"];
+				}
+			}
+		}
+
+		if (isgood)
+		{
+			return tep["UData"].as<T>();
+		}
+		return {};
+	}
+
+	
+	template<typename T>
+	static String SetCopyBufferAsValueStr(const StringView& UType,const T& Value)
+	{
+		USerializer V(USerializerType::YAML);
+		V.Write("UData", Value);
+		V.Write("UType", String(UType));
+
+		auto copytext = V.Get_TextMaker().c_str();
+
+		return copytext;
+	}
+	template<typename T>
+	static void SetCopyBufferAsValue(const StringView& UType,const T& Value)
+	{	
+		UserSettings::SetCopyBuffer(SetCopyBufferAsValueStr(UType,Value));
+	}
 	bool IsKeybindActive(KeyBindList key)
 	{
 		return  IsKeybindActive(KeyBinds[(size_t)key]);

@@ -383,11 +383,12 @@ bool ImGuIHelper::InputText(const char* label, String& buffer, ImGuiInputTextFla
 	
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<String>("String",buffer);
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<String>("String");
+			if (v.has_value()) { buffer = v.value(); V = true; }
 		}
 	}
 	if (ImGuIHelper::BeginPopupContextItem("StringPopup"))
@@ -399,6 +400,7 @@ bool ImGuIHelper::InputText(const char* label, String& buffer, ImGuiInputTextFla
 		str = Settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
 		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
 		{
+			UserSettings::SetCopyBufferAsValue<String>("String",buffer);
 
 			ImGui::CloseCurrentPopup();
 		}
@@ -406,6 +408,8 @@ bool ImGuIHelper::InputText(const char* label, String& buffer, ImGuiInputTextFla
 		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
 		if (ImGui::MenuItem("Paste", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
 		{
+			auto v = UserSettings::ReadCopyBufferAs<String>("String");
+			if (v.has_value()) { buffer = v.value(); V = true; }
 
 			ImGui::CloseCurrentPopup();
 		}
@@ -548,11 +552,12 @@ bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 	
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<bool>("bool",Value);
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<bool>("bool");
+			if (v.has_value()) { Value = v.value();V = true; }
 		}
 	}
 	if (ImGuIHelper::BeginPopupContextItem("ToggleFieldPopup"))
@@ -564,14 +569,15 @@ bool ImGuIHelper::ToggleField(const char* FieldName, bool& Value)
 		str = Settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
 		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<bool>("bool",Value);
 			ImGui::CloseCurrentPopup();
 		}
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
 		if (ImGui::MenuItem("Paste", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<bool>("bool");
+			if (v.has_value()) { Value = v.value(); V = true; }
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -969,14 +975,15 @@ bool ImGuIHelper::uInt64Field(const char* FieldName, u64& Value)
 	if (ImGui::IsItemFocused())
 	{
 		auto& Settings = UserSettings::GetSettings();
-	
+
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<u64>("u64", Value);
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<u64>("u64");
+			if (v.has_value()) { Value = v.value(); V = true; }
 		}
 	}
 	if (ImGuIHelper::BeginPopupContextItem("uInt64FieldPopup"))
@@ -988,14 +995,15 @@ bool ImGuIHelper::uInt64Field(const char* FieldName, u64& Value)
 		str = Settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
 		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<u64>("u64",Value);
 			ImGui::CloseCurrentPopup();
 		}
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
 		if (ImGui::MenuItem("Paste", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<u64>("u64");
+			if (v.has_value()) { Value = v.value();V = true; }
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -1020,11 +1028,12 @@ bool ImGuIHelper::uInt32Field(const char* FieldName, u32& Value)
 	
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<u32>("u32",Value);
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<u32>("u32");
+			if (v.has_value()) { Value = v.value(); V = true; }
 		}
 	}
 	if (ImGuIHelper::BeginPopupContextItem("uInt32FieldPopup"))
@@ -1036,13 +1045,15 @@ bool ImGuIHelper::uInt32Field(const char* FieldName, u32& Value)
 		str = Settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
 		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<u32>("u32",Value);
 			ImGui::CloseCurrentPopup();
 		}
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
 		if (ImGui::MenuItem("Paste", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
 		{
+			auto v = UserSettings::ReadCopyBufferAs<u32>("u32");
+			if (v.has_value()) { Value = v.value();V = true; }
 
 			ImGui::CloseCurrentPopup();
 		}
@@ -1068,11 +1079,12 @@ bool ImGuIHelper::uInt16Field(const char* FieldName, u16& Value)
 	
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<u16>("u16",Value);
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<u16>("u16");
+			if (v.has_value()) { Value = v.value(); V = true; }
 		}
 	}
 	if (ImGuIHelper::BeginPopupContextItem("uInt16FieldPopup"))
@@ -1084,14 +1096,15 @@ bool ImGuIHelper::uInt16Field(const char* FieldName, u16& Value)
 		str = Settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
 		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<u16>("u16",Value);
 			ImGui::CloseCurrentPopup();
 		}
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
 		if (ImGui::MenuItem("Paste", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<u16>("u16");
+			if (v.has_value()) { Value = v.value(); V = true; }
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -1114,11 +1127,12 @@ bool ImGuIHelper::uInt8Field(const char* FieldName, u8& Value)
 	
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<u8>("u8",Value);
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<u8>("u8");
+			if (v.has_value()) { Value = v.value(); V = true; }
 		}
 	}
 	if (ImGuIHelper::BeginPopupContextItem("uInt8FieldPopup"))
@@ -1130,13 +1144,15 @@ bool ImGuIHelper::uInt8Field(const char* FieldName, u8& Value)
 		str = Settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
 		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<u8>("u8",Value);
 			ImGui::CloseCurrentPopup();
 		}
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
 		if (ImGui::MenuItem("Paste", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
 		{
+			auto v = UserSettings::ReadCopyBufferAs<u8>("u8");
+			if (v.has_value()) { Value = v.value(); V = true; }
 
 			ImGui::CloseCurrentPopup();
 		}
@@ -1584,11 +1600,12 @@ bool ImGuIHelper::Int64Field(const char* FieldName, i64& Value)
 	
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<i64>("i64",Value);
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<i64>("i64");
+			if (v.has_value()) { Value = v.value(); V = true; }
 		}
 	}
 	if (ImGuIHelper::BeginPopupContextItem("Int64FieldPopup"))
@@ -1599,15 +1616,16 @@ bool ImGuIHelper::Int64Field(const char* FieldName, i64& Value)
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
 		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
-		{
-
+		{	
+			UserSettings::SetCopyBufferAsValue<i64>("i64",Value);
 			ImGui::CloseCurrentPopup();
 		}
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
 		if (ImGui::MenuItem("Paste", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<i64>("i64");
+			if (v.has_value()) { Value = v.value();V = true; }
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -1630,11 +1648,12 @@ bool ImGuIHelper::Int32Field(const char* FieldName, i32& Value)
 	
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<i32>("i32",Value);
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<i32>("i32");
+			if (v.has_value()) { Value = v.value();V = true; }
 		}
 	}
 	if (ImGuIHelper::BeginPopupContextItem("Int32FieldPopup"))
@@ -1646,14 +1665,15 @@ bool ImGuIHelper::Int32Field(const char* FieldName, i32& Value)
 		str = Settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
 		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<i32>("i32",Value);
 			ImGui::CloseCurrentPopup();
 		}
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
 		if (ImGui::MenuItem("Paste", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<i32>("i32");
+			if (v.has_value()) { Value = v.value();V = true; }
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -1676,11 +1696,12 @@ bool ImGuIHelper::Int16Field(const char* FieldName, i16& Value)
 	
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<i16>("i16",Value);
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<i16>("i16");
+			if (v.has_value()) { Value = v.value();V = true; }
 		}
 	}
 	if (ImGuIHelper::BeginPopupContextItem("Int16FieldPopup"))
@@ -1692,14 +1713,15 @@ bool ImGuIHelper::Int16Field(const char* FieldName, i16& Value)
 		str = Settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
 		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<i16>("i16",Value);
 			ImGui::CloseCurrentPopup();
 		}
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
 		if (ImGui::MenuItem("Paste", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<i16>("i16");
+			if (v.has_value()) { Value = v.value(); V = true; }
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -1722,11 +1744,12 @@ bool ImGuIHelper::Int8Field(const char* FieldName, i8& Value)
 	
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<i8>("i8",Value);
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<i8>("i8");
+			if (v.has_value()) { Value = v.value();V = true; }
 		}
 	}
 	if (ImGuIHelper::BeginPopupContextItem("Int8FieldPopup"))
@@ -1738,14 +1761,15 @@ bool ImGuIHelper::Int8Field(const char* FieldName, i8& Value)
 		str = Settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
 		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<i8>("i8",Value);
 			ImGui::CloseCurrentPopup();
 		}
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
 		if (ImGui::MenuItem("Paste", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<i8>("i8");
+			if (v.has_value()) { Value = v.value(); V = true; }
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -1770,11 +1794,12 @@ bool ImGuIHelper::f32Field(const char* FieldName, f32& Value)
 	
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<f32>("f32",Value);
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<f32>("f32");
+			if (v.has_value()) { Value = v.value(); V = true; }
 		}
 	}
 	if (ImGuIHelper::BeginPopupContextItem("Float32FieldPopup"))
@@ -1785,15 +1810,16 @@ bool ImGuIHelper::f32Field(const char* FieldName, f32& Value)
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
 		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
-		{
-
+		{	
+			UserSettings::SetCopyBufferAsValue<f32>("f32",Value);
 			ImGui::CloseCurrentPopup();
 		}
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
 		if (ImGui::MenuItem("Paste", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<f32>("f32");
+			if (v.has_value()) { Value = v.value(); V = true; }
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -1819,11 +1845,12 @@ bool ImGuIHelper::f64Field(const char* FieldName, f64& Value)
 	
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<f64>("f64",Value);
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<f64>("f64");
+			if (v.has_value()) { Value = v.value(); V = true; }
 		}
 	}
 	if (ImGuIHelper::BeginPopupContextItem("Float64FieldPopup"))
@@ -1835,14 +1862,15 @@ bool ImGuIHelper::f64Field(const char* FieldName, f64& Value)
 		str = Settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
 		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<f64>("f64",Value);
 			ImGui::CloseCurrentPopup();
 		}
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
 		if (ImGui::MenuItem("Paste", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-
+			auto v = UserSettings::ReadCopyBufferAs<f64>("f64");
+			if (v.has_value()) { Value = v.value(); V = true; }
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -1918,11 +1946,30 @@ bool ImGuIHelper::EnumField(const char* label, void* Value, const EnumValue2* Va
 	
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-
+			UserSettings::SetCopyBufferAsValue<String>("EnumValue",current_item->label);
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Paste))
 		{
+			auto val = UserSettings::ReadCopyBufferAs<String>("EnumValue");
+			if (val.has_value())
+			{
+				NullablePtr<EnumValue2> enumval;
+				for (size_t i = 0; i < ValuesSize; i++)
+				{
+					const EnumValue2& Item = Values[i];
+					if (Item.label == val)
+					{
+						enumval = Nullableptr(&Item);
+						break;
+					}
+				}
 
+				if (enumval.has_value())
+				{
+					memcpy(Value, enumval.value()->Value, EnumBaseSize);
+					Updated = true;
+				}
+			}
 		}
 	}
 	if (ImGuIHelper::BeginPopupContextItem("EnumFieldPopup"))
@@ -1933,7 +1980,8 @@ bool ImGuIHelper::EnumField(const char* label, void* Value, const EnumValue2* Va
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
 		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
-		{
+		{	
+			UserSettings::SetCopyBufferAsValue<String>("EnumValue",current_item->label);
 
 			ImGui::CloseCurrentPopup();
 		}
@@ -1941,6 +1989,26 @@ bool ImGuIHelper::EnumField(const char* label, void* Value, const EnumValue2* Va
 		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
 		if (ImGui::MenuItem("Paste", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
 		{
+			auto val = UserSettings::ReadCopyBufferAs<String>("EnumValue");
+			if (val.has_value())
+			{
+				NullablePtr<EnumValue2> enumval;
+				for (size_t i = 0; i < ValuesSize; i++)
+				{
+					const EnumValue2& Item = Values[i];
+					if (Item.label == val)
+					{
+						enumval = Nullableptr(&Item);
+						break;
+					}
+				}
+
+				if (enumval.has_value())
+				{
+					memcpy(Value, enumval.value()->Value, EnumBaseSize);
+					Updated = true;
+				}
+			}
 
 			ImGui::CloseCurrentPopup();
 		}
@@ -2156,7 +2224,7 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 		{
 			if (hascopy)
 			{
-				ImGui::SetClipboardText(DrawObject.OnCopy.value()(object).c_str());
+				UserSettings::SetCopyBuffer(DrawObject.OnCopy.value()(object));
 			}
 			ImGui::CloseCurrentPopup();
 		}
