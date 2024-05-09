@@ -207,6 +207,13 @@ bool UserSettings::IsKeybindActive(KeyBinding& key)
 
 	return ImGui::IsKeyPressed(imkey);
 }
-
+void UserSettings::SetCopyBuffer(String& str)
+{
+	ImGui::SetClipboardText(str.c_str());
+}
+String UserSettings::GetCopyBuffer()
+{
+	return ImGui::GetClipboardText();
+}
 EditorEnd
 

@@ -87,6 +87,9 @@ public:
 	static UserSettings& GetSettings();
 	static void SaveSettings();
 
+	static void SetCopyBuffer(String& str);
+	static String GetCopyBuffer();
+
 	bool IsKeybindActive(KeyBindList key)
 	{
 		return  IsKeybindActive(KeyBinds[(size_t)key]);

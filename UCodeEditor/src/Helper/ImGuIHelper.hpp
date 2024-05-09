@@ -1017,7 +1017,7 @@ public:
 	using ObjectFieldInspect = std::function<bool(void* Object)>;
 	using ObjectFieldCopy = std::function<String(void* Object)>;
 	using ObjectFieldPatse = std::function<bool(void* Object,const String& Paste)>;
-
+	using ObjectDestroy = std::function<void(void* Object)>;
 
 	struct DrawMenuObjectReturn
 	{
@@ -1032,6 +1032,7 @@ public:
 		Optional<ObjectFieldInspect> OnInspect;
 		Optional<ObjectFieldCopy> OnCopy;
 		Optional<ObjectFieldPatse> OnPatse;
+		Optional<ObjectDestroy> OnDestory;
 	};
 
 	static bool DrawObjectField(UCode::Sprite* Sprite, void* object,
