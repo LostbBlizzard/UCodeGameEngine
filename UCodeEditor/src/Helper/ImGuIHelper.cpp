@@ -2120,12 +2120,17 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Copy) && DrawObject.OnCopy.has_value())
 		{
-			ImGui::SetClipboardText(DrawObject.OnCopy.value()(object).c_str());
+			UserSettings::SetCopyBuffer(DrawObject.OnCopy.value()(object));
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Paste) && DrawObject.OnPatse.has_value())
 		{
-			String v = ImGui::GetClipboardText();
-			DrawObject.OnPatse.value()(object, v);
+			String v = UserSettings::GetCopyBuffer();
+			ok = DrawObject.OnPatse.value()(object, v);
+		}
+		if (Settings.IsKeybindActive(KeyBindList::Delete) && DrawObject.OnDestory.has_value())
+		{
+			 DrawObject.OnDestory.value()(object);
+			 ok = true;
 		}
 	}
 	if (ImGuIHelper::BeginPopupContextItem("ObjectFieldPopup"))	
@@ -2163,8 +2168,20 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 		{
 			if (haspaste)
 			{
-				String v = ImGui::GetClipboardText();
-				DrawObject.OnPatse.value()(object,v);
+				String v = UserSettings::GetCopyBuffer();
+				ok = DrawObject.OnPatse.value()(object,v);
+			}
+			ImGui::CloseCurrentPopup();
+		}
+
+		bool hasdestory = DrawObject.OnDestory.has_value();
+		str = Settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
+		if (ImGui::MenuItem("Set as Empty",str.c_str(), nullptr, hasdestory) || Settings.IsKeybindActive(KeyBindList::Delete))
+		{
+			if (hasdestory)
+			{
+				 DrawObject.OnDestory.value()(object);
+				 ok = true;
 			}
 			ImGui::CloseCurrentPopup();
 		}

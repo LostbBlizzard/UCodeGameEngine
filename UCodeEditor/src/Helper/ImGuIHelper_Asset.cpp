@@ -171,11 +171,11 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 	ImGuIHelper::ObjectFieldData data;
 	data.OnFileDroped = [](const Path& fullpath, void* object, ImGuIHelper::ObjectDropState state) -> bool
 		{
-			UCode::SpritePtr& objectas =*(UCode::SpritePtr*)object;
+			UCode::SpritePtr& objectas = *(UCode::SpritePtr*)object;
 
 			if (state == ImGuIHelper::ObjectDropState::CanBeDroped)
 			{
-				return (fullpath.extension() == UCode::SpriteData::FileExtDot);	
+				return (fullpath.extension() == UCode::SpriteData::FileExtDot);
 			}
 			else if (state == ImGuIHelper::ObjectDropState::OnDroped)
 			{
@@ -233,7 +233,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 
 				if (Listmode)
 				{
-					if (sp.has_value()) 
+					if (sp.has_value())
 					{
 						auto imagesize = ImGui::GetFrameHeight();
 						ImGuIHelper::Image(sp.value().value(), { imagesize,imagesize });
@@ -283,7 +283,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 			bool r = false;
 			if (auto win = p->Get_Window<ProjectFilesWindow>())
 			{
-				if (objectas.Has_UID()) 
+				if (objectas.Has_UID())
 				{
 					win->OpenAndFocusOnAsset(objectas.Get_UID());
 					r = true;
@@ -291,6 +291,70 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 			}
 			return r;
 		};
+	data.OnCopy = [](void* object) -> String
+		{
+			UCode::SpritePtr& objectas = *(UCode::SpritePtr*)object;
+
+			UID id = objectas.Has_UID() ? objectas.Get_UID() : UID();
+
+			USerializer V(USerializerType::YAML);
+			V.Write("UData", id);
+			V.Write("UType", "_AssetUID");
+
+			return V.Get_TextMaker().c_str();
+		};
+	data.OnPatse = [](void* object, const String& Paste) -> bool
+		{
+			UCode::SpritePtr& objectas = *(UCode::SpritePtr*)object;
+			auto clipboard = Paste;
+			bool isgood = false;
+
+			YAML::Node tep;
+			{
+				bool ok = true;
+				try
+				{
+					tep = YAML::Load(clipboard);
+				}
+				catch (YAML::ParserException ex)
+				{
+					ok = false;
+				}
+				if (ok && tep.IsMap())
+				{
+					isgood = (bool)tep["UType"];
+					if (isgood)
+					{
+						isgood = tep["UType"].as<String>("") == "_AssetUID" && (bool)tep["UData"];
+					}
+				}
+			}
+
+			if (isgood)
+			{
+				UID id = tep["UData"].as<UID>();
+
+				auto& editorindex = ProjectData->Get_AssetIndex();
+				auto opasset = editorindex.FindFileUsingID(id);
+
+				if (opasset.has_value())
+				{
+					if (Path(opasset.value().RelativeAssetName).extension() == Path(UCode::SpriteData::FileExtDot))
+					{
+						objectas = id;
+						isgood = true;
+					}
+				}
+			}
+			return isgood;
+		};
+	data.OnDestory = [](void* object)
+		{
+			UCode::ScencPtr& objectas = *(UCode::ScencPtr*)object;
+			objectas = UID();
+		};
+
+
 	return ImGuIHelper::DrawObjectField(spr, FieldName, &Value, List.data(), List.size(), sizeof(ObjectSpriteAssetInfo),
 			data, MyName);
 }
@@ -499,7 +563,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 		};
 	data.OnInspect = [](void* object) -> bool
 		{
-			UCode::SpritePtr& objectas = *(UCode::SpritePtr*)object;
+			UCode::ScencPtr& objectas = *(UCode::ScencPtr*)object;
 
 			auto p = EditorAppCompoent::GetCurrentEditorAppCompoent();
 
@@ -514,6 +578,68 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 				}
 			}
 			return r;
+		};
+	data.OnCopy = [](void* object) -> String
+		{
+			UCode::ScencPtr& objectas = *(UCode::ScencPtr*)object;
+
+			UID id = objectas.Has_UID() ? objectas.Get_UID() : UID();
+			
+			USerializer V(USerializerType::YAML);
+			V.Write("UData",id);
+			V.Write("UType", "_AssetUID");
+
+			return V.Get_TextMaker().c_str();
+		};
+	data.OnPatse = [](void* object, const String& Paste) -> bool
+		{
+			UCode::ScencPtr& objectas = *(UCode::ScencPtr*)object;
+			auto clipboard = Paste;
+			bool isgood = false;
+
+			YAML::Node tep;
+			{
+				bool ok = true;
+				try
+				{
+					tep = YAML::Load(clipboard);
+				}
+				catch (YAML::ParserException ex)
+				{
+					ok = false;
+				}
+				if (ok && tep.IsMap())
+				{
+					isgood = (bool)tep["UType"];
+					if (isgood)
+					{
+						isgood = tep["UType"].as<String>("") == "_AssetUID" && (bool)tep["UData"];
+					}
+				}
+			}
+
+			if (isgood)
+			{
+				UID id = tep["UData"].as<UID>();
+
+				auto& editorindex = ProjectData->Get_AssetIndex();
+				auto opasset = editorindex.FindFileUsingID(id);
+
+				if (opasset.has_value())
+				{
+					if (Path(opasset.value().RelativeAssetName).extension() == Path(UCode::Scene2dData::FileExtDot))
+					{
+						objectas = id;
+						isgood = true;
+					}
+				}
+			}
+			return isgood;
+		};
+	data.OnDestory = [](void* object)
+		{
+			UCode::ScencPtr& objectas = *(UCode::ScencPtr*)object;
+			objectas = UID();
 		};
 
 	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
@@ -726,6 +852,63 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 			}
 			return r;
 		};
+	data.OnCopy = [](void* object) -> String
+		{
+			UID& objectas = *(UID*)object;
+
+			USerializer V(USerializerType::YAML);
+			V.Write("UData",objectas);
+			V.Write("UType", "_AssetUID");
+
+			return V.Get_TextMaker().c_str();
+		};
+	data.OnPatse = [](void* object,const String& Paste)
+		{
+			UID& objectas = *(UID*)object;
+			auto clipboard = Paste;
+			bool isgood = false;
+
+			YAML::Node tep;
+			{
+				bool ok = true;
+				try
+				{
+					tep = YAML::Load(clipboard);
+				}
+				catch (YAML::ParserException ex)
+				{
+					ok = false;
+				}
+				if (ok && tep.IsMap())
+				{
+					isgood = (bool)tep["UType"];
+					if (isgood)
+					{
+						isgood = tep["UType"].as<String>("") == "_AssetUID" && (bool)tep["UData"];
+					}
+				}
+			}
+
+			if (isgood)
+			{
+				UID id = tep["UData"].as<UID>();
+
+				auto& editorindex = ProjectData->Get_AssetIndex();
+				auto opasset = editorindex.FindFileUsingID(id);
+
+				if (opasset.has_value())
+				{
+					objectas = id;
+					isgood = true;
+				}
+			}
+			return isgood;
+		};
+	data.OnDestory = [](void* object)
+		{
+			UID& objectas = *(UID*)object;
+			objectas = UID();
+		};
 		return ImGuIHelper::DrawObjectField(GetAssetSpriteFromUID(Value), &Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
 			data, MyName);
 }
@@ -859,11 +1042,61 @@ bool ImGuIHelper_Asset::IconField(StringView FieldName, UCode::SpritePtr& Value,
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
 		{
+			UID id = Value.Has_UID() ? Value.Get_UID() : UID();
+			USerializer V(USerializerType::YAML);
+			V.Write("UData", id);
+			V.Write("UType", "_AssetUID");
 
+			auto copytext = V.Get_TextMaker().c_str();
+			UserSettings::SetCopyBuffer(String(copytext));
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Paste))
 		{
+			auto clipboard = UserSettings::GetCopyBuffer();
+			bool isgood = false;
 
+			YAML::Node tep;
+			{
+				bool ok = true;
+				try
+				{
+					tep = YAML::Load(clipboard);
+				}
+				catch (YAML::ParserException ex)
+				{
+					ok = false;
+				}
+				if (ok && tep.IsMap())
+				{
+					isgood = (bool)tep["UType"];
+					if (isgood)
+					{
+						isgood = tep["UType"].as<String>("") == "_AssetUID" && (bool)tep["UData"];
+					}
+				}
+			}
+
+			if (isgood)
+			{
+				UID id = tep["UData"].as<UID>();
+
+				auto& editorindex = ProjectData->Get_AssetIndex();
+				auto opasset = editorindex.FindFileUsingID(id);
+
+				if (opasset.has_value())
+				{
+					if (Path(opasset.value().RelativeAssetName).extension() == Path(UCode::SpriteData::FileExtDot))
+					{
+						Value = id;
+						changed = true;
+					}
+				}
+			}
+		}
+		if (Settings.IsKeybindActive(KeyBindList::Delete))
+		{
+			Value = UID();
+			changed = true;
 		}
 	}
 	if (ImGuIHelper::BeginPopupContextItem("IconFieldPopup"))
@@ -890,14 +1123,68 @@ bool ImGuIHelper_Asset::IconField(StringView FieldName, UCode::SpritePtr& Value,
 		str = Settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
 		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
 		{
+			UID id = Value.Has_UID() ? Value.Get_UID() : UID();
+			USerializer V(USerializerType::YAML);
+			V.Write("UData",id.Get_Value());
+			V.Write("UType", "_AssetUID");
+
+			auto copytext = V.Get_TextMaker().c_str();
+			UserSettings::SetCopyBuffer(String(copytext));
 
 			ImGui::CloseCurrentPopup();
 		}
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
-		if (ImGui::MenuItem("Paste",str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
+		if (ImGui::MenuItem("Paste", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-		
+			auto clipboard = UserSettings::GetCopyBuffer();
+			bool isgood = false;
+
+			YAML::Node tep;
+			{
+				bool ok = true;
+				try
+				{
+					tep = YAML::Load(clipboard);
+				}
+				catch (YAML::ParserException ex)
+				{
+					ok = false;
+				}
+				if (ok && tep.IsMap())
+				{
+					isgood = (bool)tep["UType"];
+					if (isgood)
+					{
+						isgood = tep["UType"].as<String>("") == "_AssetUID" && (bool)tep["UData"];
+					}
+				}
+			}
+
+			if (isgood)
+			{
+				UID id = tep["UData"].as<UID>();
+
+				auto& editorindex = ProjectData->Get_AssetIndex();
+				auto opasset = editorindex.FindFileUsingID(id);
+
+				if (opasset.has_value())
+				{
+					if (Path(opasset.value().RelativeAssetName).extension() == Path(UCode::SpriteData::FileExtDot))
+					{
+						Value = id;
+						changed = true;
+					}
+				}
+			}
+			ImGui::CloseCurrentPopup();
+		}
+
+		str = Settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
+		if (ImGui::MenuItem("Set to None",str.c_str()) || Settings.IsKeybindActive(KeyBindList::Delete))
+		{	
+			Value = UID();
+			changed = true;
 			ImGui::CloseCurrentPopup();
 		}
 
