@@ -953,6 +953,7 @@ public:
 					}
 					ImGui::NextColumn();
 					{
+						ImGui::SetNextWindowSize({ 450,150 });
 						if (ImGui::BeginPopup("SpriteSlice"))
 						{
 							auto& slicedata = windowdata.slicedata;
