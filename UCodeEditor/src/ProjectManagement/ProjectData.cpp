@@ -34,6 +34,7 @@ void ProjectData::ToBits(USerializer& output, const ProjectData& data)
 	output.Write("_GameIcon", data.GameIcon);
 	output.Write("_Plugins", data._Plugins);
 	output.Write("_AssetsToKeepLoaded", data._AssetsToKeepLoaded);
+	output.Write("_ModingSupport", data.ModingSupport);
 }
 
 bool ProjectData::ReadFromFile(const Path& Path, ProjectData& Out)
@@ -71,6 +72,10 @@ void ProjectData::FromBits(UDeserializer& input, ProjectData& Out)
 	if (input.HasField("_AssetsToKeepLoaded"))
 	{
 		input.ReadType("_AssetsToKeepLoaded", Out._AssetsToKeepLoaded, Out._AssetsToKeepLoaded);
+	}
+	if (input.HasField("_ModingSupport"))
+	{
+		input.ReadType("_ModingSupport", Out.ModingSupport, Out.ModingSupport);
 	}
 }
 EditorEnd

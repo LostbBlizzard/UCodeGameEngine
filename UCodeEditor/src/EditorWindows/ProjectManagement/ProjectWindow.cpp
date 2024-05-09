@@ -123,7 +123,10 @@ void ProjectWindow::UpdateWindow()
 		UpdateValue = true;
 	}
 
-
+	if (ImGuIHelper::BoolEnumField("Modding Support", ProjectData2.ModingSupport))
+	{
+		UpdateValue = true;
+	}
 
 	if (UpdateValue)
 	{

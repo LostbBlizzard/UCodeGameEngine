@@ -20,6 +20,7 @@ public:
 	UID GameIcon;
 	Vector<UPluginID> _Plugins;
 	Vector<UID> _AssetsToKeepLoaded;
+	bool ModingSupport = false;
 
 	inline static const char* FileName = "UProjectData.data";
 
