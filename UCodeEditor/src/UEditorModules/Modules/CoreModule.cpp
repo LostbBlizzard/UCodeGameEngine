@@ -953,7 +953,7 @@ public:
 					}
 					ImGui::NextColumn();
 					{
-						ImGui::SetNextWindowSize({ 450,150 });
+						ImGui::SetNextWindowSize({ 450,180 });
 						if (ImGui::BeginPopup("SpriteSlice"))
 						{
 							auto& slicedata = windowdata.slicedata;
@@ -966,7 +966,6 @@ public:
 
 							ImGuIHelper::BoolEnumField(StringView("Include Empty"), slicedata.WithEmpty);
 
-							ImGui::SameLine();
 							if (ImGui::Button("Slice"))
 							{
 								struct SliceItem
