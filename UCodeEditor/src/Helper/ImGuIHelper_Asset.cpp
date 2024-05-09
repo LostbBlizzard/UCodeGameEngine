@@ -7,6 +7,8 @@
 #include "EditorWindows/DragAndDropNames.hpp"
 #include "Imgui/imgui_internal.h"
 #include "Helper/UserSettings.hpp"
+#include "Editor/EditorAppCompoent.hpp"
+#include "EditorWindows/ProjectManagement/ProjectFilesWindow.hpp"
 EditorStart
 
 
@@ -272,6 +274,23 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 			return r;
 		};
 
+	data.OnInspect = [](void* object) -> bool
+		{
+			UCode::SpritePtr& objectas = *(UCode::SpritePtr*)object;
+
+			auto p = EditorAppCompoent::GetCurrentEditorAppCompoent();
+
+			bool r = false;
+			if (auto win = p->Get_Window<ProjectFilesWindow>())
+			{
+				if (objectas.Has_UID()) 
+				{
+					win->OpenAndFocusOnAsset(objectas.Get_UID());
+					r = true;
+				}
+			}
+			return r;
+		};
 	return ImGuIHelper::DrawObjectField(spr, FieldName, &Value, List.data(), List.size(), sizeof(ObjectSpriteAssetInfo),
 			data, MyName);
 }
@@ -478,6 +497,24 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Valu
 
 			return r;
 		};
+	data.OnInspect = [](void* object) -> bool
+		{
+			UCode::SpritePtr& objectas = *(UCode::SpritePtr*)object;
+
+			auto p = EditorAppCompoent::GetCurrentEditorAppCompoent();
+
+
+			bool r = false;
+			if (auto win = p->Get_Window<ProjectFilesWindow>())
+			{
+				if (objectas.Has_UID()) 
+				{
+					win->OpenAndFocusOnAsset(objectas.Get_UID());
+					r = true;
+				}
+			}
+			return r;
+		};
 
 	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
 		data, AppFiles::sprite::Scene2dData, MyName);
@@ -675,7 +712,20 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 
 			return r;
 		};
+	data.OnInspect = [](void* object) -> bool
+		{
+			UID& objectas = *(UID*)object;
 
+			auto p = EditorAppCompoent::GetCurrentEditorAppCompoent();
+
+			bool r = false;
+			if (auto win = p->Get_Window<ProjectFilesWindow>())
+			{
+				win->OpenAndFocusOnAsset(objectas);
+				r = true;
+			}
+			return r;
+		};
 		return ImGuIHelper::DrawObjectField(GetAssetSpriteFromUID(Value), &Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
 			data, MyName);
 }
@@ -796,6 +846,15 @@ bool ImGuIHelper_Asset::IconField(StringView FieldName, UCode::SpritePtr& Value,
 
 		if (Settings.IsKeybindActive(KeyBindList::Inspect))
 		{
+			auto p = EditorAppCompoent::GetCurrentEditorAppCompoent();
+
+			if (auto win = p->Get_Window<ProjectFilesWindow>())
+			{
+				if (Value.Has_UID()) 
+				{
+					win->OpenAndFocusOnAsset(Value.Get_UID());
+				}
+			}
 
 		}
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
@@ -816,7 +875,15 @@ bool ImGuIHelper_Asset::IconField(StringView FieldName, UCode::SpritePtr& Value,
 
 		if (ImGui::MenuItem("Show Location", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Inspect))
 		{
-			
+			auto p = EditorAppCompoent::GetCurrentEditorAppCompoent();
+
+			if (auto win = p->Get_Window<ProjectFilesWindow>())
+			{
+				if (Value.Has_UID())
+				{
+					win->OpenAndFocusOnAsset(Value.Get_UID());
+				}
+			}
 			ImGui::CloseCurrentPopup();
 		}
 
