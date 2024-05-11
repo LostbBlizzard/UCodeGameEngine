@@ -110,7 +110,7 @@ void GameEditorWindow::UpdateWindow()
 void GameEditorWindow::OnSaveWindow(USerializer& JsonToSaveIn)
 {
     auto Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
-    if (_SceneData && _UseingScenePath.has_value())
+    if (_SceneData && _UseingScenePath.has_value() && !_IsRuningGame && SelectedScene.Has_Value())
     {
         auto PathString = FileHelper::ToRelativePath(Assespath, _UseingScenePath.value());
 
@@ -165,11 +165,29 @@ void GameEditorWindow::SetCopy(const UCode::Scene2dData::Entity_Data Entity)
     UserSettings::SetCopyBufferAsValue("Entity", Entity);
 }
 
-void GameEditorWindow::SetCopy(const UCode::Entity* Entity)
+void GameEditorWindow::SetCopy(const UCode::Entity* Entity,bool CopyRef)
 {
-    UCode::Scene2dData::Entity_Data v;
-    UCode::Scene2dData::SaveEntityData(Entity, v, USerializerType::YAML);
-    SetCopy(v);
+    if (CopyRef)
+    {
+        auto v = Entity->NativeManagedPtr();
+        UserSettings::SetCopyManagedRef(AnyManagedPtr::As(v));
+        UserSettings::SetCopyBufferAsValue("ManagedRef", "Entity");
+    }
+    else 
+    {
+        UCode::Scene2dData::Entity_Data v;
+        UCode::Scene2dData::SaveEntityData(Entity, v, USerializerType::YAML);
+        SetCopy(v);
+    }
+}
+void GameEditorWindow::SetCopy(const UCode::RunTimeScene* Entity)
+{
+    UCode::Scene2dData v;
+    UCode::Scene2dData::SaveScene(Entity, v, USerializerType::YAML);
+
+    UC::USerializer s(USerializerType::YAML);
+    v.PushData(s);
+    UserSettings::SetCopyBufferAsValue<String>("Scene", s.Get_TextMaker().c_str());
 }
 
 void GameEditorWindow::SceneCameraGetInputs()
@@ -551,6 +569,16 @@ void GameEditorWindow::ShowSceneData()
         {
             ShowSceneDataAddNewScene();
         }
+        if (settings.IsKeybindActive(KeyBindList::Paste))
+        {
+            auto v = UserSettings::ReadCopyBufferAs<Path>("AssetPath");
+
+            if (v.has_value())
+            {
+                auto& assetpath = *v;
+                OpenScencAtPath(assetpath);
+            }
+        }
     }
     if (ImGuIHelper::BeginPopupContextItem())
     {
@@ -562,6 +590,19 @@ void GameEditorWindow::ShowSceneData()
         if (ImGui::MenuItem("Add New Scene", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::New))
         {
             ShowSceneDataAddNewScene();
+            ImGui::CloseCurrentPopup();
+        }
+
+        if (ImGui::MenuItem("Paste Scene", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Paste))
+        {
+            auto v = UserSettings::ReadCopyBufferAs<Path>("AssetPath");
+
+            if (v.has_value())
+            {
+                auto& assetpath = *v;
+                OpenScencAtPath(assetpath);
+            }
+
             ImGui::CloseCurrentPopup();
         }
         ImGui::BeginDisabled(_IsRuningGame);
@@ -706,6 +747,87 @@ void GameEditorWindow::PasteInScene(UCode::RunTimeScene* Item)
         }
     }
 }
+void GameEditorWindow::PasteInEntity(UCode::Entity* Item)
+{
+    auto copyop1 = UserSettings::ReadCopyBufferAs<UCode::Scene2dData::Entity_Data>("Entity");
+    if (copyop1.has_value())
+    {
+        UCode::Scene2dData::Entity_Data _CopyedEntity = copyop1.value();
+        auto pastedentity = Item->NativeAddEntity();
+
+        UCode::Scene2dData::LoadEntity(pastedentity, _CopyedEntity);
+
+
+        {
+            UndoData undo;
+
+            auto _CopyedEntitytep = _CopyedEntity;
+            auto ePtr = pastedentity->NativeManagedPtr();
+
+            undo._UndoCallBack = [_CopyedEntitytep, ePtr](UndoData& This)
+                {
+                    if (ePtr.Has_Value())
+                    {
+                        UCode::Entity::Destroy(ePtr.Get_Value());
+
+                        auto ScenePtr = ePtr.Get_Value()->NativeScene()->Get_ManagedPtr();
+
+                        This._RedoCallBack = [ePtr, ScenePtr, _CopyedEntitytep](UndoData& This)
+                            {
+                                if (ScenePtr.Has_Value())
+                                {
+                                    UCode::Scene2dData::LoadEntity(ScenePtr.Get_Value()->NewEntity(), _CopyedEntitytep);
+                                };
+                            };
+                    }
+                };
+            Get_App()->AddUndo(undo);
+        }
+        return;
+    }
+    
+    auto copyop2 = UserSettings::ReadCopyBufferAs<Path>("AssetPath");
+    if (copyop2.has_value())
+    {
+        auto& assetpath = copyop2.value();
+
+        auto  ext = assetpath.extension();
+
+        auto app = EditorAppCompoent::GetCurrentEditorAppCompoent();
+        auto& loader = app->Get_AssetLoader();
+        auto& index = loader.RunTimeProject->Get_AssetIndex();
+        auto& assetdir = app->Get_RunTimeProjectData()->GetAssetsDir();
+
+        auto relassetpath =Path(assetpath.native().substr(assetdir.native().size())).generic_string();
+  
+        auto assetindex = index.FindFileRelativeAssetName(relassetpath);
+        if (assetindex.has_value() && assetindex.value().UserID.has_value())
+        {
+            UID _id = assetindex.value().UserID.value();
+            auto assetop = loader.LoadAssetPtr(_id);
+
+            if (assetop.has_value())
+            {
+                auto& asset = assetop.value();
+                if (ext == Path(UC::RawEntityData::FileExtDot))
+                {
+                    auto typedassetop = asset->GetAssetAs<UC::RawEntityDataAsset>();
+
+                    if (typedassetop.has_value())
+                    {
+                        auto& typed = typedassetop.value();
+
+                        UCode::Entity* e = Item->NativeAddEntity();
+                        UCode::Scene2dData::LoadEntity(e, typed.value()->_Base.Get_Value());
+
+                        auto f = e->AddCompoent<UC::EntityPlaceHolder>();
+                        f->_id = _id;
+                    }
+                }
+            }
+        }
+    }
+}
 void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
 {
     if (Item->Get_IsDestroyed()) { return; }
@@ -728,6 +850,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
     {
         node_open = WasSelectedObjectOpened;
         ImGuIHelper::DrawRenameTree(Item->Get_Name(), node_open, IsRenameing, AppFiles::sprite::Scene2dData);
+        ImGui::Indent();
     }
     else
     {
@@ -775,7 +898,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
 
         if (settings.IsKeybindActive(KeyBindList::Copy))
         {
-
+            SetCopy(Item);
         }
 
         if (settings.IsKeybindActive(KeyBindList::Delete))
@@ -823,6 +946,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
         keybindstring = settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
         if (ImGui::MenuItem("Copy", keybindstring.c_str(), nullptr) || settings.IsKeybindActive(KeyBindList::Paste))
         {
+            SetCopy(Item);
             ImGui::CloseCurrentPopup();
         }
 
@@ -920,6 +1044,10 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
             auto& Enity = Enitys[i2];
 
             ShowEntityData(Enity.get());
+        }
+        if (IsRenameing && IsSelected(Item))
+        {
+            ImGui::Unindent();
         }
 
         if (ShowingTree) {
@@ -1023,6 +1151,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
         {
             node_open = WasSelectedObjectOpened;
             ImGuIHelper::DrawRenameTree(Item->NativeName(), node_open, IsRenameing, AppFiles::sprite::Entity);
+            ImGui::Indent();
         }
         else
         {
@@ -1275,13 +1404,13 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
         
         if (settings.IsKeybindActive(KeyBindList::Paste))
         {
-            
+            PasteInEntity(Item);
         }
 
 
         if (settings.IsKeybindActive(KeyBindList::Copy))
         {
-            SetCopy(Item);
+            SetCopy(Item,ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl));
         }
 
         if (settings.IsKeybindActive(KeyBindList::Delete))
@@ -1324,13 +1453,21 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
         keybindstring = settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
         if (ImGui::MenuItem("Copy", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Copy))
         {
-            SetCopy(Item);
+            SetCopy(Item, ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl));
+            ImGui::CloseCurrentPopup();
         }
+        keybindstring = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
+        if (ImGui::MenuItem("Copy Ref", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Copy))
+        {
+            SetCopy(Item,ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl));
+            ImGui::CloseCurrentPopup();
+        } 
 
         keybindstring = settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
         if (ImGui::MenuItem("Paste", keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::Paste))
         {
-
+            PasteInEntity(Item);
+            ImGui::CloseCurrentPopup();
         }
 
         keybindstring = settings.KeyBinds[(size_t)KeyBindList::Rename].ToString();
@@ -1416,7 +1553,10 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
 
             }
         }
-
+        if (IsRenameing && IsSelectedEntity)
+        {
+            ImGui::Unindent();
+        }
         if (ShowingTree) {
             ImGui::TreePop();
         }

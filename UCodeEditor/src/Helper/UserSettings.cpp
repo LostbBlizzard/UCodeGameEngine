@@ -215,5 +215,15 @@ String UserSettings::GetCopyBuffer()
 {
 	return ImGui::GetClipboardText();
 }
+
+static AnyManagedPtr ref;
+void UserSettings::SetCopyManagedRef(AnyManagedPtr ptr)
+{
+	ref = ptr;
+}
+UC::AnyManagedPtr UserSettings::GetCopyedManagedRef()
+{	
+	return ref;
+}
 EditorEnd
 
