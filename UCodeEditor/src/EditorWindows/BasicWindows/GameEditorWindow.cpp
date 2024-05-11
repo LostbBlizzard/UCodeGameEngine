@@ -9,7 +9,7 @@
 #include <Helper/FileHelper.hpp>
 #include "Helper/ImGuIHelper.hpp"
 #include "EditorWindows/InspectTypes/Inspect_Entity2d.hpp"
-#include <EditorWindows/OtherTypes/RawEntityData.hpp>
+#include "UCodeRunTime/ULibrarys/AssetManagement/EntityPlaceHolder.hpp"
 #include <EditorWindows/DragAndDropNames.hpp>
 
 #include <EditorWindows/EditorStrings.hpp>
@@ -58,7 +58,11 @@ void GameEditorWindow::UpdateWindow()
         editorwindow = settings.IsKeybindActive(KeyBindList::EditorWindow);
         gamewindow = settings.IsKeybindActive(KeyBindList::GameWindow);
         hierarchuwindow = settings.IsKeybindActive(KeyBindList::HierarchyWindow);
-        
+
+        if (hierarchuwindow || gamewindow || editorwindow) 
+        {
+            Get_App()->SetToNormal();
+        }
     }
     if (editorwindow)
     {
@@ -158,14 +162,7 @@ void GameEditorWindow::Scenehierarchy()
 
 void GameEditorWindow::SetCopy(const UCode::Scene2dData::Entity_Data Entity)
 {
-
-    USerializer V(USerializerType::YAML);
-    V.Write("UData", Entity);
-    V.Write("UType", "Entity");
-
-    auto copytext = V.Get_TextMaker().c_str();
-
-    ImGui::SetClipboardText(copytext);
+    UserSettings::SetCopyBufferAsValue("Entity", Entity);
 }
 
 void GameEditorWindow::SetCopy(const UCode::Entity* Entity)
@@ -607,81 +604,106 @@ void GameEditorWindow::DropSceneFromPath()
 }
 bool CanPasteScene()
 {
-    auto clipboard = ImGui::GetClipboardText();
-    bool isclipboardentity = false;
+    bool r = false;
+    r = UserSettings::CanReadCopyBufferAs("Entity");
 
-    YAML::Node tep;
-    if (clipboard)
+    if (r == false)
     {
-        bool ok = true;
-        try
+        auto v = UserSettings::ReadCopyBufferAs<Path>("AssetPath");
+
+        if (v.has_value())
         {
-            tep = YAML::Load(clipboard);
-        }
-        catch (YAML::ParserException ex)
-        {
-            ok = false;
-        }
-        if (ok && tep.IsMap())
-        {
-            isclipboardentity = (bool)tep["UType"];
-            if (isclipboardentity)
+            auto p = v.value();
+            auto  ext = p.extension();
+             
+            if (ext == Path(UC::RawEntityData::FileExtDot))
             {
-                isclipboardentity = tep["UType"].as<String>("") == "Entity" && (bool)tep["UData"];
+                r = true;
             }
+
         }
     }
-    return isclipboardentity;
+    return r;
 }
 void GameEditorWindow::PasteInScene(UCode::RunTimeScene* Item)
 {
-    auto clipboard = ImGui::GetClipboardText();
-    YAML::Node tep;
-    if (clipboard)
+    auto copyop1 = UserSettings::ReadCopyBufferAs<UCode::Scene2dData::Entity_Data>("Entity");
+    if (copyop1.has_value())
     {
-        bool ok = true;
-        try
+        UCode::Scene2dData::Entity_Data _CopyedEntity = copyop1.value();
+        auto pastedentity = Item->NewEntity();
+
+        UCode::Scene2dData::LoadEntity(pastedentity, _CopyedEntity);
+
+
         {
-            tep = YAML::Load(clipboard);
-        }
-        catch (YAML::ParserException ex)
-        {
-            ok = false;
-        }
-    }
-    auto DataNode = tep["UData"];
+            UndoData undo;
 
-    auto pastedentity = Item->NewEntity();
-    UCode::Scene2dData::Entity_Data _CopyedEntity = DataNode.as<UCode::Scene2dData::Entity_Data>(UCode::Scene2dData::Entity_Data());
+            auto _CopyedEntitytep = _CopyedEntity;
+            auto ePtr = pastedentity->NativeManagedPtr();
 
-    UCode::Scene2dData::LoadEntity(pastedentity, _CopyedEntity);
-
-    ImGui::CloseCurrentPopup();
-
-    {
-        UndoData undo;
-
-        auto _CopyedEntitytep = _CopyedEntity;
-        auto ePtr = pastedentity->NativeManagedPtr();
-
-        undo._UndoCallBack = [_CopyedEntitytep, ePtr](UndoData& This)
-            {
-                if (ePtr.Has_Value())
+            undo._UndoCallBack = [_CopyedEntitytep, ePtr](UndoData& This)
                 {
-                    UCode::Entity::Destroy(ePtr.Get_Value());
+                    if (ePtr.Has_Value())
+                    {
+                        UCode::Entity::Destroy(ePtr.Get_Value());
 
-                    auto ScenePtr = ePtr.Get_Value()->NativeScene()->Get_ManagedPtr();
+                        auto ScenePtr = ePtr.Get_Value()->NativeScene()->Get_ManagedPtr();
 
-                    This._RedoCallBack = [ePtr, ScenePtr, _CopyedEntitytep](UndoData& This)
-                        {
-                            if (ScenePtr.Has_Value())
+                        This._RedoCallBack = [ePtr, ScenePtr, _CopyedEntitytep](UndoData& This)
                             {
-                                UCode::Scene2dData::LoadEntity(ScenePtr.Get_Value()->NewEntity(), _CopyedEntitytep);
+                                if (ScenePtr.Has_Value())
+                                {
+                                    UCode::Scene2dData::LoadEntity(ScenePtr.Get_Value()->NewEntity(), _CopyedEntitytep);
+                                };
                             };
-                        };
+                    }
+                };
+            Get_App()->AddUndo(undo);
+        }
+        return;
+    }
+    
+    auto copyop2 = UserSettings::ReadCopyBufferAs<Path>("AssetPath");
+    if (copyop2.has_value())
+    {
+        auto& assetpath = copyop2.value();
+
+        auto  ext = assetpath.extension();
+
+        auto app = EditorAppCompoent::GetCurrentEditorAppCompoent();
+        auto& loader = app->Get_AssetLoader();
+        auto& index = loader.RunTimeProject->Get_AssetIndex();
+        auto& assetdir = app->Get_RunTimeProjectData()->GetAssetsDir();
+
+        auto relassetpath =Path(assetpath.native().substr(assetdir.native().size())).generic_string();
+  
+        auto assetindex = index.FindFileRelativeAssetName(relassetpath);
+        if (assetindex.has_value() && assetindex.value().UserID.has_value())
+        {
+            UID _id = assetindex.value().UserID.value();
+            auto assetop = loader.LoadAssetPtr(_id);
+
+            if (assetop.has_value())
+            {
+                auto& asset = assetop.value();
+                if (ext == Path(UC::RawEntityData::FileExtDot))
+                {
+                    auto typedassetop = asset->GetAssetAs<UC::RawEntityDataAsset>();
+
+                    if (typedassetop.has_value())
+                    {
+                        auto& typed = typedassetop.value();
+
+                        UCode::Entity* e = Item->NewEntity();
+                        UCode::Scene2dData::LoadEntity(e, typed.value()->_Base.Get_Value());
+
+                        auto f = e->AddCompoent<UC::EntityPlaceHolder>();
+                        f->_id = _id;
+                    }
                 }
-            };
-        Get_App()->AddUndo(undo);
+            }
+        }
     }
 }
 void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
@@ -829,18 +851,26 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
         target_flags |= ImGuiDragDropFlags_AcceptBeforeDelivery;    // Don't wait until the delivery (release mouse button on a target) to do something
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragAndDropType_RawEntity2dPathType, target_flags))
         {
-
-
             if (payload->IsDelivery())
             {
-                const String* DropItem = *(UCode::String**)payload->Data;
-                const UCode::String& Path = *DropItem;
-                RawEntityData Data;
-                if (RawEntityData::ReadFromFile(Path, Data))
-                {
-                    UCode::Entity* e = Item->NewEntity();
-                    UCode::Scene2dData::LoadEntity(e, Data.Get_Value());
+                const UID* DropItem = *(UID**)payload->Data;
 
+                auto& loader = Get_App()->Get_AssetLoader();
+                auto opasset = loader.LoadAssetPtr(*DropItem);
+                 
+                if (opasset.has_value())
+                {
+                    auto& asset = opasset.value();
+                    auto a = asset->GetAssetAs<UC::RawEntityDataAsset>();
+
+                    if (a.has_value()) 
+                    {
+                        UCode::Entity* e = Item->NewEntity();
+                        UCode::Scene2dData::LoadEntity(e,a.value()->_Base.Get_Value());
+
+                        auto f = e->AddCompoent<UC::EntityPlaceHolder>();
+                        f->_id = *DropItem;
+                    }
                 }
 
             }
@@ -857,17 +887,6 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
         }
 
 
-        bool OnDropable = ImGui::SetDragDropPayload(DragAndDropType_Scene2dType, &Item, sizeof(UCode::RunTimeScene*));
-        if (OnDropable)
-        {
-            String Text = "Drop " + SceneName + "Here?";
-            ImGuIHelper::Text(Text);
-        }
-        else
-        {
-            String Text = "Draging " + SceneName;
-            ImGuIHelper::Text(Text);
-        }
 
         ImGui::EndDragDropTarget();
     }
@@ -980,6 +999,10 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
     //
     AppFiles::sprite _SprToShow = AppFiles::sprite::Entity;
     auto& Co = Item->NativeCompoents();
+    if (Item->GetCompent<UC::EntityPlaceHolder>())
+    {
+        _SprToShow = AppFiles::sprite::RawEntityData;
+    }
     //
     auto& g = *GImGui;
 
@@ -1039,17 +1062,26 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
         {
             if (payload->IsDelivery())
             {
-                const String* DropItem = *(UCode::String**)payload->Data;
-                const UCode::String& Path = *DropItem;
-                RawEntityData Data;//should get from Asset DataBasce
-                if (RawEntityData::ReadFromFile(Path, Data))
-                {
-                    UCode::RunTimeScene* runtime = Item->NativeScene();
-                    UCode::Entity* e = runtime->NewEntity();
-                    UCode::Scene2dData::LoadEntity(e, Data.Get_Value());
-                    UCode::RunTimeScene::MoveEntity(e, Item, node_open);
-                }
+                const UID* DropItem = *(UID**)payload->Data;
+                UC::RawEntityData Data;
 
+                auto runtimeprj = Get_App()->Get_RunTimeProjectData();
+                auto& index = runtimeprj->Get_AssetIndex();
+
+                auto file = index.FindFileUsingID(*DropItem);
+
+                if (file.has_value())
+                {
+                    Path Path = runtimeprj->GetAssetsDir() / file.value().RelativePath;
+                    if (UC::RawEntityData::ReadFromFile(Path, Data))
+                    {
+                        UCode::Entity* e = Item->NativeAddEntity();
+                        UCode::Scene2dData::LoadEntity(e, Data.Get_Value());
+                        
+                        auto f = e->AddCompoent<UC::EntityPlaceHolder>();
+                        f->_id = *DropItem;
+                    }
+                }
             }
         }
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragAndDropType_Entity2dType, target_flags))

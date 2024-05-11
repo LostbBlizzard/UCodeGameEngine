@@ -5,7 +5,7 @@
 
 
 //File exts
-#include <EditorWindows/OtherTypes/RawEntityData.hpp>
+#include "UCodeRunTime/ULibrarys/AssetManagement/EntityPlaceHolder.hpp"
 #include <EditorWindows/OtherTypes/ImageData.hpp>
 #include "Plugin/UPlugin.hpp"
 #include <EditorWindows/OtherTypes/ColorData.hpp>
@@ -183,7 +183,7 @@ FileHelper::FileType FileHelper::GetFileType(const String& Ext)
 {
 
 	if (Ext == ".png") {return FileType::File_Image_Type; }
-	else if (Ext == RawEntityData::FileExtDot) { return FileType::RawEntityData; }
+	else if (Ext == UC::RawEntityData::FileExtDot) { return FileType::RawEntityData; }
 	else if (Ext == UCode::Scene2dData::FileExtDot) { return FileType::SceneData; }
 	else if (Ext == UCodeLang::FileExt::SourceFileWithDot) { return  FileType::ULangFile; }
 	else if (Ext == UCodeLang::FileExt::LibWithDot) { return FileType::ULangLib; }

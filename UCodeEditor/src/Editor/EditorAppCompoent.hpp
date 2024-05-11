@@ -131,6 +131,10 @@ public:
 	{
 		ProjectOpenError = errorstring;
 	}
+	EditorAssetLoader& Get_AssetLoader()
+	{
+		return *_Loader;
+	}
 private:
 	DontWaitInputKey _NextDontWaitKey = {};
 	Vector<DontWaitInputKey> _ListDontWaitKeys;

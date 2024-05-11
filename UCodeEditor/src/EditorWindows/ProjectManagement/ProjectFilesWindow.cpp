@@ -7,8 +7,8 @@
 #include "Helper/ImGuIHelper.hpp"
 #include <UCodeRunTime/ULibrarys/AssetManagement/SceneData.hpp>
 #include <EditorWindows/DragAndDropNames.hpp>
-#include <EditorWindows/OtherTypes/RawEntityData.hpp>
 #include <EditorWindows/OtherTypes/ImageData.hpp>
+#include <UCodeRunTime/ULibrarys/AssetManagement/EntityPlaceHolder.hpp>
 #include "Plugin/UPlugin.hpp"
 #include <EditorWindows/OtherTypes/ColorData.hpp>
 #include <EditorWindows/EditorStrings.hpp>
@@ -609,13 +609,13 @@ void ProjectFilesWindow::UpdateWindow()
                     const UCode::Entity* DropItem = *(UCode::Entity**)payload->Data;
                     if (payload->IsDelivery())
                     {
-                        RawEntityData Data(DropItem);
+                        UC::RawEntityData Data(Get_App()->Get_RunTimeProjectData()->GetNewUID(), DropItem);
 
                         const String EntityName = DropItem->NativeName().size() ? DropItem->NativeName() : UnNamedEntity;
 
-                        Path path = FileHelper::GetNewFileName(Path(_LookingAtDir.value().native() + Path(EntityName).native()), Path(RawEntityData::FileExtDot));
+                        Path path = FileHelper::GetNewFileName(Path(_LookingAtDir.value().native() + Path(EntityName).native()), Path(UC::RawEntityData::FileExtDot));
 
-                        RawEntityData::WriteToFile(path, Data);
+                        UC::RawEntityData::WriteToFile(path, Data);
                         UpdateDir();
                     }
 

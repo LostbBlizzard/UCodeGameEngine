@@ -67,8 +67,8 @@ class SpriteAsset : public Asset
 {
 public:
 	
-	SpriteAsset(const Sprite & spr,const TextureAssetPtr& ptr)
-		:_Base(std::move(spr)),_Texture(std::move(ptr))
+	SpriteAsset(Sprite&& spr,TextureAssetPtr& ptr)
+		:_Base(std::move(spr)),_Texture(ptr)
 	{
 
 	}

@@ -9,7 +9,7 @@
 #include "UCodeRunTime/ULibrarys/Rendering/SpriteRenderer2d.hpp"
 #include "UCodeRunTime/ULibrarys/Rendering/Camera2d.hpp"
 #include "Helper/ImGuIHelper_Asset.hpp"
-#include "EditorWindows/OtherTypes/RawEntityData.hpp"
+#include "UCodeRunTime/ULibrarys/AssetManagement/EntityPlaceHolder.hpp"
 #include "Editor/EditorAppCompoent.hpp"
 
 #include "UCodeRunTime/ULibrarys/Serialization/SerlizeableType.hpp"
@@ -392,7 +392,7 @@ public:
 				auto& tex = textureasset._Base;
 				UCode::Sprite sprite(&tex, spr.offset.X, spr.offset.Y, spr.size.X, spr.size.Y);
 
-				spr._Asset = std::make_shared<UCode::SpriteAsset>(sprite, textureasset.GetManaged());
+				spr._Asset = std::make_shared<UCode::SpriteAsset>(std::move(sprite), textureasset.GetManaged());
 				spr._Asset->Uid = spr.uid;
 
 
@@ -1182,7 +1182,7 @@ public:
 		
 	};
 
-	virtual Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
+	Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
 	{
 		return Unique_ptr< UEditorAssetFile>(new LiveingPng());
 	}
@@ -1303,7 +1303,7 @@ class EntityAssetFile :public UEditorAssetFileData
 public:
 	EntityAssetFile()
 	{
-		FileExtWithDot = RawEntityData::FileExtDot;
+		FileExtWithDot = UC::RawEntityData::FileExtDot;
 		CanHaveLiveingAssets = true;
 	}
 
@@ -1315,10 +1315,11 @@ public:
 		{
 
 		}
+		UC::RawEntityDataAsset _asset;
 		
 		void Init(const UEditorAssetFileInitContext& Context) override
 		{
-
+			UC::RawEntityData::ReadFromFile(FileFullPath,_asset._Base);
 		}
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override
 		{
@@ -1326,7 +1327,44 @@ public:
 		}
 		bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override
 		{
-			return ImGuIHelper::ImageButton(Item.ObjectPtr, AppFiles::sprite::RawEntityData, *(ImVec2*)&Item.ButtionSize);;
+			UCode::Sprite* thumbnail = AppFiles::GetSprite(AppFiles::sprite::RawEntityData);
+			bool r = ImGuIHelper::ImageButton(Item.ObjectPtr, thumbnail, *(ImVec2*)&Item.ButtionSize);
+
+
+
+			if (ImGui::BeginDragDropSource())
+			{
+				static UID tepAssetPath;
+				tepAssetPath = _asset._Base._UID;
+				auto p = &tepAssetPath;
+				bool OnDropable = ImGui::SetDragDropPayload(DragAndDropType_RawEntity2dPathType, &p, sizeof(UID*));
+
+				auto& g = *GImGui;
+				auto ImageHight = ImGui::GetFrameHeight();
+
+
+				String EntityName = FileFullPath.filename().replace_extension().generic_string();
+
+				Vec2 imagesize = { ImageHight,ImageHight };
+				if (OnDropable)
+				{
+					String Text = "Drop " + EntityName + "Here?";
+
+					ImGuIHelper::Text(Text);
+					ImGui::SameLine();
+					ImGuIHelper::Image(thumbnail, *(ImVec2*)&imagesize);
+				}
+				else
+				{
+					ImGuIHelper::Text(EntityName);
+					ImGui::SameLine();
+					ImGuIHelper::Image(thumbnail, *(ImVec2*)&imagesize);
+				}
+
+				ImGui::EndDragDropSource();
+			}
+
+			return r;
 		}
 		void DrawInspect(const UEditorAssetDrawInspectContext& Item) override
 		{
@@ -1352,11 +1390,30 @@ public:
 
 			//
 		}
+		NullablePtr<UCode::Asset> LoadAsset(const LoadAssetContext& Item) override
+		{
+			return _asset.GetAsset();
+		}
 	};
 
-	virtual Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
+	
+
+	Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
 	{
 		return Unique_ptr<UEditorAssetFile>(new Liveing());
+	}
+	
+	Optional<GetUIDInfo> GetFileUID(UEditorGetUIDContext& context) override
+	{
+		UC::RawEntityData val;
+		if (UC::RawEntityData::ReadFromFile(context.AssetPath, val))
+		{
+			GetUIDInfo r;
+			r._MainAssetID = val._UID;
+
+			return r;
+		}
+		return {};
 	}
 
 };
