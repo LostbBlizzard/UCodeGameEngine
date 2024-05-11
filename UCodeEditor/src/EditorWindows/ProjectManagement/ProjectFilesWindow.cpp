@@ -816,11 +816,10 @@ void ProjectFilesWindow::ShowExlorer()
 
 Optional<String> CanPasteShowDirButtionsPaste()
 {
-    auto clipboard = ImGui::GetClipboardText();
+    auto clipboard = UserSettings::GetCopyBuffer();
 
     Optional<String> PasteType;
     YAML::Node tep;
-    if (clipboard)
     {
         bool ok = true;
         try
@@ -840,10 +839,7 @@ Optional<String> CanPasteShowDirButtionsPaste()
                 {
                     auto  t = tep["UType"].as<String>("");
 
-                    if (t == "AssetPath")
-                    {
-                        PasteType = t;
-                    }
+                    PasteType = t;
                 }
             }
         }
@@ -860,7 +856,7 @@ void ProjectFilesWindow::ShowDirButtionsPaste()
 
     if (p == "AssetPath")
     {
-        auto clipboard = ImGui::GetClipboardText();
+        auto clipboard = UserSettings::GetCopyBuffer();
         YAML::Node tep = YAML::Load(clipboard);
 
         auto str = tep["UData"].as<Path>();
@@ -876,6 +872,36 @@ void ProjectFilesWindow::ShowDirButtionsPaste()
             else
             {
                 std::filesystem::copy(str, OutPath);
+            }
+        }
+    }
+    else if (p == "ManagedRef")
+    {
+        auto v = UserSettings::ReadCopyBufferAs<String>("ManagedRef");
+
+        if (v.has_value())
+        {
+            auto g = UserSettings::GetCopyedManagedRef();
+            if (g._This.Has_Value()) 
+            {
+                auto type = *v;
+                if (type == "Entity")
+                {
+                    UC::EntityPtr p = g.As<UC::Entity>();
+                    auto e = p.Get_Value();
+
+                    auto newid = Get_App()->Get_RunTimeProjectData()->GetNewUID();
+                    UC::RawEntityData data;
+                    UCode::Scene2dData::SaveEntityData(e, data._Data, UCode::USerializerType::YAML);
+                    data._UID = newid;
+
+                    auto path = FileHelper::GetNewFileName(_LookingAtDir.value() / e->name(), UC::RawEntityData::FileExtDot);
+                    UC::RawEntityData::WriteToFile(path, data);
+
+
+                    auto placeholder = e->AddCompoent<UC::EntityPlaceHolder>();
+                    placeholder->_id = newid;
+                }
             }
         }
     }
@@ -950,9 +976,11 @@ void ProjectFilesWindow::ShowDirButtions()
                 {
                     if (ImGui::MenuItem("Scene"))
                     {
-                        Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New 2DScene").native()
+                        Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New Scene").native()
                             , Path("." + (UCode::String)UCode::Scene2dData::FileExt));
                         UCode::Scene2dData newScene = UCode::Scene2dData();
+                        newScene._Name = UnNamedScene;
+                        newScene._UID = Get_App()->Get_RunTimeProjectData()->GetNewUID();
                         UCode::Scene2dData::ToFile(NewPath, newScene, Get_ProjectData()->Get_ProjData()._SerializeType);
                         UpdateDir();
                     }

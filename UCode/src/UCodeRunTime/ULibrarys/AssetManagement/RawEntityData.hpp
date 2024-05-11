@@ -18,7 +18,6 @@ public:
 
 	inline const auto& Get_Value() { return _Data; }
 	UID _UID;
-private:
 	UCode::Scene2dData::Entity_Data _Data;
 };
 

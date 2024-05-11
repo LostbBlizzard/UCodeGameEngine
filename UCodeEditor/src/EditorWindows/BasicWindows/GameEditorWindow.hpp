@@ -72,7 +72,8 @@ private:
 
 	
 	void SetCopy(const UCode::Scene2dData::Entity_Data Entity);
-	void SetCopy(const UCode::Entity* Entity);
+	void SetCopy(const UCode::Entity* Entity,bool CopyRef);
+	void SetCopy(const UCode::RunTimeScene* Entity);
 
 	
 	
@@ -118,6 +119,7 @@ private:
 	void ShowSceneData();
 	void DropSceneFromPath();
 	void PasteInScene(UCode::RunTimeScene* Item);
+	void PasteInEntity(UCode::Entity* Item);
 	void ShowScene(UCode::RunTimeScene* Item);
 
 	void EntityDestroy(UCode::Entity* Item);

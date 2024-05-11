@@ -90,7 +90,8 @@ public:
 	static void SetCopyBuffer(String& str);
 	static String GetCopyBuffer();
 
-
+	static void SetCopyManagedRef(AnyManagedPtr ptr);
+	static UC::AnyManagedPtr GetCopyedManagedRef();
 	static bool CanReadCopyBufferAs(const StringView& UType)
 	{
 		return CanReadCopyBufferAs(UType, GetCopyBuffer());
