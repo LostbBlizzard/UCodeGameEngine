@@ -373,7 +373,10 @@ void ImGuIHelper::ItemLabel(StringView title, ItemLabelFlag flags)
 bool ImGuIHelper::InputText(const char* label, String& buffer, ImGuiInputTextFlags flags)
 {
 	ItemLabel(StringView(label), ItemLabelFlag::Left);
-
+	return InputText(buffer, flags);
+}
+bool ImGuIHelper::InputText(String& buffer, ImGuiInputTextFlags flags)
+{
 	ImGui::PushID(&buffer);
 	auto V = ImGui::InputText("", &buffer, flags);
 
@@ -2144,8 +2147,8 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 
 	auto& spaceing = ImGui::GetStyle().ItemSpacing;
 	ImGui::PushItemWidth(ImGui::CalcItemWidth() - (imagesize.x + spaceing.x));
+	ImGui::PushID(object);
 	bool r = ImGui::BeginCombo("##oiwj", Name.c_str(), ImGuiComboFlags_::ImGuiComboFlags_NoArrowButton);
-
 
 	if (DrawObject.OnFileDroped.has_value())
 	{
@@ -2279,6 +2282,7 @@ bool ImGuIHelper::DrawObjectField(UCode::Sprite* Sprite, void* object,
 		ImGui::EndCombo();
 	}
 	ImGui::PopItemWidth();
+	ImGui::PopID();
 
 	ImGui::SameLine();
 	ImGuIHelper::Image(Sprite, imagesize);

@@ -19,6 +19,7 @@
 #include <Imgui/misc/cpp/imgui_stdlib.h>
 #include "Imgui/imgui_internal.h"
 #include "Helper/UserSettings.hpp"
+#include "EditorWindows/InspectTypes/Inspect_Entity2d.hpp"
 EditorStart
 
 
@@ -703,7 +704,8 @@ public:
 			String tep ="Image/Png";
 			Item.Drawer->StringField("Type",tep);
 			ImGui::SameLine();
-			ImGuIHelper::Image(AppFiles::sprite::Uility_image, { 20 ,20 });
+			auto imageh = ImGui::GetFrameHeight();
+			ImGuIHelper::Image(AppFiles::sprite::Uility_image, { imageh ,imageh });
 
 
 			String tep2 = FileFullPath.filename().replace_extension("").generic_string();
@@ -1194,6 +1196,12 @@ public:
 		TextureSettings settings;
 		if (!LiveingPng::fromfile(metapath, settings))
 		{
+			ExportFileRet r;
+			ExportError error;
+			error.message = "Unable unable to Read/Parse " + metapath.generic_string();
+			error.filepath = metapath;
+			r.errors.push_back(std::move(error));
+			return r;
 			UCodeGEToDo();
 		}
 		ExportFileRet r;
@@ -1305,6 +1313,7 @@ public:
 	{
 		FileExtWithDot = UC::RawEntityData::FileExtDot;
 		CanHaveLiveingAssets = true;
+		CallLiveingAssetsWhenUpdated = true;
 	}
 
 	class Liveing :public UEditorAssetFile
@@ -1315,8 +1324,35 @@ public:
 		{
 
 		}
+		~Liveing()
+		{
+			if (_entity.Has_Value())
+			{
+				auto e = _entity.Get_Value();
+				UC::Entity::Destroy(e);
+			}
+		}
 		UC::RawEntityDataAsset _asset;
-		
+		UC::EntityPtr _entity;
+		UC::RunTimeScene* GetTepScene()
+		{
+			static UC::GameRunTime _tepRunTime;
+			static UC::RunTimeScene* _tepScene = _tepRunTime.Add_NewScene();
+
+			return _tepScene;
+		}
+		UC::Entity*	GetAsEntity()
+		{
+			if (!_entity.Has_Value())
+			{
+				auto e = GetTepScene()->NewEntity();
+
+				UC::Scene2dData::LoadEntity(e, _asset._Base._Data);
+
+				_entity = e->NativeManagedPtr();
+			}
+			return _entity.Get_Value();
+		}
 		void Init(const UEditorAssetFileInitContext& Context) override
 		{
 			UC::RawEntityData::ReadFromFile(FileFullPath,_asset._Base);
@@ -1368,27 +1404,76 @@ public:
 		}
 		void DrawInspect(const UEditorAssetDrawInspectContext& Item) override
 		{
-			ImGui::BeginDisabled(true);
+			auto entity = GetAsEntity();
+			{
+				auto imageh = ImGui::GetFrameHeight();
+				ImGuIHelper::Image(AppFiles::sprite::RawEntityData, { imageh,imageh });
+				ImGui::SameLine();
+
+				ImGuIHelper::ItemLabel("Name", ImGuIHelper::ItemLabelFlag::Left);
+
+				ImGui::PushItemWidth(ImGui::CalcItemWidth() - (ImGuIHelper::CheckBoxSizeWithPadding().x));
+				ImGuIHelper::InputText(entity->NativeName());
+				ImGui::PopItemWidth();
+
+				ImGui::SameLine();
 
 
-			ImGuIHelper::Image(AppFiles::sprite::Uility_image, { 20 ,20 });
+				bool V = entity->GetActive();
+				ImGui::PushID(&V);
+				ImGui::Checkbox("", &V);
+				ImGui::PopID();
+				entity->SetActive(V);
+			}
+			ImGuIHelper::ItemLabel("Prefab", ImGuIHelper::ItemLabelFlag::Left);
+			if (ImGui::Button("Open Prefab"))
+			{
+
+			}
 			ImGui::SameLine();
+			if (ImGui::Button("Make Variant"))
+			{
 
-			String tep ="Entity/Prefab";
-			Item.Drawer->StringField("Type", tep);
+			}
+			{
+				ImGui::Separator();
+				for (auto& compent : entity->NativeCompoents())
+				{
+					if (compent->Get_CompoentTypeData() == &UC::EntityPlaceHolder::type_Data)
+					{
+						return;
+					}
+					Inspect_Compoent2d::Insp_(compent.get(), *Item.Drawer);
+					ImGui::Separator();
+				}
+			}
+			
+		}
+		void FileUpdated() override
+		{
+			if (UC::RawEntityData::ReadFromFile(FileFullPath, _asset._Base))
+			{
+				if (_entity.Has_Value())
+				{
+					auto e = _entity.Get_Value();
+					for (auto& Copoent : e->NativeCompoents())
+					{
+						UC::Compoent::Destroy(Copoent.get());
+					}
+					for (auto& entity : e->NativeGetEntitys())
+					{
+						UC::Entity::Destroy(entity.get());
 
-
-			String tep2 = FileFullPath.filename().replace_extension("").generic_string();
-			Item.Drawer->StringField("Name", tep2);
-
-
-			ImGui::EndDisabled();
-
-			ImGui::Separator();
-
-			//
-
-			//
+					}
+					UC::Scene2dData::LoadEntity(e, _asset._Base._Data);
+				}
+			}
+			else
+			{
+				auto assetdir = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetAssetsDir();
+				auto relpath = FileHelper::ToRelativePath(assetdir, FileFullPath);
+				UCodeGEError("Unable to Read/Parse " << relpath);
+			}
 		}
 		NullablePtr<UCode::Asset> LoadAsset(const LoadAssetContext& Item) override
 		{
