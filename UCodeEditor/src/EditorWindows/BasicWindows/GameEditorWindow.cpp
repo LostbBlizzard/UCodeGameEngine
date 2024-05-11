@@ -1549,6 +1549,10 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
                 auto& Item2 = Compoents[i];
                 if (Item2->Get_IsDestroyed()) { continue; }
 
+                if (Item2->Get_CompoentTypeData() == &UC::EntityPlaceHolder::type_Data)
+                {
+                    continue;
+                }
                 Inspect_Compoent2d::DrawCompoentButtion(Item2.get(), Get_App());
 
             }

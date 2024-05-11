@@ -35,6 +35,8 @@ void ProjectData::ToBits(USerializer& output, const ProjectData& data)
 	output.Write("_Plugins", data._Plugins);
 	output.Write("_AssetsToKeepLoaded", data._AssetsToKeepLoaded);
 	output.Write("_ModingSupport", data.ModingSupport);
+	output.Write("_ModingSupport", data.PrefabScene);
+	output.Write("_ModingSupport", data.PrefabUIScene);
 }
 
 bool ProjectData::ReadFromFile(const Path& Path, ProjectData& Out)
@@ -52,15 +54,15 @@ void ProjectData::FromBits(UDeserializer& input, ProjectData& Out)
 {
 	input.ReadType("_ProjectName", Out._ProjectName, Out._ProjectName);
 	input.ReadType("_CompanyName", Out._CompanyName, Out._CompanyName);
-	
+
 	if (input.HasField("_Verson"))
 	{
 		input.ReadType("_Verson", Out._Version, Out._Version);
 	}
-	
+
 
 	input.ReadType("_SerializeType", *(USerializerType_t*)&Out._SerializeType, *(USerializerType_t*)&Out._SerializeType);
-	input.ReadType("_StartScene",Out.StartScene, Out.StartScene);
+	input.ReadType("_StartScene", Out.StartScene, Out.StartScene);
 	if (input.HasField("_GameIcon"))
 	{
 		input.ReadType("_GameIcon", Out.GameIcon, Out.GameIcon);
@@ -76,6 +78,14 @@ void ProjectData::FromBits(UDeserializer& input, ProjectData& Out)
 	if (input.HasField("_ModingSupport"))
 	{
 		input.ReadType("_ModingSupport", Out.ModingSupport, Out.ModingSupport);
+	}
+	if (input.HasField("_PrefabScene"))
+	{
+		input.ReadType("_PrefabScene", Out.PrefabScene, Out.PrefabScene);
+	}
+	if (input.HasField("_PrefabUIScene"))
+	{
+		input.ReadType("_PrefabUIScene", Out.PrefabUIScene, Out.PrefabUIScene);
 	}
 }
 EditorEnd

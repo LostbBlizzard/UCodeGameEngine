@@ -128,6 +128,36 @@ void ProjectWindow::UpdateWindow()
 		UpdateValue = true;
 	}
 
+	ImGuIHelper::Text(StringView("Prefabs"));
+	ImGui::Indent();
+	{
+			UCode::ScencPtr Ptr;
+			UCode::ScencPtr Ptr2;
+		{
+			Ptr = ProjectData2.PrefabScene;
+			if (ImGuIHelper_Asset::AsssetField("Prefab Editor Scene", Ptr))
+			{
+				UpdateValue = true;
+
+
+				ProjectData2.PrefabScene = Ptr.Get_UID();
+			}
+		}
+
+		{
+			Ptr2 = ProjectData2.PrefabUIScene;
+			if (ImGuIHelper_Asset::AsssetField("Prefab UI Editor Scene", Ptr2))
+			{
+				UpdateValue = true;
+
+
+				ProjectData2.PrefabUIScene= Ptr2.Get_UID();
+			}
+		}
+
+	}
+	ImGui::Unindent();
+
 	if (UpdateValue)
 	{
 		if (SaveCountDown > 15) {

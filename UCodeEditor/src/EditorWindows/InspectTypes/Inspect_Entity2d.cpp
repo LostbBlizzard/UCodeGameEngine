@@ -17,6 +17,8 @@
 #include "UEditorModules/Modules/CodeModule.hpp"
 #include <Imgui/misc/cpp/imgui_stdlib.h>
 #include "Helper/UserSettings.hpp"
+#include "UCodeRunTime/ULibrarys/AssetManagement/EntityPlaceHolder.hpp"
+#include "EditorWindows/ProjectManagement/ProjectFilesWindow.hpp"
 EditorStart
 
 
@@ -40,27 +42,22 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
     }
     UCode::Entity* item = Ptr.Get_Value();
 
-
+    auto isprefab = item->GetCompent<UCode::EntityPlaceHolder>().value_unchecked();
     {
-        ImGui::BeginDisabled(true);
 
 
         const float square_sz = ImGui::GetFrameHeight();
-        ImGuIHelper::Image(AppFiles::sprite::Entity, { square_sz ,square_sz });
+        ImGuIHelper::Image(isprefab ? AppFiles::sprite::RawEntityData : AppFiles::sprite::Entity , { square_sz ,square_sz });
         ImGui::SameLine();
 
-        String tep = "Entity";
-        ImGuIHelper::ItemLabel(StringView("Type"), ImGuIHelper::ItemLabelFlag::Left);
+        ImGuIHelper::ItemLabel(StringView("Name"), ImGuIHelper::ItemLabelFlag::Left);
 
         ImGui::PushItemWidth(ImGui::CalcItemWidth() - (ImGuIHelper::CheckBoxSizeWithPadding().x));
-        ImGui::PushID(&tep);
-        ImGui::InputText("", &tep);
-        ImGui::PopID();
+        ImGuIHelper::InputText(item->NativeName());
         ImGui::PopItemWidth();
 
         ImGui::SameLine();
 
-        ImGui::EndDisabled();
 
         bool V = item->GetActive();
         ImGui::PushID(&V);
@@ -77,6 +74,23 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
     }
     if (!item->NativeParent())
     {
+
+        if (isprefab)
+        {
+            ImGuIHelper::ItemLabel("Prefab",ImGuIHelper::ItemLabelFlag::Left);
+            UID id = isprefab->_id;
+            if (ImGui::Button("Open"))
+            {
+
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Select"))
+            {
+                auto files =  EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_Window<ProjectFilesWindow>();
+                files->OpenAndFocusOnAsset(id);
+            }
+        }
+    
         if (Is2D)
         {
             Draw.Vec2Field("Position", item->localposition2d());
@@ -156,6 +170,10 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
 
     for (auto& Item : item->NativeCompoents())
     {
+        if (Item->Get_CompoentTypeData() == &UC::EntityPlaceHolder::type_Data)
+        {
+            return;
+        }
         Inspect_Compoent2d::Insp_(Item.get(), Draw);
         ImGui::Separator();
     }
@@ -374,23 +392,26 @@ void Inspect_Compoent2d::Insp_(InspectWindow::InspectDrawer& Draw)
 void Inspect_Compoent2d::Insp_(UCode::Compoent* item, InspectWindow::InspectDrawer& Draw)
 {
     auto TypeData = item->Get_CompoentTypeData();
-
-    auto Value = UEditorModules::GetComponentData(TypeData->_Type);
-    if (Value)
+    
     {
-        UEditorComponentDrawData DrawInfo;
-        DrawInfo.Draw = &Draw;
-        Value->DrawInspect(DrawInfo, item);
-    }
-    else
-    {
-        Draw.DrawText("Cannot Inspect This Compoent2d");
-    }
+        auto Value = UEditorModules::GetComponentData(TypeData->_Type);
+        if (Value)
+        {
+            UEditorComponentDrawData DrawInfo;
+            DrawInfo.Draw = &Draw;
+            Value->DrawInspect(DrawInfo, item);
+        }
+        else
+        {
+            Draw.DrawText("Cannot Inspect This Compoent2d");
+        }
 
+    }
 }
 bool Inspect_Compoent2d::ShowAddCompoenList(UCode::Entity* item)
 {
-    ImVec2 Size = { 20,20 };
+    auto imageh = ImGui::GetFrameHeight();
+    ImVec2 Size = { imageh,imageh };
     struct Lib
     {
         bool IsOpen;

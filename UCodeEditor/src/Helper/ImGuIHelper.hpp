@@ -82,6 +82,7 @@ public:
 	static ImVec2 CheckBoxSizeWithPadding();
 	static void ItemLabel(StringView title, ItemLabelFlag flags);
 	static bool InputText(const char* label, String& buffer, ImGuiInputTextFlags flags = 0);
+	static bool InputText(String& buffer, ImGuiInputTextFlags flags = 0);
 	static bool MultLineText(const char* label, String& buffer, ImVec2 Size, ImGuiInputTextFlags flags = 0);
 
 	static bool TreeNode(const void* id, const char* label, UCode::Sprite* Sprite);

@@ -22,6 +22,8 @@ public:
 	Vector<UID> _AssetsToKeepLoaded;
 	bool ModingSupport = false;
 
+	UID PrefabScene;
+	UID PrefabUIScene;
 	inline static const char* FileName = "UProjectData.data";
 
 	UCODE_EDITOR_NODISCARD static bool WriteToFile(const Path& Path, const ProjectData& data, USerializerType type= USerializerType::Default);
