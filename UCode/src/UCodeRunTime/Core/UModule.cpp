@@ -7,6 +7,8 @@ void UModules::Init()
 	if (_Modules.size() == 0)
 	{
 		_Modules.push_back(Unique_ptr<UModule>(new CoreModule()));
+
+		auto v = CoreModule();
 	}
 }
 

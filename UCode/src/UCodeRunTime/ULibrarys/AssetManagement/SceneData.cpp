@@ -6,6 +6,7 @@
 #include "UCodeRunTime/ULibrarys/Serialization/Bit_Implementation/AsssetPtr.hpp"
 #include "UCodeRunTime/ULibrarys/Serialization/Yaml_Implementation.hpp"
 #include "UCodeRunTime/Core/UModule.hpp"
+#include "UCodeRunTime/ULibrarys/AssetManagement/EntityPlaceHolder.hpp"
 CoreStart
 Scene2dData::Scene2dData()
 {
@@ -44,36 +45,53 @@ void Scene2dData::SaveScene(const RunTimeScene *Scene, Scene2dData &Out, USerial
         Out._Entitys.push_back(std::move(Entity));
     }
 }
-void Scene2dData::SaveEntityData(const Entity *Item, Scene2dData::Entity_Data &Entity, USerializerType type)
+void Scene2dData::SaveEntityData(const Entity* Item, Scene2dData::Entity_Data& Entity, USerializerType type)
 {
     Entity._LocalPosition = Item->ilocalposition();
     Entity._LocalRotation = Item->ilocalrotation();
     Entity._LocalScale = Item->ilocalscale();
 
     Entity._Name = Item->name();
-
-    const auto &Compoents = Item->NativeCompoents();
-    Entity._Compoents.reserve(Compoents.size());
-    for (const auto &Item : Compoents)
+        
+        
+    if (auto v = Item->GetCompent<EntityPlaceHolder>().value_unchecked())
     {
         Compoent_Data Data;
 
-        if (!SaveCompoentData(Item.get(), Data, type))
+        if (!SaveCompoentData(v, Data, type))
         {
-            continue;
+            return;
         }
 
-        Entity._Compoents.push_back(Data);
+        Entity._Compoents.push_back(std::move(Data));
+
+        v->OnOverrideSerializeEntity(Entity, type);
     }
-
-    const auto &Entitys = Item->NativeGetEntitys();
-    Entity._Entitys.reserve(Entitys.size());
-
-    for (const auto &Item : Entitys)
+    else
     {
-        Entity_Data EntityItem;
-        SaveEntityData(Item.get(), EntityItem, type);
-        Entity._Entitys.push_back(std::move(EntityItem));
+        const auto& Compoents = Item->NativeCompoents();
+        Entity._Compoents.reserve(Compoents.size());
+        for (const auto& Item : Compoents)
+        {
+            Compoent_Data Data;
+
+            if (!SaveCompoentData(Item.get(), Data, type))
+            {
+                continue;
+            }
+
+            Entity._Compoents.push_back(std::move(Data));
+        }
+
+        const auto& Entitys = Item->NativeGetEntitys();
+        Entity._Entitys.reserve(Entitys.size());
+
+        for (const auto& Item : Entitys)
+        {
+            Entity_Data EntityItem;
+            SaveEntityData(Item.get(), EntityItem, type);
+            Entity._Entitys.push_back(std::move(EntityItem));
+        }
     }
 }
 bool Scene2dData::SaveCompoentData(const Compoent *Item, Compoent_Data &Out, USerializerType type)
@@ -132,7 +150,7 @@ void Scene2dData::LoadEntity(Entity *entity, const Entity_Data &Item)
 
     for (const auto &C : Item._Entitys)
     {
-        Entity *Ptr = entity->NativeAddEntity();
+        Entity* Ptr = entity->NativeAddEntity();
         LoadEntity(Ptr, C);
     }
 }
