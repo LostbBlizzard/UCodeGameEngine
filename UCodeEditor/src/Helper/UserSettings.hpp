@@ -90,6 +90,39 @@ public:
 	static void SetCopyBuffer(String& str);
 	static String GetCopyBuffer();
 
+
+	static bool CanReadCopyBufferAs(const StringView& UType)
+	{
+		return CanReadCopyBufferAs(UType, GetCopyBuffer());
+	}
+	static bool CanReadCopyBufferAs(const StringView& UType, const String& CopyBuffer)
+	{
+		bool isgood = false;
+
+		YAML::Node tep;
+		{
+			bool ok = true;
+			try
+			{
+				tep = YAML::Load(CopyBuffer);
+			}
+			catch (YAML::ParserException ex)
+			{
+				ok = false;
+			}
+			if (ok && tep.IsMap())
+			{
+				isgood = (bool)tep["UType"];
+				if (isgood)
+				{
+					isgood = tep["UType"].as<String>("") == UType && (bool)tep["UData"];
+				}
+			}
+		}
+
+		return isgood;	
+	}
+
 	template<typename T>
 	static Optional<T> ReadCopyBufferAs(const StringView& UType)
 	{
