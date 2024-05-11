@@ -5,6 +5,7 @@
 #include "../ULibrarys/Rendering/Camera2d.hpp"
 #include "../ULibrarys/UCodeLang/ULangRunTime.hpp"
 #include "../ULibrarys/UCodeLang/ScirptableObject.hpp"
+#include "../ULibrarys/AssetManagement/EntityPlaceHolder.hpp"
 
 #include "../ULibrarys/AssetManagement/CoreAssets.hpp"
 #include "../ULibrarys/AssetManagement/UCodeLangAssets.hpp"
@@ -14,6 +15,7 @@ CoreModule::CoreModule()
 	_Compoents[0] = UModuleComponentData(&SpriteRenderer::type_Data);
 	_Compoents[1] = UModuleComponentData(&Camera2d::type_Data);
 	_Compoents[2] = UModuleComponentData(&ULangScript::type_Data);
+	_Compoents[3] = UModuleComponentData(&EntityPlaceHolder::type_Data);
 
 	_Assets[0] = UModuleAssetData(Path(UCode::Scene2dData::FileExtDot),[](UDeserializer& serializer)
 	{

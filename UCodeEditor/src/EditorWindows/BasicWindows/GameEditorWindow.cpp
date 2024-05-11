@@ -110,7 +110,7 @@ void GameEditorWindow::UpdateWindow()
 void GameEditorWindow::OnSaveWindow(USerializer& JsonToSaveIn)
 {
     auto Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
-    if (_SceneData && _UseingScenePath.has_value() && !_IsRuningGame && SelectedScene.Has_Value())
+    if (_SceneData && _UseingScenePath.has_value() && !_IsRuningGame)
     {
         auto PathString = FileHelper::ToRelativePath(Assespath, _UseingScenePath.value());
 
@@ -1672,7 +1672,7 @@ void GameEditorWindow::OpenScencAtPath(const Path& Path)
             }
 
             _SceneData = NewSceneData.release();
-
+            SelectedScene = NewScene->Get_ManagedPtr();
             _UseingScenePath = Path;
             _SceneDataAsRunTiime = NewScene;
         }

@@ -213,7 +213,12 @@ void UserSettings::SetCopyBuffer(String& str)
 }
 String UserSettings::GetCopyBuffer()
 {
-	return ImGui::GetClipboardText();
+	auto s = ImGui::GetClipboardText();
+	if (s) 
+	{
+		return s;
+	}
+	return {};
 }
 
 static AnyManagedPtr ref;
