@@ -26,8 +26,12 @@ public:
 	static EditorWindowData GetEditorData();
 
 	
-	
-	void SetPrefabMode(UC::EntityPtr prefab);
+	struct PrefabModeData
+	{
+		std::function<bool(UC::Entity* entity)> WasUpdated;
+		std::function<void(UC::Entity* entity)> OnSave;
+	};
+	void SetPrefabMode(UC::EntityPtr prefab,PrefabModeData&& data);
 private:
 	static EditorWindow* MakeWin(const NewEditorWindowData& windowdata);
 
@@ -43,11 +47,30 @@ private:
 		EditorWindow,
 		ExternalWindow,
 	};
-	
 	struct SceneCameraData
 	{
 		UCode::Vec3 _Pos;//Vec 3 Because We need to Both 2D and 3D.
 		float Orth_Size =10;
+	};
+	struct SceneEditorTabData
+	{
+		Unique_ptr<UCode::GameRunTime> _GameRunTime;
+		UCode::GameRunTime* _GameRuntimeRef;
+		Unique_ptr<UCode::RenderAPI::Render> _GameRender;
+		UCode::Camera2d* _SceneCamera = nullptr;
+		SceneCameraData _SceneCameraData;
+
+		UCode::GameRunTime* GetGameRuntime()
+		{
+			if (_GameRunTime.get())
+			{
+				return _GameRunTime.get();
+			}
+			else
+			{
+				return _GameRuntimeRef;
+			}
+		}
 	};
 	bool _IsRuningGame = false;
 	bool _IsGamePaused = false;
@@ -55,10 +78,8 @@ private:
 	GameWindowType _WindowType = GameWindowType::EditorWindow;
 	bool _IsGameWindowFocused = false, _ShowingGameStats =false;
 	int _ShowingGameStatslocation = 0;
-	Optional<int> _DontWaitInputKey;
+	Optional<int> _DontWaitInputKey;	
 	
-
-	//
 	Optional<Path> _UseingScenePath;
 	UCode::Scene2dData* _SceneData = nullptr;
 	UCode::RunTimeScene* _SceneDataAsRunTiime = nullptr;
@@ -67,20 +88,23 @@ private:
 	ImVec2 ImgeVecPos;
 	ImVec2 ImgeVecSize;
 
-	
-	void SetCopy(const UCode::Scene2dData::Entity_Data Entity);
-	void SetCopy(const UCode::Entity* Entity,bool CopyRef);
-	void SetCopy(const UCode::RunTimeScene* Entity);
-
-	
-	
-
 	bool WasSelectedObjectOpened = false;
 	bool IsRenameing = false;
 	UCode::EntityPtr SelectedObject = nullptr;
 	UCode::RunTimeScenePtr SelectedScene = nullptr;
 	Optional<Vector<UCodeLang::ReflectionCustomTypeID>> _PickComponent;
+
 	UC::EntityPtr _PrefabMode;
+	PrefabModeData _PrefabModeData;
+
+	SceneEditorTabData MainSceneData;
+	SceneEditorTabData PrefabSceneData;
+
+	
+	void SetCopy(const UCode::Scene2dData::Entity_Data Entity);
+	void SetCopy(const UCode::Entity* Entity,bool CopyRef);
+	void SetCopy(const UCode::RunTimeScene* Entity);
+
 	bool IsSelected(UCode::Entity* Object)
 	{
 		return SelectedObject.Get_Value() == Object;
@@ -105,34 +129,13 @@ private:
 
 		IsRenameing = false;
 	}
-	struct SceneEditorTabData
-	{
-		Unique_ptr<UCode::GameRunTime> _GameRunTime;
-		UCode::GameRunTime* _GameRuntimeRef;
-		Unique_ptr<UCode::RenderAPI::Render> _GameRender;
-		UCode::Camera2d* _SceneCamera = nullptr;
-		SceneCameraData _SceneCameraData;
-
-		UCode::GameRunTime* GetGameRuntime()
-		{
-			if (_GameRunTime.get())
-			{
-				return _GameRunTime.get();
-			}
-			else
-			{
-				return _GameRuntimeRef;
-			}
-		}
-	};
+	
 
 
 	void SceneCameraGetInputs(SceneEditorTabData& data);
 	void SceneEditorTab();
 
 	
-	SceneEditorTabData MainSceneData;
-	SceneEditorTabData PrefabSceneData;
 	void SceneEditor(SceneEditorTabData& data);	
 	void SceneEditorBar(SceneEditorTabData& data);
 	static void UpdateRunTimeWindowSize(ImVec2& Viewportsize, UCode::Camera2d* runtime);

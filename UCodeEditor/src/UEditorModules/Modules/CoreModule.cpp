@@ -1335,9 +1335,10 @@ public:
 		}
 		UC::RawEntityDataAsset _asset;
 		UC::EntityPtr _entity;
+		Vector<Byte> _assetasbytes;
 		UC::RunTimeScene* GetTepScene()
 		{
-			static UC::GameRunTime _tepRunTime;
+			static UC::GameRunTime _tepRunTime = UC::GameRunTime(EditorAppCompoent::GetCurrentEditorAppCompoent()->GetGameRunTime()->Get_LibraryRef());
 			static UC::RunTimeScene* _tepScene = _tepRunTime.Add_NewScene();
 
 			return _tepScene;
@@ -1354,9 +1355,25 @@ public:
 			}
 			return _entity.Get_Value();
 		}
+		Vector<Byte> GetAssetAsBytes(UC::Scene2dData::Entity_Data& data)
+		{
+			USerializer node(UC::USerializerType::Fastest);
+			node.Write("_",data);
+
+			Vector<Byte> r;
+			node.ToBytes(r, false);
+			return r;
+		}
 		void Init(const UEditorAssetFileInitContext& Context) override
 		{
-			UC::RawEntityData::ReadFromFile(FileFullPath,_asset._Base);
+			if (UC::RawEntityData::ReadFromFile(FileFullPath, _asset._Base)) 
+			{
+				_assetasbytes = GetAssetAsBytes(_asset._Base._Data);
+			}
+			else
+			{
+				UCodeGEError("Unable to Open/Parse " << FileFullPath);
+			}
 		}
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override
 		{
@@ -1403,6 +1420,59 @@ public:
 
 			return r;
 		}
+		USerializerType GetSerializerTypeForAsset()
+		{
+			USerializerType type;
+			{
+				//type is wrong but its not that important if is wrong 
+				// it should be based on _assetasbyte SerializeType
+
+				auto runtime = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+				type = runtime->Get_ProjData()._SerializeType;
+			}
+			return type;
+		}
+		bool WasEntityUpdated(UC::Entity* e)
+		{
+			bool wasupdated = false;
+			USerializerType type = GetSerializerTypeForAsset();
+
+			UC::Scene2dData::Entity_Data data;
+			UC::Scene2dData::SaveEntityData(e, data, type);
+			auto tep = GetAssetAsBytes(data);
+
+			if (tep.size() == _assetasbytes.size())
+			{
+				for (size_t i = 0; i < tep.size(); i++)
+				{
+					if (tep[i] != _assetasbytes[i])
+					{
+						int a = 0;
+					}
+
+				}
+				bool issame = memcmp(tep.data(), _assetasbytes.data(), _assetasbytes.size()) == 0;
+				return !issame;
+			}
+			return true;
+		}
+		void SaveEntity(UC::Entity* e)
+		{
+			auto runtime = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+			auto type = runtime->Get_ProjData()._SerializeType;
+
+			UC::Scene2dData::Entity_Data data;
+			UC::Scene2dData::SaveEntityData(e, data, type);
+
+			_asset._Base._Data = std::move(data);
+			_assetasbytes = GetAssetAsBytes(_asset._Base._Data);
+
+			if (!UC::RawEntityData::WriteToFile(FileFullPath, _asset._Base, type))
+			{
+				UCodeGEError("Unable to SaveFile " << FileHelper::ToRelativePath(runtime->GetAssetsDir(), FileFullPath));
+			}
+
+		}
 		void DrawInspect(const UEditorAssetDrawInspectContext& Item) override
 		{
 			auto entity = GetAsEntity();
@@ -1426,26 +1496,108 @@ public:
 				ImGui::PopID();
 				entity->SetActive(V);
 			}
-			ImGuIHelper::ItemLabel("Prefab", ImGuIHelper::ItemLabelFlag::Left);
-			if (ImGui::Button("Open Prefab"))
+
+			ImGuIHelper::ItemLabel("Prefab", ImGuIHelper::ItemLabelFlag::Left);	
 			{
-				if (auto val = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_Window<GameEditorWindow>())
+				auto buttioncount = 3;
+				
+				auto h = ImGui::GetFrameHeight();
+				auto fieldwidthleft =  ImGui::GetCurrentWindow()->Size.x - ImGui::GetCursorPosX() ;
+				auto w = (fieldwidthleft / buttioncount) - ImGui::GetStyle().ItemSpacing.x;
+
+				if (ImGui::Button("Open Prefab", { w,h }))
 				{
-					val->SetPrefabMode(entity->NativeManagedPtr());
+					if (auto val = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_Window<GameEditorWindow>())
+					{
+						GameEditorWindow::PrefabModeData mod;
+						mod.WasUpdated = [&](UC::Entity* e) -> bool
+							{
+								return WasEntityUpdated(e);
+							};
+						mod.OnSave = [&](UC::Entity* e)
+							{
+								return SaveEntity(e);
+							};
+
+						val->SetPrefabMode(entity->NativeManagedPtr(), std::move(mod));
+					}
 				}
+
+				ImGui::SameLine();
+				if (ImGui::Button("Make Variant", { w,h }))
+				{
+
+				}
+				ImGui::SameLine();
+
+				ImGui::BeginDisabled(!WasEntityUpdated(entity));
+				if (ImGui::Button("Save Prefab", { w,h }))
+				{
+					SaveEntity(entity);
+				}
+				ImGui::EndDisabled();
 			}
-			ImGui::SameLine();
-			if (ImGui::Button("Make Variant"))
 			{
 
+				//this is 2d GameEngine for now
+				bool Is2D = true;
+				auto Draw = *Item.Drawer;
+				if (Is2D)
+				{
+					Vec2 Tep = entity->worldposition2d();
+					Vec2 Tep1 = entity->worldrotation2d();
+					Vec2 Tep2 = entity->worldscale2d();
+
+					if (Draw.Vec2Field("Position", Tep))
+					{
+						entity->worldposition(Tep);
+					}
+
+					if (Draw.Vec2Field("Rotation", Tep1))
+					{
+						entity->worldrotation(Tep1);
+					}
+
+					if (Draw.Vec2Field("Scale", Tep2))
+					{
+						entity->worldscale(Tep2);
+					}
+				}
+				else
+				{
+					Vec3 Tep = entity->worldposition();
+					Vec3 Tep1 = entity->worldrotation();
+					Vec3 Tep2 = entity->worldscale();
+
+					if (Draw.Vec3Field("Position", Tep))
+					{
+						entity->worldposition(Tep);
+					}
+
+					if (Draw.Vec3Field("Rotation", Tep1))
+					{
+						entity->worldrotation(Tep2);
+					}
+
+					if (Draw.Vec3Field("Scale", Tep2))
+					{
+						entity->worldscale(Tep2);
+					}
+				}
 			}
 			{
 				ImGui::Separator();
+
+				bool isonedestroyed = false;
 				for (auto& compent : entity->NativeCompoents())
 				{
 					if (compent->Get_CompoentTypeData() == &UC::EntityPlaceHolder::type_Data)
 					{
 						return;
+					}
+					if (compent->Get_IsDestroyed())
+					{
+						isonedestroyed = true;
 					}
 					Inspect_Compoent2d::Insp_(compent.get(), *Item.Drawer);
 					ImGui::Separator();
@@ -1455,6 +1607,11 @@ public:
 				{
 					Inspect_Compoent2d::ShowAddCompoenList(entity);
 					ImGui::EndMenu();
+				}
+
+				if (isonedestroyed)
+				{
+					_entity.Get_Value()->NativeScene()->Get_RunTime()->DestroyNullScenes();
 				}
 			}
 			
@@ -1475,6 +1632,7 @@ public:
 						UC::Entity::Destroy(entity.get());
 
 					}
+					_entity.Get_Value()->NativeScene()->Get_RunTime()->DestroyNullScenes();
 					UC::Scene2dData::LoadEntity(e, _asset._Base._Data);
 				}
 			}

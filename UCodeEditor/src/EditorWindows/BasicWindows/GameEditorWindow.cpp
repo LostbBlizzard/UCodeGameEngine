@@ -308,9 +308,10 @@ void GameEditorWindow::SceneCameraGetInputs(SceneEditorTabData& data)
 
     _SceneCamera->Set_Ortho_size(_SceneCameraData.Orth_Size);
 }
-void GameEditorWindow::SetPrefabMode(UC::EntityPtr prefab)
+void GameEditorWindow::SetPrefabMode(UC::EntityPtr prefab,PrefabModeData&& data)
 {
     _PrefabMode = prefab;
+    _PrefabModeData = std::move(data);
     PrefabSceneData._SceneCameraData._Pos = prefab.Get_Value()->localposition();
     PrefabSceneData._GameRuntimeRef = prefab.Get_Value()->NativeScene()->Get_RunTime();
 }
@@ -557,22 +558,69 @@ void GameEditorWindow::ShowSceneDataAddNewScene()
 }
 void GameEditorWindow::ShowSceneData()
 {
+    static bool showsavepopup = false;
+
+    if (_PrefabMode.Has_Value())
+    {
+        String name = "Save " + _PrefabMode.Get_Value()->NativeName() + " Prefab";
+        if (ImGui::BeginPopupModal(name.c_str()))
+        {
+            if (ImGui::Button("Cancel"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Yes"))
+            {
+                _PrefabModeData.OnSave(_PrefabMode.Get_Value());
+                _PrefabMode = {};
+                _PrefabModeData = {};
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("No"))
+            {
+                _PrefabMode = {};
+                _PrefabModeData = {};
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+
+    }
+
     if (_PrefabMode.Has_Value())
     {
         auto imageh = ImGui::GetFrameHeight();
-        bool onback = ImGui::Button("<",{imageh,imageh});
+        bool onback = ImGui::Button("<", { imageh,imageh });
 
         ImGui::SameLine();
-        ImGuIHelper::Image(AppFiles::sprite::RawEntityData,{imageh,imageh});
+        ImGuIHelper::Image(AppFiles::sprite::RawEntityData, { imageh,imageh });
 
         ImGui::SameLine();
         ImGuIHelper::Text(_PrefabMode.Get_Value()->NativeName());
         if (onback)
         {
-            _PrefabMode = {};
+            auto e = _PrefabMode.Get_Value();
+            bool wasupdated = _PrefabModeData.WasUpdated(e);
+            if (wasupdated)
+            {
+                String name = "Save " + _PrefabMode.Get_Value()->NativeName() + " Prefab";
+                ImGui::OpenPopup(name.c_str());
+                showsavepopup = true;
+            }
+            else
+            {
+                _PrefabMode = {};
+            }
         }
     }
-   
+
     bool HasSceneRightPrivilege = true;//add this to stop updateing the same scene data file.
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
@@ -582,7 +630,7 @@ void GameEditorWindow::ShowSceneData()
     {
         if (ImGui::BeginTable("split", 1, flags))
         {
-            ShowEntityData(PrefabSceneData,_PrefabMode.Get_Value());
+            ShowEntityData(PrefabSceneData, _PrefabMode.Get_Value());
             ImGui::EndTable();
         }
     }
@@ -598,7 +646,7 @@ void GameEditorWindow::ShowSceneData()
             {
                 auto& Item = Scenes[i];
 
-                ShowScene(MainSceneData,Item.get());
+                ShowScene(MainSceneData, Item.get());
             }
 
             ImGui::EndTable();

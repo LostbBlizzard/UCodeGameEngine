@@ -10,11 +10,14 @@ public:
 	inline static const char* FileExtDot = ".UEntity";
 	
 	RawEntityData();
-	RawEntityData(const UID& id,const UCode::Entity* Entity);
+	RawEntityData(const UID& id,const UCode::Entity* Entity,USerializerType type);
 	RawEntityData(const UID& id,const UCode::Scene2dData::Entity_Data& Entity);
 
-	UCodeLangNoDiscard static bool WriteToFile(const Path&  Path,const RawEntityData& Data);
+	UCodeLangNoDiscard static bool WriteToFile(const Path&  Path,const RawEntityData& Data,USerializerType Type);
 	UCodeLangNoDiscard static bool ReadFromFile(const Path&  Path,RawEntityData& Data);
+	static void ToBits(USerializer& output, const RawEntityData& Data);
+	static void FromBits(UDeserializer& input, RawEntityData& Data);
+
 
 	inline const auto& Get_Value() { return _Data; }
 	UID _UID;
