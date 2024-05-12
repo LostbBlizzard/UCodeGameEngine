@@ -20,6 +20,7 @@
 #include "Imgui/imgui_internal.h"
 #include "Helper/UserSettings.hpp"
 #include "EditorWindows/InspectTypes/Inspect_Entity2d.hpp"
+#include "EditorWindows/BasicWindows/GameEditorWindow.hpp"
 EditorStart
 
 
@@ -1428,7 +1429,10 @@ public:
 			ImGuIHelper::ItemLabel("Prefab", ImGuIHelper::ItemLabelFlag::Left);
 			if (ImGui::Button("Open Prefab"))
 			{
-
+				if (auto val = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_Window<GameEditorWindow>())
+				{
+					val->SetPrefabMode(entity->NativeManagedPtr());
+				}
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Make Variant"))
@@ -1445,6 +1449,12 @@ public:
 					}
 					Inspect_Compoent2d::Insp_(compent.get(), *Item.Drawer);
 					ImGui::Separator();
+				}
+				ImGui::Separator();
+				if (ImGui::BeginMenu("Add Compoent"))
+				{
+					Inspect_Compoent2d::ShowAddCompoenList(entity);
+					ImGui::EndMenu();
 				}
 			}
 			

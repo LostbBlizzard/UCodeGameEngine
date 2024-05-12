@@ -31,7 +31,7 @@ GameEditorWindow::GameEditorWindow(const NewEditorWindowData& windowdata) : Edit
 
 GameEditorWindow::~GameEditorWindow()
 {
-    UnLoadRender();
+    UnLoadRender(MainSceneData);
     UnLoadRunTime();
     if (_SceneData) {
         delete _SceneData;
@@ -135,7 +135,8 @@ void GameEditorWindow::OnLoadWindow(UDeserializer& JsonToOutof)
 
 void GameEditorWindow::Scenehierarchy()
 {
-
+    ShowSceneData();
+    /*
     if (ImGui::BeginTabBar("?2"))
     {
 
@@ -157,6 +158,7 @@ void GameEditorWindow::Scenehierarchy()
 
         ImGui::EndTabBar();
     }
+    */
 }
 
 
@@ -190,8 +192,12 @@ void GameEditorWindow::SetCopy(const UCode::RunTimeScene* Entity)
     UserSettings::SetCopyBufferAsValue<String>("Scene", s.Get_TextMaker().c_str());
 }
 
-void GameEditorWindow::SceneCameraGetInputs()
+void GameEditorWindow::SceneCameraGetInputs(SceneEditorTabData& data)
 {
+    auto& _GameRender  = data._GameRender;
+    auto& _SceneCameraData  = data._SceneCameraData;
+    auto& _SceneCamera  = data._SceneCamera;
+
     const float TimeFromlastFrame = Get_App()->GetGameRunTime()->Get_GameTime().UpateDelta;
 
     UCode::Vec2& CamPos = *(UCode::Vec2*)&_SceneCameraData._Pos.X;
@@ -302,15 +308,41 @@ void GameEditorWindow::SceneCameraGetInputs()
 
     _SceneCamera->Set_Ortho_size(_SceneCameraData.Orth_Size);
 }
-
+void GameEditorWindow::SetPrefabMode(UC::EntityPtr prefab)
+{
+    _PrefabMode = prefab;
+    PrefabSceneData._SceneCameraData._Pos = prefab.Get_Value()->localposition();
+    PrefabSceneData._GameRuntimeRef = prefab.Get_Value()->NativeScene()->Get_RunTime();
+}
 void GameEditorWindow::SceneEditorTab()
 {
 
-    SceneEditorBar();
 
+    if (_PrefabMode.Has_Value())
+    {
+        auto entity = _PrefabMode.Get_Value();
+        auto scene = entity->NativeScene();
+        auto prefabruntime = scene->Get_RunTime();
+
+        SceneEditorBar(PrefabSceneData);
+        SceneEditor(PrefabSceneData);
+    }
+    else
+    {
+        SceneEditorBar(MainSceneData);
+        SceneEditor(MainSceneData);
+    }
+    
+
+}
+
+void GameEditorWindow::SceneEditor(SceneEditorTabData& data)
+{
+    auto _GameRunTime = data.GetGameRuntime();
+    auto& _GameRender = data._GameRender;
     if (_GameRunTime == nullptr)
     {
-        LoadRunTime(); LoadRender(false);
+        LoadRunTime(); LoadRender(data,false);
     }
 
 
@@ -321,13 +353,13 @@ void GameEditorWindow::SceneEditorTab()
     {
         UpdateAndShowGameImg();
     }
-    if (_GameRender == nullptr) { LoadRender(false); }
-    LoadSceneCamera();
-    auto runtime = UCode::RenderRunTime2d::GetRenderRunTime(_GameRunTime.get());
+    if (_GameRender == nullptr) { LoadRender(data,false); }
+    LoadSceneCamera(data);
+    auto runtime = UCode::RenderRunTime2d::GetRenderRunTime(_GameRunTime);
 
 
 
-    UpdateRunTimeWindowSize(Viewportsize, _SceneCamera);
+    UpdateRunTimeWindowSize(Viewportsize,data._SceneCamera);
     runtime->UpdateDrawData();
 
 
@@ -374,7 +406,7 @@ void GameEditorWindow::SceneEditorTab()
             }
 
 
-            ImGuizmo::SetOrthographic(_SceneCamera->Get_CamType() == UCode::Camera2d::CamType::Orthographic);
+            ImGuizmo::SetOrthographic(data._SceneCamera->Get_CamType() == UCode::Camera2d::CamType::Orthographic);
             ImGuizmo::BeginFrame();
 
             auto tep = ImGui::GetCursorPos();
@@ -391,8 +423,8 @@ void GameEditorWindow::SceneEditorTab()
             ImGuiIO& io = ImGui::GetIO();
             ImGuizmo::SetRect(view.x, view.y, view2.x - view.x, view2.y - view.y);;
 
-            auto vm = _SceneCamera->Get_ViewMatrix();
-            auto pm = _SceneCamera->Get_ProjectionMatrix();
+            auto vm =data._SceneCamera->Get_ViewMatrix();
+            auto pm = data._SceneCamera->Get_ProjectionMatrix();
 
             bool updated = ImGuizmo::Manipulate(
              (float*)&vm,
@@ -424,9 +456,9 @@ void GameEditorWindow::SceneEditorTab()
             }
         }
     }
-    _GameRender->Draw(runtime->Get_DrawData(), _SceneCamera);
+    _GameRender->Draw(runtime->Get_DrawData(), data._SceneCamera);
 
-    size_t SceneTex = _SceneCamera->Get_Buffer().Get_TextureId();
+    size_t SceneTex = data._SceneCamera->Get_Buffer().Get_TextureId();
 
 
     auto tep = ImGui::GetCursorPos();
@@ -449,12 +481,12 @@ void GameEditorWindow::SceneEditorTab()
     bool IsFocused = ImGui::IsItemHovered() || ImGui::IsWindowFocused();
     if (IsFocused)
     {
-        SceneCameraGetInputs();
+        SceneCameraGetInputs(data);
     }
-
 }
-void GameEditorWindow::SceneEditorBar()
+void GameEditorWindow::SceneEditorBar(SceneEditorTabData& data)
 {
+    auto& _SceneCamera = data._SceneCamera;
 
     if (_SceneCamera)
     {
@@ -485,31 +517,31 @@ void GameEditorWindow::UpdateRunTimeWindowSize(ImVec2& Viewportsize, UCode::Came
     if (Viewportsize.y <= 0) { Viewportsize.y = 1; }
     runtime->API_Set_WindowSize((int)Viewportsize.x, (int)Viewportsize.y);
 }
-void GameEditorWindow::UnLoadSceneCamera()
+void GameEditorWindow::UnLoadSceneCamera(SceneEditorTabData& data)
 {
-    if (_SceneCamera)
+    if (data._SceneCamera)
     {
-        UCode::Entity::Destroy(_SceneCamera->NativeEntity());
-        _SceneCamera->UnSetAsMainCam();
-        _SceneCamera = nullptr;
+        UCode::Entity::Destroy(data._SceneCamera->NativeEntity());
+        data._SceneCamera->UnSetAsMainCam();
+        data._SceneCamera = nullptr;
 
     }
 }
-void GameEditorWindow::LoadSceneCamera()
+void GameEditorWindow::LoadSceneCamera(SceneEditorTabData& data)
 {
-    if (_SceneCamera == nullptr)
+    if (data._SceneCamera == nullptr)
     {
-        auto Entity = _GameRunTime->NewEntityOnRunTimeScene();
-        _SceneCamera = Entity->AddCompoent<UCode::Camera2d>();
-        _SceneCamera->UnSetAsMainCam();
+        auto Entity = data.GetGameRuntime()->NewEntityOnRunTimeScene();
+        data._SceneCamera = Entity->AddCompoent<UCode::Camera2d>();
+        data._SceneCamera->UnSetAsMainCam();
     }
 }
 
 void GameEditorWindow::ShowSceneDataAddNewScene()
 {
-    auto* e = _GameRunTime->Add_NewScene();
+    auto* e =MainSceneData._GameRunTime->Add_NewScene();
     e->Get_Name() = UnNamedScene;
-    if (_GameRunTime->Get_Scenes().size() == 1)
+    if (MainSceneData._GameRunTime->Get_Scenes().size() == 1)
     {
         if (_SceneData == nullptr)
         {
@@ -525,20 +557,40 @@ void GameEditorWindow::ShowSceneDataAddNewScene()
 }
 void GameEditorWindow::ShowSceneData()
 {
+    if (_PrefabMode.Has_Value())
+    {
+        auto imageh = ImGui::GetFrameHeight();
+        bool onback = ImGui::Button("<",{imageh,imageh});
+
+        ImGui::SameLine();
+        ImGuIHelper::Image(AppFiles::sprite::RawEntityData,{imageh,imageh});
+
+        ImGui::SameLine();
+        ImGuIHelper::Text(_PrefabMode.Get_Value()->NativeName());
+        if (onback)
+        {
+            _PrefabMode = {};
+        }
+    }
+   
     bool HasSceneRightPrivilege = true;//add this to stop updateing the same scene data file.
-
-    
-
-
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
 
     ImGuiTableFlags flags = ImGuiTableFlags_Resizable;
-    if (_GameRunTime)
+    if (_PrefabMode.Has_Value())
     {
         if (ImGui::BeginTable("split", 1, flags))
         {
-            auto& Scenes = _GameRunTime->Get_Scenes();
+            ShowEntityData(PrefabSceneData,_PrefabMode.Get_Value());
+            ImGui::EndTable();
+        }
+    }
+    else if (MainSceneData._GameRunTime)
+    {
+        if (ImGui::BeginTable("split", 1, flags))
+        {
+            auto& Scenes = MainSceneData._GameRunTime->Get_Scenes();
 
 
 
@@ -546,7 +598,7 @@ void GameEditorWindow::ShowSceneData()
             {
                 auto& Item = Scenes[i];
 
-                ShowScene(Item.get());
+                ShowScene(MainSceneData,Item.get());
             }
 
             ImGui::EndTable();
@@ -828,7 +880,7 @@ void GameEditorWindow::PasteInEntity(UCode::Entity* Item)
         }
     }
 }
-void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
+void GameEditorWindow::ShowScene(SceneEditorTabData& data,UCode::RunTimeScene* Item)
 {
     if (Item->Get_IsDestroyed()) { return; }
 
@@ -879,7 +931,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
             {
                 UCode::Entity* e = Item->NewEntity();
                 e->NativeName() = UnNamedEntity;
-                e->worldposition(_SceneCameraData._Pos);
+                e->worldposition(data._SceneCameraData._Pos);
             }
             else
             {
@@ -933,7 +985,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
             {
                 UCode::Entity* e = Item->NewEntity();
                 e->NativeName() = UnNamedEntity;
-                e->worldposition(_SceneCameraData._Pos);
+                e->worldposition(data._SceneCameraData._Pos);
             }
             else
             {
@@ -1043,7 +1095,7 @@ void GameEditorWindow::ShowScene(UCode::RunTimeScene* Item)
         {
             auto& Enity = Enitys[i2];
 
-            ShowEntityData(Enity.get());
+            ShowEntityData(data,Enity.get());
         }
         if (IsRenameing && IsSelected(Item))
         {
@@ -1112,7 +1164,7 @@ void GameEditorWindow::EntityAdd(UCode::Entity* Item, bool AddToChild)
         }
     }
 }
-void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
+void GameEditorWindow::ShowEntityData(SceneEditorTabData& data,UCode::Entity* Item)
 {
     if (Item->Get_IsDestroyed()) { return; }
 
@@ -1372,7 +1424,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
         {
             if (ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl))
             {
-                _SceneCameraData._Pos = Item->worldposition();
+                data._SceneCameraData._Pos = Item->worldposition();
             }
             else 
             {
@@ -1445,7 +1497,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
         keybindstring = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
         if (ImGui::MenuItem("Set Scene Camera To", keybindstring.c_str()) || (ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
         {
-            _SceneCameraData._Pos = Item->worldposition();
+            data._SceneCameraData._Pos = Item->worldposition();
             ImGui::CloseCurrentPopup();
         }
 
@@ -1533,7 +1585,7 @@ void GameEditorWindow::ShowEntityData(UCode::Entity* Item)
             {
                 auto& Item2 = Entitys[i];
                 if (Item2->Get_IsDestroyed()) { continue; }
-                ShowEntityData(Item2.get());
+                ShowEntityData(data,Item2.get());
             }
         }
 
@@ -1656,12 +1708,12 @@ void GameEditorWindow::OpenScencAtPath(const Path& Path)
 {
     LoadRunTime();
 
-    auto& Scenes = _GameRunTime->Get_Scenes();
+    auto& Scenes = MainSceneData._GameRunTime->Get_Scenes();
     auto NewSceneData = std::make_unique<UCode::Scene2dData>();//Get from cash;
     UCode::AssetManager* Assets = UCode::AssetManager::Get(Get_GameLib());
     if (UCode::Scene2dData::FromFile(*NewSceneData, Path))
     {
-        auto NewScene = UCode::Scene2dData::LoadScene(_GameRunTime.get(), *NewSceneData);
+        auto NewScene = UCode::Scene2dData::LoadScene(MainSceneData._GameRunTime.get(), *NewSceneData);
         // UCode::RunTimeScene::SetSceneMulti_Threaded(NewScene);
         if (Scenes.size() == 1)
         {
@@ -1698,10 +1750,10 @@ Vec2 GameEditorWindow::MousePosFromImage(const Vec2 CursorPos, const Vec2 ImageS
 }
 void GameEditorWindow::GameTab()
 {
-    if (_GameRunTime == nullptr)
+    if (MainSceneData._GameRunTime == nullptr)
     {
         LoadRunTime();
-        LoadRender(_WindowType == GameWindowType::ExternalWindow);
+        LoadRender(MainSceneData,_WindowType == GameWindowType::ExternalWindow);
     }
 
     const char* WindowTypeText;
@@ -1751,8 +1803,8 @@ void GameEditorWindow::GameTab()
 
         if (_IsRuningGame)
         {
-            UnLoadRender();
-            LoadRender(_WindowType == GameWindowType::ExternalWindow);
+            UnLoadRender(MainSceneData);
+            LoadRender(MainSceneData,_WindowType == GameWindowType::ExternalWindow);
         }
     }
     if (PausedButtionDown) { _IsGamePaused = !_IsGamePaused; }
@@ -1806,8 +1858,8 @@ void GameEditorWindow::OnPlayScene()
 {
     SaveScene();
 
-    UnLoadRender();
-    LoadRender(_WindowType == GameWindowType::ExternalWindow);
+    UnLoadRender(MainSceneData);
+    LoadRender(MainSceneData,_WindowType == GameWindowType::ExternalWindow);
 
 
     if (!_DontWaitInputKey.has_value())
@@ -1822,10 +1874,10 @@ void GameEditorWindow::OnStopPlaying()
 
     if (_SceneData)
     {
-        auto ShowScene = UCode::Scene2dData::LoadScene(_GameRunTime.get(), *_SceneData);
+        auto ShowScene = UCode::Scene2dData::LoadScene(MainSceneData._GameRunTime.get(), *_SceneData);
         _SceneDataAsRunTiime = ShowScene;
     }
-    LoadRender(false);
+    LoadRender(MainSceneData,false);
 
     if (_DontWaitInputKey.has_value())
     {
@@ -1835,7 +1887,7 @@ void GameEditorWindow::OnStopPlaying()
 }
 void GameEditorWindow::UpdateAndShowGameImg()
 {
-    if (_GameRunTime && _GameRender)
+    if (MainSceneData._GameRunTime && MainSceneData._GameRender)
     {
         UpdateGame();
     }
@@ -1848,11 +1900,13 @@ EditorWindowData GameEditorWindow::GetEditorData()
 }
 void GameEditorWindow::ShowGameImage()
 {
-    UCode::RenderRunTime2d* runtime = _GameRunTime ? UCode::RenderRunTime2d::GetRenderRunTime(_GameRunTime.get()) : nullptr;
+    UCode::RenderRunTime2d* runtime = MainSceneData._GameRunTime ? UCode::RenderRunTime2d::GetRenderRunTime(MainSceneData._GameRunTime.get()) : nullptr;
+
+    auto& _GameRunTime = MainSceneData._GameRunTime;
 
     if (_WindowType == GameWindowType::EditorWindow)
     {
-        LoadRender(false);
+        LoadRender(MainSceneData,false);
     }
 
     if (_WindowType != GameWindowType::ExternalWindow)
@@ -1892,28 +1946,29 @@ void GameEditorWindow::UpdateGame()
     if (EditorWindowsize.x <= 0 && EditorWindowsize.y <= 0) { return; }
 
 
-    if (_IsRuningGame && !_IsGamePaused) { _GameRunTime->GameUpdate(); }
+    if (_IsRuningGame && !_IsGamePaused) { MainSceneData._GameRunTime->GameUpdate(); }
 
 
 
 
-    if (_GameRunTime)
+    if (MainSceneData._GameRunTime)
     {
-        _GameRunTime->DestroyNullScenes();
-        _GameRender->UpdateFrame();
+        MainSceneData._GameRunTime->DestroyNullScenes();
+        MainSceneData._GameRender->UpdateFrame();
 
         InputEmuation();
 
-        if (_IsRuningGame && !_GameRunTime->Get_IsGameRuning())
+        if (_IsRuningGame && !MainSceneData._GameRunTime->Get_IsGameRuning())
         {
-            UnLoadRender();
+            UnLoadRender(MainSceneData);
             OnStopPlaying();
         }
     }
 
 }
-void GameEditorWindow::UnLoadRender()
+void GameEditorWindow::UnLoadRender(SceneEditorTabData& data)
 {
+    auto& _GameRender = data._GameRender;
     if (_GameRender)
     {
         _GameRender->EndRender();
@@ -1923,10 +1978,11 @@ void GameEditorWindow::UnLoadRender()
 }
 void GameEditorWindow::UnLoadRunTime()
 {
+    auto& _GameRunTime = MainSceneData._GameRunTime;
     if (_GameRunTime)
     {
-        UnLoadSceneCamera();
-        UnLoadRender();
+        UnLoadSceneCamera(MainSceneData);
+        UnLoadRender(MainSceneData);
 
         _GameRunTime->EndRunTime();
         delete _GameRunTime.release();
@@ -1935,7 +1991,7 @@ void GameEditorWindow::UnLoadRunTime()
 }
 void GameEditorWindow::LoadRunTime()
 {
-
+    auto& _GameRunTime = MainSceneData._GameRunTime;
     if (_GameRunTime == nullptr)
     {
         _GameRunTime = std::make_unique<UCode::GameRunTime>(Get_GameLibRef());
@@ -1949,8 +2005,10 @@ void GameEditorWindow::LoadRunTime()
         }
     }
 }
-void GameEditorWindow::LoadRender(bool MakeWin)
+void GameEditorWindow::LoadRender(SceneEditorTabData& data,bool MakeWin)
 {
+    auto _GameRunTime = data.GetGameRuntime();
+    auto& _GameRender  = data._GameRender;
     if (_GameRender == nullptr)
     {
         i32 Sx = (i32)_Size.X;
@@ -1966,7 +2024,7 @@ void GameEditorWindow::LoadRender(bool MakeWin)
         Windata.ImguiDrawIsMade = true;
         Windata.shared_window = glfwGetCurrentContext();
 
-        _GameRender->Init(Windata, _GameRunTime.get());
+        _GameRender->Init(Windata, _GameRunTime);
 
         // auto& Tex = *AppFiles::GetTexture(AppFiles::texture::AppIcon);//TODO add call backs
         // while (Tex.) {}//wait for texture
@@ -1995,7 +2053,9 @@ void SetUCodeInput(ImGuiKey Item, UCode::InputManger* _Input)
     }
 }
 void GameEditorWindow::InputEmuation()
-{
+{    
+    auto& _GameRunTime = MainSceneData._GameRunTime;
+    auto& _GameRender  = MainSceneData._GameRender;
     if (_WindowType != GameWindowType::ExternalWindow)
     {
 
