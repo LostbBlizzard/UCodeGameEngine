@@ -93,15 +93,15 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
     
         if (Is2D)
         {
-            Draw.Vec2Field("Position", item->localposition2d());
-            Draw.Vec2Field("Rotation", item->localrotation2d());
-            Draw.Vec2Field("Scale", item->localscale2d());
+            Draw.Vec2Field("Position", *(Vec2*)&item->NativeLocalPosition());
+            Draw.Vec2Field("Rotation", *(Vec2*)&item->NativeLocalRotation());
+            Draw.Vec2Field("Scale", *(Vec2*)&item->NativeLocalScale());
         }
         else 
         {
-            Draw.Vec3Field("Position", item->localposition());
-            Draw.Vec3Field("Rotation", item->localrotation());
-            Draw.Vec3Field("Scale", item->localscale());
+            Draw.Vec3Field("Position", item->NativeLocalPosition());
+            Draw.Vec3Field("Rotation", item->NativeLocalRotation());
+            Draw.Vec3Field("Scale", item->NativeLocalScale());
         }
     }
     else
@@ -117,55 +117,51 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
             //ImGui::Separator();
 
 
-            Vec2 Tep = item->worldposition2d();
+            Vec2 Tep = item->WorldPosition2D();
+            Vec2 Tep1 = item->WorldPosition2D();
+            Vec2 Tep2 = item->WorldPosition2D();
 
             if (Draw.Vec2Field("Position", Tep))
             {
-                item->worldposition(Tep);
+                item->WorldPosition2D(Tep);
             }
 
-            Tep = item->worldrotation2d();
+            Tep1 = item->WorldRotation2D();
 
-            if (Draw.Vec2Field("Rotation", Tep))
+            if (Draw.Vec2Field("Rotation", Tep1))
             {
-                item->worldrotation(Tep);
+                item->WorldRotation(Tep1);
             }
 
-            Tep = item->worldscale2d();
-            if (Draw.Vec2Field("Scale", Tep))
+            Tep2 = item->WorldScale2D();
+            if (Draw.Vec2Field("Scale", Tep2))
             {
-                item->worldscale(Tep);
+                item->WorldScale(Tep2);
             }
         }
         else
         {
-            /*
-            Draw.Vec3Field("Local Position", item->localposition());
-            Draw.Vec3Field("Local Rotation", item->localrotation());
-            Draw.Vec3Field("Local Scale", item->localscale());
-
-            ImGui::Separator();
-             */
-
-            Vec3 Tep = item->worldposition();
+            Vec3 Tep = item->WorldPosition();
+            Vec3 Tep1 = item->WorldRotation();
+            Vec3 Tep2 = item->WorldScale();
 
             if (Draw.Vec3Field("Position", Tep))
             {
-                item->worldposition(Tep);
+                item->WorldPosition(Tep);
             }
 
-            Tep = item->worldrotation();
+            Tep = item->WorldRotation();
 
-            if (Draw.Vec3Field("Rotation", Tep))
+            if (Draw.Vec3Field("Rotation", Tep1))
             {
-                item->worldrotation(Tep);
+                item->WorldRotation(Tep);
             }
 
-            Tep = item->worldscale();
+            Tep2 = item->WorldScale();
 
-            if (Draw.Vec3Field("Scale",Tep))
+            if (Draw.Vec3Field("Scale", Tep2))
             {
-                item->worldscale(Tep);
+                item->WorldScale(Tep2);
             }
         }
     }

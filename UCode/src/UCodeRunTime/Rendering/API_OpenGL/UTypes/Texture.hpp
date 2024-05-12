@@ -1,23 +1,34 @@
 #pragma once
 #include <UCodeRunTime/ULibrarys/Rendering/RenderingNamespace.hpp>
 #include <UCodeRunTime/BasicTypes.hpp>
+#include "GPUTypeDef.hpp"
+#include "UCodeRunTime/ULibrarys/Rendering/ImageData.hpp"
 RenderingStart
 
+struct PngDataSpan
+{
+	BytesView Data;
+	explicit PngDataSpan(BytesView view) :Data(view)
+	{
+
+	}
+};
 
 class Texture
 {
 public:
+
 	using Filter_t = Byte;
 	enum class Filiter : Filter_t
 	{
 		Point,
 		bilinear,
 		trilinear,
-	};
+	};	
 	Texture();
 	Texture(const Path& filePath);
 	Texture(i32 width, i32 height,const Color32* color);
-	Texture(const BytesView PngData);
+	Texture(PngDataSpan PngData);
 	~Texture();
 
 	static Unique_ptr<Texture> MakeNewNullTexture();
@@ -28,7 +39,7 @@ public:
 	Texture(const Texture& source) = delete;
 	Texture& operator=(const Texture& source) = delete;
 	
-	void SetTexture(const BytesView PngData);
+	void SetTexture(const PngDataSpan PngData);
 	void InitTexture();
 	void UpdateDataToGPU();
 
@@ -48,9 +59,16 @@ public:
 
 	void FreeFromCPU();
 	
+	
+	static ImageData GetGPUImageData(i32 Width,i32 Height,GPUTextureID RendererID);	
+	ImageData GetGPUImageData() const
+	{
+		return GetGPUImageData(Get_Width(), Get_Height(), _RendererID.value());
+	}
+
 	u32 PixelsPerUnit = 1;
 private:
-	Optional<u32> _RendererID;
+	Optional<GPUTextureID> _RendererID;
 	i32 _Width = 0, _Height = 0, _BPP = 0;
 	Unique_array<Byte> _Buffer;
 	bool _BufferIsInGPU =false;

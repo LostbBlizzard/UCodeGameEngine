@@ -7,7 +7,6 @@
 #include "Helper/ImGuIHelper.hpp"
 #include <UCodeRunTime/ULibrarys/AssetManagement/SceneData.hpp>
 #include <EditorWindows/DragAndDropNames.hpp>
-#include <EditorWindows/OtherTypes/ImageData.hpp>
 #include <UCodeRunTime/ULibrarys/AssetManagement/EntityPlaceHolder.hpp>
 #include "Plugin/UPlugin.hpp"
 #include <EditorWindows/OtherTypes/ColorData.hpp>
@@ -898,8 +897,13 @@ void ProjectFilesWindow::ShowDirButtionsPaste()
                     UCode::Scene2dData::SaveEntityData(e, data._Data, serializertype);
                     data._UID = newid;
 
-                    auto path = FileHelper::GetNewFileName(_LookingAtDir.value() / e->name(), UC::RawEntityData::FileExtDot);
-                    UC::RawEntityData::WriteToFile(path, data,serializertype);
+                    auto path = FileHelper::GetNewFileName(_LookingAtDir.value() / e->NativeName(), UC::RawEntityData::FileExtDot);
+                    if (!UC::RawEntityData::WriteToFile(path, data, serializertype))
+                    {
+                        auto dir = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
+                        UCodeGEError("Unable to Write " << FileHelper::ToRelativePath(dir,path));
+                        return;
+                    }
 
 
                     auto placeholder = e->AddCompoent<UC::EntityPlaceHolder>();

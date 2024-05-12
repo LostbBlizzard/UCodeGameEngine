@@ -320,83 +320,83 @@ public:
 	const String& NativeName() const { return _Name; }
 
 
-	UCodeLangExport const StringView name() const { return _Name; }
-	UCodeLangExport void name(StringView Value) { _Name = Value; }
+	UCodeLangExport const StringView Name() const { return _Name; }
+	UCodeLangExport void Name(StringView Value) { _Name = Value; }
 
 
-	UCodeLangExport Vec3& localposition()
+	UCodeLangExport Vec3& LocalPosition()
 	{
 		return  _LocalPosition;
 	}
-	UCodeLangExport const Vec3& ilocalposition() const
+	UCodeLangExport void LocalPosition(const Vec3& value)
 	{
-		return  _LocalPosition;
+		_LocalPosition = value;
 	}
 
-	UCodeLangExport Vec2& localposition2d()
-	{
-		return  *(Vec2*)&_LocalPosition;
-	}
-	UCodeLangExport const Vec2& ilocalposition2d() const
+	UCodeLangExport Vec2 LocalPosition2D() const
 	{
 		return  *(Vec2*)&_LocalPosition;
 	}
+	UCodeLangExport void LocalPosition2D(const Vec2& value)
+	{
+		*(Vec2*)&_LocalPosition = value;
+	}
 
-	UCodeLangExport Vec3& localrotation()
+	UCodeLangExport Vec3 LocalRotation() const
 	{
 		return  _LocalRotation;
 	}
-	UCodeLangExport const Vec3& ilocalrotation() const
+	UCodeLangExport void LocalRotation(const Vec3& value)
 	{
-		return  _LocalRotation;
+		_LocalRotation = value;
 	}
 
-	UCodeLangExport Vec2& localrotation2d()
-	{
-		return  *(Vec2*)&_LocalRotation;
-	}
-	UCodeLangExport const Vec2& ilocalrotation2d() const
+	UCodeLangExport Vec2 LocalRotation2D() const
 	{
 		return  *(Vec2*)&_LocalRotation;
 	}
+	UCodeLangExport void LocalRotation2D(const Vec2& value) 
+	{
+		*(Vec2*)&_LocalRotation = value;
+	}	
 
-	UCodeLangExport Vec3& localscale()
+	UCodeLangExport void LocalScale(const Vec3& value)
+	{
+		_LocalScale = value;
+	}
+	UCodeLangExport Vec3 LocalScale() const
 	{
 		return  _LocalScale;
 	}
-	UCodeLangExport const Vec3& ilocalscale() const
-	{
-		return  _LocalScale;
-	}
 
-	UCodeLangExport Vec2& localscale2d()
+	UCodeLangExport void LocalScale2D(const Vec2 value)
 	{
-		return  *(Vec2*)&_LocalScale;
+		*(Vec2*)&_LocalScale = value;
 	}
-	UCodeLangExport const Vec2& ilocalscale2d() const
+	UCodeLangExport Vec2 LocalScale2D() const
 	{
 		return  *(Vec2*)&_LocalScale;
 	}
 
 
 
-	UCodeLangExport Vec3 worldposition() const;
-	UCodeLangExport Vec2 worldposition2d() const;
+	UCodeLangExport Vec3 WorldPosition() const;
+	UCodeLangExport Vec2 WorldPosition2D() const;
 
-	UCodeLangExport Vec3 worldrotation() const;
-	UCodeLangExport Vec2 worldrotation2d() const;
+	UCodeLangExport Vec3 WorldRotation() const;
+	UCodeLangExport Vec2 WorldRotation2D() const;
 
-	UCodeLangExport Vec3 worldscale() const;
-	UCodeLangExport Vec2 worldscale2d() const;
+	UCodeLangExport Vec3 WorldScale() const;
+	UCodeLangExport Vec2 WorldScale2D() const;
 
-	UCodeLangExport void worldposition(const Vec3& Value);
-	UCodeLangExport void worldposition(const Vec2& Value);
+	UCodeLangExport void WorldPosition(const Vec3& Value);
+	UCodeLangExport void WorldPosition2D(const Vec2& Value);
 
-	UCodeLangExport void worldrotation(const Vec3& Value);
-	UCodeLangExport void worldrotation(const Vec2& Value);
+	UCodeLangExport void WorldRotation(const Vec3& Value);
+	UCodeLangExport void WorldRotation2D(const Vec2& Value);
 
-	UCodeLangExport void worldscale(const Vec3& Value);
-	UCodeLangExport void worldscale(const Vec2& Value);
+	UCodeLangExport void WorldScale(const Vec3& Value);
+	UCodeLangExport void WorldScale2D(const Vec2& Value);
 
 	UCodeGEForceinlne const auto NativeParent() const
 	{
@@ -406,6 +406,31 @@ public:
 	UCodeGEForceinlne auto NativeParent()
 	{
 		return   _ParentEntity;
+	}
+
+	UCodeGEForceinlne auto& NativeLocalPosition()
+	{
+		return   _LocalPosition;
+	}
+	UCodeGEForceinlne auto& NativeLocalPosition() const
+	{
+		return   _LocalPosition;
+	}
+	UCodeGEForceinlne auto& NativeLocalRotation()
+	{
+		return   _LocalRotation;
+	}
+	UCodeGEForceinlne auto& NativeLocalRotation() const
+	{
+		return  _LocalRotation;
+	}
+	UCodeGEForceinlne auto& NativeLocalScale()
+	{
+		return  _LocalScale;
+	}
+	UCodeGEForceinlne auto& NativeLocalScale() const
+	{
+		return  _LocalScale;
 	}
 private:
 	RunTimeScene* _Scene = nullptr;

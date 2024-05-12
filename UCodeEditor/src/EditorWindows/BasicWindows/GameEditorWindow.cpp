@@ -301,7 +301,7 @@ void GameEditorWindow::SceneCameraGetInputs(SceneEditorTabData& data)
 
     //
 
-    auto& Pos = _SceneCamera->NativeEntity()->localposition();
+    auto& Pos = _SceneCamera->NativeEntity()->NativeLocalPosition();
     Pos = CamPos;
 
 
@@ -312,7 +312,7 @@ void GameEditorWindow::SetPrefabMode(UC::EntityPtr prefab,PrefabModeData&& data)
 {
     _PrefabMode = prefab;
     _PrefabModeData = std::move(data);
-    PrefabSceneData._SceneCameraData._Pos = prefab.Get_Value()->localposition();
+    PrefabSceneData._SceneCameraData._Pos = prefab.Get_Value()->NativeLocalPosition();
     PrefabSceneData._GameRuntimeRef = prefab.Get_Value()->NativeScene()->Get_RunTime();
 }
 void GameEditorWindow::SceneEditorTab()
@@ -370,9 +370,9 @@ void GameEditorWindow::SceneEditor(SceneEditorTabData& data)
         {
             auto Entity = SelectedObject.Get_Value();
 
-            auto pos = Entity->worldposition();
-            auto rot = Entity->worldrotation();
-            auto scl = Entity->worldscale();
+            auto pos = Entity->WorldPosition();
+            auto rot = Entity->WorldRotation();
+            auto scl = Entity->WorldScale();
 
 
             UCode::Mat4 matrix;
@@ -436,9 +436,9 @@ void GameEditorWindow::SceneEditor(SceneEditorTabData& data)
             if (updated)
             {
                 ImGuizmo::DecomposeMatrixToComponents(matrixfptr, &pos.X, &rot.X, &scl.X);
-                Entity->localposition() = pos;
-                Entity->localrotation() = rot;
-                Entity->localscale() = scl;
+                Entity->WorldPosition(pos);
+                Entity->WorldRotation(rot);
+                Entity->WorldScale(scl);
             }
         }
     }
@@ -449,7 +449,7 @@ void GameEditorWindow::SceneEditor(SceneEditorTabData& data)
             {
                 if (Item->GetCompent<UCode::Camera2d>())
                 {
-                    UCode::RenderRunTime2d::DrawQuad2dData data = { Item->localposition2d(),{1,1},{0,90} };
+                    UCode::RenderRunTime2d::DrawQuad2dData data = { Item->WorldPosition2D(),{1,1},{0,90} };
                     data.color.A = 0.05f;
                     // data.Spr = AppFiles::GetSprite(AppFiles::sprite::Scene2dData);
                     runtime->DrawQuad2d(data);
@@ -979,7 +979,7 @@ void GameEditorWindow::ShowScene(SceneEditorTabData& data,UCode::RunTimeScene* I
             {
                 UCode::Entity* e = Item->NewEntity();
                 e->NativeName() = UnNamedEntity;
-                e->worldposition(data._SceneCameraData._Pos);
+                e->WorldPosition(data._SceneCameraData._Pos);
             }
             else
             {
@@ -1033,7 +1033,7 @@ void GameEditorWindow::ShowScene(SceneEditorTabData& data,UCode::RunTimeScene* I
             {
                 UCode::Entity* e = Item->NewEntity();
                 e->NativeName() = UnNamedEntity;
-                e->worldposition(data._SceneCameraData._Pos);
+                e->WorldPosition(data._SceneCameraData._Pos);
             }
             else
             {
@@ -1472,7 +1472,7 @@ void GameEditorWindow::ShowEntityData(SceneEditorTabData& data,UCode::Entity* It
         {
             if (ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl))
             {
-                data._SceneCameraData._Pos = Item->worldposition();
+                data._SceneCameraData._Pos = Item->WorldPosition();
             }
             else 
             {
@@ -1545,7 +1545,7 @@ void GameEditorWindow::ShowEntityData(SceneEditorTabData& data,UCode::Entity* It
         keybindstring = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
         if (ImGui::MenuItem("Set Scene Camera To", keybindstring.c_str()) || (ImGui::IsKeyDown(ImGuiKey::ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
         {
-            data._SceneCameraData._Pos = Item->worldposition();
+            data._SceneCameraData._Pos = Item->WorldPosition();
             ImGui::CloseCurrentPopup();
         }
 

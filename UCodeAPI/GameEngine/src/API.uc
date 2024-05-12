@@ -21,42 +21,48 @@ UCodeGameEngine:
    export extern dynamic |active[this&] -> bool&;
    export extern dynamic |iactive[this&] -> imut bool&;
    export extern dynamic |Destroy[this&] -> void;
-   export extern dynamic |name[this&] -> imut StringSpan;
-   export |name[this&,StringSpan Value] => Internal::Entity__name0(this,Value);
-   export extern dynamic |localposition[this&] -> Vec3&;
-   export extern dynamic |ilocalposition[this&] -> imut Vec3&;
-   export extern dynamic |localposition2d[this&] -> Vec2&;
-   export extern dynamic |ilocalposition2d[this&] -> imut Vec2&;
-   export extern dynamic |localrotation[this&] -> Vec3&;
-   export extern dynamic |ilocalrotation[this&] -> imut Vec3&;
-   export extern dynamic |localrotation2d[this&] -> Vec2&;
-   export extern dynamic |ilocalrotation2d[this&] -> imut Vec2&;
-   export extern dynamic |localscale[this&] -> Vec3&;
-   export extern dynamic |ilocalscale[this&] -> imut Vec3&;
-   export extern dynamic |localscale2d[this&] -> Vec2&;
-   export extern dynamic |ilocalscale2d[this&] -> imut Vec2&;
-   export extern dynamic |worldposition[this&] -> Vec3;
-   export extern dynamic |worldposition2d[this&] -> Vec2;
-   export extern dynamic |worldrotation[this&] -> Vec3;
-   export extern dynamic |worldrotation2d[this&] -> Vec2;
-   export extern dynamic |worldscale[this&] -> Vec3;
-   export extern dynamic |worldscale2d[this&] -> Vec2;
-   export |worldposition[this&,imut Vec3& Value] => Internal::Entity__worldposition0(this,Value);
-   export |worldposition[this&,imut Vec2& Value] => Internal::Entity__worldposition1(this,Value);
-   export |worldrotation[this&,imut Vec3& Value] => Internal::Entity__worldrotation0(this,Value);
-   export |worldrotation[this&,imut Vec2& Value] => Internal::Entity__worldrotation1(this,Value);
-   export |worldscale[this&,imut Vec3& Value] => Internal::Entity__worldscale0(this,Value);
-   export |worldscale[this&,imut Vec2& Value] => Internal::Entity__worldscale1(this,Value);
+   export extern dynamic |Name[this&] -> imut StringSpan;
+   export |Name[this&,StringSpan Value] => Internal::Entity__Name0(this,Value);
+   export extern dynamic |LocalPosition[this&] -> Vec3&;
+   export |LocalPosition[this&,imut Vec3& value] => Internal::Entity__LocalPosition0(this,value);
+   export extern dynamic |LocalPosition2D[this&] -> Vec2;
+   export |LocalPosition2D[this&,imut Vec2& value] => Internal::Entity__LocalPosition2D0(this,value);
+   export extern dynamic |LocalRotation[this&] -> Vec3;
+   export |LocalRotation[this&,imut Vec3& value] => Internal::Entity__LocalRotation0(this,value);
+   export extern dynamic |LocalRotation2D[this&] -> Vec2;
+   export |LocalRotation2D[this&,imut Vec2& value] => Internal::Entity__LocalRotation2D0(this,value);
+   export extern dynamic |LocalScale[this&,imut Vec3& value] -> void;
+   export |LocalScale[this&] => Internal::Entity__LocalScale0(this);
+   export extern dynamic |LocalScale2D[this&,imut Vec2 value] -> void;
+   export |LocalScale2D[this&] => Internal::Entity__LocalScale2D0(this);
+   export extern dynamic |WorldPosition[this&] -> Vec3;
+   export extern dynamic |WorldPosition2D[this&] -> Vec2;
+   export extern dynamic |WorldRotation[this&] -> Vec3;
+   export extern dynamic |WorldRotation2D[this&] -> Vec2;
+   export extern dynamic |WorldScale[this&] -> Vec3;
+   export extern dynamic |WorldScale2D[this&] -> Vec2;
+   export |WorldPosition[this&,imut Vec3& Value] => Internal::Entity__WorldPosition0(this,Value);
+   export |WorldPosition2D[this&,imut Vec2& Value] => Internal::Entity__WorldPosition2D0(this,Value);
+   export |WorldRotation[this&,imut Vec3& Value] => Internal::Entity__WorldRotation0(this,Value);
+   export |WorldRotation2D[this&,imut Vec2& Value] => Internal::Entity__WorldRotation2D0(this,Value);
+   export |WorldScale[this&,imut Vec3& Value] => Internal::Entity__WorldScale0(this,Value);
+   export |WorldScale2D[this&,imut Vec2& Value] => Internal::Entity__WorldScale2D0(this,Value);
 
 
 UCodeGameEngine::Internal:
-  extern dynamic |Entity__name0[Entity&,StringSpan Value] -> void;
-  extern dynamic |Entity__worldposition0[Entity&,imut Vec3& Value] -> void;
-  extern dynamic |Entity__worldposition1[Entity&,imut Vec2& Value] -> void;
-  extern dynamic |Entity__worldrotation0[Entity&,imut Vec3& Value] -> void;
-  extern dynamic |Entity__worldrotation1[Entity&,imut Vec2& Value] -> void;
-  extern dynamic |Entity__worldscale0[Entity&,imut Vec3& Value] -> void;
-  extern dynamic |Entity__worldscale1[Entity&,imut Vec2& Value] -> void;
+  extern dynamic |Entity__Name0[Entity&,StringSpan Value] -> void;
+  extern dynamic |Entity__LocalPosition0[Entity&,imut Vec3& value] -> void;
+  extern dynamic |Entity__LocalPosition2D0[Entity&,imut Vec2& value] -> void;
+  extern dynamic |Entity__LocalRotation0[Entity&,imut Vec3& value] -> void;
+  extern dynamic |Entity__LocalRotation2D0[Entity&,imut Vec2& value] -> void;
+  extern dynamic |Entity__LocalScale0[Entity&] -> Vec3;
+  extern dynamic |Entity__LocalScale2D0[Entity&] -> Vec2;
+  extern dynamic |Entity__WorldPosition0[Entity&,imut Vec3& Value] -> void;
+  extern dynamic |Entity__WorldPosition2D0[Entity&,imut Vec2& Value] -> void;
+  extern dynamic |Entity__WorldRotation0[Entity&,imut Vec3& Value] -> void;
+  extern dynamic |Entity__WorldRotation2D0[Entity&,imut Vec2& Value] -> void;
+  extern dynamic |Entity__WorldScale0[Entity&,imut Vec3& Value] -> void;
+  extern dynamic |Entity__WorldScale2D0[Entity&,imut Vec2& Value] -> void;
 
 
 //InputManger.hpp
@@ -76,6 +82,10 @@ UCodeGameEngine:
    Enter,
    BackSpace,
    Delete,
+   ForwardSlash,
+   BackSlash,
+   Dot,
+   Comma,
    /*Other*/
    RightArrow,
    LeftArrow,
