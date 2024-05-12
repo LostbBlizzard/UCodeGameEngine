@@ -8,8 +8,7 @@ namespace YAML
 
 EditorStart
 
-	bool
-	TextureData::WriteToFile(const Path &Path, const TextureData &Data, USerializerType type)
+bool TextureData::WriteToFile(const Path& Path, const TextureData& Data, USerializerType type)
 {
 	auto File = std::ofstream(Path);
 	if (File.is_open())
@@ -34,13 +33,11 @@ void TextureData::ToBits(USerializer &output, const TextureData &Data)
 
 bool TextureData::ReadFromFile(const Path &Path, TextureData &Data)
 {
-	std::ifstream File(Path);
-	if (File.is_open())
+	UDeserializer input;
+	if (UDeserializer::FromFile(Path, input)) 
 	{
-		UDeserializer input;
 		FromBits(input, Data);
 
-		File.close();
 		return true;
 	}
 	return false;

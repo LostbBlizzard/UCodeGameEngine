@@ -3,44 +3,53 @@ CoreStart
 RawEntityData::RawEntityData()
 {
 }
-RawEntityData::RawEntityData(const UID& id,const UCode::Entity* Entity) :_Data(),_UID(id)
+RawEntityData::RawEntityData(const UID& id,const UCode::Entity* Entity,USerializerType type) :_Data(),_UID(id)
 {
-	UCode::Scene2dData::SaveEntityData(Entity, _Data);
+	UCode::Scene2dData::SaveEntityData(Entity, _Data,type);
 }
 
 RawEntityData::RawEntityData(const UID& id,const UCode::Scene2dData::Entity_Data& Entity):_Data(Entity),_UID(id)
 {
 }
 
-bool RawEntityData::WriteToFile(const Path&  Path, const RawEntityData& Data)
+bool RawEntityData::WriteToFile(const Path&  Path, const RawEntityData& Data,USerializerType type)
 {
-	std::ofstream File(Path);
-	if (File.is_open()) {
-		YAML::Emitter Node(File);
-
-		Node << YAML::BeginMap;
-		Node << YAML::Key << "_UID" << YAML::Value << Data._UID;
-		Node << YAML::Key << "_Data" << YAML::Value << Data._Data;
-		Node << YAML::EndMap;
-		File.close();
-		return true;
-	}
-	return false;
-}
-bool RawEntityData::ReadFromFile(const Path&  Path, RawEntityData& Data)
-{
-	std::ifstream File(Path);
+	auto File = std::ofstream(Path);
 	if (File.is_open())
 	{
-		YAML::Node Node(YAML::Load(File));
+		USerializer output(type);
 
-		Data._UID = Node["_UID"].as<UID>();
-		Data._Data = Node["_Data"].as<UCode::Scene2dData::Entity_Data>();
-		
+		ToBits(output, Data);
+		//
+		output.ToStream(File, true);
+
 		File.close();
 		return true;
 	}
 	return false;
 }
+bool RawEntityData::ReadFromFile(const Path& Path, RawEntityData& Data)
+{
+	UDeserializer input;
+	if (UDeserializer::FromFile(Path, input)) 
+	{
+		FromBits(input, Data);
+
+		return true;
+	}
+	return false;
+}
+void RawEntityData::ToBits(USerializer& output, const RawEntityData& Data)
+{
+	output.Write("_UID", Data._UID);
+	output.Write("_Data", Data._Data);
+}
+void RawEntityData::FromBits(UDeserializer& input, RawEntityData& Data)
+{
+	input.ReadType("_UID", Data._UID);
+	input.ReadType("_Data", Data._Data);
+}
+
+
 CoreEnd
 

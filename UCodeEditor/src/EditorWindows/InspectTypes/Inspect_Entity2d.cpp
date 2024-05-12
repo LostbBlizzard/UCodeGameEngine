@@ -108,59 +108,62 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
     {
         if (Is2D)
         {
+            /*
             Draw.Vec2Field("Local Position", item->localposition2d());
             Draw.Vec2Field("Local Rotation", item->localrotation2d());
             Draw.Vec2Field("Local Scale", item->localscale2d());
+            */
 
-            ImGui::Separator();
+            //ImGui::Separator();
 
 
             Vec2 Tep = item->worldposition2d();
 
-            if (Draw.Vec2Field("World Position", Tep))
+            if (Draw.Vec2Field("Position", Tep))
             {
                 item->worldposition(Tep);
             }
 
             Tep = item->worldrotation2d();
 
-            if (Draw.Vec2Field("World Rotation", Tep))
+            if (Draw.Vec2Field("Rotation", Tep))
             {
                 item->worldrotation(Tep);
             }
 
             Tep = item->worldscale2d();
-            if (Draw.Vec2Field("World Scale", Tep))
+            if (Draw.Vec2Field("Scale", Tep))
             {
                 item->worldscale(Tep);
             }
         }
         else
         {
+            /*
             Draw.Vec3Field("Local Position", item->localposition());
             Draw.Vec3Field("Local Rotation", item->localrotation());
             Draw.Vec3Field("Local Scale", item->localscale());
 
             ImGui::Separator();
-
+             */
 
             Vec3 Tep = item->worldposition();
 
-            if (Draw.Vec3Field("World Position", Tep))
+            if (Draw.Vec3Field("Position", Tep))
             {
                 item->worldposition(Tep);
             }
 
             Tep = item->worldrotation();
 
-            if (Draw.Vec3Field("World Rotation", Tep))
+            if (Draw.Vec3Field("Rotation", Tep))
             {
                 item->worldrotation(Tep);
             }
 
             Tep = item->worldscale();
 
-            if (Draw.Vec3Field("World Scale",Tep))
+            if (Draw.Vec3Field("Scale",Tep))
             {
                 item->worldscale(Tep);
             }

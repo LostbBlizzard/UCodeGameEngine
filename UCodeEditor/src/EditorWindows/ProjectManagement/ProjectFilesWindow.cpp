@@ -609,13 +609,15 @@ void ProjectFilesWindow::UpdateWindow()
                     const UCode::Entity* DropItem = *(UCode::Entity**)payload->Data;
                     if (payload->IsDelivery())
                     {
-                        UC::RawEntityData Data(Get_App()->Get_RunTimeProjectData()->GetNewUID(), DropItem);
+                        auto run = Get_App()->Get_RunTimeProjectData();
+                        auto SaveType = run->Get_ProjData()._SerializeType;
+                        UC::RawEntityData Data(run->GetNewUID(), DropItem,SaveType);
 
                         const String EntityName = DropItem->NativeName().size() ? DropItem->NativeName() : UnNamedEntity;
 
                         Path path = FileHelper::GetNewFileName(Path(_LookingAtDir.value().native() + Path(EntityName).native()), Path(UC::RawEntityData::FileExtDot));
 
-                        UC::RawEntityData::WriteToFile(path, Data);
+                        UC::RawEntityData::WriteToFile(path, Data,SaveType);
                         UpdateDir();
                     }
 
@@ -891,12 +893,13 @@ void ProjectFilesWindow::ShowDirButtionsPaste()
                     auto e = p.Get_Value();
 
                     auto newid = Get_App()->Get_RunTimeProjectData()->GetNewUID();
+                    auto serializertype = Get_App()->Get_RunTimeProjectData()->Get_ProjData()._SerializeType;
                     UC::RawEntityData data;
-                    UCode::Scene2dData::SaveEntityData(e, data._Data, UCode::USerializerType::YAML);
+                    UCode::Scene2dData::SaveEntityData(e, data._Data, serializertype);
                     data._UID = newid;
 
                     auto path = FileHelper::GetNewFileName(_LookingAtDir.value() / e->name(), UC::RawEntityData::FileExtDot);
-                    UC::RawEntityData::WriteToFile(path, data);
+                    UC::RawEntityData::WriteToFile(path, data,serializertype);
 
 
                     auto placeholder = e->AddCompoent<UC::EntityPlaceHolder>();
