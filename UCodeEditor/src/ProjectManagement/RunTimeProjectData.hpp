@@ -1,6 +1,5 @@
 #pragma once
 #include "ProjectData.hpp"
-#include <EditorWindows/OtherTypes/ImageData.hpp>
 
 #include <Typedefs.hpp>
 #include <UCodeRunTime/UDefs.hpp>

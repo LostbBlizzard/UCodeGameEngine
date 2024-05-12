@@ -634,7 +634,7 @@ public:
 					{
 
 						auto teptex = new UCode::Texture();
-						teptex->SetTexture(BytesView::Make(Bits.data(), Bits.size()));
+						teptex->SetTexture(UC::PngDataSpan(BytesView::Make(Bits.data(), Bits.size())));
 
 
 						return Unique_ptr<UCode::Texture>(teptex);
@@ -1306,7 +1306,10 @@ public:
 	}
 };
 
-
+UC::ImageData RenderFrame(UC::Camera2d* Cam,UC::RunTimeScene* scene)
+{
+	return UC::ImageData();
+}
 class EntityAssetFile :public UEditorAssetFileData
 {
 public:
@@ -1336,6 +1339,9 @@ public:
 		UC::RawEntityDataAsset _asset;
 		UC::EntityPtr _entity;
 		Vector<Byte> _assetasbytes;
+		Optional<UC::Texture> _Thumbnail;
+		Optional<UC::Sprite> _ThumbnailSprite;
+
 		UC::RunTimeScene* GetTepScene()
 		{
 			static UC::GameRunTime _tepRunTime = UC::GameRunTime(EditorAppCompoent::GetCurrentEditorAppCompoent()->GetGameRunTime()->Get_LibraryRef());
@@ -1369,11 +1375,32 @@ public:
 			if (UC::RawEntityData::ReadFromFile(FileFullPath, _asset._Base)) 
 			{
 				_assetasbytes = GetAssetAsBytes(_asset._Base._Data);
+				LoadThumbnail();
 			}
 			else
 			{
 				UCodeGEError("Unable to Open/Parse " << FileFullPath);
 			}
+		}
+
+		void LoadThumbnail()
+		{
+			_ThumbnailSprite = {};
+			_Thumbnail = {};
+
+			auto baseentity = GetAsEntity();
+			auto scene = baseentity->NativeScene();
+
+
+			auto newentity = scene->NewEntity();
+			UC::Camera2d* run = newentity->AddCompoent<UC::Camera2d>();
+
+			newentity->WorldPosition2D(baseentity->WorldPosition2D());
+
+			RenderFrame(run, scene);
+
+			newentity->Destroy();
+			scene->Get_RunTime()->DestroyNullScenes();
 		}
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override
 		{
@@ -1381,7 +1408,16 @@ public:
 		}
 		bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override
 		{
-			UCode::Sprite* thumbnail = AppFiles::GetSprite(AppFiles::sprite::RawEntityData);
+			UCode::Sprite* thumbnail = nullptr;
+
+			if (_ThumbnailSprite.has_value()) 
+			{
+				thumbnail = &_ThumbnailSprite.value();
+			}
+			else
+			{
+				thumbnail = AppFiles::GetSprite(AppFiles::sprite::RawEntityData);
+			}
 			bool r = ImGuIHelper::ImageButton(Item.ObjectPtr, thumbnail, *(ImVec2*)&Item.ButtionSize);
 
 
@@ -1544,44 +1580,44 @@ public:
 				auto Draw = *Item.Drawer;
 				if (Is2D)
 				{
-					Vec2 Tep = entity->worldposition2d();
-					Vec2 Tep1 = entity->worldrotation2d();
-					Vec2 Tep2 = entity->worldscale2d();
+					Vec2 Tep = entity->WorldPosition2D();
+					Vec2 Tep1 = entity->WorldRotation2D();
+					Vec2 Tep2 = entity->WorldScale2D();
 
 					if (Draw.Vec2Field("Position", Tep))
 					{
-						entity->worldposition(Tep);
+						entity->WorldPosition(Tep);
 					}
 
 					if (Draw.Vec2Field("Rotation", Tep1))
 					{
-						entity->worldrotation(Tep1);
+						entity->WorldRotation(Tep1);
 					}
 
 					if (Draw.Vec2Field("Scale", Tep2))
 					{
-						entity->worldscale(Tep2);
+						entity->WorldScale(Tep2);
 					}
 				}
 				else
 				{
-					Vec3 Tep = entity->worldposition();
-					Vec3 Tep1 = entity->worldrotation();
-					Vec3 Tep2 = entity->worldscale();
+					Vec3 Tep = entity->WorldPosition();
+					Vec3 Tep1 = entity->WorldRotation();
+					Vec3 Tep2 = entity->WorldScale();
 
 					if (Draw.Vec3Field("Position", Tep))
 					{
-						entity->worldposition(Tep);
+						entity->WorldPosition(Tep);
 					}
 
 					if (Draw.Vec3Field("Rotation", Tep1))
 					{
-						entity->worldrotation(Tep2);
+						entity->WorldRotation(Tep2);
 					}
 
 					if (Draw.Vec3Field("Scale", Tep2))
 					{
-						entity->worldscale(Tep2);
+						entity->WorldScale(Tep2);
 					}
 				}
 			}
@@ -1620,6 +1656,7 @@ public:
 		{
 			if (UC::RawEntityData::ReadFromFile(FileFullPath, _asset._Base))
 			{
+				LoadThumbnail();
 				if (_entity.Has_Value())
 				{
 					auto e = _entity.Get_Value();

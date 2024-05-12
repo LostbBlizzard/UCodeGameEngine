@@ -204,7 +204,7 @@ bool Project_Hello()
 			runer.OnStart = [&](AppRuner& _this, AppRuner::AppRunerCompoent& run) -> void
 			{
 					playerentity = run.Get_Scene()->Get_Entitys()[0].get();
-					startpos = playerentity->worldposition2d();
+					startpos = playerentity->WorldPosition2D();
 					int a = 0;
 			};
 			runer.OnUpdate = [&](AppRuner& _this, AppRuner::AppRunerCompoent& run) -> void
@@ -215,7 +215,7 @@ bool Project_Hello()
 					time -= run.GetGameRunTime()->Get_GameTime().UpateDelta;
 					if (time <= 0)
 					{
-						_this.RetState = startpos != playerentity->worldposition2d();
+						_this.RetState = startpos != playerentity->WorldPosition2D();
 						_this.CloseApp();
 					}
 					int a = 0;

@@ -166,11 +166,19 @@ AsynTask_t<Unique_ptr<Texture>> AssetRendering::LoadTextureAsync(Gamelibrary* li
 
 			return bytes.MoveToVector();
 		};
-	Delegate<Unique_ptr<Texture>,Vector<Byte>&&> Func2 = [](Vector<Byte>&& Bits) mutable
+	Delegate<Unique_ptr<Texture>,Vector<Byte>&&> Func2 = [ext = path.extension()](Vector<Byte>&& Bits) mutable
 		{
 
 			auto teptex = new Texture();
-			teptex->SetTexture(BytesView::Make(Bits.data(), Bits.size()));
+
+			if (ext == ".png") 
+			{
+				teptex->SetTexture(PngDataSpan(BytesView::Make(Bits.data(), Bits.size())));
+			}
+			else
+			{
+				UCodeGEUnreachable();
+			}
 
 
 			return Unique_ptr<Texture>(teptex);
@@ -200,7 +208,7 @@ AsynTask_t<Unique_ptr<Texture>> AssetRendering::LoadTextureAsync(Gamelibrary* li
 		{
 
 			auto teptex = new Texture();
-			teptex->SetTexture(BytesView::Make(Bits.data(), Bits.size()));
+			teptex->SetTexture(PngDataSpan(BytesView::Make(Bits.data(), Bits.size())));
 
 
 			return Unique_ptr<Texture>(teptex);

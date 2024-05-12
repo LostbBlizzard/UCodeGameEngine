@@ -67,10 +67,10 @@ Texture::Texture(i32 width, i32 height, const Color32* color)
 	InitTexture();
 }
 
-Texture::Texture(const BytesView PngData)
+Texture::Texture(const PngDataSpan PngData)
 	: _RendererID(), _Width(0), _Height(0), _BPP(0), _Buffer(nullptr), _BufferIsInGPU(false), _FilePath(MadewithColor)
 {
-	_Buffer = Unique_array<Byte>(stbi_load_from_memory(PngData.Data(), PngData.Size(), &_Width, &_Height, &_BPP, 4));
+	_Buffer = Unique_array<Byte>(stbi_load_from_memory(PngData.Data.Data(), PngData.Data.Size(), &_Width, &_Height, &_BPP, 4));
 
 	InitTexture();
 }
@@ -121,10 +121,10 @@ Unique_ptr<Texture> Texture::MakeNewNullTexture()
 	return tex;
 }
 
-void Texture::SetTexture(const BytesView PngData)
+void Texture::SetTexture(const PngDataSpan PngData)
 {
 	stbi_set_flip_vertically_on_load(0);
-	_Buffer = Unique_array<Byte>(stbi_load_from_memory(PngData.Data(), PngData.Size(), &_Width, &_Height, &_BPP, 4));
+	_Buffer = Unique_array<Byte>(stbi_load_from_memory(PngData.Data.Data(), PngData.Data.Size(), &_Width, &_Height, &_BPP, 4));
 }
 
 void Texture::UpdateDataToGPU()
@@ -186,7 +186,17 @@ Texture& Texture::operator=(Texture&& source)
 
 	return *this;
 }
+ImageData Texture::GetGPUImageData(i32 Width,i32 Height,GPUTextureID RendererID)
+{
+	ImageData data;
+	data.Width = Width;
+	data.Height = Height;
+	data._ColorData.resize(Width * Height);
 
+	GlCall(glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,data._ColorData.data()))
+
+	return data;
+}
 
 
 

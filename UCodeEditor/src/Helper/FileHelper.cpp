@@ -6,7 +6,6 @@
 
 //File exts
 #include "UCodeRunTime/ULibrarys/AssetManagement/EntityPlaceHolder.hpp"
-#include <EditorWindows/OtherTypes/ImageData.hpp>
 #include "Plugin/UPlugin.hpp"
 #include <EditorWindows/OtherTypes/ColorData.hpp>
 #include <UCodeRunTime/ULibrarys/AssetManagement/SceneData.hpp>
@@ -190,7 +189,6 @@ FileHelper::FileType FileHelper::GetFileType(const String& Ext)
 	else if (Ext == UPlugin::FileExWithDot) { return FileType::UPugin; }
 	else if (Ext == ".dll") { return FileType::Dll_File; }
 	else if (Ext == ColorData::FileExtDot) { return FileType::Color; }
-	else if (Ext == TextureData::FileExtDot) { return FileType::metaFile; }
 	else if (Ext == ".txt") { return FileType::TxtFile; }
 	else if (Ext == ".glsl") { return FileType::glslFile; }
 	else { return FileType::File; }

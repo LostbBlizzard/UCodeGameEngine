@@ -38,15 +38,15 @@ void EntityPlaceHolder::Deserialize(UDeserializer& Serializer)
 			auto& raw = rawop.value();
 
 			auto e = this->NativeEntity();
-			auto oldp = e->localposition();
-			auto olds = e->localscale();
-			auto oldr = e->localrotation();
+			auto oldp = e->NativeLocalPosition();
+			auto olds = e->NativeLocalScale();
+			auto oldr = e->NativeLocalRotation();
 
 			Scene2dData::LoadEntity(e, raw->_Base._Data);
 
-			e->localposition() = oldp;
-			e->localscale() = olds;
-			e->localrotation() = oldr;
+			e->NativeLocalPosition() = oldp;
+			e->NativeLocalScale() = olds;
+			e->NativeLocalRotation() = oldr;
 		}
 	}
 	AppleChanges();

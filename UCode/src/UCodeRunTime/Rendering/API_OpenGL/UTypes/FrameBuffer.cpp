@@ -1,5 +1,6 @@
 #include "FrameBuffer.hpp"
 #include <UCodeRunTime/Rendering/API_OpenGL/OpenGlHelper.hpp>
+#include "Texture.hpp"
 RenderingStart
 FrameBuffer::FrameBuffer(FrameBufferData data):_BufferId(0), _Texture(0),_Data(data)
 {
@@ -25,6 +26,7 @@ void FrameBuffer::UpdateBufferSize(i32 width, i32 heigth)
 	_Data.Height = heigth;
 	UpdateBuffer();
 }
+
 void FrameBuffer::UpdateBuffer()
 {
 	if (_BufferId)
@@ -66,11 +68,9 @@ void FrameBuffer::UpdateBuffer()
 		}
 		UCodeGEError(RenderAPIErrorStartTag " Frame buff is GL_FRAMEBUFFER_InCOMPLETE");
 	}
-	
-
-
-
-
-
+}
+ImageData FrameBuffer::GetGPUImageData() const
+{
+	return Texture::GetGPUImageData(Get_Width(), Get_Height(), _Texture);
 }
 RenderingEnd

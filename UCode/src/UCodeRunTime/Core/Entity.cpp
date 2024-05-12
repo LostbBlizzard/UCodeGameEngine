@@ -116,110 +116,110 @@ void Entity::DestroyCompoents()
 	_Compoents.clear();
 }
 
-Vec3 Entity::worldposition() const
+Vec3 Entity::WorldPosition() const
 {
 	Vec3 R;
 	const Entity* Ptr = this;
 	while (Ptr)
 	{
-		R += Ptr->ilocalposition();
+		R += Ptr->NativeLocalPosition();
 		Ptr = Ptr->NativeParent();
 	}
 	return  R;
 }
-Vec2 Entity::worldposition2d() const
+Vec2 Entity::WorldPosition2D() const
 {
 	Vec2 R;
 	const Entity* Ptr = this;
 	while (Ptr)
 	{
-		R += Ptr->ilocalposition2d();
+		R += Ptr->LocalPosition2D();
 		Ptr = Ptr->NativeParent();
 	}
 	return  R;
 }
-Vec3 Entity::worldrotation() const
+Vec3 Entity::WorldRotation() const
 {
 	Vec3 R;
 	const Entity* Ptr = this;
 	while (Ptr)
 	{
-		R += Ptr->ilocalrotation();
+		R += Ptr->LocalRotation();
 		Ptr = Ptr->NativeParent();
 	}
 	return  R;
 }
 
-Vec2 Entity::worldrotation2d() const
+Vec2 Entity::WorldRotation2D() const
 {
 	Vec2 R;
 	const Entity* Ptr = this;
 	while (Ptr)
 	{
-		R += Ptr->ilocalrotation2d();
+		R += Ptr->LocalRotation2D();
 		Ptr = Ptr->NativeParent();
 	}
 	return  R;
 }
 
-Vec3 Entity::worldscale() const
+Vec3 Entity::WorldScale() const
 {
 	Vec3 R;
 	const Entity* Ptr = this;
 	while (Ptr)
 	{
-		R += Ptr->ilocalscale();
+		R += Ptr->LocalScale();
 		Ptr = Ptr->NativeParent();
 	}
 	return  R;
 }
 
-Vec2 Entity::worldscale2d() const
+Vec2 Entity::WorldScale2D() const
 {
 	Vec2 R;
 	const Entity* Ptr = this;
 	while (Ptr)
 	{
-		R += Ptr->ilocalscale2d();
+		R += Ptr->LocalScale2D();
 		Ptr = Ptr->NativeParent();
 	}
 	return  R;
 }
-void Entity::worldposition(const Vec3& Value)
+void Entity::WorldPosition(const Vec3& Value)
 {
-	auto Pos = worldposition();
+	auto Pos = WorldPosition();
 	auto Offset = Value-Pos;
 	_LocalPosition += Offset;
 }
-void Entity::worldposition(const Vec2& Value)
+void Entity::WorldPosition2D(const Vec2& Value)
 {
-	auto Pos = worldposition2d();
+	auto Pos = WorldPosition2D();
 	auto Offset = Value - Pos;
 	*(Vec2*)&_LocalPosition += Offset;
 }
 
-void Entity::worldrotation(const Vec3& Value)
+void Entity::WorldRotation(const Vec3& Value)
 {
-	auto Pos = worldrotation();
+	auto Pos = WorldRotation();
 	auto Offset = Value - Pos;
 	_LocalRotation += Offset;
 }
-void Entity::worldrotation(const Vec2& Value)
+void Entity::WorldRotation2D(const Vec2& Value)
 {
-	auto Pos = worldrotation2d();
+	auto Pos = WorldRotation2D();
 	auto Offset = Value - Pos;
 	*(Vec2*)&_LocalRotation += Offset;
 }
 
-void Entity::worldscale(const Vec3& Value)
+void Entity::WorldScale(const Vec3& Value)
 {
-	auto Pos =worldposition();
+	auto Pos = WorldScale();
 	auto Offset = Value - Pos;
 	_LocalScale += Offset;
 }
-void Entity::worldscale(const Vec2& Value)
+void Entity::WorldScale2D(const Vec2& Value)
 {
-	auto Pos =worldscale2d();
+	auto Pos = WorldScale2D();
 	auto Offset = Value - Pos;
 	*(Vec2*)&_LocalScale += Offset;
 }

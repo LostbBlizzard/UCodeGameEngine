@@ -2,6 +2,8 @@
 
 #include <UCodeRunTime/ULibrarys/Rendering/RenderingNamespace.hpp>
 #include <UCodeRunTime/BasicTypes.hpp>
+#include "GPUTypeDef.hpp"
+#include "UCodeRunTime/ULibrarys/Rendering/ImageData.hpp"
 RenderingStart
 
 struct FrameBufferData
@@ -23,14 +25,18 @@ public:
 
 	void UpdateBufferSize(i32 width,i32 heigth);
 	void UpdateBuffer();
-	inline u32 Get_TextureId() const { return _Texture; }
-	inline i32 Get_Width() { return _Data.Width; }
-	inline i32 Get_Height() { return _Data.Height; }
-	inline bool Is_SwapChinTarget() { return _Data.SwapChinTarget; }
+
+	inline GPUTextureID Get_TextureId() const { return _Texture; }
+	inline i32 Get_Width() const { return _Data.Width; }
+	inline i32 Get_Height() const  { return _Data.Height; }
+	inline bool Is_SwapChinTarget() const { return _Data.SwapChinTarget; }
+	
 	inline void Set_SwapChinTarget(bool V) { _Data.SwapChinTarget =V; }
+
+	ImageData GetGPUImageData() const;	
 private:
 	u32 _BufferId;
-	u32 _Texture;
+	GPUTextureID _Texture;
 	FrameBufferData _Data;
 };
 RenderingEnd
