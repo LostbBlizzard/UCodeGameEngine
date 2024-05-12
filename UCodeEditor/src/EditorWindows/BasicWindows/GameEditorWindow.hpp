@@ -26,7 +26,8 @@ public:
 	static EditorWindowData GetEditorData();
 
 	
-
+	
+	void SetPrefabMode(UC::EntityPtr prefab);
 private:
 	static EditorWindow* MakeWin(const NewEditorWindowData& windowdata);
 
@@ -52,8 +53,6 @@ private:
 	bool _IsGamePaused = false;
 	
 	GameWindowType _WindowType = GameWindowType::EditorWindow;
-	Unique_ptr<UCode::GameRunTime> _GameRunTime;
-	Unique_ptr<UCode::RenderAPI::Render> _GameRender;
 	bool _IsGameWindowFocused = false, _ShowingGameStats =false;
 	int _ShowingGameStatslocation = 0;
 	Optional<int> _DontWaitInputKey;
@@ -63,8 +62,6 @@ private:
 	Optional<Path> _UseingScenePath;
 	UCode::Scene2dData* _SceneData = nullptr;
 	UCode::RunTimeScene* _SceneDataAsRunTiime = nullptr;
-	UCode::Camera2d* _SceneCamera = nullptr;
-	SceneCameraData _SceneCameraData;
 	ToolBarType _ToolBar = ToolBarType::Select;
 	
 	ImVec2 ImgeVecPos;
@@ -83,7 +80,7 @@ private:
 	UCode::EntityPtr SelectedObject = nullptr;
 	UCode::RunTimeScenePtr SelectedScene = nullptr;
 	Optional<Vector<UCodeLang::ReflectionCustomTypeID>> _PickComponent;
-	
+	UC::EntityPtr _PrefabMode;
 	bool IsSelected(UCode::Entity* Object)
 	{
 		return SelectedObject.Get_Value() == Object;
@@ -108,30 +105,56 @@ private:
 
 		IsRenameing = false;
 	}
+	struct SceneEditorTabData
+	{
+		Unique_ptr<UCode::GameRunTime> _GameRunTime;
+		UCode::GameRunTime* _GameRuntimeRef;
+		Unique_ptr<UCode::RenderAPI::Render> _GameRender;
+		UCode::Camera2d* _SceneCamera = nullptr;
+		SceneCameraData _SceneCameraData;
 
-	void SceneCameraGetInputs();
+		UCode::GameRunTime* GetGameRuntime()
+		{
+			if (_GameRunTime.get())
+			{
+				return _GameRunTime.get();
+			}
+			else
+			{
+				return _GameRuntimeRef;
+			}
+		}
+	};
+
+
+	void SceneCameraGetInputs(SceneEditorTabData& data);
 	void SceneEditorTab();
-	void SceneEditorBar();
+
+	
+	SceneEditorTabData MainSceneData;
+	SceneEditorTabData PrefabSceneData;
+	void SceneEditor(SceneEditorTabData& data);	
+	void SceneEditorBar(SceneEditorTabData& data);
 	static void UpdateRunTimeWindowSize(ImVec2& Viewportsize, UCode::Camera2d* runtime);
-	void UnLoadSceneCamera();
-	void LoadSceneCamera();
+	void UnLoadSceneCamera(SceneEditorTabData& data);
+	void LoadSceneCamera(SceneEditorTabData& data);
 	void ShowSceneDataAddNewScene();
 	void ShowSceneData();
 	void DropSceneFromPath();
 	void PasteInScene(UCode::RunTimeScene* Item);
 	void PasteInEntity(UCode::Entity* Item);
-	void ShowScene(UCode::RunTimeScene* Item);
+	void ShowScene(SceneEditorTabData& data,UCode::RunTimeScene* Item);
 
 	void EntityDestroy(UCode::Entity* Item);
 	void EntityAdd(UCode::Entity* Item, bool AddToChild);
-	void ShowEntityData(UCode::Entity* Item);
+	void ShowEntityData(SceneEditorTabData& data,UCode::Entity* Item);
 	void ShowlibraryBookData(UCode::System* Item);
 	void Scenehierarchy();
 	void InputEmuation();
 	void LoadRunTime();
-	void UnLoadRender();
+	void UnLoadRender(SceneEditorTabData& data);
 	
-	void LoadRender(bool MakeWin);
+	void LoadRender(SceneEditorTabData& data,bool MakeWin);
 	void UnLoadRunTime();
 	
 	void UpdateGame();
