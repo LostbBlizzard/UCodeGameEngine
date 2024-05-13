@@ -7,13 +7,9 @@
 RenderingStart
 
 
-#if UCodeGEDebug
-const static std::string nullstring = "null";
-const static std::string MadewithColor = "madewithColor32";
-#else
-const static std::string nullstring = "";
-const static std::string MadewithColor = "C32";
-#endif // DEBUG
+constexpr const char* nullstring = "";
+constexpr const char* MadewithColor = "C32";
+constexpr const char* PlaceHolderTexture = "_PlaceHolder_";
 
 
 void Texture::InitTexture()
@@ -97,9 +93,8 @@ Texture::~Texture()
 	}
 }
 
-Unique_ptr<Texture> Texture::MakeNewNullTexture()
+Texture Texture::MakeNewNullTexture()
 {
-	#if false 
 	const Color32 NullTexureColorData[]
 	{
 		Color32(),
@@ -107,18 +102,22 @@ Unique_ptr<Texture> Texture::MakeNewNullTexture()
 		Color32(75,0,130),
 		Color32(),
 	};
-	auto tex =std::make_unique<Texture>(2, 2, NullTexureColorData);
-	#else
+	auto tex = Texture(2,2,NullTexureColorData);	 
+	return tex;
+}
+Texture Texture::MakeNewPlaceHolderTexture()
+{
 	const Color32 NullTexureColorData[]
 	{
 		Color32(0,0,0,0),
-	}; 
-	auto tex = std::make_unique<Texture>(1, 1,NullTexureColorData);
-	#endif // DEBUG
-
-	free(tex->_Buffer.release());
-	tex->_Buffer = nullptr;
+	};
+	auto tex = Texture(1, 1,NullTexureColorData);
+	tex._FilePath = PlaceHolderTexture;
 	return tex;
+}
+void Texture::RemovePlaceHolderFlag() 
+{
+	_FilePath = "";
 }
 
 void Texture::SetTexture(const PngDataSpan PngData)
@@ -161,6 +160,13 @@ void Texture::TryUploadTexToGPU()
 		InitTexture();
 	}
 }
+
+bool Texture::IsPlaceHolder() const
+{
+	return _FilePath == PlaceHolderTexture;
+}
+
+
 
 Texture::Texture(Texture&& source)
 {

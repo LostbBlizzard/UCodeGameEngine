@@ -86,6 +86,7 @@ public:
 	struct DrawData
 	{
 		Vector<DrawQuad2dData> Quad2d;
+		bool HasAnyPlaceHolders() const;	
 	}; 
 
 	

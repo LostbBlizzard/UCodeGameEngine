@@ -615,9 +615,7 @@ public:
 					tofile(FileMetaFullPath.value(), setting);
 				}
 
-				const static Color32 colordata = { 0,0,0,0 };
-
-				UCode::TextureAsset V(UCode::Texture(1,1,&colordata));
+				UCode::TextureAsset V(UCode::Texture::MakeNewPlaceHolderTexture());
 				SetupTexture(&V._Base);
 				asset = std::move(V);
 
@@ -1315,6 +1313,39 @@ struct RenderFrameData
 	float CamHeight = 500;
 	float CamOrth = 5;
 };
+
+UC::ImageData RenderFrame(RenderFrameData& Data,UC::RenderRunTime2d::DrawData drawdata,UC::Entity* newentity)
+{
+	UC::Camera2d* Cam = newentity->AddCompoent<UC::Camera2d>();
+	Cam->Set_Ortho_size(Data.CamOrth);
+	Cam->API_Set_WindowSize(Data.CamWidth, Data.CamHeight);
+
+	auto scene = Cam->NativeEntity()->NativeScene();
+	auto ren = UC::RenderRunTime2d::GetRenderRunTime(scene->Get_RunTime());
+	UC::RenderAPI::Render render;
+
+	UC::RenderAPI::WindowData window;
+	window.height = Data.CamWidth;
+	window.width = Data.CamHeight;
+	window.shared_window = glfwGetCurrentContext();
+	window.ImGui_Init = false;
+	window.GenNewWindow = false;
+
+	render.Init(window, scene->Get_RunTime());
+
+	Cam->Get_Buffer().UpdateBufferSize(window.height,window.width);
+
+	render.Draw(drawdata, Cam);
+
+	auto v =Cam->Get_Buffer().GetGPUImageData();
+
+	render.EndRender();
+
+	UC::Compoent::Destroy(Cam);
+	scene->Get_RunTime()->DestroyNullScenes();
+
+	return v;
+}
 UC::ImageData RenderFrame(RenderFrameData& Data,UC::RunTimeScene* scene)
 {
 	auto newentity = scene->NewEntity();
@@ -1452,9 +1483,23 @@ public:
 
 				std::shared_ptr<Delegate<void>> LoopFunc = std::make_shared<Delegate<void>>();
 
-				*LoopFunc = [LoopFunc, this]()
+				
+				auto _tepRunTime = std::make_shared<UC::GameRunTime>(EditorAppCompoent::GetCurrentEditorAppCompoent()->GetGameRunTime()->Get_LibraryRef());
+				UC::RunTimeScene* _tepScene = _tepRunTime->Add_NewScene();
+				UC::Entity* myentity = _tepScene->NewEntity();
+				UC::Scene2dData::LoadEntity(myentity, _asset._Base._Data);
+
+
+				auto ren = UC::RenderRunTime2d::GetRenderRunTime(_tepRunTime.get());
+				ren->UpdateDrawData();
+				auto renderdata = ren->Get_DrawData();
+
+
+
+				*LoopFunc = [LoopFunc, this,renderdata = std::move(renderdata),_tepRunTime = std::move(_tepRunTime),_tepScene,myentity]()
 					{
-						bool issceneloading = true;
+						
+						bool issceneloading = renderdata.HasAnyPlaceHolders();
 						auto lib = EditorAppCompoent::GetCurrentEditorAppCompoent()->GetGameRunTime()->Get_Library_Edit();
 						UCode::Threads* threads = UCode::Threads::Get(lib);
 
@@ -1464,23 +1509,19 @@ public:
 								{
 									(*LoopFunc)();
 								};
-							threads->AddTask_t(UCode::TaskType::Main, Func, {});
+							threads->AddTask_t(UCode::TaskType::Main, Func, {}).Start();
 							return;
 						}
 
-						Delegate<UC::ImageData> RenderFunc = [this]() -> UC::ImageData
+						Delegate<UC::ImageData> RenderFunc = [this,_tepScene,myentity,renderdata = std::move(renderdata)]() -> UC::ImageData
 							{
-								auto baseentity = GetAsEntity();
-								auto scene = baseentity->NativeScene();
-
-
 								RenderFrameData data;
 								data.CamHeight = 500;
 								data.CamWidth = 500;
-								data.CamPos = baseentity->WorldPosition();
-								data.CamOrth = 5;
+								data.CamPos = myentity->WorldPosition();
+								data.CamOrth = 1;
 
-								return RenderFrame(data, scene);
+								return RenderFrame(data,renderdata, myentity);
 
 							};
 						Delegate<UC::ImageData, UC::ImageData&&> WriteToOutput = [this](UC::ImageData&& val) -> UC::ImageData
@@ -1514,7 +1555,7 @@ public:
 					{
 						(*LoopFunc)();
 					};
-				threads->AddTask_t(UCode::TaskType::Main, Func, {});
+				threads->AddTask_t(UCode::TaskType::Main, Func, {}).Start();
 			}
 			else
 			{
