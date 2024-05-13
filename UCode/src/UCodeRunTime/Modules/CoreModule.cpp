@@ -72,6 +72,10 @@ CoreModule::CoreModule()
 					UCode::Texture b(UCode::PngDataSpan(spanof(scene._TextureData)));
 					b.PixelsPerUnit = scene.PixelPerunit;
 
+					if (!scene.ReadWrite)
+					{
+						b.FreeFromCPU();
+					}
 					Unique_ptr<Asset> v = std::make_unique<TextureAsset>(std::move(b));
 
 					TextureAsset* tex = v->GetAssetAs<TextureAsset>().value().value();

@@ -21,6 +21,7 @@
 #include "Helper/UserSettings.hpp"
 #include "EditorWindows/InspectTypes/Inspect_Entity2d.hpp"
 #include "EditorWindows/BasicWindows/GameEditorWindow.hpp"
+#include "stb_image_write.h"
 EditorStart
 
 
@@ -656,6 +657,8 @@ public:
 					{
 						v.Get_Value()->_Base = std::move(*text.get());
 						IsLoadingTexture = false;
+
+						v.Get_Value()->_Base.FreeFromCPU();
 					}
 				},UC::TaskType::Main).Start();
 			}
@@ -1305,10 +1308,47 @@ public:
 		return {};
 	}
 };
-
-UC::ImageData RenderFrame(UC::Camera2d* Cam,UC::RunTimeScene* scene)
+struct RenderFrameData
 {
-	return UC::ImageData();
+	Vec3 CamPos;
+	float CamWidth = 500;
+	float CamHeight = 500;
+	float CamOrth = 5;
+};
+UC::ImageData RenderFrame(RenderFrameData& Data,UC::RunTimeScene* scene)
+{
+	auto newentity = scene->NewEntity();
+	newentity->WorldPosition(Data.CamPos);
+
+	UC::Camera2d* Cam = newentity->AddCompoent<UC::Camera2d>();
+	Cam->Set_Ortho_size(Data.CamOrth);
+	Cam->API_Set_WindowSize(Data.CamWidth, Data.CamHeight);
+
+	auto ren = UC::RenderRunTime2d::GetRenderRunTime(scene->Get_RunTime());
+	UC::RenderAPI::Render render;
+
+	UC::RenderAPI::WindowData window;
+	window.height = Data.CamWidth;
+	window.width = Data.CamHeight;
+	window.shared_window = glfwGetCurrentContext();
+	window.ImGui_Init = false;
+	window.GenNewWindow = false;
+
+	render.Init(window, scene->Get_RunTime());
+
+	Cam->Get_Buffer().UpdateBufferSize(window.height,window.width);
+	ren->UpdateDrawData();
+
+	render.Draw(ren->Get_DrawData(), Cam);
+
+	auto v =Cam->Get_Buffer().GetGPUImageData();
+
+	render.EndRender();
+
+	newentity->Destroy();
+	scene->Get_RunTime()->DestroyNullScenes();
+
+	return v;
 }
 class EntityAssetFile :public UEditorAssetFileData
 {
@@ -1341,6 +1381,7 @@ public:
 		Vector<Byte> _assetasbytes;
 		Optional<UC::Texture> _Thumbnail;
 		Optional<UC::Sprite> _ThumbnailSprite;
+		bool hascalledloadthumnail = false;
 
 		UC::RunTimeScene* GetTepScene()
 		{
@@ -1375,7 +1416,6 @@ public:
 			if (UC::RawEntityData::ReadFromFile(FileFullPath, _asset._Base)) 
 			{
 				_assetasbytes = GetAssetAsBytes(_asset._Base._Data);
-				LoadThumbnail();
 			}
 			else
 			{
@@ -1383,24 +1423,139 @@ public:
 			}
 		}
 
+		Path ThumbnailPath() 
+		{
+			return TemporaryPath.native() +  Path(".png").native();
+		}
 		void LoadThumbnail()
 		{
-			_ThumbnailSprite = {};
-			_Thumbnail = {};
+			const Path thumbnailpath = ThumbnailPath();
+			bool isoutdataed = true;
+			{
+				if (std::filesystem::exists(thumbnailpath))
+				{
 
-			auto baseentity = GetAsEntity();
-			auto scene = baseentity->NativeScene();
+				}
+			}
+
+			auto lib = EditorAppCompoent::GetCurrentEditorAppCompoent()->GetGameRunTime()->Get_Library_Edit();
+
+			UCode::Threads* threads = UCode::Threads::Get(lib);
+
+			if (isoutdataed)
+			{
+				_ThumbnailSprite = {};
+				_Thumbnail = {};
 
 
-			auto newentity = scene->NewEntity();
-			UC::Camera2d* run = newentity->AddCompoent<UC::Camera2d>();
 
-			newentity->WorldPosition2D(baseentity->WorldPosition2D());
 
-			RenderFrame(run, scene);
+				std::shared_ptr<Delegate<void>> LoopFunc = std::make_shared<Delegate<void>>();
 
-			newentity->Destroy();
-			scene->Get_RunTime()->DestroyNullScenes();
+				*LoopFunc = [LoopFunc, this]()
+					{
+						bool issceneloading = true;
+						auto lib = EditorAppCompoent::GetCurrentEditorAppCompoent()->GetGameRunTime()->Get_Library_Edit();
+						UCode::Threads* threads = UCode::Threads::Get(lib);
+
+						if (issceneloading)
+						{
+							Delegate<void> Func = [LoopFunc]() -> void
+								{
+									(*LoopFunc)();
+								};
+							threads->AddTask_t(UCode::TaskType::Main, Func, {});
+							return;
+						}
+
+						Delegate<UC::ImageData> RenderFunc = [this]() -> UC::ImageData
+							{
+								auto baseentity = GetAsEntity();
+								auto scene = baseentity->NativeScene();
+
+
+								RenderFrameData data;
+								data.CamHeight = 500;
+								data.CamWidth = 500;
+								data.CamPos = baseentity->WorldPosition();
+								data.CamOrth = 5;
+
+								return RenderFrame(data, scene);
+
+							};
+						Delegate<UC::ImageData, UC::ImageData&&> WriteToOutput = [this](UC::ImageData&& val) -> UC::ImageData
+							{
+								const Path thumbnailpath = ThumbnailPath();
+								auto pathstring = thumbnailpath.generic_string();
+
+								constexpr auto CHANNEL_NUM = 4;
+
+
+								std::filesystem::create_directories(thumbnailpath.parent_path());
+								stbi_write_png(pathstring.c_str(), val.Width, val.Height, CHANNEL_NUM, val._ColorData.data(), val.Width * CHANNEL_NUM);
+
+								return val;
+							};
+						Delegate<void, UC::ImageData&&> SetFile = [this](UC::ImageData&& val) -> void
+							{
+								_Thumbnail = UC::Texture(val.Width, val.Height, val._ColorData.data());
+								auto tex = &_Thumbnail.value();
+								_ThumbnailSprite = UC::Sprite(tex, 0, 0, tex->Get_Width(), tex->Get_Height());
+
+								tex->FreeFromCPU();
+							};
+
+						threads->AddTask_t(UCode::TaskType::Rendering, std::move(RenderFunc), {})
+							.ContinueOnThread(UCode::TaskType::File_Output, std::move(WriteToOutput))
+							.ContinueOnMainThread(std::move(SetFile)).Start();
+					};
+				
+				Delegate<void> Func = [LoopFunc]() -> void
+					{
+						(*LoopFunc)();
+					};
+				threads->AddTask_t(UCode::TaskType::Main, Func, {});
+			}
+			else
+			{
+				Delegate<Vector<Byte>> Func = [lib, path = this->FileFullPath]()
+					{
+						UCode::GameFiles* f = UCode::GameFiles::Get(lib);
+						auto bytes = f->ReadFileAsBytes(path);
+
+						return bytes.MoveToVector();
+					};
+				Delegate<Unique_ptr<UCode::Texture>, Vector<Byte>&&> Func2 = [](Vector<Byte>&& Bits) mutable
+					{
+
+						auto teptex = new UCode::Texture();
+						teptex->SetTexture(UC::PngDataSpan(BytesView::Make(Bits.data(), Bits.size())));
+
+
+						return Unique_ptr<UCode::Texture>(teptex);
+					};
+				Delegate<Unique_ptr<UCode::Texture>, Unique_ptr<UCode::Texture>> Func3 = [](Unique_ptr<UCode::Texture>&& Tex) mutable
+					{
+						Tex->InitTexture();
+
+						return std::move(Tex);
+					};
+
+
+				threads->AddTask_t(UCode::TaskType::File_Input, std::move(Func), {})
+					.ContinueOnThread<Unique_ptr<UCode::Texture>>(UCode::TaskType::DataProcessing, std::move(Func2))
+					.ContinueOnThread<Unique_ptr<UCode::Texture>>(UCode::TaskType::Rendering, std::move(Func3))
+					.OnCompletedOnThread([this](Unique_ptr<UC::Texture>& text)
+					{
+						this->_Thumbnail = std::move(*text.get());
+
+						auto tex = &_Thumbnail.value();
+
+						_ThumbnailSprite = UC::Sprite(tex, 0, 0, tex->Get_Width(), tex->Get_Height());
+
+						tex->FreeFromCPU();
+					}, UC::TaskType::Main).Start();
+			}
 		}
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override
 		{
@@ -1409,6 +1564,12 @@ public:
 		bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override
 		{
 			UCode::Sprite* thumbnail = nullptr;
+			
+			if (hascalledloadthumnail == false)
+			{
+				LoadThumbnail();
+				hascalledloadthumnail = true;
+			}
 
 			if (_ThumbnailSprite.has_value()) 
 			{

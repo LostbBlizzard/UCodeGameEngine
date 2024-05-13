@@ -193,6 +193,7 @@ ImageData Texture::GetGPUImageData(i32 Width,i32 Height,GPUTextureID RendererID)
 	data.Height = Height;
 	data._ColorData.resize(Width * Height);
 
+	GlCall(glBindTexture(GL_TEXTURE_2D, RendererID));
 	GlCall(glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,data._ColorData.data()))
 
 	return data;
