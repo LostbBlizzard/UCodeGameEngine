@@ -137,6 +137,7 @@ NullablePtr<ProjectFiles::AssetFile> ProjectFilesWindow::TryLoadAsset(Path fullp
     bool ShowOthers = true;
     bool FoundIt = false;
 
+    auto runprojectrun = Get_App()->Get_RunTimeProjectData();
     auto& ProjectFiles = Get_ProjectFiles();
 
     NullablePtr<ProjectFiles::AssetFile> r;
@@ -157,8 +158,11 @@ NullablePtr<ProjectFiles::AssetFile> ProjectFilesWindow::TryLoadAsset(Path fullp
 
                 if (!B.has_value())
                 {
+                    auto relpath = FileHelper::ToRelativePath(runprojectrun->GetAssetsDir(), fullpath);
+
                     auto Ptr = Data->GetMakeNewAssetFile();
                     Ptr->FileFullPath = fullpath;
+                    Ptr->TemporaryPath = runprojectrun->GetCachedAssetsDir() / relpath;
                     UEditorAssetFileInitContext InitContext;
                     Ptr->Init(InitContext);
 

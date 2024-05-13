@@ -22,6 +22,7 @@ public:
 	UCODE_EDITOR_NODISCARD Path GetSrcDir() const;
 	UCODE_EDITOR_NODISCARD Path GetSrcLibsDir()const ;
 	UCODE_EDITOR_NODISCARD Path GetCachedDir() const;
+	UCODE_EDITOR_NODISCARD Path GetCachedAssetsDir() const;
 	UCODE_EDITOR_NODISCARD Path GetOutDir()const;
 	UCODE_EDITOR_NODISCARD Path GetGameLibDir()const;
 

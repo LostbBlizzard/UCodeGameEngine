@@ -47,11 +47,11 @@ void Scene2dData::SaveScene(const RunTimeScene *Scene, Scene2dData &Out, USerial
 }
 void Scene2dData::SaveEntityData(const Entity* Item, Scene2dData::Entity_Data& Entity, USerializerType type)
 {
-    Entity._LocalPosition = Item->ilocalposition();
-    Entity._LocalRotation = Item->ilocalrotation();
-    Entity._LocalScale = Item->ilocalscale();
+    Entity._LocalPosition = Item->NativeLocalPosition();
+    Entity._LocalRotation = Item->NativeLocalRotation();
+    Entity._LocalScale = Item->NativeLocalScale();
 
-    Entity._Name = Item->name();
+    Entity._Name = Item->NativeName();
         
         
     if (auto v = Item->GetCompent<EntityPlaceHolder>().value_unchecked())
@@ -138,9 +138,9 @@ RunTimeScene *Scene2dData::AsyncLoadScene(GameRunTime *runtime, const Scene2dDat
 }
 void Scene2dData::LoadEntity(Entity *entity, const Entity_Data &Item)
 {
-    entity->localposition() = Item._LocalPosition;
-    entity->localrotation() = Item._LocalRotation;
-    entity->localscale() = Item._LocalScale;
+    entity->NativeLocalPosition() = Item._LocalPosition;
+    entity->NativeLocalRotation() = Item._LocalRotation;
+    entity->NativeLocalScale() = Item._LocalScale;
     entity->NativeName() = Item._Name;
 
     for (const auto &C : Item._Compoents)

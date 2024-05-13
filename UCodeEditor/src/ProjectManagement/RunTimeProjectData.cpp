@@ -101,6 +101,25 @@ Path RunTimeProjectData::GetCachedDir() const
 	
 	return Path;
 }
+
+Path RunTimeProjectData::GetCachedAssetsDir() const
+{
+	auto Path = ProjectManger::GetProjectCachedDir(_ProjDir) / "assets";
+
+	fs::path Path_t = Path;
+
+	if (!fs::exists(Path_t))
+	{
+		if (!fs::create_directories(Path_t))
+		{
+			//idk then
+		}
+	}
+	
+	return Path;
+
+
+}
 Path RunTimeProjectData::GetOutDir() const
 {
 	auto path = ProjectManger::GetProjectCachedDir(_ProjDir).native() + Path("output").native() + Path::preferred_separator;;
