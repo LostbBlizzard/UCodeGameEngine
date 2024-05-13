@@ -136,12 +136,12 @@ UC::Texture *AppFiles::GetTexture(texture tex)
 
         if (Path == nullTexPath)
         {
-            newtext = std::move(UC::Texture::MakeNewNullTexture());
+            newtext = std::make_unique<UC::Texture>(std::move(UC::Texture::MakeNewPlaceHolderTexture()));
         }
         else
         {
-            newtext = std::move(UC::Texture::MakeNewNullTexture());
-            UC::GameFiles *gamefiles = UC::GameFiles::Get(_GameLib);
+            newtext = std::make_unique<UC::Texture>(std::move(UC::Texture::MakeNewPlaceHolderTexture()));
+            UC::GameFiles* gamefiles = UC::GameFiles::Get(_GameLib);
 
             UCodeGEAssert(std::filesystem::exists(AppFilesPathDir + Path));
 
@@ -153,7 +153,7 @@ UC::Texture *AppFiles::GetTexture(texture tex)
                             .ContinueOnMainThread(
                                 [id](Unique_ptr<UC::Texture>&& Val)
                                 {
-                                    *_textures.GetValue(id) =std::move(*Val.release());
+                                    *_textures.GetValue(id) = std::move(*Val.release());
                                     _loadtextures.GetOrAdd(id, true);
 
                                     return std::move(Val);
@@ -192,8 +192,8 @@ AsynTask_t<UC::Texture *> AppFiles::AsynGetTexture(texture tex)
 
         if (Path == nullTexPath)
         {
-            auto Tex = UC::Texture::MakeNewNullTexture();
-            AsynTask_t<UC::Texture *> R;
+            auto Tex = std::make_unique<UC::Texture>(UC::Texture::MakeNewNullTexture());
+            AsynTask_t<UC::Texture*> R;
             R.SetValue(Tex.get());
             _LoadedTextures.push_back(std::move(Tex));
             return R;

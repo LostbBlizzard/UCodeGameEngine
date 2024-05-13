@@ -31,7 +31,10 @@ public:
 	Texture(PngDataSpan PngData);
 	~Texture();
 
-	static Unique_ptr<Texture> MakeNewNullTexture();
+	static Texture MakeNewNullTexture();
+
+	//PlaceHolder when Loading Texture using Threads
+	static Texture MakeNewPlaceHolderTexture();
 
 	Texture(Texture&& source);
 	Texture& operator=(Texture&& source);
@@ -65,6 +68,10 @@ public:
 	{
 		return GetGPUImageData(Get_Width(), Get_Height(), _RendererID.value());
 	}
+
+	//If Texture is being Loaded
+	bool IsPlaceHolder() const;
+	void RemovePlaceHolderFlag();
 
 	u32 PixelsPerUnit = 1;
 private:

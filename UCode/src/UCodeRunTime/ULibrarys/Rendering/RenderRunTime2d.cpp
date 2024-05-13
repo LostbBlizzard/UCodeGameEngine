@@ -82,5 +82,20 @@ void RenderRunTime2d::ReSetStats()
 	DataStats.QuadCount = 0;
 }
 
+bool RenderRunTime2d::DrawData::HasAnyPlaceHolders() const
+{
+	for (auto& Item : Quad2d)
+	{
+		if (Item.Spr)
+		{
+			if (Item.Spr->Get_texture()->IsPlaceHolder())
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
 RenderingEnd
+
 

@@ -69,6 +69,7 @@ CoreModule::CoreModule()
 			
 				if (scene._TextureType == ".png") 
 				{
+					//To Do Load Texture using Threads
 					UCode::Texture b(UCode::PngDataSpan(spanof(scene._TextureData)));
 					b.PixelsPerUnit = scene.PixelPerunit;
 
