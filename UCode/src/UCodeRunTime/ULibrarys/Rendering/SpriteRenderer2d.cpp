@@ -81,7 +81,7 @@ void SpriteRenderer::OnDraw()
 		auto ppu = sp->Get_texture()->PixelsPerUnit;
 
 		size = {(f32)sp->Get_Width(),(f32)sp->Get_Height()};
-		size *= (f32)1/(f32)ppu;
+		size /= (f32)ppu;
 
 		size.X *= Scale.X;	
 		size.Y *= Scale.Y;	
@@ -93,8 +93,7 @@ void SpriteRenderer::OnDraw()
 
 	Vec2 Rotation = Entity->WorldRotation2D();
 	
-	//AssetRendering::DrawQuad2dData Data(pos - Vec2(size.X/2, size.Y/2), size, Rotation);
-	AssetRendering::DrawQuad2dData Data(pos, size, Rotation);
+	AssetRendering::DrawQuad2dData Data(pos - Vec2(0, size.Y), size, Rotation);
 
 	Data.Spr = sprite;
 	Data.color = color;

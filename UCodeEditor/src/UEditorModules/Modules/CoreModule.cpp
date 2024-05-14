@@ -660,10 +660,12 @@ public:
 				{
 					if (v.Has_Value())
 					{
-						v.Get_Value()->_Base = std::move(*text.get());
+						auto& tex = v.Get_Value()->_Base;
+						tex = std::move(*text.get());
+						SetupTexture(&tex);
 						IsLoadingTexture = false;
 
-						v.Get_Value()->_Base.FreeFromCPU();
+						tex.FreeFromCPU();
 					}
 				},UC::TaskType::Main).Start();
 			}
@@ -1487,12 +1489,6 @@ public:
 
 			if (isoutdataed)
 			{
-				_ThumbnailSprite = {};
-				_Thumbnail = {};
-
-
-
-
 				std::shared_ptr<Delegate<void>> LoopFunc = std::make_shared<Delegate<void>>();
 
 				
@@ -1525,18 +1521,20 @@ public:
 							return;
 						}
 
-						Delegate<UC::ImageData> RenderFunc = [this,_tepScene,myentity,renderdata = std::move(renderdata)]() -> UC::ImageData
+						Delegate<UC::ImageData> RenderFunc = [this, _tepScene, myentity, _tepRunTime]() -> UC::ImageData
 							{
-								myentity->NativeLocalPosition() -= {0, 1, 0};
-							
 								RenderFrameData data;
 								data.CamHeight = 500;
 								data.CamWidth = 500;
 								data.CamPos = myentity->WorldPosition();
 								data.CamOrth = 1;
 
-								return RenderFrame(data,renderdata, myentity);
+								auto ren = UC::RenderRunTime2d::GetRenderRunTime(_tepRunTime.get());
+								ren->UpdateDrawData();//We need UpdateDrawData because of how SpriteRenderer2d PixelsPerUnit Work Right now.
+								auto renderdata = ren->Get_DrawData();
 
+
+								return RenderFrame(data, renderdata, myentity);
 							};
 						Delegate<UC::ImageData, UC::ImageData&&> WriteToOutput = [this](UC::ImageData&& val) -> UC::ImageData
 							{
@@ -1625,14 +1623,14 @@ public:
 		bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override
 		{
 			UCode::Sprite* thumbnail = nullptr;
-			
+
 			if (hascalledloadthumnail == false)
 			{
 				LoadThumbnail();
 				hascalledloadthumnail = true;
 			}
 
-			if (_ThumbnailSprite.has_value()) 
+			if (_ThumbnailSprite.has_value())
 			{
 				thumbnail = &_ThumbnailSprite.value();
 			}
@@ -1640,9 +1638,12 @@ public:
 			{
 				thumbnail = AppFiles::GetSprite(AppFiles::sprite::RawEntityData);
 			}
+
+			auto predrawpos = ImGui::GetCursorPos();
+
 			bool r = ImGuIHelper::ImageButton(Item.ObjectPtr, thumbnail, *(ImVec2*)&Item.ButtionSize);
 
-
+			auto postdrawpos = ImGui::GetCursorPos();
 
 			if (ImGui::BeginDragDropSource())
 			{
@@ -1675,7 +1676,23 @@ public:
 
 				ImGui::EndDragDropSource();
 			}
+			
+			if (_Thumbnail.has_value())
+			{
+				auto imagescale = 3;
+				auto minimagesize = Item.ButtionSize / imagescale;
+				auto predrawasucode = Vec2(predrawpos.x, predrawpos.y);
 
+				auto newcursorpos = predrawasucode;
+				newcursorpos += {Item.ButtionSize.X - (minimagesize.X / 2), 0};
+
+				ImGui::SetCursorPos(ImVec2(newcursorpos.X, newcursorpos.Y));
+
+				ImGuIHelper::Image(AppFiles::sprite::RawEntityData, *(ImVec2*)&minimagesize);
+
+				ImGui::SetCursorPos(postdrawpos);
+			}
+			
 			return r;
 		}
 		USerializerType GetSerializerTypeForAsset()
@@ -1878,7 +1895,7 @@ public:
 		{
 			if (UC::RawEntityData::ReadFromFile(FileFullPath, _asset._Base))
 			{
-				LoadThumbnail();
+				hascalledloadthumnail = false;
 				if (_entity.Has_Value())
 				{
 					auto e = _entity.Get_Value();
