@@ -1515,6 +1515,8 @@ public:
 
 						Delegate<UC::ImageData> RenderFunc = [this,_tepScene,myentity,renderdata = std::move(renderdata)]() -> UC::ImageData
 							{
+								myentity->NativeLocalPosition() -= {0, 1, 0};
+							
 								RenderFrameData data;
 								data.CamHeight = 500;
 								data.CamWidth = 500;
@@ -1531,10 +1533,13 @@ public:
 
 								constexpr auto CHANNEL_NUM = 4;
 
+								#if UCodeGEOpenGL
+								//OpenGl Textures are unside down.
+								UC::Texture::FlipImageVertically(val.Width, val.Height, val._ColorData.data());
+								#endif
 
 								std::filesystem::create_directories(thumbnailpath.parent_path());
 								stbi_write_png(pathstring.c_str(), val.Width, val.Height, CHANNEL_NUM, val._ColorData.data(), val.Width * CHANNEL_NUM);
-
 								return val;
 							};
 						Delegate<void, UC::ImageData&&> SetFile = [this](UC::ImageData&& val) -> void
