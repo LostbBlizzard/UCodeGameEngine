@@ -202,6 +202,9 @@ public:
 			ImGuIHelper::f32Field("Fov", V);
 			Component->Set_Fov(V);
 		}
+		auto color = Component->Get_BackRoundClearColor();
+		ImGuIHelper::ColorField("Backround Clear Color",color);
+		Component->Set_BackRoundClearColor(color);
 	}
 
 	void DrawInspect(const UEditorComponentDrawData& Data, UCode::Compoent* Value) const override
@@ -250,6 +253,10 @@ public:
 			Data.Draw->f32Field("Fov", V);
 			Component->Set_Fov(V);
 		}
+		auto color = Component->Get_BackRoundClearColor();
+		ImGuIHelper::ColorField("Backround Clear Color",color);
+		Component->Set_BackRoundClearColor(color);
+
 	}
 };
 namespace fs = std::filesystem;
@@ -1319,6 +1326,7 @@ UC::ImageData RenderFrame(RenderFrameData& Data,UC::RenderRunTime2d::DrawData dr
 	UC::Camera2d* Cam = newentity->AddCompoent<UC::Camera2d>();
 	Cam->Set_Ortho_size(Data.CamOrth);
 	Cam->API_Set_WindowSize(Data.CamWidth, Data.CamHeight);
+	Cam->Set_BackRoundClearColor(Color(0, 0, 0, 0));
 
 	auto scene = Cam->NativeEntity()->NativeScene();
 	auto ren = UC::RenderRunTime2d::GetRenderRunTime(scene->Get_RunTime());
@@ -1462,10 +1470,14 @@ public:
 		{
 			const Path thumbnailpath = ThumbnailPath();
 			bool isoutdataed = true;
+			bool cancach = false;
 			{
-				if (std::filesystem::exists(thumbnailpath))
+				if (cancach) 
 				{
+					if (std::filesystem::exists(thumbnailpath))
+					{
 
+					}
 				}
 			}
 
@@ -1538,8 +1550,11 @@ public:
 								UC::Texture::FlipImageVertically(val.Width, val.Height, val._ColorData.data());
 								#endif
 
-								std::filesystem::create_directories(thumbnailpath.parent_path());
-								stbi_write_png(pathstring.c_str(), val.Width, val.Height, CHANNEL_NUM, val._ColorData.data(), val.Width * CHANNEL_NUM);
+								if (false) 
+								{
+									std::filesystem::create_directories(thumbnailpath.parent_path());
+									stbi_write_png(pathstring.c_str(), val.Width, val.Height, CHANNEL_NUM, val._ColorData.data(), val.Width * CHANNEL_NUM);
+								}
 								return val;
 							};
 						Delegate<void, UC::ImageData&&> SetFile = [this](UC::ImageData&& val) -> void

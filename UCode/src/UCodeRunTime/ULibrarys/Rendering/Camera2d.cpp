@@ -50,6 +50,7 @@ void Camera2d::Serialize(USerializer& Serializer) const
 	Serializer.Write("Type", (Camera2d::CamType_t)Get_CamType());
 	Serializer.Write("ortho_size", Get_Ortho_size());
 	Serializer.Write("Fov", Get_Fov());
+	Serializer.Write("BackRoundClearColor",BackRoundClearColor);
 }
 
 void Camera2d::Deserialize(UDeserializer& Serializer)
@@ -58,6 +59,7 @@ void Camera2d::Deserialize(UDeserializer& Serializer)
 	Serializer.ReadType("Type", CamT, CamT);
 	Serializer.ReadType("ortho_size", ortho_size, ortho_size);
 	Serializer.ReadType("Fov", Fov, Fov);
+	Serializer.ReadType("BackRoundClearColor",BackRoundClearColor,BackRoundClearColor);
 }
 
 void Camera2d::UpdateCamData()

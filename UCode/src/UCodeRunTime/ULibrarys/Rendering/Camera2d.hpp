@@ -96,6 +96,8 @@ public:
 	UCodeGEForceinlne f32 Get_Fov() const { return Fov; }
 	UCodeGEForceinlne void Set_Fov(f32 Value) { Fov = Value; }
 
+	UCodeGEForceinlne Color Get_BackRoundClearColor() const { return BackRoundClearColor; }
+	UCodeGEForceinlne void Set_BackRoundClearColor(Color Value) { BackRoundClearColor = Value; }
 
 	static UComponentsID Get_TypeID();
 private:
@@ -104,7 +106,7 @@ private:
 	Mat4 ViewProjectionMatrix;
 	FrameBuffer _Buffer;
 	i32 Width =-1, Height =-1;
-	
+	Color BackRoundClearColor = { 0.1f,0.1f,0.1f,1.0f };
 	struct
 	{
 		f32 ortho_size = 5;
