@@ -68,6 +68,9 @@ public:
 	{
 		return GetGPUImageData(Get_Width(), Get_Height(), _RendererID.value());
 	}
+	static void FlipImageVertically(i32 width, i32 height,Color32* color);
+	static void FlipImageHorizontally(i32 width, i32 height,Color32* color);
+	static size_t GetPixelIndex(i32 x, i32 y, i32 width, i32 height);
 
 	//If Texture is being Loaded
 	bool IsPlaceHolder() const;

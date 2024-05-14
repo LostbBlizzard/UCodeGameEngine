@@ -165,7 +165,38 @@ bool Texture::IsPlaceHolder() const
 {
 	return _FilePath == PlaceHolderTexture;
 }
+void Texture::FlipImageVertically(i32 width, i32 height,Color32* color)
+{
+	for (size_t x = 0; x < width; x++)
+	{
+		for (size_t y = 0; y < height/2; y++)
+		{
+			auto& pixel = color[GetPixelIndex(x, y, width, height)];
+			auto& otherpixel = color[GetPixelIndex(x,height - y - 1, width, height)];
 
+			std::swap(pixel, otherpixel);
+		}
+	}
+}
+void Texture::FlipImageHorizontally(i32 width, i32 height,Color32* color)
+{
+	for (size_t x = 0; x < width/2; x++)
+	{
+		for (size_t y = 0; y < height; y++)
+		{
+			auto& pixel = color[GetPixelIndex(x, y, width, height)];
+			auto& otherpixel = color[GetPixelIndex(width - x - 1, y, width, height)];
+
+			std::swap(pixel, otherpixel);
+		}
+	}
+
+}
+
+size_t Texture::GetPixelIndex(i32 x, i32 y, i32 width, i32 height)
+{
+	return (y * width) + x;
+}
 
 
 Texture::Texture(Texture&& source)
