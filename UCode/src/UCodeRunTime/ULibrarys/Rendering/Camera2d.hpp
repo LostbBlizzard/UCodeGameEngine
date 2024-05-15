@@ -23,7 +23,7 @@ public:
 
 	void Serialize(USerializer& Serializer)  const override;
 	void Deserialize(UDeserializer& Serializer) override;
-
+	rttr::instance Get_Rttr_Instance() override { return this; }
 
 	static Camera2d* FindMainCam(const GameRunTime* runtime);
 	

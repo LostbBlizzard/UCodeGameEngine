@@ -70,6 +70,33 @@ public:
 		}
 	}
 
+	
+	bool operator==(const AssetPtr& Value) const
+	{
+		if (Has_UID() && Value.Has_UID())
+		{
+			return Get_UID() == Value.Get_UID();
+		}
+		else if (Get_State() == Value.Get_State()) 
+		{
+			if (Get_State() == State::Raw)
+			{
+				return Get_Asset() == Value.Get_Asset();
+			}
+			else if (Get_State() == State::Null)
+			{
+				return true;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	};
+	bool operator!=(const AssetPtr& Value) const
+	{
+		return !((*this) == Value);
+	};
 
 	UID Get_UID() const
 	{

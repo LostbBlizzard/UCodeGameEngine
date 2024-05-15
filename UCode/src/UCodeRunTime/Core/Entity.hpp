@@ -72,6 +72,7 @@ public:
 	static void Destroy(Compoent* compoent) { compoent->_IsDestroyed = true; }
 	bool Get_IsDestroyed() const { return _IsDestroyed; }
 	UComponentData* Get_CompoentTypeData() const { return _TypeData; }
+	virtual rttr::instance Get_Rttr_Instance() { return nullptr; }
 
 	bool Get_IsActive_InRunTime() const;
 	GameRunTime* GetGameRunTime() const;
