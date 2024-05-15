@@ -19,6 +19,7 @@ public:
 
 	void Deserialize(UDeserializer& Serializer) override;
 	
+	rttr::instance Get_Rttr_Instance() override { return this; }
 
 	static UComponentsID Get_TypeID();
 public:

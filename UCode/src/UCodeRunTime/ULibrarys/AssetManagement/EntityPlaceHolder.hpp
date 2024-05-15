@@ -6,18 +6,11 @@
 #include "UCodeRunTime/ULibrarys/Serialization/USerializer.hpp"
 CoreStart
 struct EntityPlaceHolderChanges
-{
-	using ChangeType_t = int;
-	enum class ChangeType : ChangeType_t 
-	{
-		Set,
-		Add,
-		Sub,
-	};
+{	
 	struct Change
 	{
 		String field;
-
+		String NewValue;
 	};
 
 	Vector<Change> _changes;
@@ -46,7 +39,19 @@ public:
 	static UComponentData type_Data;
 private:
 	static UComponentsID Get_TypeID();
+
 	void UpdateChanges(USerializerType type);
+
+	struct UpdateChangesCompoentState
+	{
+		EntityPlaceHolderChanges* Out;
+		Compoent* compoent = nullptr;
+		NullablePtr<Compoent> rawcompoent;
+
+		String compoentref;
+	};
+
+	void UpdateChanges(USerializerType type,UpdateChangesCompoentState state);
 	void AppleChanges();
 };
 CoreEnd
