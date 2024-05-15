@@ -56,16 +56,14 @@ void Scene2dData::SaveEntityData(const Entity* Item, Scene2dData::Entity_Data& E
         
     if (auto v = Item->GetCompent<EntityPlaceHolder>().value_unchecked())
     {
-        Compoent_Data Data;
+        v->OnOverrideSerializeEntity(Entity, type);
 
+        Compoent_Data Data; 
         if (!SaveCompoentData(v, Data, type))
         {
             return;
         }
-
         Entity._Compoents.push_back(std::move(Data));
-
-        v->OnOverrideSerializeEntity(Entity, type);
     }
     else
     {

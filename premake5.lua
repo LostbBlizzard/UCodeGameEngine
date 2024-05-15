@@ -124,6 +124,7 @@ function includeUCode(HasULangCompiler)
       "Dependencies/MinimalSocket/src/header",
       "Dependencies/soloud/include",
       "UCode/src",
+      "Dependencies/rttr/src",
      }
 
     filter { "platforms:Win32" }
@@ -209,6 +210,7 @@ function linkUCode(HasULangCompiler,IsPubMode)
       "Output/MinimalSocket/" .. OutDirPath, 
       "Output/UCode/" .. OutDirPath,
       "Output/soloud/" .. OutDirPath,
+      "Output/rttr/" .. OutDirPath,
      }
      
      
@@ -225,7 +227,8 @@ function linkUCode(HasULangCompiler,IsPubMode)
       "stb_image_write",
       "box2d",
       "MinimalSocket",
-      "soloud"
+      "soloud",
+      "rttr"
      }
      
 
@@ -241,7 +244,7 @@ function linkUCode(HasULangCompiler,IsPubMode)
 
      dependson {"glm", 
       "box2d","yaml-cpp","stb_image","stb_image_write","Imgui",
-      "MinimalSocket",
+      "MinimalSocket","rttr"
      }
 end
    
@@ -1027,6 +1030,26 @@ project "soloud"
       "Dependencies/%{prj.name}/src/backend/vita_homebrew/soloud_vita_homebrew.cpp",
     }
     removefiles {"Dependencies/%{prj.name}/src/tools/**.cpp"}
+
+
+
+project "rttr"
+    location "Dependencies/%{prj.name}"
+    kind "StaticLib"
+    language "C++" 
+
+    targetdir ("Output/%{prj.name}/" .. OutDirPath)
+    objdir ("Output/int/%{prj.name}/" .. OutDirPath)
+
+    files {
+      "Dependencies/%{prj.name}/src/rttr/**.h",
+      "Dependencies/%{prj.name}/src/rttr/**.cpp",
+    } 
+
+    includedirs{
+      "Dependencies/%{prj.name}/src",
+    }
+    
 function executeorexit(str)
  exit = os.execute(str)
 

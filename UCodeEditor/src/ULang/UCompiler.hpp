@@ -4,6 +4,7 @@
 #include "UCodeLang/Compilation/Compiler.hpp"
 #include "ProjectManagement/RunTimeProjectData.hpp"
 #include "UCodeLang/LangCore/UClib.hpp"
+#include "UCodeRunTime/CoreSystems/Threads.hpp"
 EditorStart
 
 class UCompiler

@@ -63,6 +63,7 @@ void EntityPlaceHolder::OnOverrideSerializeEntity(UCode::Scene2dData::Entity_Dat
 
 void EntityPlaceHolder::UpdateChanges(USerializerType type)
 {
+	auto& out = _change;
 
 }
 void EntityPlaceHolder::AppleChanges()
