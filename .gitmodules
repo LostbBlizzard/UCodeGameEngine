@@ -34,3 +34,6 @@
 [submodule "Dependencies/soloud"]
 	path = Dependencies/soloud
 	url = https://github.com/LostbBlizzard/soloud.git
+[submodule "Dependencies/rttr"]
+	path = Dependencies/rttr
+	url = https://github.com/rttrorg/rttr
