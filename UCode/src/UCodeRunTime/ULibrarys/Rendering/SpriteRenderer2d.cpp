@@ -4,14 +4,26 @@
 
 #include "../Serialization/Yaml_Implementation/AsssetPtr.hpp"
 #include "../Serialization/Bit_Implementation/AsssetPtr.hpp"
+
+#include "rttr/registration.h"
+
+RTTR_REGISTRATION
+{
+ rttr::registration::class_<UCode::SpriteRenderer>("SpriteRenderer")
+ .property("Sprite",&UCode::SpriteRenderer::sprite)
+ .property("Color",&UCode::SpriteRenderer::color)
+ .property("FlipX",&UCode::SpriteRenderer::flipX)
+ .property("FlipY",&UCode::SpriteRenderer::flipY);
+}
 RenderingStart
+
 
 
 UComponentsID SpriteRenderer::Get_TypeID()
 {
 	return "SpriteRenderer";
 }
-UComponentData SpriteRenderer::type_Data = { Get_TypeID(),[](Entity* E) {return (Compoent*)new SpriteRenderer(E); }};
+UComponentData SpriteRenderer::type_Data = { Get_TypeID(),[](Entity* E) {return (Compoent*)new SpriteRenderer(E);},rttr::type::get<UCode::SpriteRenderer>()};
 SpriteRenderer::SpriteRenderer(Entity* entity) : Renderer2d(entity,&type_Data),
 shader(Shader::Default_Shader(entity->NativeGameRunTime()->Get_Library_Edit())),
 sprite(nullptr),

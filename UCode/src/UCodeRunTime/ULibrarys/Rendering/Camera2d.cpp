@@ -5,14 +5,23 @@
 
 #include <UCodeRunTime/BasicTypes.hpp>
 #include "RenderRunTime2d.hpp"
-RenderingStart
+#include "rttr/registration.h"
+RTTR_REGISTRATION
+{
+ rttr::registration::class_<UCode::Camera2d>("Camera")
+ .property("CamType",&UCode::Camera2d::Get_CamType,&UCode::Camera2d::Set_CamType)
+ .property("Ortho_size",&UCode::Camera2d::Get_Ortho_size,&UCode::Camera2d::Set_Ortho_size)
+ .property("Fov",&UCode::Camera2d::Get_Fov,&UCode::Camera2d::Set_Fov)
+ .property("BackRoundClearColor",&UCode::Camera2d::Get_BackRoundClearColor,&UCode::Camera2d::Set_BackRoundClearColor); 
+}
 
+RenderingStart
 
 UComponentsID Camera2d::Get_TypeID()
 {
 	return "Camera";
 }
-UComponentData Camera2d::type_Data = { Get_TypeID(),[](Entity* E) {return (Compoent*)new Camera2d(E); } };
+UComponentData Camera2d::type_Data = { Get_TypeID(),[](Entity* E) {return (Compoent*)new Camera2d(E); },rttr::type::get<UCode::Camera2d>()};
 
 Vector<Camera2d*> Cameras = Vector<Camera2d*>();//Not thread safe
 //Move This to RenderRunTime2d;
