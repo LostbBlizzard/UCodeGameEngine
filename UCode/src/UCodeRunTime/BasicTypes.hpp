@@ -160,11 +160,11 @@ struct Color24
 	constexpr Color24() :R(255), G(255), B(255) {}
 	constexpr Color24(Byte r, Byte g, Byte b) : R(r), G(g), B(b) {}
 
-	constexpr bool operator==(const Color32 other)const
+	constexpr bool operator==(const Color24 other)const
 	{
 		return (R == other.R && G == other.G && B == other.B);
 	}
-	constexpr bool operator!=(const Color32 other)const
+	constexpr bool operator!=(const Color24 other)const
 	{
 		return !(R == other.R && G == other.G && B == other.B);
 	}

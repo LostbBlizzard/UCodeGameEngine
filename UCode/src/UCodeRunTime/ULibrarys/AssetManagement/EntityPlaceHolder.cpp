@@ -1,5 +1,7 @@
 #include "EntityPlaceHolder.hpp"
 #include "UCodeRunTime/ULibrarys/AssetManagement/AssetPtr.hpp"
+#include "UCodeRunTime/ULibrarys/Serialization/RttrSerializer.hpp"
+#include "UCodeRunTime/ULibrarys/Others/StringHelper.hpp"
 #include "UCodeRunTime/ULibrarys/AssetManagement/AssetRendering.hpp"
 CoreStart
 
@@ -50,13 +52,35 @@ void EntityPlaceHolder::Deserialize(UDeserializer& Serializer)
 			e->NativeLocalRotation() = oldr;
 		}
 	}
-	AppleChanges();
+	ApplyChanges();
 
 	#if UCodeGEPublishMode
 	this->Destroy(this);	
 	#endif
 }
 
+
+using PlaceHolderChangeProps_t = int;
+enum class PlaceHolderChangeProps :PlaceHolderChangeProps_t
+{
+	This,
+	Compents,
+
+	Max,
+};
+
+
+std::array<StringView, (PlaceHolderChangeProps_t)PlaceHolderChangeProps::Max> PlaceHolderChangePropsNames =
+{
+	"this",
+	"compents",
+};
+
+StringView GetPropsName(PlaceHolderChangeProps val)
+{
+	return PlaceHolderChangePropsNames[(PlaceHolderChangeProps_t)val];
+}
+constexpr const char* NewValueFieldName = "_";
 void EntityPlaceHolder::OnOverrideSerializeEntity(UCode::Scene2dData::Entity_Data& Scene,USerializerType type)
 {	
 	UpdateChanges(type);
@@ -108,7 +132,28 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type)
 				state.Out = &out;
 				state.compoent = copent;
 				state.rawcompoent = fromraw;
-				state.compoentref = "this.compents." + copent->Get_CompoentTypeData()->_Type;	
+
+				if (type == USerializerType::YAML) 
+				{
+					state.compoentref =
+						String(GetPropsName(PlaceHolderChangeProps::This)) + "." +
+						String(GetPropsName(PlaceHolderChangeProps::Compents)) + '.' + copent->Get_CompoentTypeData()->_Type;
+				}
+				else
+				{
+					BitConverter tep(BitConverter::Endian::little);
+
+					state.compoentref.resize(sizeof(PlaceHolderChangeProps) + sizeof(PlaceHolderChangeProps));
+					
+					tep.MoveBytes((PlaceHolderChangeProps_t)PlaceHolderChangeProps::This,state.compoentref.data(),0);
+
+					tep.MoveBytes((PlaceHolderChangeProps_t)PlaceHolderChangeProps::Compents,state.compoentref.data(),sizeof(PlaceHolderChangeProps));
+
+					auto& typenmaestr =copent->Get_CompoentTypeData()->_Type;
+					tep.MoveBytes((BitMaker::SizeAsBits)typenmaestr.size(), state.compoentref.data(), sizeof(PlaceHolderChangeProps) * 2);
+					state.compoentref += typenmaestr;
+				}
+
 				UpdateChanges(type, state);
 			}
 
@@ -122,6 +167,8 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type)
 		//I dont know what to do if AssetPtr is null
 	}
 }
+
+
 void EntityPlaceHolder::UpdateChanges(USerializerType type,UpdateChangesCompoentState state)
 {
 	USerializer tep(type);
@@ -140,49 +187,110 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,UpdateChangesCompoent
 			{
 				auto rawfield = Item.get_value(state.rawcompoent.value()->Get_Rttr_Instance());
 
-				//C++ Base Types
-				if (Item.get_type() == rttr::type::get<int>())
-				{
-					issame = compentfield.get_value<int>() == rawfield.get_value<int>();
-				}
-				else if (Item.get_type() == rttr::type::get<bool>())
-				{
-					issame = compentfield.get_value <bool>() == rawfield.get_value<bool>();
-				}
-
-				//C++ Stl Types
-
-				//UCode Types
-				else if (Item.get_type() == rttr::type::get<Color>())
-				{
-					issame = compentfield.get_value<Color>() == rawfield.get_value<Color>();
-				}
-
-				//AssetTypes 
-				else if (Item.get_type() == rttr::type::get<SpritePtr>())
-				{
-					issame = compentfield.get_value<SpritePtr>() == rawfield.get_value<SpritePtr>();
-				}
-				else
-				{
-					UCodeGEUnreachable();
-				}
+				issame = RttrSerializer::IsSame(Item.get_type(), compentfield, rawfield);
 			}
 			
 
 			if (!issame)
 			{
+				tep.Reset();
 				EntityPlaceHolderChanges::Change change;
-				change.field = state.compoentref + "." + Item.get_name();
-				change.NewValue = "0";
+				
+				if (type == USerializerType::YAML) 
+				{
+					change.field = state.compoentref + "." + Item.get_name();
+
+					RttrSerializer::Write(tep,NewValueFieldName,compentfield);
+					tep.ToString(change.NewValue, false);
+				}
+				else if (type == USerializerType::Bytes) 
+				{
+					BitConverter tepbyte(BitConverter::Endian::little);
+					change.field = state.compoentref; 
+
+					auto& str =StringView(Item.get_name().data(), Item.get_name().size());
+					
+					change.field.resize(change.field.size() + sizeof(BitMaker::SizeAsBits));
+					tepbyte.MoveBytes((BitMaker::SizeAsBits)str.size(),change.field.data(),change.field.size());
+					change.field += str;
+
+					RttrSerializer::Write(tep,NewValueFieldName,compentfield);
+					tep.ToString(change.NewValue, false);
+				}
+
 				state.Out->_changes.push_back(std::move(change));
 			}
 		}
 	}
 	
 }
-void EntityPlaceHolder::AppleChanges()
+void EntityPlaceHolder::ApplyChanges()
 {
+	auto& in = _change;
 
+	auto& compents = this->NativeEntity()->NativeCompoents();
+	auto& entitys = this->NativeEntity()->NativeGetEntitys();
+
+	Vector<StringView> parts;
+	for (auto& Item : in._changes)
+	{
+		parts.clear();
+		StringHelper::Split(Item.field, ".", parts);
+
+		if (parts.size() >= 1)
+		{
+			auto& first = parts[0];
+
+			if (first == "this")
+			{
+				if (parts.size() >= 2)
+				{
+					auto& sec = parts[1];
+					if (sec == "compents")
+					{
+						if (parts.size() >= 3)
+						{
+							auto& compenttype = parts[2];
+
+							NullablePtr<Compoent> valop;
+							for (auto& Item : compents)
+							{
+								if (Item->Get_CompoentTypeData()->_Type == compenttype)
+								{
+									valop = Nullableptr(Item.get());
+									break;
+								}
+							}
+
+							if (valop.has_value())
+							{
+								auto val = valop.value();
+
+								if (parts.size() >= 4)
+								{
+									auto& field = parts[3];
+
+									auto& runtimetypereflection = val->Get_CompoentTypeData()->_RuntimeTypeReflection.value();
+
+									for (auto& pro : runtimetypereflection.get_properties())
+									{
+										auto v = pro.get_name();
+										if (StringView(v.data(), v.size()) == field)
+										{
+											auto instance = val->Get_Rttr_Instance();
+
+											UCode::UDeserializer deser(Item.NewValue);
+											RttrSerializer::Read(deser, NewValueFieldName,instance,pro);
+										}
+									}
+								}
+
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
 CoreEnd

@@ -19,6 +19,7 @@ CoreEnd
 
 MakeSerlizeType(UCode::EntityPlaceHolderChanges::Change,
 	Field("_field", _this->field);
+	Field("_newvalue", _this->NewValue);
 )
 MakeSerlizeType(UCode::EntityPlaceHolderChanges,
 	Field("_Changes", _this->_changes);
@@ -52,6 +53,6 @@ private:
 	};
 
 	void UpdateChanges(USerializerType type,UpdateChangesCompoentState state);
-	void AppleChanges();
+	void ApplyChanges();
 };
 CoreEnd
