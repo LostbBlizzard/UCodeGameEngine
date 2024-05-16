@@ -54,5 +54,6 @@ private:
 
 	void UpdateChanges(USerializerType type,UpdateChangesCompoentState state);
 	void ApplyChanges();
+	void UpdateChanges(USerializerType type, EntityPlaceHolderChanges* Out, Entity* entity, NullablePtr<Entity> rawentityop);
 };
 CoreEnd

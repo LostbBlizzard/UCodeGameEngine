@@ -65,6 +65,8 @@ enum class PlaceHolderChangeProps :PlaceHolderChangeProps_t
 {
 	This,
 	Compents,
+	RemoveCompent,
+	AddCompent,
 
 	Max,
 };
@@ -74,6 +76,7 @@ std::array<StringView, (PlaceHolderChangeProps_t)PlaceHolderChangeProps::Max> Pl
 {
 	"this",
 	"compents",
+	"removecompent",
 };
 
 StringView GetPropsName(PlaceHolderChangeProps val)
@@ -85,7 +88,93 @@ void EntityPlaceHolder::OnOverrideSerializeEntity(UCode::Scene2dData::Entity_Dat
 {	
 	UpdateChanges(type);
 }
+void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChanges* Out, Entity* entity, NullablePtr<Entity> rawentityop)
+{
+	if (rawentityop.has_value())
+	{
+		auto& rawasentity = rawentityop.value();
+		auto& rawcompents = rawasentity->NativeCompoents();
+		auto& rawentitys = rawasentity->NativeGetEntitys();
 
+
+		auto& compents = entity->NativeCompoents();
+		auto& entitys = entity->NativeGetEntitys();
+		for (auto& compoent : compents)
+		{
+			NullablePtr<Compoent> fromraw;
+			{
+				for (auto& Item : rawcompents)
+				{
+					if (Item->Get_CompoentTypeData() == compoent->Get_CompoentTypeData())
+					{
+						fromraw = Item.get();
+						break;
+					}
+				}
+			}
+
+			UpdateChangesCompoentState state;
+			state.Out = Out;
+			state.compoent = compoent.get();
+			state.rawcompoent = fromraw;
+
+			if (type == USerializerType::YAML)
+			{
+				state.compoentref =
+					String(GetPropsName(PlaceHolderChangeProps::This)) + "." +
+					String(GetPropsName(PlaceHolderChangeProps::Compents)) + '.' + compoent->Get_CompoentTypeData()->_Type;
+			}
+			else
+			{
+				BitConverter tep(BitConverter::Endian::little);
+
+				state.compoentref.resize(sizeof(PlaceHolderChangeProps) + sizeof(PlaceHolderChangeProps));
+
+				tep.MoveBytes((PlaceHolderChangeProps_t)PlaceHolderChangeProps::This, state.compoentref.data(), 0);
+
+				tep.MoveBytes((PlaceHolderChangeProps_t)PlaceHolderChangeProps::Compents, state.compoentref.data(), sizeof(PlaceHolderChangeProps));
+
+				auto& typenmaestr = compoent->Get_CompoentTypeData()->_Type;
+				tep.MoveBytes((BitMaker::SizeAsBits)typenmaestr.size(), state.compoentref.data(), sizeof(PlaceHolderChangeProps) * 2);
+				state.compoentref += typenmaestr;
+			}
+
+			UpdateChanges(type, state);
+		}
+	
+		
+		for (auto& Item : rawcompents)
+		{
+			auto str = Item->Get_CompoentTypeData()->_Type;
+
+			bool hascompent = false;
+			for (auto& Item : compents)
+			{
+				if (Item->Get_CompoentTypeData()->_Type == str)
+				{
+					hascompent = true;
+					break;
+				}
+			}
+
+			if (!hascompent)
+			{
+				EntityPlaceHolderChanges::Change change;
+				change.field = String(GetPropsName(PlaceHolderChangeProps::This)) + ".";
+				change.field += String(GetPropsName(PlaceHolderChangeProps::RemoveCompent));
+				change.NewValue = Item->Get_CompoentTypeData()->_Type;
+	
+
+				Out->_changes.push_back(std::move(change));
+				break;
+			}
+		}
+	}
+	else
+	{
+
+	}
+}
 void EntityPlaceHolder::UpdateChanges(USerializerType type)
 {
 	auto& out = _change;
@@ -106,57 +195,8 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type)
 
 			out._changes.clear();
 			itworked = true;
-			
-			auto& rawcompents = rawasentity->NativeCompoents();
-			auto& rawentitys = rawasentity->NativeGetEntitys();
 
-			
-			auto& compents = this->NativeEntity()->NativeCompoents();
-			auto& entitys = this->NativeEntity()->NativeGetEntitys();
-			for (size_t i = 0; i < compents.size(); i++)
-			{
-				auto copent = compents[i].get();
-				NullablePtr<Compoent> fromraw;
-				{
-					for (auto& Item : rawcompents)
-					{
-						if (Item->Get_CompoentTypeData() == copent->Get_CompoentTypeData())
-						{
-							fromraw = Item.get();
-							break;
-						}
-					}
-				}
-
-				UpdateChangesCompoentState state;
-				state.Out = &out;
-				state.compoent = copent;
-				state.rawcompoent = fromraw;
-
-				if (type == USerializerType::YAML) 
-				{
-					state.compoentref =
-						String(GetPropsName(PlaceHolderChangeProps::This)) + "." +
-						String(GetPropsName(PlaceHolderChangeProps::Compents)) + '.' + copent->Get_CompoentTypeData()->_Type;
-				}
-				else
-				{
-					BitConverter tep(BitConverter::Endian::little);
-
-					state.compoentref.resize(sizeof(PlaceHolderChangeProps) + sizeof(PlaceHolderChangeProps));
-					
-					tep.MoveBytes((PlaceHolderChangeProps_t)PlaceHolderChangeProps::This,state.compoentref.data(),0);
-
-					tep.MoveBytes((PlaceHolderChangeProps_t)PlaceHolderChangeProps::Compents,state.compoentref.data(),sizeof(PlaceHolderChangeProps));
-
-					auto& typenmaestr =copent->Get_CompoentTypeData()->_Type;
-					tep.MoveBytes((BitMaker::SizeAsBits)typenmaestr.size(), state.compoentref.data(), sizeof(PlaceHolderChangeProps) * 2);
-					state.compoentref += typenmaestr;
-				}
-
-				UpdateChanges(type, state);
-			}
-
+			UpdateChanges(type, &out, NativeEntity(),Nullableptr(rawasentity));	
 		}
 
 	}
@@ -241,12 +281,12 @@ void EntityPlaceHolder::ApplyChanges()
 		{
 			auto& first = parts[0];
 
-			if (first == "this")
+			if (first == GetPropsName(PlaceHolderChangeProps::This))
 			{
 				if (parts.size() >= 2)
 				{
 					auto& sec = parts[1];
-					if (sec == "compents")
+					if (sec ==  GetPropsName(PlaceHolderChangeProps::Compents))
 					{
 						if (parts.size() >= 3)
 						{
@@ -285,6 +325,19 @@ void EntityPlaceHolder::ApplyChanges()
 									}
 								}
 
+							}
+						}
+					}
+					else if (sec == GetPropsName(PlaceHolderChangeProps::RemoveCompent))
+					{
+						auto& toremove = Item.NewValue;
+
+						for (auto& Item : compents)
+						{
+							if (Item->Get_CompoentTypeData()->_Type == toremove)
+							{
+								Compoent::Destroy(Item.get());
+								break;
 							}
 						}
 					}
