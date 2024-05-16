@@ -723,23 +723,32 @@ void GameEditorWindow::DropSceneFromPath()
     if (ImGui::BeginDragDropTarget())
     {
         ImGuiDragDropFlags target_flags = 0;
-        target_flags |= ImGuiDragDropFlags_AcceptBeforeDelivery;    // Don't wait until the delivery (release mouse button on a target) to do something
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragAndDropType_Scene2dPathType, target_flags))
+        target_flags |= ImGuiDragDropFlags_AcceptBeforeDelivery;
+        target_flags |= ImGuiDragDropFlags_AcceptNoDrawDefaultRect;
+
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragAndDropType_AssetPath, target_flags))
         {
+            const Path* fullpath = *(Path**)payload->Data;
 
 
+            auto ext = Path(*fullpath).extension().generic_string();
+            bool canbedroped = ext == UCode::Scene2dData::FileExtDot;
             if (payload->IsDelivery())
             {
-                const Path* DropItem = *(Path**)payload->Data;
-                const Path& Path = *DropItem;
-
-
-                OpenScencAtPath(Path);
-
-
+                if (canbedroped)
+                {
+                    OpenScencAtPath(*fullpath);
+                }
             }
 
+            if (canbedroped)
+            {
+                ImGuiContext& g = *GImGui;
+                ImGui::RenderDragDropTargetRect(g.DragDropTargetRect, g.DragDropTargetClipRect);
+            }
         }
+
+
         ImGui::EndDragDropTarget();
     }
 }
