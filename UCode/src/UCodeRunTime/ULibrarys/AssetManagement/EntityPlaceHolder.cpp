@@ -85,8 +85,42 @@ StringView GetPropsName(PlaceHolderChangeProps val)
 }
 constexpr const char* NewValueFieldName = "_";
 void EntityPlaceHolder::OnOverrideSerializeEntity(UCode::Scene2dData::Entity_Data& Scene,USerializerType type)
-{	
-	UpdateChanges(type);
+{
+	Entity* raw;
+	UpdateChanges(type,&raw);
+
+	{
+		auto& rawcompents = raw->NativeCompoents();
+		auto& compents = NativeEntity()->NativeCompoents();
+		for (auto& Item : compents)
+		{
+			auto& typen = Item->Get_CompoentTypeData()->_Type;
+
+			bool isadded = true;
+			for (auto& Item : rawcompents)
+			{
+				if (typen == Item->Get_CompoentTypeData()->_Type)
+				{
+					isadded = false;
+					break;
+				}
+			}
+
+			if (isadded)
+			{
+				if (Item.get() != this) 
+				{
+					UCode::Scene2dData::Compoent_Data data;
+
+					UCode::Scene2dData::SaveCompoentData(Item.get(), data, type);
+
+					Scene._Compoents.push_back(std::move(data));
+				}
+
+			}
+		}
+
+	}
 }
 void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChanges* Out, Entity* entity, NullablePtr<Entity> rawentityop)
 {
@@ -175,7 +209,7 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChan
 
 	}
 }
-void EntityPlaceHolder::UpdateChanges(USerializerType type)
+void EntityPlaceHolder::UpdateChanges(USerializerType type,Entity** rawentity)
 {
 	auto& out = _change;
 
@@ -193,6 +227,7 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type)
 			Entity::Destroy(rawasentity);
 			UCode::Scene2dData::LoadEntity(rawasentity, rawop.value()->_Base._Data);
 
+			*rawentity = rawasentity;
 			out._changes.clear();
 			itworked = true;
 
@@ -228,37 +263,38 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,UpdateChangesCompoent
 				auto rawfield = Item.get_value(state.rawcompoent.value()->Get_Rttr_Instance());
 
 				issame = RttrSerializer::IsSame(Item.get_type(), compentfield, rawfield);
-			}
-			
 
-			if (!issame)
-			{
-				tep.Reset();
-				EntityPlaceHolderChanges::Change change;
-				
-				if (type == USerializerType::YAML) 
+
+
+				if (!issame)
 				{
-					change.field = state.compoentref + "." + Item.get_name();
+					tep.Reset();
+					EntityPlaceHolderChanges::Change change;
 
-					RttrSerializer::Write(tep,NewValueFieldName,compentfield);
-					tep.ToString(change.NewValue, false);
+					if (type == USerializerType::YAML)
+					{
+						change.field = state.compoentref + "." + Item.get_name();
+
+						RttrSerializer::Write(tep, NewValueFieldName, compentfield);
+						tep.ToString(change.NewValue, false);
+					}
+					else if (type == USerializerType::Bytes)
+					{
+						BitConverter tepbyte(BitConverter::Endian::little);
+						change.field = state.compoentref;
+
+						auto& str = StringView(Item.get_name().data(), Item.get_name().size());
+
+						change.field.resize(change.field.size() + sizeof(BitMaker::SizeAsBits));
+						tepbyte.MoveBytes((BitMaker::SizeAsBits)str.size(), change.field.data(), change.field.size());
+						change.field += str;
+
+						RttrSerializer::Write(tep, NewValueFieldName, compentfield);
+						tep.ToString(change.NewValue, false);
+					}
+
+					state.Out->_changes.push_back(std::move(change));
 				}
-				else if (type == USerializerType::Bytes) 
-				{
-					BitConverter tepbyte(BitConverter::Endian::little);
-					change.field = state.compoentref; 
-
-					auto& str =StringView(Item.get_name().data(), Item.get_name().size());
-					
-					change.field.resize(change.field.size() + sizeof(BitMaker::SizeAsBits));
-					tepbyte.MoveBytes((BitMaker::SizeAsBits)str.size(),change.field.data(),change.field.size());
-					change.field += str;
-
-					RttrSerializer::Write(tep,NewValueFieldName,compentfield);
-					tep.ToString(change.NewValue, false);
-				}
-
-				state.Out->_changes.push_back(std::move(change));
 			}
 		}
 	}

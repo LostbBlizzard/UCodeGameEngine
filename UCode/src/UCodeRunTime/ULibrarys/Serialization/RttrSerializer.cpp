@@ -5,35 +5,48 @@
 
 CoreStart
 
-void RttrSerializer::Write(USerializer& serializer,const char* FieldName, rttr::variant& value)
+void RttrSerializer::Write(USerializer& serializer,const char* FieldName, rttr::variant& value,rttr::type type)
 {
-	if (value.get_type() == rttr::type::get<bool>()){serializer.Write(FieldName, value.get_value<bool>());}
-	else if (value.get_type() == rttr::type::get<i8>()){serializer.Write(FieldName, value.get_value<i8>());}
-	else if (value.get_type() == rttr::type::get<i16>()){serializer.Write(FieldName, value.get_value<i16>());}
-	else if (value.get_type() == rttr::type::get<i32>()){serializer.Write(FieldName, value.get_value<i32>());}
-	else if (value.get_type() == rttr::type::get<i64>()){serializer.Write(FieldName, value.get_value<i64>());}
-	else if (value.get_type() == rttr::type::get<u8>()){serializer.Write(FieldName, value.get_value<u8>());}
-	else if (value.get_type() == rttr::type::get<u16>()){serializer.Write(FieldName, value.get_value<u16>());}
-	else if (value.get_type() == rttr::type::get<u32>()){serializer.Write(FieldName, value.get_value<u32>());}
-	else if (value.get_type() == rttr::type::get<u64>()){serializer.Write(FieldName, value.get_value<u64>());}
-	else if (value.get_type() == rttr::type::get<f32>()){serializer.Write(FieldName, value.get_value<f32>());}
-	else if (value.get_type() == rttr::type::get<f64>()){serializer.Write(FieldName, value.get_value<f64>());}
+	if (type == rttr::type::get<bool>()){serializer.Write(FieldName, value.get_value<bool>());}
+	else if (type == rttr::type::get<i8>()) { serializer.Write(FieldName, value.get_value<i8>()); }
+	else if (type == rttr::type::get<i16>()) { serializer.Write(FieldName, value.get_value<i16>()); }
+	else if (type == rttr::type::get<i32>()) { serializer.Write(FieldName, value.get_value<i32>()); }
+	else if (type == rttr::type::get<i64>()) { serializer.Write(FieldName, value.get_value<i64>()); }
+	else if (type == rttr::type::get<u8>()) { serializer.Write(FieldName, value.get_value<u8>()); }
+	else if (type == rttr::type::get<u16>()) { serializer.Write(FieldName, value.get_value<u16>()); }
+	else if (type == rttr::type::get<u32>()) { serializer.Write(FieldName, value.get_value<u32>()); }
+	else if (type == rttr::type::get<u64>()) { serializer.Write(FieldName, value.get_value<u64>()); }
+	else if (type == rttr::type::get<f32>()) { serializer.Write(FieldName, value.get_value<f32>()); }
+	else if (type == rttr::type::get<f64>()) { serializer.Write(FieldName, value.get_value<f64>()); }
 
+	else if (type.is_enumeration())
+	{
+		auto& enumdata = value.get_type().get_enumeration();
+		//if (serializer.Get_Type() == USerializerType::Bytes)
+		{
+			auto v = enumdata.get_underlying_type();
+			auto f = rttr::type::get<i8>();
+			Write(serializer, FieldName, value, v);
+		}
+		//else
+		{
+
+		}
+		int a = 0;
+	}
 	//UCode Types
 
-	else if (value.get_type() == rttr::type::get<Color>()){serializer.Write(FieldName, value.get_value<Color>());}
-	else if (value.get_type() == rttr::type::get<ColorRGB>()){serializer.Write(FieldName, value.get_value<Color24>());}
-	else if (value.get_type() == rttr::type::get<Color32>()){serializer.Write(FieldName, value.get_value<Color32>());}
-	else if (value.get_type() == rttr::type::get<Color24>()){serializer.Write(FieldName, value.get_value<Color24>());}
-	
-	else if (value.get_type() == rttr::type::get<Vec2>()){serializer.Write(FieldName, value.get_value<Vec2>());}
-	else if (value.get_type() == rttr::type::get<Vec2i>()){serializer.Write(FieldName, value.get_value<Vec2i>());}
-	else if (value.get_type() == rttr::type::get<Vec3>()){serializer.Write(FieldName, value.get_value<Vec3>());}
-	else if (value.get_type() == rttr::type::get<Vec3i>()){serializer.Write(FieldName, value.get_value<Vec3i>());}
-
+	else if (type == rttr::type::get<Color>()){serializer.Write(FieldName, value.get_value<Color>());}
+	else if (type == rttr::type::get<ColorRGB>()){serializer.Write(FieldName, value.get_value<Color24>());}
+	else if (type == rttr::type::get<Color32>()){serializer.Write(FieldName, value.get_value<Color32>());}
+	else if (type == rttr::type::get<Color24>()){serializer.Write(FieldName, value.get_value<Color24>());}
+	else if (type == rttr::type::get<Vec2>()){serializer.Write(FieldName, value.get_value<Vec2>());}
+	else if (type == rttr::type::get<Vec2i>()){serializer.Write(FieldName, value.get_value<Vec2i>());}
+	else if (type == rttr::type::get<Vec3>()){serializer.Write(FieldName, value.get_value<Vec3>());}
+	else if (type == rttr::type::get<Vec3i>()){serializer.Write(FieldName, value.get_value<Vec3i>());}
 	//AssetTypes
-	else if (value.get_type() == rttr::type::get<UID>()){serializer.Write(FieldName, value.get_value<UID>());}
-	else if (value.get_type() == rttr::type::get<SpritePtr>()){serializer.Write(FieldName, value.get_value<SpritePtr>());}
+	else if (type == rttr::type::get<UID>()){serializer.Write(FieldName, value.get_value<UID>());}
+	else if (type == rttr::type::get<SpritePtr>()){serializer.Write(FieldName, value.get_value<SpritePtr>());}
 	else
 	{
 		UCodeGEUnreachable();

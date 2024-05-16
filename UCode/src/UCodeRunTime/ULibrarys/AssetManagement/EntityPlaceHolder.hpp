@@ -41,7 +41,7 @@ public:
 private:
 	static UComponentsID Get_TypeID();
 
-	void UpdateChanges(USerializerType type);
+	void UpdateChanges(USerializerType type,Entity** rawentity);
 
 	struct UpdateChangesCompoentState
 	{
