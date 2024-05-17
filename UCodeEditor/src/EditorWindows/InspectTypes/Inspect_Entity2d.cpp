@@ -77,18 +77,37 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
 
         if (isprefab)
         {
-            ImGuIHelper::ItemLabel("Prefab",ImGuIHelper::ItemLabelFlag::Left);
+            ImGuIHelper::ItemLabel("Prefab", ImGuIHelper::ItemLabelFlag::Left);
             UID id = isprefab->_id;
-            if (ImGui::Button("Open"))
+
+
+            auto buttioncount = 3;
+
+            auto h = ImGui::GetFrameHeight();
+            auto fieldwidthleft = ImGui::GetCurrentWindow()->Size.x - ImGui::GetCursorPosX();
+            auto w = (fieldwidthleft / buttioncount) - ImGui::GetStyle().ItemSpacing.x;
+
+
+            if (ImGui::Button("Open",{w,h}))
             {
 
             }
             ImGui::SameLine();
-            if (ImGui::Button("Select"))
+            if (ImGui::Button("Select", { w,h }))
             {
-                auto files =  EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_Window<ProjectFilesWindow>();
+                auto files = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_Window<ProjectFilesWindow>();
                 files->OpenAndFocusOnAsset(id);
             }
+            
+            ImGui::SameLine();
+
+            bool haschanges = false;
+            ImGui::BeginDisabled(!haschanges);
+            if (ImGui::Button("Overrides", { w,h }))
+            {
+
+            }
+            ImGui::EndDisabled();
         }
     
         if (Is2D)
