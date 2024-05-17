@@ -129,6 +129,34 @@ void EntityPlaceHolder::OnOverrideSerializeEntity(UCode::Scene2dData::Entity_Dat
 		}
 
 	}
+{
+		auto& rawcompents = raw->NativeGetEntitys();
+		auto& compents = NativeEntity()->NativeGetEntitys();
+		for (auto& Item : compents)
+		{
+			auto& typen = Item->NativeName();
+
+			bool isadded = true;
+			for (auto& Item : rawcompents)
+			{
+				if (typen == Item->NativeName())
+				{
+					isadded = false;
+					break;
+				}
+			}
+
+			if (isadded)
+			{
+				UCode::Scene2dData::Entity_Data data;
+
+				UCode::Scene2dData::SaveEntityData(Item.get(), data, type);
+
+				Scene._Entitys.push_back(std::move(data));
+			}
+		}
+
+	}
 }
 void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChanges* Out, Entity* entity, NullablePtr<Entity> rawentityop,String changestart)
 {
