@@ -1772,12 +1772,12 @@ public:
 				entity->SetActive(V);
 			}
 
-			ImGuIHelper::ItemLabel("Prefab", ImGuIHelper::ItemLabelFlag::Left);	
+			ImGuIHelper::ItemLabel("Prefab", ImGuIHelper::ItemLabelFlag::Left);
 			{
 				auto buttioncount = 3;
-				
+
 				auto h = ImGui::GetFrameHeight();
-				auto fieldwidthleft =  ImGui::GetCurrentWindow()->Size.x - ImGui::GetCursorPosX() ;
+				auto fieldwidthleft = ImGui::GetCurrentWindow()->Size.x - ImGui::GetCursorPosX();
 				auto w = (fieldwidthleft / buttioncount) - ImGui::GetStyle().ItemSpacing.x;
 
 				if (ImGui::Button("Open Prefab", { w,h }))
@@ -1799,13 +1799,75 @@ public:
 				}
 
 				ImGui::SameLine();
-				if (ImGui::Button("Make Variant", { w,h }))
-				{
 
+				const char* makevarinatpopupid = "Make Variant Popup";
+				
+				auto wasentityupdated = WasEntityUpdated(entity);
+				
+				static String NewAssetName;
+				ImGui::SetNextWindowSize({ 350,100 });
+				if (ImGui::BeginPopup(makevarinatpopupid))
+				{
+					String str = "Make Variant of ";
+					str += FileFullPath.filename().replace_extension().generic_string();
+
+					ImGui::Text(str.c_str());
+					ImGui::Separator();
+
+					ImGuIHelper::InputText("FileName", NewAssetName);
+				
+					auto buttioncount = 2;
+					auto h = ImGui::GetFrameHeight();
+					auto fieldwidthleft = ImGui::GetCurrentWindow()->Size.x - ImGui::GetCursorPosX();
+					auto w = (fieldwidthleft / buttioncount) - ImGui::GetStyle().ItemSpacing.x;
+
+					if (ImGui::Button("Make",{w,h}))
+					{
+						auto newfilename = FileHelper::GetNewFileName(FileFullPath.parent_path() / Path(NewAssetName).native(), UC::RawEntityData::FileExtDot);
+
+						auto runprj = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+						auto outtype =runprj->Get_ProjData()._SerializeType;
+
+						UC::Entity* e = GetTepScene()->NewEntity();
+						UC::Entity::Destroy(e);
+
+						auto thisassetid = _asset._Base._UID;
+
+						auto placeholder = e->AddCompoent<UC::EntityPlaceHolder>();
+						placeholder->_id = thisassetid;
+
+						UC::Scene2dData::LoadEntity(e, _asset._Base._Data);
+
+						UC::RawEntityData raw = UC::RawEntityData(runprj->GetNewUID(), e, outtype);
+						if (!UC::RawEntityData::WriteToFile(newfilename,raw,outtype))
+						{
+							auto relpath = FileHelper::ToRelativePath(runprj->GetAssetsDir(), newfilename);
+							UCodeGEError("Unable to Write to " << relpath);
+						}
+
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Close",{w,h}))
+					{
+						ImGui::CloseCurrentPopup();
+					}
+
+					ImGui::EndPopup();
 				}
+
+				ImGui::BeginDisabled(wasentityupdated);
+				auto str = wasentityupdated ? "Save First" : "Make Variant";
+				if (ImGui::Button(str, { w,h }))
+				{
+					NewAssetName = FileFullPath.filename().replace_extension().generic_string();
+					ImGui::OpenPopup(makevarinatpopupid);
+				}
+				ImGui::EndDisabled();
+
 				ImGui::SameLine();
 
-				ImGui::BeginDisabled(!WasEntityUpdated(entity));
+				ImGui::BeginDisabled(!wasentityupdated);
 				if (ImGui::Button("Save Prefab", { w,h }))
 				{
 					SaveEntity(entity);
