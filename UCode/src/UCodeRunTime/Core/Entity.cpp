@@ -103,6 +103,25 @@ void Entity::DestroyNullCompoents()
 		}
 		++it;
 	}
+	for (auto it = _Entitys.begin(); it != _Entitys.end();)
+	{
+		auto& Item = *it;
+
+		if (Item->Get_IsDestroyed())
+		{
+
+			const Frame FramesToDestroy = NativeGameRunTime()->Get_GameTime().FramesToDestroy;
+			Frame& EntityFrame = (Frame&)Item->_IsDestroyed;
+			if (EntityFrame >= FramesToDestroy)
+			{
+				it = _Entitys.erase(it);
+				continue;
+		
+			}
+			EntityFrame++;
+		}
+		++it;
+	}
 }
 Entity* Entity::NativeAddEntity()
 {

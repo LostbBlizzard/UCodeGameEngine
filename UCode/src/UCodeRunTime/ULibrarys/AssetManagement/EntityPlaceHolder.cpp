@@ -285,6 +285,32 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChan
 				break;
 			}
 		}
+		for (auto& Item : rawentitys)
+		{
+			auto str = Item->NativeName();
+
+			bool hascompent = false;
+			for (auto& Item : entitys)
+			{
+				if (Item->NativeName() == str)
+				{
+					hascompent = true;
+					break;
+				}
+			}
+
+			if (!hascompent)
+			{
+				EntityPlaceHolderChanges::Change change;
+				change.field = changestart + ".";
+				change.field += String(GetPropsName(PlaceHolderChangeProps::RemoveEntity));
+				change.NewValue = Item->NativeName();
+	
+
+				Out->_changes.push_back(std::move(change));
+				break;
+			}
+		}
 	}
 	else
 	{
@@ -467,6 +493,20 @@ void EntityPlaceHolder::ApplyChanges()
 						{
 							Compoent::Destroy(Item.get());
 
+							break;
+						}
+					}
+					donewithloop = true;
+				}
+				else if (first == GetPropsName(PlaceHolderChangeProps::RemoveEntity))
+				{
+					auto& toremove = Item.NewValue;
+
+					for (auto& Item : entitys)
+					{
+						if (Item->NativeName()== toremove)
+						{
+							Entity::Destroy(Item.get());
 							break;
 						}
 					}
