@@ -113,7 +113,7 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
             bool haschanges = isprefab->_change.HasChanges();
 
 
-            if (ImGui::Button("Overrides", { w,h }))
+            if (ImGui::Button(haschanges ? "Overides*" : "Overrides", { w,h }))
             {
                  ImGui::OpenPopup(overidepopupname);
             }
@@ -121,7 +121,7 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
             ImGui::SetNextWindowSize({ 300,75 });
             if (ImGui::BeginPopup(overidepopupname))
             {
-                ImGuIHelper::Text(StringView(haschanges ? "Overides*" : "Overides"));
+                ImGuIHelper::Text(StringView("Overides"));
 
                 ImGui::BeginDisabled(!haschanges);
                 if (ImGuIHelper::TreeNode(overidepopupname, StringView(item->NativeName()), AppFiles::sprite::Entity))

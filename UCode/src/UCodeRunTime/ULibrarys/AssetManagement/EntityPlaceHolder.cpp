@@ -540,80 +540,192 @@ size_t EntityPlaceHolderChanges::Change::IndexCount(USerializerType type, GetInd
 	}
 	else
 	{
-		UCodeGEUnreachable();
+		if (!chash.reader.has_value())
+		{
+			chash.reader = BitReader((Byte*)field.data(), field.size());
+		}
+		auto& reader = chash.reader.value();
+		reader.Resetoffset();
+
+		EntityPlaceHolderChanges::PlaceHolderChangeProps tep;
+		EntityPlaceHolderChanges::PlaceHolderChangeProps_t& tep_t = *(EntityPlaceHolderChanges::PlaceHolderChangeProps_t*)&tep;
+
+		bool endloop = false;
+		size_t count = 0;
+		while (endloop == false)
+		{
+			reader.ReadType(tep_t, tep_t);
+
+			switch (tep)
+			{
+			case UCode::EntityPlaceHolderChanges::PlaceHolderChangeProps::This:
+				break;
+			case UCode::EntityPlaceHolderChanges::PlaceHolderChangeProps::Compents:
+			case UCode::EntityPlaceHolderChanges::PlaceHolderChangeProps::Entitys:
+			{
+				BitMaker::SizeAsBits val;
+				reader.ReadType(val, val);
+				reader.Addoffset(val);
+
+				count++;
+			}
+			break;	
+			case UCode::EntityPlaceHolderChanges::PlaceHolderChangeProps::RemoveCompent:
+			case UCode::EntityPlaceHolderChanges::PlaceHolderChangeProps::RemoveEntity:
+			case UCode::EntityPlaceHolderChanges::PlaceHolderChangeProps::AddEntity:
+			case UCode::EntityPlaceHolderChanges::PlaceHolderChangeProps::AddCompent:
+			{
+				BitMaker::SizeAsBits val;
+				reader.ReadType(val, val);
+				reader.Addoffset(val);
+
+
+				count++;
+				endloop = true;
+			}
+			break;						
+
+			case UCode::EntityPlaceHolderChanges::PlaceHolderChangeProps::ActiveEntity:
+			case UCode::EntityPlaceHolderChanges::PlaceHolderChangeProps::LocalPositionEntity:
+			case UCode::EntityPlaceHolderChanges::PlaceHolderChangeProps::LocalScaleEntity:
+			case UCode::EntityPlaceHolderChanges::PlaceHolderChangeProps::LocalRotationEntity:
+				endloop = true;
+				break;
+
+			default:
+				UCodeGEUnreachable();
+				break;
+			}
+
+			count++;
+		}
+		reader.Resetoffset();
+
+		return count;
 	}
 }
-EntityPlaceHolderChanges::Change::MemberRet EntityPlaceHolderChanges::Change::GetIndex(USerializerType type,size_t I, EntityPlaceHolderChanges::Change::GetIndexChash& chash)
+EntityPlaceHolderChanges::Change::MemberRet EntityPlaceHolderChanges::Change::GetIndex(USerializerType type, size_t I, EntityPlaceHolderChanges::Change::GetIndexChash& chash)
 {
-	if (type != USerializerType::Bytes)
+	bool isusingstringparts = type != USerializerType::Bytes;
+	if (isusingstringparts)
 	{
 		if (!chash.parts.has_value())
 		{
 			chash.parts = StringHelper::Split(field, ".");
 		}
-
-		String str;
-		Optional<EntityPlaceHolderChanges::PlaceHolderChangeProps> Props;
-		bool nextisname = false;
-		for (size_t i = 0; i < I + 1; i++)
-		{
-			auto& Item = chash.parts.value()[i];
-
-			if (!Props.has_value())
-			{
-				if (nextisname)
-				{
-					str = Item;
-					nextisname = false;
-				}
-				else
-				{
-					Props = EntityPlaceHolderChanges::GetProp(Item);
-				}
-			}
-			else
-			{
-				auto& p = Props.value();
-				if (p == PlaceHolderChangeProps::Compents)
-				{
-					str = Item;
-					Props = {};
-					nextisname = true;
-				}
-				else if (p == PlaceHolderChangeProps::Entitys)
-				{
-					str = Item;
-					Props = {};
-					nextisname = true;
-				}
-				else if (p == PlaceHolderChangeProps::This)
-				{
-					Props = EntityPlaceHolderChanges::GetProp(Item);
-				}
-				else if (p == PlaceHolderChangeProps::AddCompent || p == PlaceHolderChangeProps::AddEntity)
-				{
-					str = Item;
-					Props = {};
-					nextisname = true;
-				}
-			}
-
-			nextisname = false;
-		}
-
-
-		if (Props.has_value())
-		{
-			return Props.value();
-		}
-		else 
-		{
-			return str;
-		}
 	}
 	else
 	{
-		UCodeGEUnreachable();
+		if (!chash.reader.has_value())
+		{
+			chash.reader = BitReader((Byte*)field.data(), field.size());
+		}
+		chash.reader.value().Resetoffset();
+	}
+
+	StringView str;
+	Optional<EntityPlaceHolderChanges::PlaceHolderChangeProps> Props;
+	bool nextisname = false;
+	for (size_t i = 0; i < I + 1; i++)
+	{
+
+		if (!Props.has_value())
+		{
+			if (nextisname)
+			{
+				if (isusingstringparts)
+				{
+					auto& Item = chash.parts.value()[i];
+					str = Item;
+				}
+				else
+				{
+					auto& red = chash.reader.value();
+					BitMaker::SizeAsBits size;
+					red.ReadType(size, size);
+
+					auto ptr = red.Get_OffsetDataPointer();
+					red.Addoffset(size);
+
+					str = StringView((char*)ptr, size);
+				}
+				nextisname = false;
+			}
+			else
+			{
+				if (isusingstringparts)
+				{
+					auto& Item = chash.parts.value()[i];
+					Props = EntityPlaceHolderChanges::GetProp(Item);
+				}
+				else
+				{
+					auto& red = chash.reader.value();
+					EntityPlaceHolderChanges::PlaceHolderChangeProps val;
+					EntityPlaceHolderChanges::PlaceHolderChangeProps_t& ptr = *(EntityPlaceHolderChanges::PlaceHolderChangeProps_t*)&val;
+
+					red.ReadType(ptr, ptr);
+					Props = val;
+				}
+			}
+		}
+		else
+		{
+			auto& p = Props.value();
+
+			if (p == PlaceHolderChangeProps::This)
+			{
+				if (isusingstringparts)
+				{
+					auto& Item = chash.parts.value()[i];
+					Props = EntityPlaceHolderChanges::GetProp(Item);
+				}
+				else
+				{
+					auto& red = chash.reader.value();
+					EntityPlaceHolderChanges::PlaceHolderChangeProps val;
+					EntityPlaceHolderChanges::PlaceHolderChangeProps_t& ptr = *(EntityPlaceHolderChanges::PlaceHolderChangeProps_t*)&val;
+
+					red.ReadType(ptr, ptr);
+					Props = val;
+				}
+			}
+			else if (p == PlaceHolderChangeProps::Compents || p == PlaceHolderChangeProps::Entitys ||
+				p == PlaceHolderChangeProps::AddCompent || p == PlaceHolderChangeProps::AddEntity
+				|| p == PlaceHolderChangeProps::RemoveEntity || p == PlaceHolderChangeProps::RemoveCompent)
+			{
+				if (isusingstringparts)
+				{
+					auto& Item = chash.parts.value()[i];
+					str = Item;
+				}
+				else
+				{
+					auto& red = chash.reader.value();
+					BitMaker::SizeAsBits size;
+					red.ReadType(size, size);
+
+					auto ptr = red.Get_OffsetDataPointer();
+					red.Addoffset(size);
+
+					str = StringView((char*)ptr, size);
+				}
+				Props = {};
+				nextisname = true;
+			}
+		}
+
+		nextisname = false;
+	}
+
+
+	if (Props.has_value())
+	{
+		return Props.value();
+	}
+	else
+	{
+		return str;
 	}
 }
 void EntityPlaceHolderChanges::Change::AddField(USerializerType type, size_t value)
@@ -654,7 +766,7 @@ void EntityPlaceHolderChanges::Change::AddField(USerializerType type, StringView
 		field.resize(field.size() + sizeof(BitMaker::SizeAsBits) + value.size());
 
 		tep.MoveBytes((BitMaker::SizeAsBits)value.size(), field.data(), oldcount);
-		memcpy((void*)((uintptr_t)field.data() + sizeof(BitMaker::SizeAsBits)), value.data(), value.size());
+		memcpy((void*)((uintptr_t)field.data() + oldcount + sizeof(BitMaker::SizeAsBits)), value.data(), value.size());
 	}
 }
 void EntityPlaceHolderChanges::Change::AddField(USerializerType type, PlaceHolderChangeProps props)
@@ -685,7 +797,7 @@ void EntityPlaceHolder::ApplyChanges()
 	bool UseIndex = in._serializertype == USerializerType::Bytes;
 	for (auto& Item : in._changes)
 	{
-		Entity* e = this->NativeEntity();
+		Entity* e = NativeEntity();
 
 		EntityPlaceHolderChanges::Change::GetIndexChash chash;
 		size_t count = Item.IndexCount(in._serializertype, chash);
@@ -711,7 +823,7 @@ void EntityPlaceHolder::ApplyChanges()
 				{
 					if (count >= i + 1)
 					{
-						auto compenttype = Item.GetIndex(in._serializertype, i + 1, chash).GetType<String>();
+						auto compenttype = Item.GetIndex(in._serializertype, i + 1, chash).GetType<StringView>();
 
 						NullablePtr<Compoent> valop;
 						for (auto& Item : compents)
@@ -740,9 +852,10 @@ void EntityPlaceHolder::ApplyChanges()
 									{
 										auto instance = val->Get_Rttr_Instance();
 
-										UCode::UDeserializer deser(Item.NewValue);
+										UCode::UDeserializer deser;
+										deser.SetData(BytesView((Byte*)Item.NewValue.data(), Item.NewValue.size()), in._serializertype);
 										RttrSerializer::Read(deser, NewValueFieldName, instance, pro);
-										i+=2;
+										i += 2;
 										break;
 									}
 								}
@@ -783,7 +896,7 @@ void EntityPlaceHolder::ApplyChanges()
 					if (count >= i + 1)
 					{
 						UCode::Scene2dData::Compoent_Data val;
-						val._CompoentType = Item.GetIndex(in._serializertype, i + 1, chash).GetType<String>();
+						val._CompoentType = Item.GetIndex(in._serializertype, i + 1, chash).GetType<StringView>();
 						val._Data = Item.NewValue;
 
 						UCode::Scene2dData::LoadCompoent(e, val);
@@ -795,11 +908,12 @@ void EntityPlaceHolder::ApplyChanges()
 					{
 						UCode::Scene2dData::Entity_Data val;
 
-						UCode::UDeserializer deser(Item.NewValue);
+						UCode::UDeserializer deser;
+						deser.SetData(BytesView((Byte*)Item.NewValue.data(),Item.NewValue.size()),in._serializertype);
 						deser.ReadType(NewValueFieldName,val);
 
 						auto newe = e->NativeAddEntity();
-						newe->NativeName() = Item.GetIndex(in._serializertype, i + 1, chash).GetType<String>();
+						newe->NativeName() = Item.GetIndex(in._serializertype, i + 1, chash).GetType<StringView>();
 
 						UCode::Scene2dData::LoadEntity(newe, val);
 					}
@@ -808,7 +922,7 @@ void EntityPlaceHolder::ApplyChanges()
 				{
 					if (count >= i + 1)
 					{
-						auto toget = Item.GetIndex(in._serializertype, i+1, chash).GetType<String>();
+						auto toget = Item.GetIndex(in._serializertype, i+1, chash).GetType<StringView>();
 						for (auto& Item : e->NativeGetEntitys())
 						{
 							if (Item->NativeName() == toget && !Item->Get_IsDestroyed())
@@ -823,25 +937,29 @@ void EntityPlaceHolder::ApplyChanges()
 				else if (prop == Proptype::LocalPositionEntity)
 				{
 					Vec3& out = e->NativeLocalPosition();
-					UCode::UDeserializer deser(Item.NewValue);
+					UCode::UDeserializer deser;
+					deser.SetData(BytesView((Byte*)Item.NewValue.data(),Item.NewValue.size()),in._serializertype);
 					deser.ReadType(NewValueFieldName, out, out);
 				}
 				else if (prop == Proptype::LocalRotationEntity)
 				{
 					Vec3& out = e->NativeLocalRotation();
 					UCode::UDeserializer deser(Item.NewValue);
+					deser.SetData(BytesView((Byte*)Item.NewValue.data(),Item.NewValue.size()),in._serializertype);
 					deser.ReadType(NewValueFieldName, out, out);
 				}
 				else if (prop == Proptype::LocalScaleEntity)
 				{
 					Vec3& out = e->NativeLocalScale();
-					UCode::UDeserializer deser(Item.NewValue);
+					UCode::UDeserializer deser;
+					deser.SetData(BytesView((Byte*)Item.NewValue.data(),Item.NewValue.size()),in._serializertype);
 					deser.ReadType(NewValueFieldName, out, out);
 				}
 				else if (prop == Proptype::ActiveEntity)
 				{
 					bool r = e->GetActive();
-					UCode::UDeserializer deser(Item.NewValue);
+					UCode::UDeserializer deser;
+					deser.SetData(BytesView((Byte*)Item.NewValue.data(),Item.NewValue.size()),in._serializertype);
 					deser.ReadType(NewValueFieldName, r, r);
 					e->SetActive(r);
 				}
