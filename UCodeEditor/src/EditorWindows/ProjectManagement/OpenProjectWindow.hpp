@@ -36,6 +36,7 @@ public:
 	{
 		ProjectList,
 		MakeNewProject,
+		Credits,
 	};
 	State _State;
 	Path ProjectDir;

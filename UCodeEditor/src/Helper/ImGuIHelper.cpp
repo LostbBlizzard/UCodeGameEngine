@@ -429,11 +429,19 @@ bool ImGuIHelper::MultLineText(const char* label, String& buffer, ImVec2 Size, I
 }
 bool ImGuIHelper::InputPath(const char* label, String& buffer, ImGuiInputTextFlags flags, InputPathType PathType, Span<String> Extension)
 {
-	bool R = InputText(label, buffer, flags);
+	ItemLabel(StringView(label), ItemLabelFlag::Left);
+
+	ImGuiContext& g = *GImGui;
+
+	auto Size = g.FontSize + g.Style.FramePadding.y * 2;
+
+	float fullWidth = ImGui::GetContentRegionAvail().x;
+	ImGui::SetNextItemWidth(fullWidth - (Size + g.Style.FramePadding.y *2));
+	bool R = InputText(buffer, flags);
 
 	ImGui::SameLine();
 
-	if (ImGui::Button("+", { 20,20 }))
+	if (ImGui::Button("+", ImVec2(Size, Size)))
 	{
 		FileHelper::OpenFileData _Data;
 		if (PathType == InputPathType::Dir)
