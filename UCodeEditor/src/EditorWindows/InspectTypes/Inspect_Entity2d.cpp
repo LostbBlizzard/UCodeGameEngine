@@ -101,12 +101,46 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
             
             ImGui::SameLine();
 
-            bool haschanges = false;
+            bool wasupdated = true;
+            
+            if (wasupdated) 
+            {
+                auto type = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->Get_ProjData()._SerializeType;
+                isprefab->UpdateChanges(type);
+            }
+
+            const char* overidepopupname = "overridepopup";
+            bool haschanges = isprefab->_change.HasChanges();
+
             ImGui::BeginDisabled(!haschanges);
+
             if (ImGui::Button("Overrides", { w,h }))
             {
-
+                 ImGui::OpenPopup(overidepopupname);
             }
+
+            ImGui::SetNextWindowSize({ 300,75 });
+            if (ImGui::BeginPopup(overidepopupname))
+            {
+                ImGuIHelper::Text(StringView("Overides"));
+
+                if (ImGuIHelper::TreeNode(overidepopupname, StringView(item->NativeName()), AppFiles::sprite::Entity))
+                {
+
+                    ImGui::TreePop();
+                }
+
+                ImGui::Separator();
+                if (ImGui::Button("Revert"))
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+
+
+
+                ImGui::EndPopup();
+            }
+            
             ImGui::EndDisabled();
         }
     

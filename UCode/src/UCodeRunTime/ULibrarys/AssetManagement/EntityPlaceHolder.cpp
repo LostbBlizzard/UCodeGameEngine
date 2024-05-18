@@ -405,6 +405,11 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChan
 
 	}
 }
+void EntityPlaceHolder::UpdateChanges(USerializerType type) 
+{
+	Entity* v;
+	UpdateChanges(type, &v);
+}
 void EntityPlaceHolder::UpdateChanges(USerializerType type,Entity** rawentity)
 {
 	auto& out = _change;
