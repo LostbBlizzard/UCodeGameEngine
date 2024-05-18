@@ -112,7 +112,6 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
             const char* overidepopupname = "overridepopup";
             bool haschanges = isprefab->_change.HasChanges();
 
-            ImGui::BeginDisabled(!haschanges);
 
             if (ImGui::Button("Overrides", { w,h }))
             {
@@ -122,17 +121,34 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
             ImGui::SetNextWindowSize({ 300,75 });
             if (ImGui::BeginPopup(overidepopupname))
             {
-                ImGuIHelper::Text(StringView("Overides"));
+                ImGuIHelper::Text(StringView(haschanges ? "Overides*" : "Overides"));
 
+                ImGui::BeginDisabled(!haschanges);
                 if (ImGuIHelper::TreeNode(overidepopupname, StringView(item->NativeName()), AppFiles::sprite::Entity))
                 {
 
                     ImGui::TreePop();
                 }
+                ImGui::EndDisabled();
 
                 ImGui::Separator();
-                if (ImGui::Button("Revert"))
+                auto h = ImGui::GetFrameHeight();
+                auto fieldwidthleft = ImGui::GetCurrentWindow()->Size.x - ImGui::GetCursorPosX();
+
+                auto buttionw = (fieldwidthleft / 2) - ImGui::GetStyle().ItemSpacing.x * 2;
+
+                ImGui::BeginDisabled(!haschanges);
+                if (ImGui::Button("Revert",{buttionw,h}))
                 {
+                    isprefab->RemoveChanges();
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndDisabled();
+         
+                ImGui::SameLine();
+                if (ImGui::Button("Unpack Prefab",{buttionw,h}))
+                {
+                    UC::Compoent::Destroy(isprefab);
                     ImGui::CloseCurrentPopup();
                 }
 
@@ -141,7 +157,6 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
                 ImGui::EndPopup();
             }
             
-            ImGui::EndDisabled();
         }
     
         if (Is2D)
@@ -224,7 +239,7 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
     {
         if (Item->Get_CompoentTypeData() == &UC::EntityPlaceHolder::type_Data)
         {
-            return;
+            continue;
         }
         Inspect_Compoent2d::Insp_(Item.get(), Draw);
         ImGui::Separator();
