@@ -52,25 +52,37 @@ void Scene2dData::SaveEntityData(const Entity* Item, Scene2dData::Entity_Data& E
     Entity._LocalScale = Item->NativeLocalScale();
 
     Entity._Name = Item->NativeName();
-        
-        
-    if (auto v = Item->GetCompent<EntityPlaceHolder>().value_unchecked())
+       
+    bool hasplaceholder = false;
+    for (auto& com : Item->NativeCompoents())
     {
-        v->OnOverrideSerializeEntity(Entity, type);
+        if (com->Get_IsDestroyed()) { continue; }
 
-        Compoent_Data Data; 
-        if (!SaveCompoentData(v, Data, type))
+        if (com->Get_CompoentTypeData() == &EntityPlaceHolder::type_Data)
         {
-            return;
+            auto v = (EntityPlaceHolder*)com.get();
+            v->OnOverrideSerializeEntity(Entity, type);
+
+            Compoent_Data Data;
+            if (!SaveCompoentData(v, Data, type))
+            {
+                return;
+            }
+            Entity._Compoents.push_back(std::move(Data));
+
+            hasplaceholder = true;
+            break;
         }
-        Entity._Compoents.push_back(std::move(Data));
     }
-    else
+        
+    if (!hasplaceholder)
     {
         const auto& Compoents = Item->NativeCompoents();
         Entity._Compoents.reserve(Compoents.size());
         for (const auto& Item : Compoents)
         {
+            if (Item->Get_IsDestroyed()) { return; }
+
             Compoent_Data Data;
 
             if (!SaveCompoentData(Item.get(), Data, type))
@@ -86,6 +98,7 @@ void Scene2dData::SaveEntityData(const Entity* Item, Scene2dData::Entity_Data& E
 
         for (const auto& Item : Entitys)
         {
+            if (Item->Get_IsDestroyed()) { return; }
             Entity_Data EntityItem;
             SaveEntityData(Item.get(), EntityItem, type);
             Entity._Entitys.push_back(std::move(EntityItem));
