@@ -55,7 +55,7 @@ void ProjectWindow::UpdateWindow()
 
 	auto currentpos = ImGui::GetCursorPos();
 	const float FieldHeight = ImGui::GetFrameHeight();
-	const float FieldCount = 2;
+	const float FieldCount = 3;
 
 	{
 
@@ -87,6 +87,17 @@ void ProjectWindow::UpdateWindow()
 			UpdateValue = true;
 		}
 
+		ImGui::SetCursorPosX(startdrawposx);
+		auto str = ProjectData2._Version.ToString();
+		if (ImGuIHelper::InputText("Game Version",str))
+		{
+			auto v = UC::Version::Parse(str);
+			if (v.has_value()) 
+			{
+				ProjectData2._Version = v.value();
+			}
+			UpdateValue = true;
+		}
 	}
 
 	static const ImGuIHelper::EnumValue<USerializerType> Values[] =

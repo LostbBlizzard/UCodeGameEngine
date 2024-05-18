@@ -230,14 +230,14 @@ void UserSettingsWindow::UpdateWindow()
 			}
 
 			bool Popuplock = false;
+
+			ImGui::Indent();
 			for (size_t i = 0; i < Settings.KeyBinds.size(); i++)
 			{
 				auto& data = UserSettings::KeyBindDataList[i];
 				auto& key = Settings.KeyBinds[i];
 
-				tep = "   ";
-				tep += data.KeyBindName;
-				ImGuIHelper::ItemLabel(tep,ImGuIHelper::Left);
+				ImGuIHelper::ItemLabel(data.KeyBindName,ImGuIHelper::Left);
 
 				DrawKeyBind(key);
 
@@ -256,6 +256,7 @@ void UserSettingsWindow::UpdateWindow()
 					}
 				}
 			}
+			ImGui::Unindent();
 		}	
 		
 		if (ImGui::BeginTabItem("CodeEditor"))
