@@ -68,9 +68,10 @@ struct EntityPlaceHolderChanges
 		struct GetIndexChash
 		{
 			Optional<Vector<StringView>> parts;
+			Optional<BitReader> reader;
 		};
 	
-		using MemberRet = Variant<PlaceHolderChangeProps, String>;
+		using MemberRet = Variant<PlaceHolderChangeProps, StringView>;
 		
 		void AddField(USerializerType type, PlaceHolderChangeProps props);
 		void AddField(USerializerType type, StringView value);
