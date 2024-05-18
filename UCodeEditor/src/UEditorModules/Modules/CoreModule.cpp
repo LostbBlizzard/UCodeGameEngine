@@ -1741,9 +1741,7 @@ public:
 			UC::Scene2dData::SaveEntityData(e, data._Data, type);
 
 			data._UID = _asset._Base._UID;
-			//_asset._Base._Data = std::move(data);
-			//_assetasbytes = GetAssetAsBytes(_asset._Base._Data);
-
+			
 			if (!UC::RawEntityData::WriteToFile(FileFullPath, data, type))
 			{
 				UCodeGEError("Unable to SaveFile " << FileHelper::ToRelativePath(runtime->GetAssetsDir(), FileFullPath));

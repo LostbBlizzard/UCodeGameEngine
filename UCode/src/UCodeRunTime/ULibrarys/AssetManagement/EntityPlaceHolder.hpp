@@ -15,6 +15,10 @@ struct EntityPlaceHolderChanges
 	};
 
 	Vector<Change> _changes;
+	bool HasChanges()
+	{
+		return _changes.size() != 0;
+	}
 };
 CoreEnd
 
@@ -42,6 +46,8 @@ public:
 	static UComponentData type_Data;
 
 	void OnUpdatedID();
+
+	void UpdateChanges(USerializerType type);
 private:
 
 	void OnAssetPreUpdate();
