@@ -126,6 +126,11 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
                 ImGui::BeginDisabled(!haschanges);
                 if (ImGuIHelper::TreeNode(overidepopupname, StringView(item->NativeName()), AppFiles::sprite::Entity))
                 {
+                    auto& changes = isprefab->_change;
+                    for (auto& change : changes._changes)
+                    {
+
+                    }
 
                     ImGui::TreePop();
                 }

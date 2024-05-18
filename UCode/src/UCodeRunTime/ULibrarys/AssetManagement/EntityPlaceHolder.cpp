@@ -66,6 +66,15 @@ void EntityPlaceHolder::OnAssetPreUpdate()
 	Scene2dData::SaveEntityData(NativeEntity(), this->_oldentitydata, USerializerType::YAML);
 	#endif
 }
+NullablePtr<Entity> EntityPlaceHolder::GetEntity(USerializerType type, const EntityPlaceHolderChanges::Change& change)
+{
+	return {};
+}
+NullablePtr<Compoent> EntityPlaceHolder::GetCompoent(USerializerType type, const EntityPlaceHolderChanges::Change& change)
+{
+	return {};
+}
+
 void EntityPlaceHolder::RemoveChanges()
 {
 	for (auto& Item : NativeEntity()->NativeGetEntitys())
@@ -125,6 +134,7 @@ void EntityPlaceHolder::Deserialize(UDeserializer& Serializer)
 
 	Optional<Assetptr> assetop = AssetManager::Get(GetGameRunTime()->Get_Library_Edit())->FindOrLoad(_id);
 
+	_change._serializertype = Serializer.Get_Mode();
 	if (assetop.has_value())
 	{
 		auto rawop = assetop.value().Get_Value()->GetAssetAs<RawEntityDataAsset>();
@@ -152,37 +162,7 @@ void EntityPlaceHolder::Deserialize(UDeserializer& Serializer)
 }
 
 
-using PlaceHolderChangeProps_t = int;
-enum class PlaceHolderChangeProps :PlaceHolderChangeProps_t
-{
-	This,
-	Compents,
-	Entitys,
-	RemoveCompent,
-	RemoveEntity,
-	AddCompent,
-	AddEntity,
 
-
-	Max,
-};
-
-
-std::array<StringView, (PlaceHolderChangeProps_t)PlaceHolderChangeProps::Max> PlaceHolderChangePropsNames =
-{
-	"this",
-	"compents",
-	"entitys",
-	"removecompent",
-	"removeentity",
-	"addcompent",
-	"addentity",
-};
-
-StringView GetPropsName(PlaceHolderChangeProps val)
-{
-	return PlaceHolderChangePropsNames[(PlaceHolderChangeProps_t)val];
-}
 constexpr const char* NewValueFieldName = "_";
 void EntityPlaceHolder::OnOverrideSerializeEntity(UCode::Scene2dData::Entity_Data& Scene,USerializerType type)
 {
@@ -254,6 +234,8 @@ void EntityPlaceHolder::OnOverrideSerializeEntity(UCode::Scene2dData::Entity_Dat
 }
 void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChanges* Out, Entity* entity, NullablePtr<Entity> rawentityop,String changestart)
 {
+	bool useindex = type == USerializerType::Bytes;
+
 	if (rawentityop.has_value())
 	{
 		auto& rawasentity = rawentityop.value();
@@ -266,6 +248,7 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChan
 		for (auto& compoent : compents)
 		{
 			if (compoent->Get_IsDestroyed()) { continue; }
+			if (compoent.get() == this) { continue; }
 			NullablePtr<Compoent> fromraw;
 			{
 				for (auto& Item : rawcompents)
@@ -282,31 +265,22 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChan
 			state.Out = Out;
 			state.compoent = compoent.get();
 			state.rawcompoent = fromraw;
-
-			if (type == USerializerType::YAML)
-			{
-				state.compoentref =
-					changestart + "." +
-					String(GetPropsName(PlaceHolderChangeProps::Compents)) + '.' + compoent->Get_CompoentTypeData()->_Type;
-			}
-			else
-			{
-				BitConverter tep(BitConverter::Endian::little);
-
-				state.compoentref.resize(sizeof(PlaceHolderChangeProps) + sizeof(PlaceHolderChangeProps));
-
-				tep.MoveBytes((PlaceHolderChangeProps_t)PlaceHolderChangeProps::This, state.compoentref.data(), 0);
-
-				tep.MoveBytes((PlaceHolderChangeProps_t)PlaceHolderChangeProps::Compents, state.compoentref.data(), sizeof(PlaceHolderChangeProps));
-
-				auto& typenmaestr = compoent->Get_CompoentTypeData()->_Type;
-				tep.MoveBytes((BitMaker::SizeAsBits)typenmaestr.size(), state.compoentref.data(), sizeof(PlaceHolderChangeProps) * 2);
-				state.compoentref += typenmaestr;
-			}
-
+			
+			state.compoentref.field = changestart;
+			state.compoentref.AddField(type, EntityPlaceHolderChanges::PlaceHolderChangeProps::Compents);
+			state.compoentref.AddField(type, compoent->Get_CompoentTypeData()->_Type);
+				
 			if (!fromraw.has_value())
 			{
+				EntityPlaceHolderChanges::Change change;
+				change.field = changestart;
+				change.AddField(type, EntityPlaceHolderChanges::PlaceHolderChangeProps::AddCompent);
+				change.AddField(type, compoent->Get_CompoentTypeData()->_Type);
 
+				USerializer serializer(type);
+				Scene2dData::SaveCompoentDataAsText(compoent.get(), serializer);
+				serializer.ToString(change.NewValue);
+				Out->_changes.push_back(std::move(change));
 			}
 			else 
 			{
@@ -331,11 +305,16 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChan
 			{
 				auto raw = RawEntity.value();
 
-				auto entityid = changestart + "."+  String(GetPropsName(PlaceHolderChangeProps::Entitys)) + String(".") + Item->NativeName() + String(".");
+	
+				EntityPlaceHolderChanges::Change change;
+				change.field = changestart;
+				change.AddField(type, EntityPlaceHolderChanges::PlaceHolderChangeProps::Entitys);
+				change.AddField(type, Item->NativeName());
+				
+				auto entityid =  change.field;
 				if (Item->GetActive() != raw->GetActive())
 				{
-					EntityPlaceHolderChanges::Change change;
-					change.field = entityid + String("Active");
+					change.AddField(type,EntityPlaceHolderChanges::PlaceHolderChangeProps::ActiveEntity);
 
 					USerializer tep(type);
 					tep.Write(NewValueFieldName, Item->GetActive());
@@ -345,8 +324,7 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChan
 				}
 				if (Item->NativeLocalPosition() != raw->NativeLocalPosition())
 				{
-					EntityPlaceHolderChanges::Change change;
-					change.field = entityid + String("LocalPosition");
+					change.AddField(type,EntityPlaceHolderChanges::PlaceHolderChangeProps::LocalPositionEntity);
 
 					USerializer tep(type);
 					tep.Write(NewValueFieldName, Item->LocalPosition());
@@ -356,8 +334,7 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChan
 				}
 				if (Item->NativeLocalScale() != raw->NativeLocalScale())
 				{
-					EntityPlaceHolderChanges::Change change;
-					change.field = entityid + String("LocalScale");
+					change.AddField(type,EntityPlaceHolderChanges::PlaceHolderChangeProps::LocalScaleEntity);
 
 					USerializer tep(type);
 					tep.Write(NewValueFieldName, Item->NativeLocalScale());
@@ -367,8 +344,7 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChan
 				}
 				if (Item->NativeLocalRotation() != raw->NativeLocalRotation())
 				{
-					EntityPlaceHolderChanges::Change change;
-					change.field = entityid + String("LocalRotation");
+					change.AddField(type,EntityPlaceHolderChanges::PlaceHolderChangeProps::LocalRotationEntity);
 
 					USerializer tep(type);
 					tep.Write(NewValueFieldName, Item->NativeLocalRotation());
@@ -378,6 +354,22 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChan
 				}
 
 				UpdateChanges(type, Out, Item.get(), RawEntity, entityid);
+			}
+			else
+			{
+				EntityPlaceHolderChanges::Change change;
+				change.field = changestart;
+				change.AddField(type, EntityPlaceHolderChanges::PlaceHolderChangeProps::AddEntity);
+				change.AddField(type, Item->NativeName());
+
+				USerializer serializer(type);
+				
+				Scene2dData::Entity_Data data;
+				Scene2dData::SaveEntityData(Item.get(),data,type);
+				serializer.Write(NewValueFieldName, data);
+				serializer.ToString(change.NewValue);
+
+				Out->_changes.push_back(std::move(change));
 			}
 		}
 	
@@ -399,8 +391,8 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChan
 			if (!hascompent)
 			{
 				EntityPlaceHolderChanges::Change change;
-				change.field = changestart + ".";
-				change.field += String(GetPropsName(PlaceHolderChangeProps::RemoveCompent));
+				change.field = changestart;
+				change.AddField(type,EntityPlaceHolderChanges::PlaceHolderChangeProps::RemoveCompent);
 				change.NewValue = Item->Get_CompoentTypeData()->_Type;
 	
 
@@ -425,8 +417,8 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChan
 			if (!hascompent)
 			{
 				EntityPlaceHolderChanges::Change change;
-				change.field = changestart + ".";
-				change.field += String(GetPropsName(PlaceHolderChangeProps::RemoveEntity));
+				change.field = changestart;
+				change.AddField(type,EntityPlaceHolderChanges::PlaceHolderChangeProps::RemoveEntity);
 				change.NewValue = Item->NativeName();
 	
 
@@ -467,7 +459,9 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,Entity** rawentity)
 			out._changes.clear();
 			itworked = true;
 
-			UpdateChanges(type, &out, NativeEntity(),Nullableptr(rawasentity),String(GetPropsName(PlaceHolderChangeProps::This)));
+			EntityPlaceHolderChanges::Change change;
+			change.AddField(type, EntityPlaceHolderChanges::PlaceHolderChangeProps::This);
+			UpdateChanges(type, &out, NativeEntity(),Nullableptr(rawasentity),change.field);
 		}
 
 	}
@@ -488,6 +482,7 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,UpdateChangesCompoent
 	{
 		auto& runtimetypereflection = state.compoent->Get_CompoentTypeData()->_RuntimeTypeReflection.value();
 
+		size_t propindex = 0;
 		for (auto& Item : runtimetypereflection.get_properties())	
 		{
 			auto compentfield = Item.get_value(state.compoent->Get_Rttr_Instance());
@@ -506,72 +501,217 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,UpdateChangesCompoent
 				{
 					tep.Reset();
 					EntityPlaceHolderChanges::Change change;
+					change.field = state.compoentref.field;
+					
+					bool useindex = type == USerializerType::Bytes;
 
-					if (type == USerializerType::YAML)
+					if (useindex) 
 					{
-						change.field = state.compoentref + "." + Item.get_name();
+						change.AddField(type, propindex);
+					}
+					else
+					{
+						auto name = StringView(Item.get_name().data(), Item.get_name().size());
+						change.AddField(type, name);
 
 						RttrSerializer::Write(tep, NewValueFieldName, compentfield);
 						tep.ToString(change.NewValue, false);
 					}
-					else if (type == USerializerType::Bytes)
-					{
-						BitConverter tepbyte(BitConverter::Endian::little);
-						change.field = state.compoentref;
 
-						auto& str = StringView(Item.get_name().data(), Item.get_name().size());
-
-						change.field.resize(change.field.size() + sizeof(BitMaker::SizeAsBits));
-						tepbyte.MoveBytes((BitMaker::SizeAsBits)str.size(), change.field.data(), change.field.size());
-						change.field += str;
-
-						RttrSerializer::Write(tep, NewValueFieldName, compentfield);
-						tep.ToString(change.NewValue, false);
-					}
 
 					state.Out->_changes.push_back(std::move(change));
 				}
 			}
+			propindex++;
 		}
 	}
 	
 }
+
+size_t EntityPlaceHolderChanges::Change::IndexCount(USerializerType type, GetIndexChash& chash)
+{
+	if (type != USerializerType::Bytes)
+	{
+		if (!chash.parts.has_value())
+		{
+			chash.parts = StringHelper::Split(field, ".");
+		}
+		return chash.parts.value().size();
+	}
+	else
+	{
+		UCodeGEUnreachable();
+	}
+}
+EntityPlaceHolderChanges::Change::MemberRet EntityPlaceHolderChanges::Change::GetIndex(USerializerType type,size_t I, EntityPlaceHolderChanges::Change::GetIndexChash& chash)
+{
+	if (type != USerializerType::Bytes)
+	{
+		if (!chash.parts.has_value())
+		{
+			chash.parts = StringHelper::Split(field, ".");
+		}
+
+		String str;
+		Optional<EntityPlaceHolderChanges::PlaceHolderChangeProps> Props;
+		bool nextisname = false;
+		for (size_t i = 0; i < I + 1; i++)
+		{
+			auto& Item = chash.parts.value()[i];
+
+			if (!Props.has_value())
+			{
+				if (nextisname)
+				{
+					str = Item;
+					nextisname = false;
+				}
+				else
+				{
+					Props = EntityPlaceHolderChanges::GetProp(Item);
+				}
+			}
+			else
+			{
+				auto& p = Props.value();
+				if (p == PlaceHolderChangeProps::Compents)
+				{
+					str = Item;
+					Props = {};
+					nextisname = true;
+				}
+				else if (p == PlaceHolderChangeProps::Entitys)
+				{
+					str = Item;
+					Props = {};
+					nextisname = true;
+				}
+				else if (p == PlaceHolderChangeProps::This)
+				{
+					Props = EntityPlaceHolderChanges::GetProp(Item);
+				}
+				else if (p == PlaceHolderChangeProps::AddCompent || p == PlaceHolderChangeProps::AddEntity)
+				{
+					str = Item;
+					Props = {};
+					nextisname = true;
+				}
+			}
+
+			nextisname = false;
+		}
+
+
+		if (Props.has_value())
+		{
+			return Props.value();
+		}
+		else 
+		{
+			return str;
+		}
+	}
+	else
+	{
+		UCodeGEUnreachable();
+	}
+}
+void EntityPlaceHolderChanges::Change::AddField(USerializerType type, size_t value)
+{
+	if (type == USerializerType::YAML)
+	{
+		if (field.size())
+		{
+			field += '.';
+		}
+
+		field += std::to_string(value);
+	}
+	else
+	{
+		BitConverter tep(BitConverter::Endian::little);
+		auto oldcount = field.size();
+		field.resize(field.size() + sizeof(BitMaker::SizeAsBits));
+
+		tep.MoveBytes((BitMaker::SizeAsBits)value, field.data(), oldcount);	}
+}
+void EntityPlaceHolderChanges::Change::AddField(USerializerType type, StringView value)
+{
+	if (type == USerializerType::YAML)
+	{
+		if (field.size())
+		{
+			field += '.';
+		}
+
+		field += value;
+	}
+	else
+	{
+
+		BitConverter tep(BitConverter::Endian::little);
+		auto oldcount = field.size();
+		field.resize(field.size() + sizeof(BitMaker::SizeAsBits) + value.size());
+
+		tep.MoveBytes((BitMaker::SizeAsBits)value.size(), field.data(), oldcount);
+		memcpy((void*)((uintptr_t)field.data() + sizeof(BitMaker::SizeAsBits)), value.data(), value.size());
+	}
+}
+void EntityPlaceHolderChanges::Change::AddField(USerializerType type, PlaceHolderChangeProps props)
+{
+	if (type == USerializerType::YAML)
+	{
+		if (field.size())
+		{
+			field += '.';
+		}
+
+		field += GetPropsName(props);
+	}
+	else
+	{
+		BitConverter tep(BitConverter::Endian::little);
+		auto oldcount = field.size();
+		field.resize(field.size() + sizeof(PlaceHolderChangeProps));
+
+		tep.MoveBytes((PlaceHolderChangeProps_t)props, field.data(), oldcount);
+	}
+}
+
 void EntityPlaceHolder::ApplyChanges()
 {
 	auto& in = _change;
 
-
-
-	Vector<StringView> parts;
+	bool UseIndex = in._serializertype == USerializerType::Bytes;
 	for (auto& Item : in._changes)
 	{
-		parts.clear();
-		StringHelper::Split(Item.field, ".", parts);
-
 		Entity* e = this->NativeEntity();
 
-		bool donewithloop = false;
-		size_t Index = 0;
-		while (donewithloop == false)
+		EntityPlaceHolderChanges::Change::GetIndexChash chash;
+		size_t count = Item.IndexCount(in._serializertype, chash);
+		size_t i = 0;
+
+		while (i < count)
 		{
 			auto& compents = e->NativeCompoents();
 			auto& entitys = e->NativeGetEntitys();
 
+			auto item = Item.GetIndex(in._serializertype, i, chash);
+			using Proptype = EntityPlaceHolderChanges::PlaceHolderChangeProps;
 
-			if (parts.size() >= Index + 1)
+			if (auto val = item.IfType<Proptype>())
 			{
-				auto& first = parts[Index + 0];
+				auto& prop = *val;
 
-				if (first == GetPropsName(PlaceHolderChangeProps::This))
+				if (prop == Proptype::This)
 				{
 					e = this->NativeEntity();
-					Index++;
 				}
-				else if (first == GetPropsName(PlaceHolderChangeProps::Compents))
+				else if (prop == Proptype::Compents)
 				{
-					if (parts.size() >= Index + 1)
+					if (count >= i + 1)
 					{
-						auto& compenttype = parts[Index + 1];
+						auto compenttype = Item.GetIndex(in._serializertype, i + 1, chash).GetType<String>();
 
 						NullablePtr<Compoent> valop;
 						for (auto& Item : compents)
@@ -587,9 +727,9 @@ void EntityPlaceHolder::ApplyChanges()
 						{
 							auto val = valop.value();
 
-							if (parts.size() >=  Index + 2)
+							if (count >= i + 2)
 							{
-								auto& field = parts[Index + 2];
+								auto field = Item.GetIndex(in._serializertype, i + 2, chash).GetType<String>();
 
 								auto& runtimetypereflection = val->Get_CompoentTypeData()->_RuntimeTypeReflection.value();
 
@@ -602,16 +742,16 @@ void EntityPlaceHolder::ApplyChanges()
 
 										UCode::UDeserializer deser(Item.NewValue);
 										RttrSerializer::Read(deser, NewValueFieldName, instance, pro);
+										i+=2;
 										break;
 									}
 								}
-								donewithloop = true;
 							}
 
 						}
 					}
 				}
-				else if (first == GetPropsName(PlaceHolderChangeProps::RemoveCompent))
+				else if (prop == Proptype::RemoveCompent)
 				{
 					auto& toremove = Item.NewValue;
 
@@ -624,27 +764,51 @@ void EntityPlaceHolder::ApplyChanges()
 							break;
 						}
 					}
-					donewithloop = true;
 				}
-				else if (first == GetPropsName(PlaceHolderChangeProps::RemoveEntity))
+				else if (prop == Proptype::RemoveEntity)
 				{
 					auto& toremove = Item.NewValue;
 
 					for (auto& Item : entitys)
 					{
-						if (Item->NativeName()== toremove)
+						if (Item->NativeName() == toremove)
 						{
 							Entity::Destroy(Item.get());
 							break;
 						}
 					}
-					donewithloop = true;
 				}
-				else if (first == GetPropsName(PlaceHolderChangeProps::Entitys))
+				else if (prop == Proptype::AddCompent)
 				{
-					if (parts.size() >= Index + 1)
+					if (count >= i + 1)
 					{
-						auto& toget = parts[Index + 1];
+						UCode::Scene2dData::Compoent_Data val;
+						val._CompoentType = Item.GetIndex(in._serializertype, i + 1, chash).GetType<String>();
+						val._Data = Item.NewValue;
+
+						UCode::Scene2dData::LoadCompoent(e, val);
+					}
+				}
+				else if (prop == Proptype::AddEntity)
+				{
+					if (count >= i + 1)
+					{
+						UCode::Scene2dData::Entity_Data val;
+
+						UCode::UDeserializer deser(Item.NewValue);
+						deser.ReadType(NewValueFieldName,val);
+
+						auto newe = e->NativeAddEntity();
+						newe->NativeName() = Item.GetIndex(in._serializertype, i + 1, chash).GetType<String>();
+
+						UCode::Scene2dData::LoadEntity(newe, val);
+					}
+				}
+				else if (prop == Proptype::Entitys)
+				{
+					if (count >= i + 1)
+					{
+						auto toget = Item.GetIndex(in._serializertype, i+1, chash).GetType<String>();
 						for (auto& Item : e->NativeGetEntitys())
 						{
 							if (Item->NativeName() == toget && !Item->Get_IsDestroyed())
@@ -653,40 +817,42 @@ void EntityPlaceHolder::ApplyChanges()
 								break;
 							}
 						}
-						Index+=2;
+						i++;
 					}
 				}
-				else if (first == "LocalPosition")
+				else if (prop == Proptype::LocalPositionEntity)
 				{
-					Vec3& out =e->NativeLocalPosition();
+					Vec3& out = e->NativeLocalPosition();
 					UCode::UDeserializer deser(Item.NewValue);
-					deser.ReadType(NewValueFieldName, out,out);
-					donewithloop = true;
+					deser.ReadType(NewValueFieldName, out, out);
 				}
-				else if (first == "LocalRotation")
+				else if (prop == Proptype::LocalRotationEntity)
 				{
-					Vec3& out =e->NativeLocalRotation();
+					Vec3& out = e->NativeLocalRotation();
 					UCode::UDeserializer deser(Item.NewValue);
-					deser.ReadType(NewValueFieldName, out,out);
-					donewithloop = true;
+					deser.ReadType(NewValueFieldName, out, out);
 				}
-				else if (first == "LocalScale")
+				else if (prop == Proptype::LocalScaleEntity)
 				{
-					Vec3& out =e->NativeLocalScale();
+					Vec3& out = e->NativeLocalScale();
 					UCode::UDeserializer deser(Item.NewValue);
-					deser.ReadType(NewValueFieldName, out,out);
-					donewithloop = true;
+					deser.ReadType(NewValueFieldName, out, out);
 				}
-				else if (first == "Active")
+				else if (prop == Proptype::ActiveEntity)
 				{
 					bool r = e->GetActive();
 					UCode::UDeserializer deser(Item.NewValue);
-					deser.ReadType(NewValueFieldName, r,r);
+					deser.ReadType(NewValueFieldName, r, r);
 					e->SetActive(r);
-					donewithloop = true;
 				}
+
 			}
+
+			i++;
 		}
 	}
+
 }
 CoreEnd
+
+

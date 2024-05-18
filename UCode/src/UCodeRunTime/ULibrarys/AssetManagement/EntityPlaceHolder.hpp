@@ -7,14 +7,89 @@
 #include "UCodeRunTime/ULibrarys/EditorEvents/AssetUpdateEvent.hpp"
 CoreStart
 struct EntityPlaceHolderChanges
-{	
+{
+	using PlaceHolderChangeProps_t = int;
+	enum class PlaceHolderChangeProps :PlaceHolderChangeProps_t
+	{
+		This,
+		Compents,
+		Entitys,
+		RemoveCompent,
+		RemoveEntity,
+		AddCompent,
+		AddEntity,
+
+		ActiveEntity,
+		LocalPositionEntity,
+		LocalScaleEntity,
+		LocalRotationEntity,
+
+		Max,
+	};
+
+
+	inline const static std::array<StringView, (PlaceHolderChangeProps_t)PlaceHolderChangeProps::Max> PlaceHolderChangePropsNames 
+		=
+	{
+		"this",
+		"compents",
+		"entitys",
+		"removecompent",
+		"removeentity",
+		"addcompent",
+		"addentity",
+		"active",
+		"localposition",
+		"localscale",
+		"localRotation",
+	};
+
+	static StringView GetPropsName(PlaceHolderChangeProps val)
+	{
+		return PlaceHolderChangePropsNames[(PlaceHolderChangeProps_t)val];
+	}
+	static Optional<PlaceHolderChangeProps> GetProp(StringView val)
+	{
+		for (size_t i = 0; i < PlaceHolderChangePropsNames.size(); i++)
+		{
+			auto& Item = PlaceHolderChangePropsNames[i];
+			if (Item == val)
+			{
+				return (PlaceHolderChangeProps)i;
+			}
+		}
+		return {};
+	}
 	struct Change
 	{
 		String field;
 		String NewValue;
+
+		struct GetIndexChash
+		{
+			Optional<Vector<StringView>> parts;
+		};
+	
+		using MemberRet = Variant<PlaceHolderChangeProps, String>;
+		
+		void AddField(USerializerType type, PlaceHolderChangeProps props);
+		void AddField(USerializerType type, StringView value);
+		void AddField(USerializerType type, size_t value);
+		MemberRet GetIndex(USerializerType type,size_t I)
+		{
+			return GetIndex(type,I, GetIndexChash());
+		}
+		size_t IndexCount(USerializerType type)
+		{
+			return IndexCount(type);
+		}
+
+		MemberRet GetIndex(USerializerType type,size_t I, GetIndexChash&  chash);
+		size_t IndexCount(USerializerType type,GetIndexChash& chash);
 	};
 
 	Vector<Change> _changes;
+	USerializerType _serializertype =USerializerType::Default;
 	bool HasChanges()
 	{
 		return _changes.size() != 0;
@@ -49,6 +124,9 @@ public:
 
 	void UpdateChanges(USerializerType type);
 	void RemoveChanges();
+
+	NullablePtr<Entity> GetEntity(USerializerType type, const EntityPlaceHolderChanges::Change& change);
+	NullablePtr<Compoent> GetCompoent(USerializerType type, const EntityPlaceHolderChanges::Change& change);
 private:
 
 	void OnAssetPreUpdate();
@@ -67,7 +145,7 @@ private:
 		Compoent* compoent = nullptr;
 		NullablePtr<Compoent> rawcompoent;
 
-		String compoentref;
+		EntityPlaceHolderChanges::Change compoentref;
 	};
 
 	void UpdateChanges(USerializerType type,UpdateChangesCompoentState state);

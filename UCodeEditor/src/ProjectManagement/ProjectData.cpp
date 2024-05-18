@@ -35,8 +35,8 @@ void ProjectData::ToBits(USerializer& output, const ProjectData& data)
 	output.Write("_Plugins", data._Plugins);
 	output.Write("_AssetsToKeepLoaded", data._AssetsToKeepLoaded);
 	output.Write("_ModingSupport", data.ModingSupport);
-	output.Write("_ModingSupport", data.PrefabScene);
-	output.Write("_ModingSupport", data.PrefabUIScene);
+	output.Write("_PrefabScene", data.PrefabScene);
+	output.Write("_PrefabUIScene", data.PrefabUIScene);
 }
 
 bool ProjectData::ReadFromFile(const Path& Path, ProjectData& Out)
