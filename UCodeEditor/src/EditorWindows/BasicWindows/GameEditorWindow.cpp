@@ -1103,6 +1103,7 @@ void GameEditorWindow::ShowScene(SceneEditorTabData& data,UCode::RunTimeScene* I
 
                         auto f = e->AddCompoent<UC::EntityPlaceHolder>();
                         f->_id = *DropItem;
+                        f->OnUpdatedID();
                     }
                 }
 
@@ -1318,6 +1319,7 @@ void GameEditorWindow::ShowEntityData(SceneEditorTabData& data,UCode::Entity* It
                         
                         auto f = e->AddCompoent<UC::EntityPlaceHolder>();
                         f->_id = *DropItem;
+                        f->OnUpdatedID();
                     }
                 }
             }

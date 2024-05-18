@@ -4,6 +4,7 @@
 #include "SceneData.hpp"
 #include "UCodeRunTime/ULibrarys/Serialization/SerlizeableType.hpp"
 #include "UCodeRunTime/ULibrarys/Serialization/USerializer.hpp"
+#include "UCodeRunTime/ULibrarys/EditorEvents/AssetUpdateEvent.hpp"
 CoreStart
 struct EntityPlaceHolderChanges
 {	
@@ -30,6 +31,7 @@ class EntityPlaceHolder final : public Compoent
 {
 public:
 	EntityPlaceHolder(Entity* entity);
+	~EntityPlaceHolder();
 	void Start() override;
 
 	void Serialize(USerializer& Serializer) const override;
@@ -38,7 +40,16 @@ public:
 	UID _id;
 	EntityPlaceHolderChanges _change;
 	static UComponentData type_Data;
+
+	void OnUpdatedID();
 private:
+
+	void OnAssetPreUpdate();
+	void OnAssetUpdated();
+	#if UCodeGEDebugMode
+	Optional<EditorEventID> evenid;
+	UCode::Scene2dData::Entity_Data _oldentitydata;
+	#endif
 	static UComponentsID Get_TypeID();
 
 	void UpdateChanges(USerializerType type,Entity** rawentity);

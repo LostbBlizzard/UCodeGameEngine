@@ -16,6 +16,15 @@ EntityPlaceHolder::EntityPlaceHolder(Entity* entity) : Compoent(entity, &type_Da
 {
 
 }
+EntityPlaceHolder::~EntityPlaceHolder()
+{
+	#if UCodeGEDebugMode
+	if (evenid.has_value())
+	{
+		RemoveAssetUpdateEditorEvent(evenid.value());
+	}
+	#endif
+}
 
 void EntityPlaceHolder::Start()
 {
@@ -25,6 +34,42 @@ void EntityPlaceHolder::Serialize(USerializer& Serializer) const
 {
 	Serializer.Write("_UID", _id);
 	Serializer.Write("_Changes",_change);
+}
+
+
+void EntityPlaceHolder::OnUpdatedID()
+{
+	#if UCodeGEDebugMode
+	if (evenid.has_value())
+	{
+		RemoveAssetUpdateEditorEvent(evenid.value());
+	}
+	evenid = AddAssetUpdatedEditorEvent([this] {this->OnAssetPreUpdate(); },[this] {this->OnAssetUpdated(); }, _id);
+	#endif
+}
+
+void EntityPlaceHolder::OnAssetPreUpdate()
+{
+	#if UCodeGEDebugMode
+	_oldentitydata = Scene2dData::Entity_Data();
+
+	Scene2dData::SaveEntityData(NativeEntity(), this->_oldentitydata, USerializerType::YAML);
+	#endif
+}
+void EntityPlaceHolder::OnAssetUpdated()
+{
+	#if UCodeGEDebugMode
+	for (auto& Item : NativeEntity()->NativeGetEntitys())
+	{
+		Entity::Destroy(Item.get());
+	}
+	for (auto& Item : NativeEntity()->NativeCompoents())
+	{
+		Compoent::Destroy(Item.get());
+	}
+
+	Scene2dData::LoadEntity(NativeEntity(), this->_oldentitydata);
+	#endif
 }
 void EntityPlaceHolder::Deserialize(UDeserializer& Serializer)
 {
@@ -53,7 +98,7 @@ void EntityPlaceHolder::Deserialize(UDeserializer& Serializer)
 		}
 	}
 	ApplyChanges();
-
+	OnUpdatedID();
 	#if UCodeGEPublishMode
 	this->Destroy(this);	
 	#endif
@@ -476,7 +521,7 @@ void EntityPlaceHolder::ApplyChanges()
 						NullablePtr<Compoent> valop;
 						for (auto& Item : compents)
 						{
-							if (Item->Get_CompoentTypeData()->_Type == compenttype)
+							if (Item->Get_CompoentTypeData()->_Type == compenttype && !Item->Get_IsDestroyed())
 							{
 								valop = Nullableptr(Item.get());
 								break;
@@ -547,7 +592,7 @@ void EntityPlaceHolder::ApplyChanges()
 						auto& toget = parts[Index + 1];
 						for (auto& Item : e->NativeGetEntitys())
 						{
-							if (Item->NativeName() == toget)
+							if (Item->NativeName() == toget && !Item->Get_IsDestroyed())
 							{
 								e = Item.get();
 								break;

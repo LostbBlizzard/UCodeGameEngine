@@ -22,6 +22,7 @@
 #include "EditorWindows/InspectTypes/Inspect_Entity2d.hpp"
 #include "EditorWindows/BasicWindows/GameEditorWindow.hpp"
 #include "stb_image_write.h"
+#include "UCodeRunTime/ULibrarys/EditorEvents/AssetUpdateEvent.hpp"
 EditorStart
 
 
@@ -1971,7 +1972,12 @@ public:
 
 					}
 					_entity.Get_Value()->NativeScene()->Get_RunTime()->DestroyNullScenes();
+
+					UC::Editor_Only_CallAssetUpdatedPre(_asset._Base._UID);
+
 					UC::Scene2dData::LoadEntity(e, _asset._Base._Data);
+				
+					UC::Editor_Only_CallAssetUpdated(_asset._Base._UID);
 				}
 			}
 			else
