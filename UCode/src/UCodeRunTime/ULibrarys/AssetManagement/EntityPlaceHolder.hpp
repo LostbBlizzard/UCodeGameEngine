@@ -48,6 +48,7 @@ public:
 	void OnUpdatedID();
 
 	void UpdateChanges(USerializerType type);
+	void RemoveChanges();
 private:
 
 	void OnAssetPreUpdate();

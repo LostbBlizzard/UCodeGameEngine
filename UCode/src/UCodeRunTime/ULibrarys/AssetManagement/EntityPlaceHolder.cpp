@@ -66,6 +66,41 @@ void EntityPlaceHolder::OnAssetPreUpdate()
 	Scene2dData::SaveEntityData(NativeEntity(), this->_oldentitydata, USerializerType::YAML);
 	#endif
 }
+void EntityPlaceHolder::RemoveChanges()
+{
+	for (auto& Item : NativeEntity()->NativeGetEntitys())
+	{
+		Entity::Destroy(Item.get());
+	}
+	for (auto& Item : NativeEntity()->NativeCompoents())
+	{
+		if (Item.get() != this) 
+		{
+			Compoent::Destroy(Item.get());
+		}
+	}
+	Optional<Assetptr> assetop = AssetManager::Get(GetGameRunTime()->Get_Library_Edit())->FindOrLoad(_id);
+
+	if (assetop.has_value())
+	{
+		auto rawop = assetop.value().Get_Value()->GetAssetAs<RawEntityDataAsset>();
+		if (rawop.has_value())
+		{
+			auto& raw = rawop.value();
+
+			auto e = this->NativeEntity();
+			auto oldp = e->NativeLocalPosition();
+			auto olds = e->NativeLocalScale();
+			auto oldr = e->NativeLocalRotation();
+
+			Scene2dData::LoadEntity(e, raw->_Base._Data);
+
+			e->NativeLocalPosition() = oldp;
+			e->NativeLocalScale() = olds;
+			e->NativeLocalRotation() = oldr;
+		}
+	}
+}
 void EntityPlaceHolder::OnAssetUpdated()
 {
 	#if UCodeGEDebugMode
