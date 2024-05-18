@@ -68,7 +68,7 @@ public:
 		size_t splitercount = 0;
 		for (size_t i = 0; i < Base.size(); i++)
 		{
-			char basechar = Base[i];
+			auto basechar = Base[i];
 
 			if (spliter[splitercount] == basechar)
 			{
