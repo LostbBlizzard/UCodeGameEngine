@@ -51,6 +51,21 @@ void Editor_Only_CallAssetUpdatedPre(UID id)
 {
 	Threads::ThrowErrIfNotOnMainThread();
 
+	for (auto& Item : AssetUpdatedData.CallBacks)
+	{
+		auto& list = Item.second;
+
+		list.erase(std::remove_if(
+			list.begin(), list.end(),
+			[id](const AssetUpdatedStruct::CallBackWithEditorEvent& x) {
+				for (auto& Item : toremovefromlist) {
+					return x.id == Item;
+				}
+				return false;
+			}), list.end());
+
+		toremovefromlist.clear();
+	}
 	if (AssetUpdatedData.CallBacks.HasValue(id))
 	{
 		auto& calls = AssetUpdatedData.CallBacks.GetValue(id);
@@ -84,7 +99,8 @@ void Editor_Only_CallAssetUpdated(UID id)
 	{
 		auto& calls = AssetUpdatedData.CallBacks.GetValue(id);
 
-		for (size_t i = 0; i < calls.size(); i++)
+		auto count = calls.size();
+		for (size_t i = 0; i < count; i++)
 		{
 			auto& Item = calls[i];
 

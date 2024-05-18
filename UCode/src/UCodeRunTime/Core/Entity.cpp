@@ -116,9 +116,13 @@ void Entity::DestroyNullCompoents()
 			{
 				it = _Entitys.erase(it);
 				continue;
-		
+
 			}
 			EntityFrame++;
+		}
+		else
+		{
+			Item->DestroyNullCompoents();
 		}
 		++it;
 	}

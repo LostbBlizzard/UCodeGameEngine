@@ -1737,13 +1737,14 @@ public:
 			auto runtime = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 			auto type = runtime->Get_ProjData()._SerializeType;
 
-			UC::Scene2dData::Entity_Data data;
-			UC::Scene2dData::SaveEntityData(e, data, type);
+			UC::RawEntityData data;
+			UC::Scene2dData::SaveEntityData(e, data._Data, type);
 
-			_asset._Base._Data = std::move(data);
-			_assetasbytes = GetAssetAsBytes(_asset._Base._Data);
+			data._UID = _asset._Base._UID;
+			//_asset._Base._Data = std::move(data);
+			//_assetasbytes = GetAssetAsBytes(_asset._Base._Data);
 
-			if (!UC::RawEntityData::WriteToFile(FileFullPath, _asset._Base, type))
+			if (!UC::RawEntityData::WriteToFile(FileFullPath, data, type))
 			{
 				UCodeGEError("Unable to SaveFile " << FileHelper::ToRelativePath(runtime->GetAssetsDir(), FileFullPath));
 			}
@@ -1954,9 +1955,10 @@ public:
 			}
 			
 		}
-		void FileUpdated() override
+		void FileUpdated() override	
 		{
-			if (UC::RawEntityData::ReadFromFile(FileFullPath, _asset._Base))
+			UC::RawEntityData _val;
+			if (UC::RawEntityData::ReadFromFile(FileFullPath, _val))
 			{
 				hascalledloadthumnail = false;
 				if (_entity.Has_Value())
@@ -1974,6 +1976,8 @@ public:
 					_entity.Get_Value()->NativeScene()->Get_RunTime()->DestroyNullScenes();
 
 					UC::Editor_Only_CallAssetUpdatedPre(_asset._Base._UID);
+
+					_asset._Base = std::move(_val);
 
 					UC::Scene2dData::LoadEntity(e, _asset._Base._Data);
 				

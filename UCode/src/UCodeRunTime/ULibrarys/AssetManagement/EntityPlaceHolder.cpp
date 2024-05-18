@@ -44,13 +44,23 @@ void EntityPlaceHolder::OnUpdatedID()
 	{
 		RemoveAssetUpdateEditorEvent(evenid.value());
 	}
-	evenid = AddAssetUpdatedEditorEvent([this] {this->OnAssetPreUpdate(); },[this] {this->OnAssetUpdated(); }, _id);
+	evenid = AddAssetUpdatedEditorEvent(
+		[this]  
+		{
+			this->OnAssetPreUpdate();
+		},
+		[this]
+		{
+			this->OnAssetUpdated(); 
+		}, _id);
 	#endif
 }
 
 void EntityPlaceHolder::OnAssetPreUpdate()
 {
 	#if UCodeGEDebugMode
+	if (this->Get_IsDestroyed()) { return; }
+
 	_oldentitydata = Scene2dData::Entity_Data();
 
 	Scene2dData::SaveEntityData(NativeEntity(), this->_oldentitydata, USerializerType::YAML);
@@ -59,6 +69,8 @@ void EntityPlaceHolder::OnAssetPreUpdate()
 void EntityPlaceHolder::OnAssetUpdated()
 {
 	#if UCodeGEDebugMode
+	if (this->Get_IsDestroyed()) { return; }
+
 	for (auto& Item : NativeEntity()->NativeGetEntitys())
 	{
 		Entity::Destroy(Item.get());
@@ -147,6 +159,7 @@ void EntityPlaceHolder::OnOverrideSerializeEntity(UCode::Scene2dData::Entity_Dat
 		auto& compents = NativeEntity()->NativeCompoents();
 		for (auto& Item : compents)
 		{
+			if (Item->Get_IsDestroyed()) { continue; }
 			auto& typen = Item->Get_CompoentTypeData()->_Type;
 
 			bool isadded = true;
@@ -179,6 +192,7 @@ void EntityPlaceHolder::OnOverrideSerializeEntity(UCode::Scene2dData::Entity_Dat
 		auto& compents = NativeEntity()->NativeGetEntitys();
 		for (auto& Item : compents)
 		{
+			if (Item->Get_IsDestroyed()) { continue; }
 			auto& typen = Item->NativeName();
 
 			bool isadded = true;
@@ -216,6 +230,7 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type,EntityPlaceHolderChan
 		auto& entitys = entity->NativeGetEntitys();
 		for (auto& compoent : compents)
 		{
+			if (compoent->Get_IsDestroyed()) { continue; }
 			NullablePtr<Compoent> fromraw;
 			{
 				for (auto& Item : rawcompents)
