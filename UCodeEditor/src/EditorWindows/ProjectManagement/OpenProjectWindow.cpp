@@ -220,39 +220,44 @@ void OpenProjectWindow::UpdateWindow()
         }
         auto buttionsize = ImVec2{ 180,square_sz  };
         {
-            #define SPACEING "   "
             ImGuIHelper::Text(StringView("Tools"));
-            ImGuIHelper::ItemLabel(StringView(SPACEING "Programming language:C++"),ImGuIHelper::Left);
+            ImGui::Indent();
+
+            ImGuIHelper::ItemLabel(StringView("Programming language:C++"),ImGuIHelper::Left);
 
             if (ImGui::Button("Open Page", buttionsize))
             {
 
             }
-            ImGuIHelper::ItemLabel(StringView(SPACEING  "BuildSytem:Premake"),ImGuIHelper::Left);
+            ImGuIHelper::ItemLabel(StringView("BuildSytem:Premake"),ImGuIHelper::Left);
             if (ImGui::Button("Open Page", buttionsize))
             {
 
             }
+            ImGui::Unindent();
         }
         {
             ImGuIHelper::Text(StringView("Project Librarys"));
-            ImGuIHelper::ItemLabel(StringView(SPACEING  "ImGui"),ImGuIHelper::Left);
+
+            ImGui::Indent();
+            ImGuIHelper::ItemLabel(StringView("ImGui"), ImGuIHelper::Left);
             if (ImGui::Button("Open Page", buttionsize))
             {
 
             }
 
-            ImGuIHelper::ItemLabel(StringView(SPACEING  "UCodeLang"),ImGuIHelper::Left);
+            ImGuIHelper::ItemLabel(StringView("UCodeLang"), ImGuIHelper::Left);
             if (ImGui::Button("Open Page", buttionsize))
             {
 
             }
+            ImGui::Unindent();
         }
 
         ImGui::GetFrameHeight();
         if (ImGui::Button("Back", { fullWidth / 2,square_sz }))
         {
-            _State == State::ProjectList;
+            _State = State::ProjectList;
         }
     }
 }
