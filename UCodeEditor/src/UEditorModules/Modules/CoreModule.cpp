@@ -22,6 +22,7 @@
 #include "EditorWindows/InspectTypes/Inspect_Entity2d.hpp"
 #include "EditorWindows/BasicWindows/GameEditorWindow.hpp"
 #include "stb_image_write.h"
+#include "stb_image/stb_image.h"
 #include "UCodeRunTime/ULibrarys/EditorEvents/AssetUpdateEvent.hpp"
 EditorStart
 
@@ -377,6 +378,8 @@ public:
 		Optional<UCode::TextureAsset> asset;
 		bool IsLoadingTexture = false;
 
+		bool isbroken = false;
+
 		inline static const ImGuIHelper::EnumValue<Compression> CompressionEnumValues[] =
 		{
 			{"None",Compression::None},
@@ -418,6 +421,8 @@ public:
 		Optional<UID> OpenSpriteEditor;
 		void DrawSubAssets(const UEditorDrawSubAssetContext& Item) override
 		{
+			if (isbroken) {	return;}
+
 			LoadAssetContext context;
 			context._AssetToLoad = this->setting.uid;
 			LoadAsset(context);
@@ -507,6 +512,8 @@ public:
 		}
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override
 		{
+			if (isbroken) {	return;}
+			
 			bool hasdiff = true;
 			if (hasdiff) 
 			{
@@ -610,17 +617,57 @@ public:
 		{
 			if (!asset.has_value())
 			{
-				//TODO add logs when error
+				auto runinfo = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 				if (fs::exists(this->FileMetaFullPath.value()))
 				{
-					fromfile(FileMetaFullPath.value(), setting);
+					if (!fromfile(FileMetaFullPath.value(), setting))
+					{
+						auto relfilepath = FileHelper::ToRelativePath(runinfo->GetAssetsDir(), this->FileMetaFullPath.value());
+						UCodeGEError("unable to load .meta file data " << relfilepath);
+						isbroken = true;
+					}
 				}
 				else
 				{
-					auto runinfo = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
-					RemoveSubAssets(runinfo->GetAssetsDir(),runinfo->Get_AssetIndex());
+					RemoveSubAssets(runinfo->GetAssetsDir(), runinfo->Get_AssetIndex());
 					setting.uid = runinfo->GetNewUID();
-					tofile(FileMetaFullPath.value(), setting);
+
+					bool isbadimage = false;
+					SpriteItem value;
+					{
+						int width, height, channels;
+						String str = this->FileFullPath.generic_string();
+						if (!stbi_info(str.c_str(), &width, &height, &channels))
+						{
+							isbadimage = true;
+							isbroken = true;
+
+							auto relfilepath = FileHelper::ToRelativePath(runinfo->GetAssetsDir(), this->FileFullPath);
+							UCodeGEError("unable to load .png image " << relfilepath);
+						}
+						value.uid = runinfo->GetNewUID();
+						value.spritename = this->FileFullPath.filename().replace_extension().generic_string();
+						value.size = { (u32)width,(u32)height };
+					}
+					auto& assetindex = runinfo->Get_AssetIndex();
+
+
+
+					if (!isbadimage)
+					{
+						{
+							EditorIndex::IndexFile file;
+
+							auto assetdir = runinfo->GetAssetsDir();
+							file.RelativePath = FileFullPath.generic_string().substr(assetdir.generic_string().size());
+							file.RelativeAssetName = file.RelativePath + EditorIndex::SubAssetSeparator + value.spritename + UCode::SpriteData::FileExtDot;
+							file.UserID = value.uid;
+
+							assetindex._Files.push_back(std::move(file));
+						}
+						setting.sprites.push_back(std::move(value));
+						tofile(FileMetaFullPath.value(), setting);
+					}
 				}
 
 				UCode::TextureAsset V(UCode::Texture::MakeNewPlaceHolderTexture());
@@ -705,6 +752,10 @@ public:
 		}
 		void DrawInspect(const UEditorAssetDrawInspectContext& Item) override
 		{
+			if (isbroken) {
+				ImGuIHelper::Text(StringView("Image is Broken"));
+				return;
+			}
 			{
 				auto& files = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->GetPrjectFiles();
 				files.AssetIsInUse(this);
