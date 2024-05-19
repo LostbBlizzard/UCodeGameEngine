@@ -1043,6 +1043,8 @@ public:
 								auto textureH = asset.value()._Base.Get_Height();
 								Vector<SliceItem> newitems;
 
+								Optional<UC::Texture> colordata;
+
 								for (size_t y = 0; y < textureH; y += slicedata.SpriteH)
 								{
 									for (size_t x = 0; x < textureW; x += slicedata.SpriteW)
@@ -1057,10 +1059,42 @@ public:
 
 										if (!slicedata.WithEmpty)
 										{
-											bool isempty = false;
+											bool isempty = true;
+											{
+												if (!colordata.has_value())
+												{
+													colordata = UC::Texture(FileFullPath);
+												}
+												auto& tex = colordata.value();
+												auto colors = tex.Get_ColorData();
+
+												for (size_t pixely = item.offset.Y; pixely < item.size.Y + item.offset.Y; pixely++)
+												{
+													for (size_t pixelx = item.offset.X; pixelx <  item.size.X + item.offset.X; pixelx++)
+													{
+
+														auto index = UC::Texture::GetPixelIndex(pixelx, pixely, textureW, textureH);
+														auto& pixelcolor = colors[index];
+
+														if (pixelcolor != Color32(0, 0, 0, 0))
+														{
+															isempty = false;
+															break;
+														}
+													}
+
+													if (isempty == false)
+													{
+														break;
+													}
+												}
+											}
 
 											if (isempty)
 											{
+												x += slicedata.SpritePadingX;
+												y += slicedata.SpritePadingY;
+
 												continue;
 											}
 										}
@@ -1086,7 +1120,8 @@ public:
 										RemoveSprite(itemtoremove.uid);
 									}
 
-									for (size_t i = 0; i < setting.sprites.size() - newitems.size(); i++)
+									auto count = setting.sprites.size();
+									for (size_t i = 0; i < count - newitems.size(); i++)
 									{
 										setting.sprites.pop_back();
 									}
