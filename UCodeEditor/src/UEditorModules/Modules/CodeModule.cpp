@@ -299,6 +299,7 @@ public:
 		}
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override
 		{
+			if (!_Object.HasScript()) { return; }
 			auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 			USerializerType type = runprojectdata->Get_ProjData()._SerializeType;
 			_Object.SaveTo(_Data, type);
