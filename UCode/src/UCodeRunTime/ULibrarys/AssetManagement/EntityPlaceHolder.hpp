@@ -28,7 +28,7 @@ struct EntityPlaceHolderChanges
 	};
 
 
-	inline const static std::array<StringView, (PlaceHolderChangeProps_t)PlaceHolderChangeProps::Max> PlaceHolderChangePropsNames 
+	inline const static std::array<StringView, (PlaceHolderChangeProps_t)PlaceHolderChangeProps::Max> PlaceHolderChangePropsNames
 		=
 	{
 		"this",
@@ -70,27 +70,28 @@ struct EntityPlaceHolderChanges
 			Optional<Vector<StringView>> parts;
 			Optional<BitReader> reader;
 		};
-	
+
 		using MemberRet = Variant<PlaceHolderChangeProps, StringView>;
-		
+
 		void AddField(USerializerType type, PlaceHolderChangeProps props);
 		void AddField(USerializerType type, StringView value);
 		void AddField(USerializerType type, size_t value);
-		MemberRet GetIndex(USerializerType type,size_t I)
+		MemberRet GetIndex(USerializerType type, size_t I)
 		{
-			return GetIndex(type,I, GetIndexChash());
+			GetIndexChash chash = GetIndexChash();
+			return GetIndex(type, I);
 		}
 		size_t IndexCount(USerializerType type)
 		{
 			return IndexCount(type);
 		}
 
-		MemberRet GetIndex(USerializerType type,size_t I, GetIndexChash&  chash);
-		size_t IndexCount(USerializerType type,GetIndexChash& chash);
+		MemberRet GetIndex(USerializerType type, size_t I, GetIndexChash& chash);
+		size_t IndexCount(USerializerType type, GetIndexChash& chash);
 	};
 
 	Vector<Change> _changes;
-	USerializerType _serializertype =USerializerType::Default;
+	USerializerType _serializertype = USerializerType::Default;
 	bool HasChanges()
 	{
 		return _changes.size() != 0;
@@ -100,7 +101,7 @@ CoreEnd
 
 MakeSerlizeType(UCode::EntityPlaceHolderChanges::Change,
 	Field("_field", _this->field);
-	Field("_newvalue", _this->NewValue);
+Field("_newvalue", _this->NewValue);
 )
 MakeSerlizeType(UCode::EntityPlaceHolderChanges,
 	Field("_Changes", _this->_changes);
@@ -116,7 +117,7 @@ public:
 
 	void Serialize(USerializer& Serializer) const override;
 	void Deserialize(UDeserializer& Serializer) override;
-	void OnOverrideSerializeEntity(UCode::Scene2dData::Entity_Data& Scene,USerializerType type);
+	void OnOverrideSerializeEntity(UCode::Scene2dData::Entity_Data& Scene, USerializerType type);
 	UID _id;
 	EntityPlaceHolderChanges _change;
 	static UComponentData type_Data;
@@ -132,13 +133,13 @@ private:
 
 	void OnAssetPreUpdate();
 	void OnAssetUpdated();
-	#if UCodeGEDebugMode
+#if UCodeGEDebugMode
 	Optional<EditorEventID> evenid;
 	UCode::Scene2dData::Entity_Data _oldentitydata;
-	#endif
+#endif
 	static UComponentsID Get_TypeID();
 
-	void UpdateChanges(USerializerType type,Entity** rawentity);
+	void UpdateChanges(USerializerType type, Entity** rawentity);
 
 	struct UpdateChangesCompoentState
 	{
@@ -149,8 +150,8 @@ private:
 		EntityPlaceHolderChanges::Change compoentref;
 	};
 
-	void UpdateChanges(USerializerType type,UpdateChangesCompoentState state);
+	void UpdateChanges(USerializerType type, UpdateChangesCompoentState state);
 	void ApplyChanges();
-	void UpdateChanges(USerializerType type, EntityPlaceHolderChanges* Out, Entity* entity, NullablePtr<Entity> rawentityop,String changestart = "");
+	void UpdateChanges(USerializerType type, EntityPlaceHolderChanges* Out, Entity* entity, NullablePtr<Entity> rawentityop, String changestart = "");
 };
 CoreEnd

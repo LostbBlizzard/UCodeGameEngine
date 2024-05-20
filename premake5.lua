@@ -192,6 +192,7 @@ function linkUCode(HasULangCompiler,IsPubMode)
     
     filter { "system:linux" }
       defines {"_GLFW_X11","GLEW_NO_GLU"}
+      links {"asound"}
         
     filter { "system:MacOS" }
       defines {"_GLFW_COCOA","GLEW_NO_GLU"}
@@ -1015,6 +1016,9 @@ project "soloud"
 
     filter { "system:Windows"}
       defines {"WITH_WINMM"}
+    
+    filter { "system:linux"}
+      defines {"WITH_ALSA"}
 
     filter {}
     includedirs{
@@ -1090,6 +1094,12 @@ newaction {
           os.execute("sudo apt-get install libgtk-3-dev")
           
           print("----installing tools completed");
+
+          print("----downloading asoundlibk Packages")
+          os.execute("sudo apt install libasound2-dev")
+          
+          print("----installing tools completed");
+
         end
 
         if os.istarget("windows") then

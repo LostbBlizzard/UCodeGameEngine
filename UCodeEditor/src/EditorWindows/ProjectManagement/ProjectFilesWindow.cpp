@@ -111,7 +111,7 @@ Optional<Path> GetAssetMetaFilePath(const Path& from)
     auto metaf = GetAssetMetaFileExt(from.extension());
     if (metaf.has_value())
     {
-        Path filepath =Path(from).native() + PathString(metaf.value());
+        Path filepath = Path(from).native() + PathString(metaf.value());
         if (std::filesystem::exists(filepath)) {
             return filepath;
         }
@@ -125,7 +125,7 @@ void RenameAssetFile(const Path& from, const Path& to)
     if (v.has_value())
     {
         Path outpath = Path(to).native() + Path(v.value()).extension().native();
-        std::filesystem::rename(v.value(),outpath);
+        std::filesystem::rename(v.value(), outpath);
     }
 }
 
@@ -141,7 +141,7 @@ NullablePtr<ProjectFiles::AssetFile> ProjectFilesWindow::TryLoadAsset(Path fullp
     auto& ProjectFiles = Get_ProjectFiles();
 
     NullablePtr<ProjectFiles::AssetFile> r;
- 
+
     for (size_t i = 0; i < Modules.Size(); i++)
     {
         auto& item = Modules[i];
@@ -193,7 +193,7 @@ NullablePtr<UEditorAssetFileData> ProjectFilesWindow::GetAssetData(Path fullpath
     auto& ProjectFiles = Get_ProjectFiles();
 
     NullablePtr<ProjectFiles::AssetFile> r;
- 
+
     for (size_t i = 0; i < Modules.Size(); i++)
     {
         auto& item = Modules[i];
@@ -223,10 +223,10 @@ void ProjectFilesWindow::UpdateWindow()
     /*
     if (Get_App()->GetInputMode() == KeyInputMode::Window)
     {
-        if (settings.IsKeybindActive(KeyBindList::FilesWindow)) 
+        if (settings.IsKeybindActive(KeyBindList::FilesWindow))
         {
             ImGui::SetWindowFocus();
-			Get_App()->SetToNormal();
+            Get_App()->SetToNormal();
         }
     }
     */
@@ -241,7 +241,7 @@ void ProjectFilesWindow::UpdateWindow()
         Path relativepath = focus.native().substr(AssetsDir.native().size());
 
         const PathChar sep = Path(EditorIndex::SubAssetSeparator).native().front();
-        std::basic_string_view<PathChar> val(&sep,1);
+        std::basic_string_view<PathChar> val(&sep, 1);
         _LookingAtAssetForSubAssets = {};
         if (StringHelper::Contains<PathChar>(relativepath.native(), val))
         {
@@ -265,7 +265,7 @@ void ProjectFilesWindow::UpdateWindow()
         }
         else
         {
-            _LookingAtDir = AssetsDir /relativepath.parent_path();
+            _LookingAtDir = AssetsDir / relativepath.parent_path();
             _OpenAndFocus = relativepath.filename();
         }
         UpdateDir();
@@ -282,8 +282,8 @@ void ProjectFilesWindow::UpdateWindow()
 
             ImGui::BeginDisabled(CantGoBack);
             if (
-                (ImGui::Button("Back") 
-                || (iswindowfocused && settings.IsKeybindActive(KeyBindList::Alternative))) && !CantGoBack)
+                (ImGui::Button("Back")
+                    || (iswindowfocused && settings.IsKeybindActive(KeyBindList::Alternative))) && !CantGoBack)
             {
                 if (_LookingAtAssetForSubAssets.has_value())
                 {
@@ -409,13 +409,13 @@ void ProjectFilesWindow::UpdateWindow()
                 auto& files = Get_ProjectFiles()._AssetFiles;
                 auto& index = Get_App()->Get_RunTimeProjectData()->Get_AssetIndex();
 
-                
+
                 ProjectFiles::AssetFile* myassetfile = nullptr;
                 static Path currentpath;
                 currentpath = _LookingAtDir.value() / _LookingAtAssetForSubAssets.value().native();
-                
-                myassetfile = TryLoadAsset(currentpath).value_unchecked(); 
-                
+
+                myassetfile = TryLoadAsset(currentpath).value_unchecked();
+
 
                 if (myassetfile == nullptr)
                 {
@@ -450,7 +450,7 @@ void ProjectFilesWindow::UpdateWindow()
                         UEditorDrawSubAssetContext context;
                         context._ManageFile = AnyManagedPtr::As(myassetfile->_ManageFile);
                         context.ButtionSize = { CeSize.x,CeSize.y };
-                        context.OnDoneDrawingAssetButton = [_OpenAndFocus =this->_OpenAndFocus](UEditorDrawSubAssetContext::DoneDraw& context)
+                        context.OnDoneDrawingAssetButton = [_OpenAndFocus = this->_OpenAndFocus](UEditorDrawSubAssetContext::DoneDraw& context)
                             {
 
                                 if (ImGui::IsItemFocused() && !ImGui::GetIO().WantTextInput)
@@ -544,7 +544,7 @@ void ProjectFilesWindow::UpdateWindow()
                                     ImGui::EndPopup();
                                 }
 
-                               
+
                                 auto App = EditorAppCompoent::GetCurrentEditorAppCompoent();
                                 if (App->GetInputMode() == KeyInputMode::Window)
                                 {
@@ -581,7 +581,7 @@ void ProjectFilesWindow::UpdateWindow()
                     }
                 }
             }
-            else 
+            else
             {
                 ShowFileCells();
             }
@@ -595,9 +595,9 @@ void ProjectFilesWindow::UpdateWindow()
             ImGui::PopStyleColor();
             ImGui::PopStyleColor();
             ImGui::EndChild();
- 
+
             ShowDirButtions();
-            
+
 
 
             if (ImGui::BeginDragDropTarget())
@@ -614,13 +614,13 @@ void ProjectFilesWindow::UpdateWindow()
                     {
                         auto run = Get_App()->Get_RunTimeProjectData();
                         auto SaveType = run->Get_ProjData()._SerializeType;
-                        UC::RawEntityData Data(run->GetNewUID(), DropItem,SaveType);
+                        UC::RawEntityData Data(run->GetNewUID(), DropItem, SaveType);
 
                         const String EntityName = DropItem->NativeName().size() ? DropItem->NativeName() : UnNamedEntity;
 
                         Path path = FileHelper::GetNewFileName(Path(_LookingAtDir.value().native() + Path(EntityName).native()), Path(UC::RawEntityData::FileExtDot));
 
-                        UC::RawEntityData::WriteToFile(path, Data,SaveType);
+                        UC::RawEntityData::WriteToFile(path, Data, SaveType);
                         UpdateDir();
                     }
 
@@ -753,8 +753,8 @@ void ProjectFilesWindow::UpdateWindow()
     _OpenAndFocus = {};
 }
 void ProjectFilesWindow::ShowFileCells()
-{ 
-    auto buttioninfo =GetButtionSize();
+{
+    auto buttioninfo = GetButtionSize();
 
     ImVec2 CeSize = { buttioninfo.thumbnail.X,buttioninfo.thumbnail.Y };
     float cellSize = buttioninfo.cellSize;
@@ -792,7 +792,7 @@ void ProjectFilesWindow::ShowFileCells()
                 if (_OpenAndFocus.has_value())
                 {
                     auto subpath = _OpenAndFocus.value();
-                    if (subpath.generic_string() == Item.FileName) 
+                    if (subpath.generic_string() == Item.FileName)
                     {
                         ImGui::FocusItem();
                     }
@@ -849,7 +849,7 @@ Optional<String> CanPasteShowDirButtionsPaste()
             }
         }
     }
- 
+
     return PasteType;
 }
 
@@ -869,7 +869,7 @@ void ProjectFilesWindow::ShowDirButtionsPaste()
         if (std::filesystem::exists(str))
         {
             auto& dir = _LookingAtDir.value();
-            auto OutPath =FileHelper::GetNewFileName(dir / Path(str).filename().replace_extension(""), str.extension());
+            auto OutPath = FileHelper::GetNewFileName(dir / Path(str).filename().replace_extension(""), str.extension());
             if (ctrl)
             {
                 RenameAssetFile(str, OutPath);
@@ -887,7 +887,7 @@ void ProjectFilesWindow::ShowDirButtionsPaste()
         if (v.has_value())
         {
             auto g = UserSettings::GetCopyedManagedRef();
-            if (g._This.Has_Value()) 
+            if (g._This.Has_Value())
             {
                 auto type = *v;
                 if (type == "Entity")
@@ -905,7 +905,7 @@ void ProjectFilesWindow::ShowDirButtionsPaste()
                     if (!UC::RawEntityData::WriteToFile(path, data, serializertype))
                     {
                         auto dir = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
-                        UCodeGEError("Unable to Write " << FileHelper::ToRelativePath(dir,path));
+                        UCodeGEError("Unable to Write " << FileHelper::ToRelativePath(dir, path));
                         return;
                     }
 
@@ -961,7 +961,7 @@ void ProjectFilesWindow::ShowDirButtions()
     {
         showcontextitem = true;
     }
-    if (showcontextitem) 
+    if (showcontextitem)
     {
         if (ImGuIHelper::BeginPopupContextItem(popupname))
         {
@@ -1117,7 +1117,7 @@ void ProjectFilesWindow::ShowDirButtions()
                         //sort by name
                         std::sort(MenuInfo.begin(), MenuInfo.end(), [](ScriptMenuInfo& A, ScriptMenuInfo& B)
                         {
-                                return A.MenuName.compare(B.MenuName) < 0;
+                            return A.MenuName.compare(B.MenuName) < 0;
                         });
                     }
                 }
@@ -1231,7 +1231,7 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
         if (v.has_value())
         {
             FoundIt = true;
-            auto& assetfile = v.value();
+            auto assetfile = v.value();
             assetfile->LastUsed = ProjectFiles::AssetFileMaxLastUsed;
 
             OnInspect = [&]()
@@ -1289,10 +1289,10 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
 
             if (f.has_value())
             {
-                auto& assetdata = f.value();
-             
+                auto assetdata = f.value();
+
                 auto& ProjectFiles = Get_ProjectFiles();
-                
+
                 UEditorAssetDataConext Conext;
                 Conext.ButtionSize = *(Vec2*)&ButtionSize;
                 Conext.ObjectPtr = &Item;
@@ -1303,7 +1303,7 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
                 FoundIt = true;
             }
         }
-        
+
 
         if (FoundIt == false)
         {
@@ -1338,8 +1338,8 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
                 }
             }
         }
-        
-        
+
+
         if (settings.IsKeybindActive(KeyBindList::Copy))
         {
             USerializer V(USerializerType::YAML);
@@ -1405,17 +1405,17 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
 
         auto str = settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
 
-        if (ImGui::MenuItem("Inspect", str.c_str(),nullptr, OnInspect.has_value()) || settings.IsKeybindActive(KeyBindList::Inspect))
+        if (ImGui::MenuItem("Inspect", str.c_str(), nullptr, OnInspect.has_value()) || settings.IsKeybindActive(KeyBindList::Inspect))
         {
-            if (OnInspect.has_value()) 
+            if (OnInspect.has_value())
             {
                 (*OnInspect)();
             }
             ImGui::CloseCurrentPopup();
         }
-        
+
         str = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
-        if (ImGui::MenuItem("Show SubAssets", str.c_str(),nullptr,OnShowSubAssets.has_value()) || (ImGui::IsKeyDown(ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
+        if (ImGui::MenuItem("Show SubAssets", str.c_str(), nullptr, OnShowSubAssets.has_value()) || (ImGui::IsKeyDown(ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
         {
             if (OnShowSubAssets.has_value())
             {
@@ -1442,7 +1442,7 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
 
             ImGui::SetClipboardText(copytext);
         }
-    
+
         str = settings.KeyBinds[(size_t)KeyBindList::Rename].ToString();
         if (ImGui::MenuItem("Rename File", str.c_str()) || settings.IsKeybindActive(KeyBindList::Rename))
         {
@@ -1524,9 +1524,9 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
                 {
                     RenameAssetFile(NewPath, oldpath);
                 };
-            undodata._RedoCallBack = [oldpath,NewPath](UndoData& data)
+            undodata._RedoCallBack = [oldpath, NewPath](UndoData& data)
                 {
-                    RenameAssetFile(oldpath,NewPath);
+                    RenameAssetFile(oldpath, NewPath);
                 };
             Get_App()->AddUndo(undodata);
         }
@@ -1651,10 +1651,10 @@ void ProjectFilesWindow::OnSaveWindow(USerializer& SaveIn)
     auto PathString = FileHelper::ToRelativePath(Assespath, _LookingAtDir.value());
 
 
-    SaveIn.Write("_LookingAtDir", PathString); 
+    SaveIn.Write("_LookingAtDir", PathString);
     SaveIn.Write("_IsLookingAtAssetForSubAssets", _LookingAtAssetForSubAssets.has_value());
 
-    if (_LookingAtAssetForSubAssets.has_value()) 
+    if (_LookingAtAssetForSubAssets.has_value())
     {
         SaveIn.Write("_LookingAtAssetForSubAssets", _LookingAtAssetForSubAssets.value());
     }
@@ -1686,7 +1686,7 @@ void ProjectFilesWindow::OnLoadWindow(UDeserializer& Loadin)
     bool V = false;
     Loadin.ReadType("_IsLookingAtAssetForSubAssets", V, V);
 
-    if (V) 
+    if (V)
     {
         Path tep;
         Loadin.ReadType("_LookingAtAssetForSubAssets", tep, tep);

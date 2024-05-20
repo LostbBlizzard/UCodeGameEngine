@@ -19,14 +19,14 @@ public:
 	Camera2d(Entity* entity);
 	~Camera2d();
 
-	
+
 
 	void Serialize(USerializer& Serializer)  const override;
 	void Deserialize(UDeserializer& Serializer) override;
-	rttr::instance Get_Rttr_Instance() override { return this; }
+	rttr::instance Get_Rttr_Instance() override { return rttr::instance(this); }
 
 	static Camera2d* FindMainCam(const GameRunTime* runtime);
-	
+
 
 	UCodeGEForceinlne Mat4 Get_ProjectionMatrix() const
 	{
@@ -105,7 +105,7 @@ private:
 	Mat4 ViewMatrix;
 	Mat4 ViewProjectionMatrix;
 	FrameBuffer _Buffer;
-	i32 Width =-1, Height =-1;
+	i32 Width = -1, Height = -1;
 	Color BackRoundClearColor = { 0.1f,0.1f,0.1f,1.0f };
 	struct
 	{
@@ -113,7 +113,7 @@ private:
 		f32 Fov = 90;
 	};
 	CamType Type = CamType::Orthographic;
-	
+
 	static UComponentData type_Data;
 };
 RenderingEnd

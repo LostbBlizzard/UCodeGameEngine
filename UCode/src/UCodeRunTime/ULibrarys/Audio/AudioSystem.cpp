@@ -22,17 +22,19 @@ AudioFile::~AudioFile()
 {
 	if (base)
 	{
-		delete base;
+		auto ptr = (SoLoud::Wav*)base;
+		delete ptr;
 	}
 }
-void AudioFile::Load(const Path& path) 
+void AudioFile::Load(const Path& path)
 {
 	if (base)
 	{
-		delete base;
+		auto ptr = (SoLoud::Wav*)base;
+		delete ptr;
 	}
 	base = new SoLoud::Wav();
-	
+
 	SoLoud::Wav* v = (SoLoud::Wav*)base;
 
 	auto s = path.generic_string();

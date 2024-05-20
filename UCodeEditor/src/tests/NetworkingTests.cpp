@@ -1,4 +1,3 @@
-#pragma once
 #include "NetworkingTests.hpp"
 
 #include "UCodeRunTime/ULibrarys/Network_Library.hpp"
@@ -8,18 +7,18 @@ bool NetTest_1()
 {
 	int Count = 0;
 
-	
+
 	UCode::TcpSever sever;
 	sever.Set_NewClient([&](UCode::TcpSever::Client& V)
 	{
-			Count++;
-			V.SendToClient("Hi Client");
+		Count++;
+		V.SendToClient("Hi Client");
 	});
 
-	sever.Set_GetBytes([&](UCode::TcpSever::Client& V,const UCode::BytesView bytes)
+	sever.Set_GetBytes([&](UCode::TcpSever::Client& V, const UCode::BytesView bytes)
 	{
-			Count++;
-			V.SendToClient(bytes);
+		Count++;
+		V.SendToClient(bytes);
 	});
 
 	sever.StartSever();
@@ -27,16 +26,16 @@ bool NetTest_1()
 	UCode::TcpClient client;
 	client.Set_OnConnet([&]()
 	{
-			Count++;
-			client.SendBytes("Hi Sever");
+		Count++;
+		client.SendBytes("Hi Sever");
 	});
 	client.Set_OnConnetFail([&]()
 	{
-			client.Connet();
+		client.Connet();
 	});
 	client.Set_GetBytes([&](const UCode::BytesView bytes)
 	{
-			Count++;
+		Count++;
 	});
 
 

@@ -28,7 +28,7 @@ public:
 
 	UCODE_EDITOR_NODISCARD static Path GetProjectDataPath(const Path&  ProjectDir);
 
-	UCODE_EDITOR_NODISCARD static Path ProjectManger::GetProjectLockPath(const Path& ProjectDir);
+	UCODE_EDITOR_NODISCARD static Path GetProjectLockPath(const Path& ProjectDir);
 
 	UCODE_EDITOR_NODISCARD static Path GetAssetIndexPath(const Path& ProjectDir);
 
