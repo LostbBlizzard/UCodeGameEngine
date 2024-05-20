@@ -61,7 +61,7 @@ struct KeyBindData
 {
 	StringView KeyBindName;
 	KeyBinding Default;
-	KeyBindData(StringView KeyBindName,KeyBinding Default)
+	KeyBindData(StringView KeyBindName, KeyBinding Default)
 	{
 		this->KeyBindName = KeyBindName;
 		this->Default = Default;
@@ -87,7 +87,7 @@ public:
 	static UserSettings& GetSettings();
 	static void SaveSettings();
 
-	static void SetCopyBuffer(String& str);
+	static void SetCopyBuffer(const String& str);
 	static String GetCopyBuffer();
 
 	static void SetCopyManagedRef(AnyManagedPtr ptr);
@@ -121,7 +121,7 @@ public:
 			}
 		}
 
-		return isgood;	
+		return isgood;
 	}
 
 	template<typename T>
@@ -129,7 +129,7 @@ public:
 	{
 		return ReadCopyBufferAs<T>(UType, GetCopyBuffer());
 	}
-	
+
 	template<typename T>
 	static Optional<T> ReadCopyBufferAs(const StringView& UType, const String& CopyBuffer)
 	{
@@ -163,9 +163,9 @@ public:
 		return {};
 	}
 
-	
+
 	template<typename T>
-	static String SetCopyBufferAsValueStr(const StringView& UType,const T& Value)
+	static String SetCopyBufferAsValueStr(const StringView& UType, const T& Value)
 	{
 		USerializer V(USerializerType::YAML);
 		V.Write("UData", Value);
@@ -176,17 +176,17 @@ public:
 		return copytext;
 	}
 	template<typename T>
-	static void SetCopyBufferAsValue(const StringView& UType,const T& Value)
-	{	
-		UserSettings::SetCopyBuffer(SetCopyBufferAsValueStr(UType,Value));
+	static void SetCopyBufferAsValue(const StringView& UType, const T& Value)
+	{
+		UserSettings::SetCopyBuffer(SetCopyBufferAsValueStr(UType, Value));
 	}
 	bool IsKeybindActive(KeyBindList key)
 	{
 		return  IsKeybindActive(KeyBinds[(size_t)key]);
 	}
-	bool IsKeybindActive(KeyBinding& key);	
+	bool IsKeybindActive(KeyBinding& key);
 
-	static bool ToFile(const Path& path,const UserSettings& Value);
+	static bool ToFile(const Path& path, const UserSettings& Value);
 	static bool FromFile(const Path& path, UserSettings& Path);
 
 	static Path GetPath();

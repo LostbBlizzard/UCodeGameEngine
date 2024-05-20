@@ -18,8 +18,8 @@ public:
 	void Serialize(USerializer& Serializer)  const override;
 
 	void Deserialize(UDeserializer& Serializer) override;
-	
-	rttr::instance Get_Rttr_Instance() override { return this; }
+
+	rttr::instance Get_Rttr_Instance() override { return rttr::instance(this); }
 
 	static UComponentsID Get_TypeID();
 public:

@@ -21,7 +21,7 @@ void RttrSerializer::Write(USerializer& serializer,const char* FieldName, rttr::
 
 	else if (type.is_enumeration())
 	{
-		auto& enumdata = value.get_type().get_enumeration();
+		auto enumdata = value.get_type().get_enumeration();
 		//if (serializer.Get_Type() == USerializerType::Bytes)
 		{
 			auto v = enumdata.get_underlying_type();

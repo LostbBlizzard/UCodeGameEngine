@@ -211,7 +211,8 @@ int App::main(int argc, char* argv[])
 				bool hasprojectlock = std::filesystem::exists(project);
 				if (hasprojectlock)
 				{
-					if (std::filesystem::remove(lockpath, std::error_code()) == true)
+					std::error_code errorcode = {};
+					if (std::filesystem::remove(lockpath, errorcode) == true)
 					{
 						hasprojectlock = false;
 					}
@@ -222,9 +223,9 @@ int App::main(int argc, char* argv[])
 					std::cerr << "Project is already Opened";
 					return EXIT_FAILURE;
 				}
-			}	
+			}
 			auto projectlock = std::ofstream(lockpath);
-		
+
 			auto oldstr = Str;
 			Path target = GetPath(Str);
 
@@ -559,7 +560,7 @@ int App::main(int argc, char* argv[])
 		}
 
 		return EXIT_FAILURE;
-	}
+}
 #endif // DEBUG
 
 }

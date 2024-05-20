@@ -35,7 +35,7 @@ EditorAppCompoent::EditorAppCompoent(UCode::Entity* entity) :
 }
 
 EditorAppCompoent::~EditorAppCompoent()
-{ 
+{
     EndEditor();
     _This = nullptr;
 }
@@ -94,7 +94,7 @@ EditorWindow* EditorAppCompoent::MakeNewWindow(const EditorWindowData& windata, 
 }
 void  EditorAppCompoent::EndProject()
 {
-	UCodeGEStackFrame("EditorApp::CloseProject");
+    UCodeGEStackFrame("EditorApp::CloseProject");
     SaveApp();
     _EditorWindows.clear();
 
@@ -105,15 +105,15 @@ void  EditorAppCompoent::EndProject()
         ActiveProjectLockFile = {};
         std::filesystem::remove(ProjectManger::GetProjectLockPath(_RunTimeProjectData.Get_ProjectDir()));
     }
-    
+
     _RunTimeProjectData.SetProjectToNull();
 
     // ImGui::ClearIniSettings();
 }
 
-Result<bool,String> EditorAppCompoent::OpenProject(const Path& ProjectDir)
+Result<bool, String> EditorAppCompoent::OpenProject(const Path& ProjectDir)
 {
-	UCodeGEStackFrame("EditorApp::OpenProject");
+    UCodeGEStackFrame("EditorApp::OpenProject");
     bool IsOpenInProject = _RunTimeProjectData.Is_ProjLoaded();
     if (IsOpenInProject)
     {
@@ -128,13 +128,14 @@ Result<bool,String> EditorAppCompoent::OpenProject(const Path& ProjectDir)
         auto lockpath = ProjectManger::GetProjectLockPath(ProjectDir);
         if (std::filesystem::exists(lockpath))
         {
-            if (std::filesystem::remove(lockpath,std::error_code()) == false)
+            std::error_code errorcode = std::error_code();
+            if (std::filesystem::remove(lockpath, errorcode) == false)
             {
                 String error = "Project Is already Opened";
                 return error;
             }
         }
-        
+
         ActiveProjectLockFile = std::ofstream(lockpath);
         _RunTimeProjectData.SetProject(Data, ProjectDir, _ProjectFiles);
 
@@ -290,7 +291,7 @@ void EditorAppCompoent::OnProjectLoaded()
 }
 void  EditorAppCompoent::ShowMainMenuBar()
 {
-    
+
     if (ImGui::BeginMainMenuBar())
     {
 
@@ -377,8 +378,8 @@ void  EditorAppCompoent::ShowMainMenuBar()
             {
                 Undo();
             }
-            
-            str ="Ctrl+" + UserSettings::GetSettings().KeyBinds[(size_t)KeyBindList::Redo].ToString();
+
+            str = "Ctrl+" + UserSettings::GetSettings().KeyBinds[(size_t)KeyBindList::Redo].ToString();
             if (ImGui::MenuItem("Redo", str.c_str(), nullptr, _Redos.size()))
             {
                 Redo();
@@ -487,7 +488,7 @@ void  EditorAppCompoent::ShowMainMenuBar()
                     std::filesystem::remove_all(_RunTimeProjectData.GetULangIntDir());
                     std::filesystem::remove_all(_RunTimeProjectData.GetULangOutDir());
 
-                    auto& assetsdir = _RunTimeProjectData.GetAssetsDir();
+                    auto assetsdir = _RunTimeProjectData.GetAssetsDir();
                     auto tepfile = assetsdir / "ULangModule.ucm";
 
                     if (std::filesystem::exists(tepfile))
@@ -563,7 +564,7 @@ void  EditorAppCompoent::ShowMainMenuBar()
             UCodeGEUnreachable();
             break;
         }
-    
+
         if (ImGui::BeginMenu(msg.c_str(), false))
         {
 
@@ -587,7 +588,7 @@ void  EditorAppCompoent::ShowMainMenuBar()
 
             }
         }
-    
+
         ImGui::EndMainMenuBar();
     }
 }
@@ -783,8 +784,8 @@ Path EditorAppCompoent::GetWindows_prefPath()
     return _RunTimeProjectData.Get_ProjectPrefsDir().concat("EditorWindows.").concat(FileExt::Prefs);
 }
 void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileType Type)
-{ 
-	UCodeGEStackFrame("EditorApp::FileUpdate");
+{
+    UCodeGEStackFrame("EditorApp::FileUpdate");
     auto Info = UEditorModules::GetModuleFromFileExt(path.extension());
 
     auto Modules = UEditorModules::GetModules();
@@ -982,7 +983,7 @@ void EditorAppCompoent::OnDraw()
         {
             _AutoSaveTimer = MaxAutoTimer;
 
-	        UCodeGEStackFrame("EditorApp::AutoSave");
+            UCodeGEStackFrame("EditorApp::AutoSave");
             SaveApp();
             UCodeGELog("[ConsoleWindowSkip]:Auto Saved");
         }
@@ -1024,7 +1025,7 @@ void EditorAppCompoent::OnDraw()
         static bool isopen = false;
 
         bool v = true;
-        if (ImGui::BeginPopupModal("Open Project Error",&v))
+        if (ImGui::BeginPopupModal("Open Project Error", &v))
         {
             auto& changelog = ProjectOpenError.value();
             ImGuIHelper::Text(StringView(changelog));
@@ -1032,7 +1033,7 @@ void EditorAppCompoent::OnDraw()
 
         }
         else
-        { 
+        {
             if (isopen)
             {
                 ProjectOpenError = {};
@@ -1161,9 +1162,9 @@ void EditorAppCompoent::OnDraw()
     {
         _InputMode = KeyInputMode::Normal;
     }
-  
 
-	UCodeGEStackFrame("EditorApp::Update");
+
+    UCodeGEStackFrame("EditorApp::Update");
     ShowEditiorWindows();
 
 

@@ -32,7 +32,7 @@ class ScencAssetFile :public UEditorAssetFileData
 public:
 	ScencAssetFile()
 	{
-		FileExtWithDot =UCode::Scene2dData::FileExtDot;
+		FileExtWithDot = UCode::Scene2dData::FileExtDot;
 	}
 	bool Draw(UEditorAssetDataConext& Data, const Path& path) override
 	{
@@ -46,35 +46,35 @@ public:
 		}
 
 
-        if (ImGui::BeginDragDropSource())
-        {
-            const Path* Value = &path;
-            bool OnDropable = ImGui::SetDragDropPayload(DragAndDropType_Scene2dPathType, &Value, sizeof(Path*));
-            bool OnDropable2 = ImGui::SetDragDropPayload(DragAndDropType_AssetPath, &Value, sizeof(Path*));
-            if (OnDropable || OnDropable2)
-            {
-                ImGuIHelper::Text(StringView("Drop Scene Here?"));
-            }
-            else
-            {
-                ImGuIHelper::Text(StringView("Draging Scene"));
-            }
+		if (ImGui::BeginDragDropSource())
+		{
+			const Path* Value = &path;
+			bool OnDropable = ImGui::SetDragDropPayload(DragAndDropType_Scene2dPathType, &Value, sizeof(Path*));
+			bool OnDropable2 = ImGui::SetDragDropPayload(DragAndDropType_AssetPath, &Value, sizeof(Path*));
+			if (OnDropable || OnDropable2)
+			{
+				ImGuIHelper::Text(StringView("Drop Scene Here?"));
+			}
+			else
+			{
+				ImGuIHelper::Text(StringView("Draging Scene"));
+			}
 
-            ImGui::EndDragDropSource();
-        }
+			ImGui::EndDragDropSource();
+		}
 	}
 
 	ExportFileRet ExportFile(const Path& path, const ExportFileContext& Item) override
 	{
 		UCodeGEStackFrame("SceneAsset:Export");
 		std::filesystem::copy_file(path, Item.Output, std::filesystem::copy_options::overwrite_existing);
-	
+
 		UCode::Scene2dData V;
 		UCode::Scene2dData::FromFile(V, path);
 
 		UCode::GameRunTime runtime;
-		auto scenc = UCode::Scene2dData::LoadScene(&runtime,V);
-		UCode::Scene2dData::SaveScene(scenc,V, USerializerType::Bytes);
+		auto scenc = UCode::Scene2dData::LoadScene(&runtime, V);
+		UCode::Scene2dData::SaveScene(scenc, V, USerializerType::Bytes);
 
 		//UCode::Scene2dData::ToFile(Item.Output, V, USerializerType::Bytes);
 
@@ -205,7 +205,7 @@ public:
 			Component->Set_Fov(V);
 		}
 		auto color = Component->Get_BackRoundClearColor();
-		ImGuIHelper::ColorField("Backround Clear Color",color);
+		ImGuIHelper::ColorField("Backround Clear Color", color);
 		Component->Set_BackRoundClearColor(color);
 	}
 
@@ -256,7 +256,7 @@ public:
 			Component->Set_Fov(V);
 		}
 		auto color = Component->Get_BackRoundClearColor();
-		ImGuIHelper::ColorField("Backround Clear Color",color);
+		ImGuIHelper::ColorField("Backround Clear Color", color);
 		Component->Set_BackRoundClearColor(color);
 
 	}
@@ -279,61 +279,61 @@ EditorEnd
 
 MakeSerlizeType(UCodeEditor::SpriteItem,
 	Field("_UID", _this->uid);
-	Field("_SpriteName", _this->spritename);
-	Field("offset", _this->offset);
-	Field("size", _this->size);
-	)
+Field("_SpriteName", _this->spritename);
+Field("offset", _this->offset);
+Field("size", _this->size);
+)
 
 
-	EditorStart
-	
-		
-		class MP3AssetFile :public UEditorAssetFileData
+EditorStart
+
+
+class MP3AssetFile :public UEditorAssetFileData
+{
+public:
+	MP3AssetFile()
+	{
+		FileExtWithDot = ".mp3";
+		FileMetaExtWithDot = UEditorAssetFileData::DefaultMetaFileExtWithDot;
+		CanHaveLiveingAssets = true;
+	}
+
+	class LiveingAsset :public UEditorAssetFile
 	{
 	public:
-		MP3AssetFile()
+		UCode::AudioFile file;
+
+		inline static UCode::AudioPlaySettings playsettings;
+		void Init(const UEditorAssetFileInitContext& Context) override
 		{
-			FileExtWithDot = ".mp3";
-			FileMetaExtWithDot = UEditorAssetFileData::DefaultMetaFileExtWithDot;
-			CanHaveLiveingAssets = true;
+			file.Load(this->FileFullPath);
 		}
-
-		class LiveingAsset :public UEditorAssetFile
+		bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override
 		{
-		public:
-			UCode::AudioFile file;
-
-			inline static UCode::AudioPlaySettings playsettings;
-			void Init(const UEditorAssetFileInitContext& Context) override
-			{
-				file.Load(this->FileFullPath);
-			}
-			bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override
-			{
-				return ImGuIHelper::ImageButton(Item.ObjectPtr,AppFiles::sprite::AudioIcon, *(ImVec2*)&Item.ButtionSize);
-			}
-			void DrawInspect(const UEditorAssetDrawInspectContext& Item) override
-			{
-				if (ImGui::Button("Play"))
-				{
-
-					auto audio = UCode::AudioSystem::Get(EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_EditorLibrary());
-					audio->Play(file, playsettings);
-				}
-			}
-		};
-
-		ExportFileRet ExportFile(const Path& path, const ExportFileContext& Item) override
-		{
-			return ExportFileRet();
+			return ImGuIHelper::ImageButton(Item.ObjectPtr, AppFiles::sprite::AudioIcon, *(ImVec2*)&Item.ButtionSize);
 		}
-
-		virtual Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
+		void DrawInspect(const UEditorAssetDrawInspectContext& Item) override
 		{
-			return Unique_ptr< UEditorAssetFile>(new LiveingAsset());
-		}
+			if (ImGui::Button("Play"))
+			{
 
+				auto audio = UCode::AudioSystem::Get(EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_EditorLibrary());
+				audio->Play(file, playsettings);
+			}
+		}
 	};
+
+	ExportFileRet ExportFile(const Path& path, const ExportFileContext& Item) override
+	{
+		return ExportFileRet();
+	}
+
+	virtual Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
+	{
+		return Unique_ptr< UEditorAssetFile>(new LiveingAsset());
+	}
+
+};
 class PNGAssetFile :public UEditorAssetFileData
 {
 public:
@@ -361,7 +361,7 @@ public:
 		Compression compression = Compression::None;
 		Filter filter = Filter::Point;
 		u32 pixelperunit = 16;
-		
+
 		Vector<SpriteItem> sprites;
 	};
 	class LiveingPng :public UEditorAssetFile
@@ -373,7 +373,7 @@ public:
 			HasSubAssets = true;
 
 		}
-		
+
 		TextureSettings setting;
 		Optional<UCode::TextureAsset> asset;
 		bool IsLoadingTexture = false;
@@ -406,7 +406,8 @@ public:
 				auto& tex = textureasset._Base;
 				UCode::Sprite sprite(&tex, spr.offset.X, spr.offset.Y, spr.size.X, spr.size.Y);
 
-				spr._Asset = std::make_shared<UCode::SpriteAsset>(std::move(sprite), textureasset.GetManaged());
+				auto manage = textureasset.GetManaged();
+				spr._Asset = std::make_shared<UCode::SpriteAsset>(std::move(sprite), manage);
 				spr._Asset->Uid = spr.uid;
 
 
@@ -421,7 +422,7 @@ public:
 		Optional<UID> OpenSpriteEditor;
 		void DrawSubAssets(const UEditorDrawSubAssetContext& Item) override
 		{
-			if (isbroken) {	return;}
+			if (isbroken) { return; }
 
 			LoadAssetContext context;
 			context._AssetToLoad = this->setting.uid;
@@ -512,21 +513,21 @@ public:
 		}
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override
 		{
-			if (isbroken) {	return;}
-			
+			if (isbroken) { return; }
+
 			bool hasdiff = true;
-			if (hasdiff) 
+			if (hasdiff)
 			{
 				auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
-				
+
 				if (tofile(this->FileMetaFullPath.value(), setting))
 				{
-					auto& index =runprojectdata->Get_AssetIndex();
-					
+					auto& index = runprojectdata->Get_AssetIndex();
+
 					auto p = FileFullPath.generic_string();
 					auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
 					auto op = index.FindFileRelativeAssetName(relpath);
-				
+
 					if (op.has_value())
 					{
 						auto& ind = op.value();
@@ -537,11 +538,11 @@ public:
 				else
 				{
 					auto p = FileFullPath.generic_string();
-					auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());	
+					auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
 					UCodeGEError("Saveing Asset for " << relpath << " Failed");
 				}
-		
-			
+
+
 			}
 		}
 
@@ -558,13 +559,13 @@ public:
 				serializer.ReadType("_Compression", *(Compression_t*)&Out.compression);
 
 				serializer.ReadType("_PixelPerUnit", Out.pixelperunit);
-				
+
 				serializer.ReadType("_Sprites", Out.sprites);
 				return true;
 			}
 			return false;
 		}
-		static  bool tofile(const Path& settings,const TextureSettings& in)
+		static  bool tofile(const Path& settings, const TextureSettings& in)
 		{
 			USerializer serializer;
 
@@ -577,7 +578,7 @@ public:
 
 			serializer.Write("_PixelPerUnit", in.pixelperunit);
 
-			serializer.Write("_Sprites",in.sprites);
+			serializer.Write("_Sprites", in.sprites);
 
 			return serializer.ToFile(settings);
 		}
@@ -593,7 +594,7 @@ public:
 
 		}
 
-		
+
 		bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override
 		{
 			LoadAssetContext context;
@@ -677,7 +678,7 @@ public:
 				auto lib = EditorAppCompoent::GetCurrentEditorAppCompoent()->GetGameRunTime()->Get_Library_Edit();
 
 				UCode::Threads* threads = UCode::Threads::Get(lib);
-				Delegate<Vector<Byte>> Func = [lib,path = this->FileFullPath]()
+				Delegate<Vector<Byte>> Func = [lib, path = this->FileFullPath]()
 					{
 						UCode::GameFiles* f = UCode::GameFiles::Get(lib);
 						auto bytes = f->ReadFileAsBytes(path);
@@ -699,23 +700,27 @@ public:
 
 						return std::move(Tex);
 					};
-				auto vg = asset.value().GetManaged();
-				
-				threads->AddTask_t(UCode::TaskType::File_Input,std::move(Func), {})
-				.ContinueOnThread<Unique_ptr<UCode::Texture>>(UCode::TaskType::DataProcessing, std::move(Func2))
-				.ContinueOnThread<Unique_ptr<UCode::Texture>>(UCode::TaskType::Rendering, std::move(Func3))
-				.OnCompletedOnThread([this,v = asset.value().GetManaged()](Unique_ptr<UC::Texture>& text)
-				{
-					if (v.Has_Value())
-					{
-						auto& tex = v.Get_Value()->_Base;
-						tex = std::move(*text.get());
-						SetupTexture(&tex);
-						IsLoadingTexture = false;
 
-						tex.FreeFromCPU();
-					}
-				},UC::TaskType::Main).Start();
+				Delegate<void, Unique_ptr<UC::Texture>&&> Func4 = [this, v = asset.value().GetManaged()](Unique_ptr<UC::Texture>&& text)
+					{
+						if (v.Has_Value())
+						{
+							auto& tex = v.Get_Value()->_Base;
+							tex = std::move(*text.get());
+							SetupTexture(&tex);
+							IsLoadingTexture = false;
+
+							tex.FreeFromCPU();
+						}
+					};
+
+				auto vg = asset.value().GetManaged();
+
+
+				threads->AddTask_t(UCode::TaskType::File_Input, std::move(Func), {})
+					.ContinueOnThread<Unique_ptr<UCode::Texture>>(UCode::TaskType::DataProcessing, std::move(Func2))
+					.ContinueOnThread<Unique_ptr<UCode::Texture>>(UCode::TaskType::Rendering, std::move(Func3))
+					.OnCompletedOnThread(Func4, UC::TaskType::Main).Start();
 			}
 			if (Item._AssetToLoad == setting.uid)
 			{
@@ -736,7 +741,7 @@ public:
 			}
 			return {};
 		}
-		
+
 		bool ShouldBeUnloaded(const UEditorAssetShouldUnloadContext& Context) override
 		{
 			for (auto& Item : setting.sprites)
@@ -764,8 +769,8 @@ public:
 			ImGui::BeginDisabled(true);
 
 
-			String tep ="Image/Png";
-			Item.Drawer->StringField("Type",tep);
+			String tep = "Image/Png";
+			Item.Drawer->StringField("Type", tep);
 			ImGui::SameLine();
 			auto imageh = ImGui::GetFrameHeight();
 			ImGuIHelper::Image(AppFiles::sprite::Uility_image, { imageh ,imageh });
@@ -778,7 +783,7 @@ public:
 			ImGui::EndDisabled();
 			static void* p = nullptr;
 
-			if (ImGui::Button("Open Sprite Editor")  || OpenSpriteEditor)
+			if (ImGui::Button("Open Sprite Editor") || OpenSpriteEditor)
 			{
 				p = this;
 				ImGui::OpenPopup("SpriteAssetEditor");
@@ -795,16 +800,16 @@ public:
 					{
 						u32 SpriteW = 16;
 						u32 SpriteH = 16;
-					
+
 						u32 SpritePadingX = 0;
 						u32 SpritePadingY = 0;
-						
-						bool WithEmpty =false;
+
+						bool WithEmpty = false;
 					};
 					struct EditorWindowData
 					{
 						float texturescale = 5;
-						Vec2 dragoffset; 
+						Vec2 dragoffset;
 						Optional<size_t> SelcedSpriteIndex;
 						SliceWindowData slicedata;
 					};
@@ -813,7 +818,7 @@ public:
 					ImGuiWindowFlags flags = ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollbar;
 					flags |= ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollWithMouse;
 					auto& USettings = UserSettings::GetSettings();
-					
+
 					bool newspritebuttion = ImGui::Button("New Sprite");
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 					{
@@ -831,19 +836,19 @@ public:
 						UID newid = runtimeproject->GetNewUID();
 						val.uid = newid;
 
-						
+
 						auto& assetindex = runtimeproject->Get_AssetIndex();
 						EditorIndex::IndexFile file;
-						
+
 						auto assetdir = runtimeproject->GetAssetsDir();
-						file.RelativePath =  FileFullPath.generic_string().substr(assetdir.generic_string().size());
+						file.RelativePath = FileFullPath.generic_string().substr(assetdir.generic_string().size());
 						file.RelativeAssetName = file.RelativePath + EditorIndex::SubAssetSeparator + val.spritename + UCode::SpriteData::FileExtDot;
 						file.UserID = newid;
-						
+
 						assetindex._Files.push_back(std::move(file));
 						setting.sprites.push_back(std::move(val));
 					}
-					ImGui::SameLine();	
+					ImGui::SameLine();
 					if (ImGui::Button("Slice"))
 					{
 						ImGui::OpenPopup("SpriteSlice");
@@ -860,15 +865,15 @@ public:
 
 						auto tex = &asset.value()._Base;
 						bool hasoneopen = false;
-					
+
 						for (size_t i = 0; i < setting.sprites.size(); i++)
-						{ 
+						{
 							auto& Item = setting.sprites[i];
-						
+
 							UCode::Sprite sp{ tex,(i32)Item.offset.X,(i32)Item.offset.Y,(i32)Item.size.X,(i32)Item.size.Y };
-							
-							
-							
+
+
+
 							auto& g = *GImGui;
 							ImGuIHelper::Image(&sp, ImVec2(20, g.FontSize + g.Style.FramePadding.y * 2)); ImGui::SameLine();
 
@@ -889,7 +894,7 @@ public:
 								}
 							}
 
-							if (ImGui::TreeNode(&Item,ImGuIHelper::ToCStr(StringView(Item.spritename))))
+							if (ImGui::TreeNode(&Item, ImGuIHelper::ToCStr(StringView(Item.spritename))))
 							{
 								if (focusitem)
 								{
@@ -992,7 +997,7 @@ public:
 								ImGuIHelper::Text(StringView("Sprite Options"));
 
 								auto str = USettings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
-								if (ImGui::MenuItem("Destroy",str.c_str()) || USettings.IsKeybindActive(KeyBindList::Delete))
+								if (ImGui::MenuItem("Destroy", str.c_str()) || USettings.IsKeybindActive(KeyBindList::Delete))
 								{
 									RemoveSprite(Item.uid);
 									setting.sprites.erase(setting.sprites.begin() + i);
@@ -1000,10 +1005,10 @@ public:
 
 									ImGui::CloseCurrentPopup();
 								}
-								
+
 								ImGui::EndPopup();
 							}
-							
+
 							if (remove)
 							{
 								break;
@@ -1070,7 +1075,7 @@ public:
 
 												for (size_t pixely = item.offset.Y; pixely < item.size.Y + item.offset.Y; pixely++)
 												{
-													for (size_t pixelx = item.offset.X; pixelx <  item.size.X + item.offset.X; pixelx++)
+													for (size_t pixelx = item.offset.X; pixelx < item.size.X + item.offset.X; pixelx++)
 													{
 
 														auto index = UC::Texture::GetPixelIndex(pixelx, pixely, textureW, textureH);
@@ -1158,7 +1163,7 @@ public:
 
 										olditem.offset = newitem.offset;
 										olditem.size = newitem.size;
-									
+
 										if (olditem._Asset.get())
 										{
 											auto& asset = *olditem._Asset.get();
@@ -1177,11 +1182,11 @@ public:
 						{
 							auto list = ImGui::GetWindowDrawList();
 							auto startpos = ImGui::GetWindowPos();
-					
+
 							if (ImGui::IsWindowFocused() || ImGui::IsWindowHovered())
 							{
 								windowdata.texturescale += ImGui::GetIO().MouseWheel;
-								auto tep =ImGui::GetMouseDragDelta(ImGuiMouseButton_::ImGuiMouseButton_Right);
+								auto tep = ImGui::GetMouseDragDelta(ImGuiMouseButton_::ImGuiMouseButton_Right);
 								windowdata.dragoffset += *(Vec2*)&tep;
 								windowdata.texturescale = std::max(windowdata.texturescale, 0.5f);
 							}
@@ -1198,21 +1203,21 @@ public:
 							newpos.y += diffy;
 							ImGui::SetCursorPos(newpos);
 
-							ImU32 texturbordercolor =ImGuIHelper::ColorToImguiU32(Color32(217, 51, 0));
-							ImU32 spritebordercolor =ImGuIHelper::ColorToImguiU32(Color32());
-							ImU32 selecedspritebordercolor =ImGuIHelper::ColorToImguiU32( Color32(204, 161, 4));
+							ImU32 texturbordercolor = ImGuIHelper::ColorToImguiU32(Color32(217, 51, 0));
+							ImU32 spritebordercolor = ImGuIHelper::ColorToImguiU32(Color32());
+							ImU32 selecedspritebordercolor = ImGuIHelper::ColorToImguiU32(Color32(204, 161, 4));
 
 							for (size_t i = 0; i < setting.sprites.size(); i++)
 							{
 								auto& Item = setting.sprites[i];
-						
+
 								float HOffset = Item.offset.Y * windowdata.texturescale;
 								float WOffset = Item.offset.X * windowdata.texturescale;
 								float HSize = Item.size.Y;
 								float WSize = Item.size.X;
-							
-								auto diffx = windowdata.dragoffset.X/ windowdata.texturescale;
-								auto diffy = windowdata.dragoffset.Y/ windowdata.texturescale;
+
+								auto diffx = windowdata.dragoffset.X / windowdata.texturescale;
+								auto diffy = windowdata.dragoffset.Y / windowdata.texturescale;
 
 								bool isseleced = false;
 								if (windowdata.SelcedSpriteIndex.has_value())
@@ -1279,7 +1284,7 @@ public:
 			}
 			//
 		}
-		
+
 	};
 
 	Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
@@ -1370,13 +1375,13 @@ public:
 	{
 		TextureSettings setting;
 		Path metapath = context.AssetPath.native() + Path(UEditorAssetFileData::DefaultMetaFileExtWithDot).native();
-		
+
 		if (LiveingPng::fromfile(metapath, setting))
 		{
 			GetUIDInfo val;
 			val._MainAssetID = setting.uid;
 			val._SubAssets.reserve(setting.sprites.size());
-			
+
 			for (auto& Item : setting.sprites)
 			{
 				GetSubAssetData sub;
@@ -1410,7 +1415,7 @@ struct RenderFrameData
 	float CamOrth = 5;
 };
 
-UC::ImageData RenderFrame(RenderFrameData& Data,UC::RenderRunTime2d::DrawData drawdata,UC::Entity* newentity)
+UC::ImageData RenderFrame(RenderFrameData& Data, UC::RenderRunTime2d::DrawData drawdata, UC::Entity* newentity)
 {
 	UC::Camera2d* Cam = newentity->AddCompoent<UC::Camera2d>();
 	Cam->Set_Ortho_size(Data.CamOrth);
@@ -1430,11 +1435,11 @@ UC::ImageData RenderFrame(RenderFrameData& Data,UC::RenderRunTime2d::DrawData dr
 
 	render.Init(window, scene->Get_RunTime());
 
-	Cam->Get_Buffer().UpdateBufferSize(window.height,window.width);
+	Cam->Get_Buffer().UpdateBufferSize(window.height, window.width);
 
 	render.Draw(drawdata, Cam);
 
-	auto v =Cam->Get_Buffer().GetGPUImageData();
+	auto v = Cam->Get_Buffer().GetGPUImageData();
 
 	render.EndRender();
 
@@ -1443,7 +1448,7 @@ UC::ImageData RenderFrame(RenderFrameData& Data,UC::RenderRunTime2d::DrawData dr
 
 	return v;
 }
-UC::ImageData RenderFrame(RenderFrameData& Data,UC::RunTimeScene* scene)
+UC::ImageData RenderFrame(RenderFrameData& Data, UC::RunTimeScene* scene)
 {
 	auto newentity = scene->NewEntity();
 	newentity->WorldPosition(Data.CamPos);
@@ -1464,12 +1469,12 @@ UC::ImageData RenderFrame(RenderFrameData& Data,UC::RunTimeScene* scene)
 
 	render.Init(window, scene->Get_RunTime());
 
-	Cam->Get_Buffer().UpdateBufferSize(window.height,window.width);
+	Cam->Get_Buffer().UpdateBufferSize(window.height, window.width);
 	ren->UpdateDrawData();
 
 	render.Draw(ren->Get_DrawData(), Cam);
 
-	auto v =Cam->Get_Buffer().GetGPUImageData();
+	auto v = Cam->Get_Buffer().GetGPUImageData();
 
 	render.EndRender();
 
@@ -1518,7 +1523,7 @@ public:
 
 			return _tepScene;
 		}
-		UC::Entity*	GetAsEntity()
+		UC::Entity* GetAsEntity()
 		{
 			if (!_entity.Has_Value())
 			{
@@ -1533,7 +1538,7 @@ public:
 		Vector<Byte> GetAssetAsBytes(UC::Scene2dData::Entity_Data& data)
 		{
 			USerializer node(UC::USerializerType::Fastest);
-			node.Write("_",data);
+			node.Write("_", data);
 
 			Vector<Byte> r;
 			node.ToBytes(r, false);
@@ -1541,7 +1546,7 @@ public:
 		}
 		void Init(const UEditorAssetFileInitContext& Context) override
 		{
-			if (UC::RawEntityData::ReadFromFile(FileFullPath, _asset._Base)) 
+			if (UC::RawEntityData::ReadFromFile(FileFullPath, _asset._Base))
 			{
 				_assetasbytes = GetAssetAsBytes(_asset._Base._Data);
 			}
@@ -1551,9 +1556,9 @@ public:
 			}
 		}
 
-		Path ThumbnailPath() 
+		Path ThumbnailPath()
 		{
-			return TemporaryPath.native() +  Path(".png").native();
+			return TemporaryPath.native() + Path(".png").native();
 		}
 		void LoadThumbnail()
 		{
@@ -1561,7 +1566,7 @@ public:
 			bool isoutdataed = true;
 			bool cancach = false;
 			{
-				if (cancach) 
+				if (cancach)
 				{
 					if (std::filesystem::exists(thumbnailpath))
 					{
@@ -1578,7 +1583,7 @@ public:
 			{
 				std::shared_ptr<Delegate<void>> LoopFunc = std::make_shared<Delegate<void>>();
 
-				
+
 				auto _tepRunTime = std::make_shared<UC::GameRunTime>(EditorAppCompoent::GetCurrentEditorAppCompoent()->GetGameRunTime()->Get_LibraryRef());
 				UC::RunTimeScene* _tepScene = _tepRunTime->Add_NewScene();
 				UC::Entity* myentity = _tepScene->NewEntity();
@@ -1591,9 +1596,9 @@ public:
 
 
 
-				*LoopFunc = [LoopFunc, this,renderdata = std::move(renderdata),_tepRunTime = std::move(_tepRunTime),_tepScene,myentity]()
+				*LoopFunc = [LoopFunc, this, renderdata = std::move(renderdata), _tepRunTime = std::move(_tepRunTime), _tepScene, myentity]()
 					{
-						
+
 						bool issceneloading = renderdata.HasAnyPlaceHolders();
 						auto lib = EditorAppCompoent::GetCurrentEditorAppCompoent()->GetGameRunTime()->Get_Library_Edit();
 						UCode::Threads* threads = UCode::Threads::Get(lib);
@@ -1630,12 +1635,12 @@ public:
 
 								constexpr auto CHANNEL_NUM = 4;
 
-								#if UCodeGEOpenGL
+#if UCodeGEOpenGL
 								//OpenGl Textures are unside down.
 								UC::Texture::FlipImageVertically(val.Width, val.Height, val._ColorData.data());
-								#endif
+#endif
 
-								if (false) 
+								if (false)
 								{
 									std::filesystem::create_directories(thumbnailpath.parent_path());
 									stbi_write_png(pathstring.c_str(), val.Width, val.Height, CHANNEL_NUM, val._ColorData.data(), val.Width * CHANNEL_NUM);
@@ -1655,7 +1660,7 @@ public:
 							.ContinueOnThread(UCode::TaskType::File_Output, std::move(WriteToOutput))
 							.ContinueOnMainThread(std::move(SetFile)).Start();
 					};
-				
+
 				Delegate<void> Func = [LoopFunc]() -> void
 					{
 						(*LoopFunc)();
@@ -1686,12 +1691,7 @@ public:
 
 						return std::move(Tex);
 					};
-
-
-				threads->AddTask_t(UCode::TaskType::File_Input, std::move(Func), {})
-					.ContinueOnThread<Unique_ptr<UCode::Texture>>(UCode::TaskType::DataProcessing, std::move(Func2))
-					.ContinueOnThread<Unique_ptr<UCode::Texture>>(UCode::TaskType::Rendering, std::move(Func3))
-					.OnCompletedOnThread([this](Unique_ptr<UC::Texture>& text)
+				Delegate<void, Unique_ptr<UC::Texture>&&> Func4 = [this](Unique_ptr<UC::Texture>&& text)
 					{
 						this->_Thumbnail = std::move(*text.get());
 
@@ -1700,7 +1700,12 @@ public:
 						_ThumbnailSprite = UC::Sprite(tex, 0, 0, tex->Get_Width(), tex->Get_Height());
 
 						tex->FreeFromCPU();
-					}, UC::TaskType::Main).Start();
+					};
+
+				threads->AddTask_t(UCode::TaskType::File_Input, std::move(Func), {})
+					.ContinueOnThread<Unique_ptr<UCode::Texture>>(UCode::TaskType::DataProcessing, std::move(Func2))
+					.ContinueOnThread<Unique_ptr<UCode::Texture>>(UCode::TaskType::Rendering, std::move(Func3))
+					.OnCompletedOnThread(Func4, UC::TaskType::Main).Start();
 			}
 		}
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override
@@ -1763,7 +1768,7 @@ public:
 
 				ImGui::EndDragDropSource();
 			}
-			
+
 			if (_Thumbnail.has_value())
 			{
 				auto imagescale = 3;
@@ -1779,7 +1784,7 @@ public:
 
 				ImGui::SetCursorPos(postdrawpos);
 			}
-			
+
 			return r;
 		}
 		USerializerType GetSerializerTypeForAsset()
@@ -1827,7 +1832,7 @@ public:
 			UC::Scene2dData::SaveEntityData(e, data._Data, type);
 
 			data._UID = _asset._Base._UID;
-			
+
 			if (!UC::RawEntityData::WriteToFile(FileFullPath, data, type))
 			{
 				UCodeGEError("Unable to SaveFile " << FileHelper::ToRelativePath(runtime->GetAssetsDir(), FileFullPath));
@@ -1887,9 +1892,9 @@ public:
 				ImGui::SameLine();
 
 				const char* makevarinatpopupid = "Make Variant Popup";
-				
+
 				auto wasentityupdated = WasEntityUpdated(entity);
-				
+
 				static String NewAssetName;
 				ImGui::SetNextWindowSize({ 350,100 });
 				if (ImGui::BeginPopup(makevarinatpopupid))
@@ -1901,18 +1906,18 @@ public:
 					ImGui::Separator();
 
 					ImGuIHelper::InputText("FileName", NewAssetName);
-				
+
 					auto buttioncount = 2;
 					auto h = ImGui::GetFrameHeight();
 					auto fieldwidthleft = ImGui::GetCurrentWindow()->Size.x - ImGui::GetCursorPosX();
 					auto w = (fieldwidthleft / buttioncount) - ImGui::GetStyle().ItemSpacing.x;
 
-					if (ImGui::Button("Make",{w,h}))
+					if (ImGui::Button("Make", { w,h }))
 					{
 						auto newfilename = FileHelper::GetNewFileName(FileFullPath.parent_path() / Path(NewAssetName).native(), UC::RawEntityData::FileExtDot);
 
 						auto runprj = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
-						auto outtype =runprj->Get_ProjData()._SerializeType;
+						auto outtype = runprj->Get_ProjData()._SerializeType;
 
 						UC::Entity* e = GetTepScene()->NewEntity();
 						UC::Entity::Destroy(e);
@@ -1925,7 +1930,7 @@ public:
 						UC::Scene2dData::LoadEntity(e, _asset._Base._Data);
 
 						UC::RawEntityData raw = UC::RawEntityData(runprj->GetNewUID(), e, outtype);
-						if (!UC::RawEntityData::WriteToFile(newfilename,raw,outtype))
+						if (!UC::RawEntityData::WriteToFile(newfilename, raw, outtype))
 						{
 							auto relpath = FileHelper::ToRelativePath(runprj->GetAssetsDir(), newfilename);
 							UCodeGEError("Unable to Write to " << relpath);
@@ -1934,7 +1939,7 @@ public:
 						ImGui::CloseCurrentPopup();
 					}
 					ImGui::SameLine();
-					if (ImGui::Button("Close",{w,h}))
+					if (ImGui::Button("Close", { w,h }))
 					{
 						ImGui::CloseCurrentPopup();
 					}
@@ -2037,9 +2042,9 @@ public:
 					_entity.Get_Value()->NativeScene()->Get_RunTime()->DestroyNullScenes();
 				}
 			}
-			
+
 		}
-		void FileUpdated() override	
+		void FileUpdated() override
 		{
 			UC::RawEntityData _val;
 			if (UC::RawEntityData::ReadFromFile(FileFullPath, _val))
@@ -2064,7 +2069,7 @@ public:
 					_asset._Base = std::move(_val);
 
 					UC::Scene2dData::LoadEntity(e, _asset._Base._Data);
-				
+
 					UC::Editor_Only_CallAssetUpdated(_asset._Base._UID);
 				}
 			}
@@ -2081,13 +2086,13 @@ public:
 		}
 	};
 
-	
+
 
 	Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
 	{
 		return Unique_ptr<UEditorAssetFile>(new Liveing());
 	}
-	
+
 	Optional<GetUIDInfo> GetFileUID(UEditorGetUIDContext& context) override
 	{
 		UC::RawEntityData val;
@@ -2105,7 +2110,7 @@ public:
 
 CoreModule::CoreModule()
 {
-    Init();
+	Init();
 }
 
 CoreModule::~CoreModule()
