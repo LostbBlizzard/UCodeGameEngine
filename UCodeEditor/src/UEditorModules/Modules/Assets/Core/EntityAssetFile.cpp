@@ -325,9 +325,24 @@ bool EntityAssetFile::Liveing::DrawButtion(const UEditorAssetDrawButtionContext&
 
 	auto predrawpos = ImGui::GetCursorPos();
 
+	if (_Thumbnail.has_value())
+	{
+		auto imagescale = 3;
+		auto minimagesize = Item.ButtionSize / imagescale;
+		auto predrawasucode = Vec2(predrawpos.x, predrawpos.y);
+
+		auto newcursorpos = predrawasucode;
+		newcursorpos += {Item.ButtionSize.X - (minimagesize.X / 2), 0};
+
+		ImGui::SetCursorPos(ImVec2(newcursorpos.X, newcursorpos.Y));
+
+		ImGuIHelper::Image(AppFiles::sprite::RawEntityData, *(ImVec2*)&minimagesize);
+
+		ImGui::SetCursorPos(predrawpos);
+	}
+
 	bool r = ImGuIHelper::ImageButton(Item.ObjectPtr, thumbnail, *(ImVec2*)&Item.ButtionSize);
 
-	auto postdrawpos = ImGui::GetCursorPos();
 
 	if (ImGui::BeginDragDropSource())
 	{
@@ -361,21 +376,9 @@ bool EntityAssetFile::Liveing::DrawButtion(const UEditorAssetDrawButtionContext&
 		ImGui::EndDragDropSource();
 	}
 
-	if (_Thumbnail.has_value())
-	{
-		auto imagescale = 3;
-		auto minimagesize = Item.ButtionSize / imagescale;
-		auto predrawasucode = Vec2(predrawpos.x, predrawpos.y);
+	
 
-		auto newcursorpos = predrawasucode;
-		newcursorpos += {Item.ButtionSize.X - (minimagesize.X / 2), 0};
-
-		ImGui::SetCursorPos(ImVec2(newcursorpos.X, newcursorpos.Y));
-
-		ImGuIHelper::Image(AppFiles::sprite::RawEntityData, *(ImVec2*)&minimagesize);
-
-		ImGui::SetCursorPos(postdrawpos);
-	}
+	
 
 	return r;
 }
