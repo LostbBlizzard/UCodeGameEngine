@@ -76,18 +76,18 @@ struct EntityPlaceHolderChanges
 		void AddField(USerializerType type, PlaceHolderChangeProps props);
 		void AddField(USerializerType type, StringView value);
 		void AddField(USerializerType type, size_t value);
-		MemberRet GetIndex(USerializerType type, size_t I)
+		MemberRet GetIndex(USerializerType type, size_t I) const
 		{
 			GetIndexChash chash = GetIndexChash();
 			return GetIndex(type, I);
 		}
-		size_t IndexCount(USerializerType type)
+		size_t IndexCount(USerializerType type) const
 		{
 			return IndexCount(type);
 		}
 
-		MemberRet GetIndex(USerializerType type, size_t I, GetIndexChash& chash);
-		size_t IndexCount(USerializerType type, GetIndexChash& chash);
+		MemberRet GetIndex(USerializerType type, size_t I, GetIndexChash& chash) const;
+		size_t IndexCount(USerializerType type, GetIndexChash& chash) const;
 	};
 
 	Vector<Change> _changes;
@@ -127,7 +127,13 @@ public:
 	void UpdateChanges(USerializerType type);
 	void RemoveChanges();
 
-	NullablePtr<Entity> GetEntity(USerializerType type, const EntityPlaceHolderChanges::Change& change);
+
+	struct GetEntityData
+	{
+		Entity* entity;
+		EntityPlaceHolderChanges::PlaceHolderChangeProps props;
+	};
+	Optional<GetEntityData> GetEntity(USerializerType type, const EntityPlaceHolderChanges::Change& change);
 	NullablePtr<Compoent> GetCompoent(USerializerType type, const EntityPlaceHolderChanges::Change& change);
 private:
 
