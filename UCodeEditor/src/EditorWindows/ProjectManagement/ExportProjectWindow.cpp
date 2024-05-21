@@ -5,6 +5,8 @@
 #include <UCodeRunTime/ULibrarys/Loger.hpp>
 #include "Helper/UserSettings.hpp"
 #include "Editor/EditorAppCompoent.hpp"
+#include "EditorWindows/BasicWindows/ConsoleWindow.hpp"
+#include "Helper/StringHelper.hpp"
 EditorStart
 ExportProjectWindow::ExportProjectWindow(const NewEditorWindowData& windowdata)
 	:EditorWindow(windowdata)
@@ -50,10 +52,8 @@ void ExportProjectWindow::UpdateWindow()
 	{	
 		ImGuIHelper::Text((StringView("Project Is Being Exported")));
 
-		ImGuIHelper::ShowOnMiddleLoadingIndicatorCircle("Loading");
-
-		return;
 	}
+	ImGui::BeginDisabled(_Building);
 	if (LookingAtPlatform == nullptr)
 	{
 		LookingAtPlatform = Get_PlatfromData(Platforms::ThisPlatform);
@@ -108,6 +108,7 @@ void ExportProjectWindow::UpdateWindow()
 			break;
 		}
 	}
+	ImGui::EndDisabled();
 }
 
 EditorWindowData ExportProjectWindow::GetEditorData()
@@ -136,6 +137,20 @@ EditorWindow* ExportProjectWindow::MakeWin(const NewEditorWindowData& windowdata
 void OnBuildProjecDone(BuildSytemManger::BuildRet r)
 {
 	RuningTasksInfo::ReMoveTask(RuningTask::Type::BuildingProject);
+	{
+
+			if (EditorAppCompoent::GetCurrentEditorAppCompoent())
+			{
+				auto app = EditorAppCompoent::GetCurrentEditorAppCompoent();
+
+				auto win = app->Get_Window<ConsoleWindow>();
+
+				win->ClearLogs([](const ConsoleWindow::Log& Item) -> bool
+					{
+						return StringHelper::StartsWith(Item.Text, "Export");
+					});
+			}
+	}
 	if (r.IsError())
 	{
 		auto& error = r.GetError();
@@ -214,10 +229,10 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 				  {
 					  OnBuildProjecDone(r);
 				  };
-			  Threads->AddTask_t(UCode::TaskType::Main, std::move(Func2), {});
+			  Threads->AddTask_t(UCode::TaskType::Main, std::move(Func2), {}).Start();
 		};
 
-		_Task = Threads->AddTask_t(UCode::TaskType::FileIO, std::move(Func), {});
+		_Task = Threads->AddTask_t(UCode::TaskType::FileIO, std::move(Func), {}).Start();
 	}
 
 	ImGuIHelper::BoolEnumField("DebugBuild", Info.DebugBuild);

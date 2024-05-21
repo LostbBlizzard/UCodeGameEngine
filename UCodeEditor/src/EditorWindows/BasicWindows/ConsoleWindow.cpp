@@ -125,7 +125,7 @@ void ConsoleWindow::UpdateWindow()
                 {
                     if (ImGui::MenuItem("Copy"))
                     {
-                        ImGui::SetClipboardText(Item.MoreText.c_str());
+                        UserSettings::SetCopyBuffer(Item.MoreText.c_str());
                     }
                     if (ImGui::MenuItem("Remove"))
                     {
@@ -214,7 +214,7 @@ EditorWindowData ConsoleWindow::GetEditorData()
     return EditorWindowData("ConsoleWindow", MakeWin);
 }
 
-void ConsoleWindow::AddLog(Log Msg)
+ConsoleWindow::LogMessageID ConsoleWindow::AddLog(Log Msg)
 {
     const char* TypeText;
     switch (Msg._Type)
@@ -244,11 +244,49 @@ void ConsoleWindow::AddLog(Log Msg)
         PtrIndex = ((uintptr_t)OldPtr - (uintptr_t)&_Items[0]) / sizeof(Log);
     }
 
-    _Items.push_back(Msg);
+    auto newlogid =GetNextLogID();
+
+    Msg._MessageID = newlogid;
+    _Items.push_back(std::move(Msg));
     if (OldCapc != _Items.capacity() && OldPtr)//if resized
     {
         _LookingAtLog = &_Items[PtrIndex];
     }
+
+    return newlogid;
+}
+
+void ConsoleWindow::RemoveLog(Span<ConsoleWindow::LogMessageID> Log)
+{
+    _LookingAtLog = nullptr;
+
+    _Items.erase(std::remove_if(
+        _Items.begin(), _Items.end(),
+        [Log](const ConsoleWindow::Log& x)
+        {
+            bool remove = false;
+            for (auto& item : Log)
+            {
+                if (item == x._MessageID)
+                {
+                    remove = true;
+                    break;
+                }
+            }
+            return remove;
+        }), _Items.end());
+}
+
+void ConsoleWindow::ClearLogs(std::function<bool(const Log& item)> On)
+{
+    _LookingAtLog = nullptr;
+
+    _Items.erase(std::remove_if(
+        _Items.begin(), _Items.end(),
+        [&On](const ConsoleWindow::Log& x)
+        {
+            return On(x);
+        }), _Items.end());
 }
 
 EditorWindow* ConsoleWindow::MakeWin(const NewEditorWindowData& windowdata)

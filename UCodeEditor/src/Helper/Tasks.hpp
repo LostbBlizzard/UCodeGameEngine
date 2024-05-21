@@ -16,6 +16,9 @@ struct RuningTask
 
 	Type TaskType;
 
+	//0-100 number
+	Byte percentage = 30;
+	String Status;
 };
 
 //Thread Stadt

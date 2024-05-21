@@ -1163,6 +1163,82 @@ void EditorAppCompoent::OnDraw()
         _InputMode = KeyInputMode::Normal;
     }
 
+    {
+        bool iscompileing = false;
+        bool isbuildingproject = false;
+        Byte percentage = 0;
+        StringView Status;
+        auto& Tasks = RuningTasksInfo::Get_Tasks();
+        if (Tasks.size())
+        {
+            for (auto& Item : Tasks)
+            {
+                if (Item.TaskType == RuningTask::Type::BuildingUCodeFiles)
+                {
+                    iscompileing = true;
+                    Status = Item.Status;
+                    percentage = Item.percentage;
+
+                }
+                if (Item.TaskType == RuningTask::Type::BuildingProject)
+                {
+                    isbuildingproject = true;
+                    Status = Item.Status;
+                    percentage = Item.percentage;
+                }
+
+            }
+        }
+
+        static Optional<DontWaitInputKey> wascompileing;
+        if (iscompileing || isbuildingproject)
+        {
+            if (!wascompileing.has_value())
+            {
+                wascompileing = AddDontWaitForInput();
+            }
+            const char* iscompileingpopupname = nullptr;
+            if (isbuildingproject)
+            {
+                iscompileingpopupname = "Project Export";
+            }
+            else 
+            {
+                iscompileingpopupname = "Compiling";
+            }
+            ImGui::OpenPopup(iscompileingpopupname);
+
+            ImGui::SetNextWindowSize({ 200,70 });
+            if (ImGui::BeginPopupModal(iscompileingpopupname,nullptr,ImGuiWindowFlags_::ImGuiWindowFlags_NoResize))
+            {
+                auto color1 = ImGui::GetColorU32(ImGuiCol_::ImGuiCol_Button);
+                auto color2 = ImGui::GetColorU32(ImGuiCol_::ImGuiCol_Header);
+
+                if (Status.size())
+                {
+                    ImGuIHelper::Text(Status);
+                }
+
+                ImGuIHelper::BufferingBar("Test", 
+                    ((float)percentage) / 100, 
+                    { ImGui::GetContentRegionAvail().x,ImGui::GetFrameHeight()/3 },
+                    color1,
+                    color2);
+                
+
+                ImGui::EndPopup();
+            }
+        }
+        else
+        {
+            if (wascompileing.has_value())
+            {
+                RemoveWaitForInput(wascompileing.value());
+                wascompileing = {};
+            }
+        }
+    }
+ 
 
     UCodeGEStackFrame("EditorApp::Update");
     ShowEditiorWindows();
