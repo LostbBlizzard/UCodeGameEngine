@@ -430,15 +430,7 @@ ThreadToRunID Threads::GetNewThreadLockKey(MainTaskData& taskdata)
 
 void Threads::RunOnOnMainThread(FuncPtr&& Func, const Vector<TaskID>& TaskDependencies)
 {
-
-	MainThreadData.Lock([this,&Func,&TaskDependencies](MainThreadTaskData& val)
-	{
-		RuningTasks.Lock([&val,&Func,&TaskDependencies](RuningTaskDataList& list)
-		{
-				val._MainThreadData._TaskToDo.push_back({ std::make_shared<FuncPtr>(std::move(Func)),TaskDependencies,TaskID(list.TaskData._TaskID.Get_Base() - 1) });
-		});
-	});
-
+	AddTask_t(TaskType::Main, std::move(Func), TaskDependencies).Start();
 }
  
 bool Threads::IsOnMainThread()

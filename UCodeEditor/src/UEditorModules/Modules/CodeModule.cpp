@@ -44,10 +44,12 @@ void CodeModule::Init()
 }
 
 
-void LogErrors(ConsoleWindow* win,const UCodeLang::CompilationErrors& Error)
+Vector<ConsoleWindow::LogMessageID> LogErrors(ConsoleWindow* win,const UCodeLang::CompilationErrors& Error)
 {
 	auto Err = Error;//Get_Errors has not const type update this when it does
 
+	Vector<ConsoleWindow::LogMessageID> r;
+	r.resize(Err.Get_Errors().size());
 	for (const auto& Item : Err.Get_Errors())
 	{
 		ConsoleWindow::LogType T = ConsoleWindow::LogType::Log;
@@ -82,8 +84,10 @@ void LogErrors(ConsoleWindow* win,const UCodeLang::CompilationErrors& Error)
 		};
 
 		String File = Item.File.generic_string();
-		win->AddLog(Log);
+		r.push_back(win->AddLog(Log));
 	}
+
+	return r;
 }
 void CodeModule::FilesUpdated(const Vector<FileUpdateData>& paths)
 {
@@ -127,15 +131,17 @@ void CodeModule::BuildUCode(bool IsInEditor)
 				data.Editor = true;
 
 
-
 				bool ok = UCompiler::CompileProject(data);
 
 
 				Threads->RunOnOnMainThread([data,ok,app, MovedErrs = std::move(_Errs)]()
 					{
-						if (!ok) {
+						{
+							static Vector<ConsoleWindow::LogMessageID> oldlogids;
+							
 							auto Win = app->Get_Window<ConsoleWindow>();
-							LogErrors(Win, MovedErrs);
+							Win->RemoveLog(spanof(oldlogids));
+							oldlogids = LogErrors(Win, MovedErrs);
 							Win->FocusWindow();
 						}
 
@@ -196,7 +202,7 @@ void CodeModule::BuildUCode(bool IsInEditor)
 		task.TaskType = RuningTask::Type::BuildingUCodeFiles;
 		RuningTasksInfo::AddTask(task);
 
-		Threads->AddTask_t(UCode::TaskType::FileIO, std::move(OnOtherThread), {});
+		Threads->AddTask_t(UCode::TaskType::FileIO, std::move(OnOtherThread), {}).Start();
 	}
 }
 

@@ -475,7 +475,7 @@ public:
 		return DrawRenameTree(label, TreeIsOpened, IsRenamein, AppFiles::GetSprite(sprite));
 	}
 	static bool DrawRenameName(String& label, bool& IsRenameing);
-
+	static bool BufferingBar(const char* label, float value,  const ImVec2& size_arg, const ImU32& bg_col, const ImU32& fg_col);
 
 	struct DrawVectorInfo
 	{

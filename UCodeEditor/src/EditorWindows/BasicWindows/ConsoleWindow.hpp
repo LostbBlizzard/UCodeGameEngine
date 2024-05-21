@@ -8,6 +8,7 @@ EditorStart
 class ConsoleWindow :public EditorWindow
 {
 public:
+	using LogMessageID = int;
 	enum class LogType :unsigned char
 	{
 		Log,
@@ -19,7 +20,8 @@ public:
 	{
 		String Text;
 		String MoreText;
-		LogType _Type;
+		LogType _Type = LogType::Log;
+		LogMessageID _MessageID = {};
 
 		Optional<Delegate<void,ConsoleWindow&,Log&>> _OnOpen;
 	};
@@ -29,9 +31,14 @@ public:
 	void UpdateWindow() override;
 	static EditorWindowData GetEditorData();
 
-	void AddLog(Log Msg);
+	ConsoleWindow::LogMessageID AddLog(Log Msg);
 
 	
+	void RemoveLog(Span<ConsoleWindow::LogMessageID> Log);
+	void RemoveLog(ConsoleWindow::LogMessageID Log)
+	{
+		RemoveLog(Span<LogMessageID>::Make(&Log, 1));
+	}
 	void ClearLogs()
 	{
 		_Items.clear();
@@ -41,6 +48,7 @@ public:
 	{
 		_FocusWindow = true;
 	}
+	void ClearLogs(std::function<bool(const Log& item)> ToRemove);
 private:
 	static EditorWindow* MakeWin(const NewEditorWindowData& windowdata);
 	UCode::Vector<Log> _Items;
@@ -49,5 +57,12 @@ private:
 	Log* _LookingAtLog;
 	bool _FocusWindow = false;
 	UCode::Loger::CallBackKey logkey;
+	LogMessageID _NextLogID = {};
+	LogMessageID GetNextLogID() 
+	{
+		auto r = _NextLogID;
+		_NextLogID++;
+		return r;
+	}
 };
 EditorEnd
