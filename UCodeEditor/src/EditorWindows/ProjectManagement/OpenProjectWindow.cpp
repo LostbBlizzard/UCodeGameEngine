@@ -61,17 +61,18 @@ void OpenProjectWindow::UpdateWindow()
 {
     if (_State == State::ProjectList)
     {
-        ImGui::Columns(2);
+        ImGui::Columns(2,"columns",false);
+        ImGui::SetColumnOffset(0, 0.0f);
+        ImGui::SetColumnOffset(1, 500.0f);
         {
             ImGuIHelper::Text(StringView("Projects List"));
+            ImGui::Separator();
             auto& Projects = GetProjects()->_Projects;
             for (auto it = Projects.begin(); it != Projects.end();)
             {
                 const auto& Item = *it;
 
-                ImGui::Separator();
-                ImGuIHelper::Text(StringView(Item._Name)); ImGui::SameLine();
-                
+                ImGuIHelper::ItemLabel(StringView(Item._Name), ImGuIHelper::Left); ImGui::SameLine();
 	
                 const float square_sz = ImGui::GetFrameHeight();
                 float fullWidth = ImGui::GetContentRegionAvail().x;

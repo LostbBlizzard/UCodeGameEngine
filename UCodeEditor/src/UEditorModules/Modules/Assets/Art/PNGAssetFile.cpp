@@ -409,7 +409,7 @@ void PNGAssetFile::LiveingPng::DrawInspect(const UEditorAssetDrawInspectContext&
 	ImGui::EndDisabled();
 	static void* p = nullptr;
 
-	if (ImGui::Button("Open Sprite Editor") || OpenSpriteEditor)
+	if (ImGui::Button("Open Sprite Editor",{ImGui::GetContentRegionAvail().x,imageh}) || OpenSpriteEditor)
 	{
 		p = this;
 		ImGui::OpenPopup("SpriteAssetEditor");
