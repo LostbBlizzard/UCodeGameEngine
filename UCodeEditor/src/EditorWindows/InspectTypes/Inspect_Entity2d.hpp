@@ -3,6 +3,7 @@
 #include <EditorWindows/BasicWindows/InspectWindow.hpp>
 #include "Helper/AppFiles.hpp"
 #include "UCodeLang/LangCore/ReflectionData.hpp"
+#include "UCodeRunTime/ULibrarys/AssetManagement/EntityPlaceHolder.hpp"
 EditorStart
 class Inspect_Entity2d
 {
@@ -11,6 +12,8 @@ public:
     static InspectWindow::InspectData Get(UCode::EntityPtr Item);
     static InspectWindow::InspectData Get(UCode::Entity* Item);
     static void Insp_(InspectWindow::InspectDrawer& Draw);
+
+    static void OnOverridePopup(bool haschanges, const char* overidepopupname, UCode::Entity* item, UCode::EntityPlaceHolder* isprefab);
     
 };
 class Inspect_Compoent2d

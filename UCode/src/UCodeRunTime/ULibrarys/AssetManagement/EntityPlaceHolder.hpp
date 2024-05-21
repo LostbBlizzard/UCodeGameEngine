@@ -1,3 +1,4 @@
+#pragma once
 #include <UCodeRunTime/BasicTypes.hpp>
 #include <UCodeRunTime/CoreRunTime.hpp>
 #include "RawEntityData.hpp"
@@ -134,7 +135,12 @@ public:
 		EntityPlaceHolderChanges::PlaceHolderChangeProps props;
 	};
 	Optional<GetEntityData> GetEntity(USerializerType type, const EntityPlaceHolderChanges::Change& change);
-	NullablePtr<Compoent> GetCompoent(USerializerType type, const EntityPlaceHolderChanges::Change& change);
+	struct GetCompoentData
+	{
+		Compoent* compoent;
+		EntityPlaceHolderChanges::PlaceHolderChangeProps props;
+	};
+	Optional<GetCompoentData> GetCompoent(USerializerType type, const EntityPlaceHolderChanges::Change& change);
 private:
 
 	void OnAssetPreUpdate();

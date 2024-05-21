@@ -162,9 +162,102 @@ Optional<EntityPlaceHolder::GetEntityData> EntityPlaceHolder::GetEntity(USeriali
 	r.props = rprops;
 	return r;
 }
-NullablePtr<Compoent> EntityPlaceHolder::GetCompoent(USerializerType type, const EntityPlaceHolderChanges::Change& change)
+Optional<EntityPlaceHolder::GetCompoentData> EntityPlaceHolder::GetCompoent(USerializerType type, const EntityPlaceHolderChanges::Change& change)
 {
-	return {};
+	auto e = NativeEntity();
+	Compoent* rcompoent = nullptr;
+	
+	EntityPlaceHolderChanges::Change::GetIndexChash chash;
+	auto count = change.IndexCount(type,chash);
+	size_t i = 0;
+	EntityPlaceHolderChanges::PlaceHolderChangeProps rprops = EntityPlaceHolderChanges::PlaceHolderChangeProps::Max;
+	while (i < count)
+	{
+		auto val = change.GetIndex(type,i, chash);
+
+		if (auto d = val.IfType<EntityPlaceHolderChanges::PlaceHolderChangeProps>())
+		{
+			auto props = *d;
+			if (props == EntityPlaceHolderChanges::PlaceHolderChangeProps::This)
+			{
+				e = NativeEntity();
+			}
+			else if (props == EntityPlaceHolderChanges::PlaceHolderChangeProps::Entitys)
+			{
+				if (i + 1 < count)
+				{
+					auto g = change.GetIndex(type,i +1, chash);
+
+					auto entityname = g.GetType<StringView>();
+
+					bool found = false;
+					for (auto& Item : e->NativeGetEntitys())
+					{
+						if (Item->NativeName() == entityname)
+						{
+							e = Item.get();
+							found = true;
+							break;
+						}
+					}
+					if (found == false)
+					{
+						break;
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+			else if (props == EntityPlaceHolderChanges::PlaceHolderChangeProps::AddCompent)
+			{
+				if (i + 1 < count)
+				{
+					auto g = change.GetIndex(type, i + 1, chash);
+
+					auto compentname = g.GetType<StringView>();
+
+					bool found = false;
+					for (auto& Item : e->NativeCompoents())
+					{
+						if (Item->Get_CompoentTypeData()->_Type == compentname)
+						{
+							rcompoent = Item.get();
+							rprops = props;
+							found = true;
+							break;
+						}
+					}
+					if (found == false)
+					{
+						break;
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+			else 
+			{
+				break;
+			}
+		}
+		else
+		{
+			break;
+		}
+
+		i++;
+	}
+	if (rprops == EntityPlaceHolderChanges::PlaceHolderChangeProps::Max || rcompoent == nullptr){
+		return {};
+	}
+	GetCompoentData r;
+	r.compoent = rcompoent;
+	r.props = rprops;
+	return r;
 }
 
 void EntityPlaceHolder::RemoveChanges()
