@@ -66,9 +66,101 @@ void EntityPlaceHolder::OnAssetPreUpdate()
 	Scene2dData::SaveEntityData(NativeEntity(), this->_oldentitydata, USerializerType::YAML);
 #endif
 }
-NullablePtr<Entity> EntityPlaceHolder::GetEntity(USerializerType type, const EntityPlaceHolderChanges::Change& change)
+Optional<EntityPlaceHolder::GetEntityData> EntityPlaceHolder::GetEntity(USerializerType type, const EntityPlaceHolderChanges::Change& change)
 {
-	return {};
+	auto e = NativeEntity();
+	
+	EntityPlaceHolderChanges::Change::GetIndexChash chash;
+	auto count = change.IndexCount(type,chash);
+	size_t i = 0;
+	EntityPlaceHolderChanges::PlaceHolderChangeProps rprops = EntityPlaceHolderChanges::PlaceHolderChangeProps::Max;
+	while (i < count)
+	{
+		auto val = change.GetIndex(type,i, chash);
+
+		if (auto d = val.IfType<EntityPlaceHolderChanges::PlaceHolderChangeProps>())
+		{
+			auto props = *d;
+			if (props == EntityPlaceHolderChanges::PlaceHolderChangeProps::This)
+			{
+				e = NativeEntity();
+			}
+			else if (props == EntityPlaceHolderChanges::PlaceHolderChangeProps::Entitys)
+			{
+				if (i + 1 < count)
+				{
+					auto g = change.GetIndex(type,i +1, chash);
+
+					auto entityname = g.GetType<StringView>();
+
+					bool found = false;
+					for (auto& Item : e->NativeGetEntitys())
+					{
+						if (Item->NativeName() == entityname)
+						{
+							e = Item.get();
+							found = true;
+							break;
+						}
+					}
+					if (found == false)
+					{
+						break;
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+			else if (props == EntityPlaceHolderChanges::PlaceHolderChangeProps::AddEntity)
+			{
+				if (i + 1 < count)
+				{
+					auto g = change.GetIndex(type, i + 1, chash);
+
+					auto entityname = g.GetType<StringView>();
+
+					bool found = false;
+					for (auto& Item : e->NativeGetEntitys())
+					{
+						if (Item->NativeName() == entityname)
+						{
+							e = Item.get();
+							rprops = props;
+							found = true;
+							break;
+						}
+					}
+					if (found == false)
+					{
+						break;
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+			else 
+			{
+				break;
+			}
+		}
+		else
+		{
+			break;
+		}
+
+		i++;
+	}
+	if (rprops == EntityPlaceHolderChanges::PlaceHolderChangeProps::Max){
+		return {};
+	}
+	GetEntityData r;
+	r.entity = e;
+	r.props = rprops;
+	return r;
 }
 NullablePtr<Compoent> EntityPlaceHolder::GetCompoent(USerializerType type, const EntityPlaceHolderChanges::Change& change)
 {
@@ -169,68 +261,6 @@ void EntityPlaceHolder::OnOverrideSerializeEntity(UCode::Scene2dData::Entity_Dat
 	Entity* raw;
 	UpdateChanges(type, &raw);
 
-	{
-		auto& rawcompents = raw->NativeCompoents();
-		auto& compents = NativeEntity()->NativeCompoents();
-		for (auto& Item : compents)
-		{
-			if (Item->Get_IsDestroyed()) { continue; }
-			auto& typen = Item->Get_CompoentTypeData()->_Type;
-
-			bool isadded = true;
-			for (auto& Item : rawcompents)
-			{
-				if (typen == Item->Get_CompoentTypeData()->_Type)
-				{
-					isadded = false;
-					break;
-				}
-			}
-
-			if (isadded)
-			{
-				if (Item.get() != this)
-				{
-					UCode::Scene2dData::Compoent_Data data;
-
-					UCode::Scene2dData::SaveCompoentData(Item.get(), data, type);
-
-					Scene._Compoents.push_back(std::move(data));
-				}
-
-			}
-		}
-
-	}
-	{
-		auto& rawcompents = raw->NativeGetEntitys();
-		auto& compents = NativeEntity()->NativeGetEntitys();
-		for (auto& Item : compents)
-		{
-			if (Item->Get_IsDestroyed()) { continue; }
-			auto& typen = Item->NativeName();
-
-			bool isadded = true;
-			for (auto& Item : rawcompents)
-			{
-				if (typen == Item->NativeName())
-				{
-					isadded = false;
-					break;
-				}
-			}
-
-			if (isadded)
-			{
-				UCode::Scene2dData::Entity_Data data;
-
-				UCode::Scene2dData::SaveEntityData(Item.get(), data, type);
-
-				Scene._Entitys.push_back(std::move(data));
-			}
-		}
-
-	}
 }
 void EntityPlaceHolder::UpdateChanges(USerializerType type, EntityPlaceHolderChanges* Out, Entity* entity, NullablePtr<Entity> rawentityop, String changestart)
 {
@@ -528,7 +558,7 @@ void EntityPlaceHolder::UpdateChanges(USerializerType type, UpdateChangesCompoen
 
 }
 
-size_t EntityPlaceHolderChanges::Change::IndexCount(USerializerType type, GetIndexChash& chash)
+size_t EntityPlaceHolderChanges::Change::IndexCount(USerializerType type, GetIndexChash& chash) const
 {
 	if (type != USerializerType::Bytes)
 	{
@@ -604,7 +634,7 @@ size_t EntityPlaceHolderChanges::Change::IndexCount(USerializerType type, GetInd
 		return count;
 	}
 }
-EntityPlaceHolderChanges::Change::MemberRet EntityPlaceHolderChanges::Change::GetIndex(USerializerType type, size_t I, EntityPlaceHolderChanges::Change::GetIndexChash& chash)
+EntityPlaceHolderChanges::Change::MemberRet EntityPlaceHolderChanges::Change::GetIndex(USerializerType type, size_t I, EntityPlaceHolderChanges::Change::GetIndexChash& chash) const
 {
 	bool isusingstringparts = type != USerializerType::Bytes;
 	if (isusingstringparts)
@@ -628,6 +658,7 @@ EntityPlaceHolderChanges::Change::MemberRet EntityPlaceHolderChanges::Change::Ge
 	bool nextisname = false;
 	for (size_t i = 0; i < I + 1; i++)
 	{
+		bool setnextisstring = false;
 
 		if (!Props.has_value())
 		{
@@ -711,11 +742,15 @@ EntityPlaceHolderChanges::Change::MemberRet EntityPlaceHolderChanges::Change::Ge
 					str = StringView((char*)ptr, size);
 				}
 				Props = {};
-				nextisname = true;
+				setnextisstring = true;
 			}
 		}
 
 		nextisname = false;
+		if (setnextisstring)
+		{
+			nextisname = true;
+		}
 	}
 
 
@@ -728,7 +763,7 @@ EntityPlaceHolderChanges::Change::MemberRet EntityPlaceHolderChanges::Change::Ge
 		return str;
 	}
 }
-void EntityPlaceHolderChanges::Change::AddField(USerializerType type, size_t value)
+void EntityPlaceHolderChanges::Change::AddField(USerializerType type, size_t value) 
 {
 	if (type == USerializerType::YAML)
 	{
@@ -842,7 +877,7 @@ void EntityPlaceHolder::ApplyChanges()
 
 							if (count >= i + 2)
 							{
-								auto field = Item.GetIndex(in._serializertype, i + 2, chash).GetType<String>();
+								auto field = Item.GetIndex(in._serializertype, i + 2, chash).GetType<StringView>();
 
 								auto& runtimetypereflection = val->Get_CompoentTypeData()->_RuntimeTypeReflection.value();
 
