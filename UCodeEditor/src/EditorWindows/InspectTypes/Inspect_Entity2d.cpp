@@ -121,217 +121,7 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
             ImGui::SetNextWindowSize({ 325,175 });
             if (ImGui::BeginPopup(overidepopupname))
             {
-                ImGuIHelper::Text(StringView("Overides"));
-
-                ImGui::BeginDisabled(!haschanges);
-                if (ImGuIHelper::TreeNode(overidepopupname, StringView(item->NativeName()), AppFiles::sprite::Entity))
-                {
-                    auto type = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->Get_ProjData()._SerializeType;
-                    auto& changes = isprefab->_change;
-
-                    Vector<UC::Entity*> EntitysToShows;
-                    Vector<UC::Compoent*> CompoentsToShow;
-                    Unordered_map<UC::Entity*, UC::EntityPlaceHolderChanges::PlaceHolderChangeProps> ChangeType;
-                    for (auto& change : changes._changes)
-                    {
-                        auto e = isprefab->GetEntity(type, change);
-
-                        if (e.has_value())
-                        {
-                            auto eval = e.value().entity;
-                            bool hasentity = false;
-                            for (auto& Item : EntitysToShows)
-                            {
-                                if (Item == eval)
-                                {
-                                    hasentity = true;
-                                    break;
-                                }
-                            }
-                            if (!hasentity) {
-                                ChangeType.AddValue(e.value().entity,e.value().props);
-                                EntitysToShows.push_back(eval);
-                            }
-                        }
-
-                        auto c = isprefab->GetCompoent(type, change);
-
-                        if (c.has_value())
-                        {
-                            auto cval = c.value_unchecked();
-                            bool hascompent = false;
-                            for (auto& Item : CompoentsToShow)
-                            {
-                                if (Item == cval)
-                                {
-                                    hascompent = true;
-                                    break;
-                                }
-                            }
-                            
-                            if (!hascompent)
-                            {
-                                CompoentsToShow.push_back(c.value_unchecked());
-                            }
-
-                            bool hasentity = false;
-                            for (auto& Item : EntitysToShows)
-                            {
-                                if (Item == cval->NativeEntity())
-                                {
-                                    hasentity = true;
-                                    break;
-                                }
-                            }
-                            if (!hasentity) 
-                            {
-                                EntitysToShows.push_back(cval->NativeEntity());
-                            }
-                        }
-                    }
-
-                    //get root entitys
-                    {
-                        auto copy = EntitysToShows;
-                        for (auto& Item : copy)
-                        {
-                            auto p = Item->NativeParent();
-                            while (p)
-                            {
-                                bool hasentity = false;
-                                for (auto& Item : EntitysToShows)
-                                {
-                                    if (Item == p)
-                                    {
-                                        hasentity = true;
-                                        break;
-                                    }
-                                }
-                                if (!hasentity)
-                                {
-                                    EntitysToShows.push_back(p);
-                                }
-
-                                p = p->NativeParent();
-                            }
-                        }
-                    }
-                    
-                    std::function<void(UC::Entity*)> OnEveryEntity;
-
-                    UserSettings& settings = UserSettings::GetSettings();
-                    OnEveryEntity = [&](UC::Entity* e)
-                        {
-                            bool show = false;
-                            {
-                                for (auto& Item : EntitysToShows)
-                                {
-                                    if (Item == e)
-                                    {
-                                        show = true;
-                                        break;
-                                    }
-                                }
-                                  
-                            
-                            }
-                            if (show)
-                            {
-                                if (ChangeType.HasValue(e))
-                                {
-                                    auto& type = ChangeType.GetValue(e);
-                                    if (type == UC::EntityPlaceHolderChanges::PlaceHolderChangeProps::AddEntity)
-                                    {
-                                        ImGuIHelper::Text(StringView("+"));ImGui::SameLine();
-                                        auto& g = *GImGui;
-                                        auto SizeY = g.FontSize + g.Style.FramePadding.y * 2;
-                                        ImGuIHelper::Image(AppFiles::sprite::Entity, ImVec2(SizeY, SizeY)); 
-
-                                        ImGui::SameLine();
-                                        ImGui::Selectable(e->NativeName().c_str());
-
-                                        bool Focus = false;
-                                        bool Undo = false;
-                                        if (ImGui::IsItemFocused())
-                                        {
-                                            if (settings.IsKeybindActive(KeyBindList::Inspect))
-                                            {
-                                                Focus = true;
-                                            }
-                                            
-                                            
-                                            if (settings.IsKeybindActive(KeyBindList::Delete))
-                                            {
-                                                Undo = true;
-                                            }
-
-
-                                        }
-                                        if (ImGuIHelper::BeginPopupContextItem("addedtype"))
-                                        {
-                                            auto str = settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
-                                            if (ImGui::MenuItem("Focus", str.c_str()) || settings.IsKeybindActive(KeyBindList::Inspect))
-                                            {
-                                                Focus = true;
-                                                ImGui::CloseCurrentPopup();
-                                            }
-
-                                            str = settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
-                                            if (ImGui::MenuItem("Undo Change", str.c_str()) || settings.IsKeybindActive(KeyBindList::Delete))
-                                            {
-                                                Undo = true;
-                                                ImGui::CloseCurrentPopup();
-                                            }
- 
-                                            ImGui::EndPopup();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        UCodeGEUnreachable();
-                                    }
-                                }
-                                else {
-                                    if (ImGuIHelper::TreeNode(e, StringView(e->NativeName()), AppFiles::sprite::Entity))
-                                    {
-                                        for (auto& e : e->NativeGetEntitys())
-                                        {
-                                            OnEveryEntity(e.get());
-                                        }
-                                        ImGui::TreePop();
-                                    }
-                                }
-                            }
-                        };
-
-                    for (auto& e : item->NativeGetEntitys())
-                    {
-                        OnEveryEntity(e.get());
-                    }
-                    ImGui::TreePop();
-                }
-                ImGui::EndDisabled();
-
-                ImGui::Separator();
-                auto h = ImGui::GetFrameHeight();
-                auto fieldwidthleft = ImGui::GetCurrentWindow()->Size.x - ImGui::GetCursorPosX();
-
-                auto buttionw = (fieldwidthleft / 2) - ImGui::GetStyle().ItemSpacing.x * 2;
-
-                ImGui::BeginDisabled(!haschanges);
-                if (ImGui::Button("Revert",{buttionw,h}))
-                {
-                    isprefab->RemoveChanges();
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndDisabled();
-         
-                ImGui::SameLine();
-                if (ImGui::Button("Unpack Prefab",{buttionw,h}))
-                {
-                    UC::Compoent::Destroy(isprefab);
-                    ImGui::CloseCurrentPopup();
-                }
+                OnOverridePopup(haschanges, overidepopupname, item, isprefab);
 
 
 
@@ -432,6 +222,305 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
     {
         Inspect_Compoent2d::ShowAddCompoenList(item);
         ImGui::EndMenu();
+    }
+}
+
+void Inspect_Entity2d::OnOverridePopup(bool haschanges, const char* overidepopupname, UCode::Entity* item, UCode::EntityPlaceHolder* isprefab)
+{
+    ImGuIHelper::Text(StringView("Overides"));
+
+    ImGui::BeginDisabled(!haschanges);
+    //if (ImGuIHelper::TreeNode(overidepopupname, StringView(item->NativeName()), AppFiles::sprite::Entity))
+    {
+        auto type = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->Get_ProjData()._SerializeType;
+        auto& changes = isprefab->_change;
+
+        Vector<UC::Entity*> EntitysToShows;
+        Vector<UC::Compoent*> CompoentsToShow;
+        Unordered_map<UC::Entity*, UC::EntityPlaceHolderChanges::PlaceHolderChangeProps> ChangeType;
+        Unordered_map<UC::Compoent*, UC::EntityPlaceHolderChanges::PlaceHolderChangeProps> ChangeTypeForCompoent;
+        for (auto& change : changes._changes)
+        {
+            auto e = isprefab->GetEntity(type, change);
+
+            if (e.has_value())
+            {
+                auto eval = e.value().entity;
+                bool hasentity = false;
+                for (auto& Item : EntitysToShows)
+                {
+                    if (Item == eval)
+                    {
+                        hasentity = true;
+                        break;
+                    }
+                }
+                if (!hasentity) {
+                    ChangeType.AddValue(e.value().entity, e.value().props);
+                    EntitysToShows.push_back(eval);
+                }
+            }
+
+            auto c = isprefab->GetCompoent(type, change);
+
+            if (c.has_value())
+            {
+                auto cval = c.value().compoent;
+                bool hascompent = false;
+                for (auto& Item : CompoentsToShow)
+                {
+                    if (Item == cval)
+                    {
+                        hascompent = true;
+                        break;
+                    }
+                }
+
+                if (!hascompent)
+                {
+                    ChangeTypeForCompoent.AddValue(cval, c.value().props);
+                    CompoentsToShow.push_back(cval);
+                }
+
+                bool hasentity = false;
+                for (auto& Item : EntitysToShows)
+                {
+                    if (Item == cval->NativeEntity())
+                    {
+                        hasentity = true;
+                        break;
+                    }
+                }
+                if (!hasentity)
+                {
+                    EntitysToShows.push_back(cval->NativeEntity());
+                }
+            }
+        }
+
+        //get root entitys
+        {
+            auto copy = EntitysToShows;
+            for (auto& Item : copy)
+            {
+                auto p = Item->NativeParent();
+                while (p)
+                {
+                    bool hasentity = false;
+                    for (auto& Item : EntitysToShows)
+                    {
+                        if (Item == p)
+                        {
+                            hasentity = true;
+                            break;
+                        }
+                    }
+                    if (!hasentity)
+                    {
+                        EntitysToShows.push_back(p);
+                    }
+
+                    p = p->NativeParent();
+                }
+            }
+        }
+
+        std::function<void(UC::Entity*)> OnEveryEntity;
+
+        UserSettings& settings = UserSettings::GetSettings();
+        OnEveryEntity = [&](UC::Entity* e)
+            {
+                bool show = false;
+                {
+                    for (auto& Item : EntitysToShows)
+                    {
+                        if (Item == e)
+                        {
+                            show = true;
+                            break;
+                        }
+                    }
+                }
+                if (show)
+                {
+                    if (ChangeType.HasValue(e))
+                    {
+                        auto& type = ChangeType.GetValue(e);
+                        if (type == UC::EntityPlaceHolderChanges::PlaceHolderChangeProps::AddEntity)
+                        {
+                            ImGuIHelper::Text(StringView("+")); ImGui::SameLine();
+                            auto& g = *GImGui;
+                            auto SizeY = g.FontSize + g.Style.FramePadding.y * 2;
+                            ImGuIHelper::Image(AppFiles::sprite::Entity, ImVec2(SizeY, SizeY));
+
+                            ImGui::SameLine();
+                            ImGui::Selectable(e->NativeName().c_str());
+
+                            bool Focus = false;
+                            bool Undo = false;
+                            if (ImGui::IsItemFocused())
+                            {
+                                if (settings.IsKeybindActive(KeyBindList::Inspect))
+                                {
+                                    Focus = true;
+                                }
+
+
+                                if (settings.IsKeybindActive(KeyBindList::Delete))
+                                {
+                                    Undo = true;
+                                }
+
+
+                            }
+                            ImGui::PushID(e);
+                            if (ImGuIHelper::BeginPopupContextItem("addedtype"))
+                            {
+                                auto str = settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
+                                if (ImGui::MenuItem("Focus", str.c_str()) || settings.IsKeybindActive(KeyBindList::Inspect))
+                                {
+                                    Focus = true;
+                                    ImGui::CloseCurrentPopup();
+                                }
+
+                                str = settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
+                                if (ImGui::MenuItem("Undo Change", str.c_str()) || settings.IsKeybindActive(KeyBindList::Delete))
+                                {
+                                    Undo = true;
+                                    ImGui::CloseCurrentPopup();
+                                }
+
+                                ImGui::EndPopup();
+                            }
+                            ImGui::PopID();
+                        }
+                        else
+                        {
+                            UCodeGEUnreachable();
+                        }
+                    }
+                    else
+                    {
+                        if (ImGuIHelper::TreeNode(e, StringView(e->NativeName()), AppFiles::sprite::Entity))
+                        {
+                            for (auto& e : e->NativeGetEntitys())
+                            {
+                                OnEveryEntity(e.get());
+                            }
+                            auto& Compoents = e->NativeCompoents();
+
+
+                            for (size_t i = 0; i < Compoents.size(); i++)
+                            {
+                                auto Item2 = Compoents[i].get();
+                                bool show = false;
+                                {
+                                    for (auto& Item : CompoentsToShow)
+                                    {
+                                        if (Item == Item2)
+                                        {
+                                            show = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (show)
+                                {
+                                    if (ChangeTypeForCompoent.HasValue(Item2))
+                                    {
+                                        auto& type = ChangeTypeForCompoent.GetValue(Item2);
+
+                                        if (type == UC::EntityPlaceHolderChanges::PlaceHolderChangeProps::AddCompent)
+                                        {
+                                            String CompoentName = Item2->Get_CompoentTypeData()->_Type;
+                                            auto v = Inspect_Compoent2d::GetCompoentSprite(Item2->Get_CompoentTypeData()->_Type);
+
+
+                                            ImGuIHelper::Text(StringView("+")); ImGui::SameLine();
+                                            auto& g = *GImGui;
+                                            auto SizeY = g.FontSize + g.Style.FramePadding.y * 2;
+                                            ImGuIHelper::Image(v, ImVec2(SizeY, SizeY));
+
+                                            ImGui::SameLine();
+                                            ImGui::Selectable(CompoentName.c_str());
+
+                                            bool Focus = false;
+                                            bool Undo = false;
+                                            if (ImGui::IsItemFocused())
+                                            {
+                                                if (settings.IsKeybindActive(KeyBindList::Inspect))
+                                                {
+                                                    Focus = true;
+                                                }
+
+
+                                                if (settings.IsKeybindActive(KeyBindList::Delete))
+                                                {
+                                                    Undo = true;
+                                                }
+
+
+                                            }
+
+                                            ImGui::PushID(Item2);
+                                            if (ImGuIHelper::BeginPopupContextItem("addedtype"))
+                                            {
+                                                auto str = settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
+                                                if (ImGui::MenuItem("Focus", str.c_str()) || settings.IsKeybindActive(KeyBindList::Inspect))
+                                                {
+                                                    Focus = true;
+                                                    ImGui::CloseCurrentPopup();
+                                                }
+
+                                                str = settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
+                                                if (ImGui::MenuItem("Undo Change", str.c_str()) || settings.IsKeybindActive(KeyBindList::Delete))
+                                                {
+                                                    Undo = true;
+                                                    ImGui::CloseCurrentPopup();
+                                                }
+
+                                                ImGui::EndPopup();
+                                            }
+                                            ImGui::PopID();
+                                        }
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                }
+                            }
+                            ImGui::TreePop();
+                        }
+                    }
+                }
+            };
+
+        OnEveryEntity(item);
+        //ImGui::TreePop();
+    }
+    ImGui::EndDisabled();
+
+    ImGui::Separator();
+    auto h = ImGui::GetFrameHeight();
+    auto fieldwidthleft = ImGui::GetCurrentWindow()->Size.x - ImGui::GetCursorPosX();
+
+    auto buttionw = (fieldwidthleft / 2) - ImGui::GetStyle().ItemSpacing.x * 2;
+
+    ImGui::BeginDisabled(!haschanges);
+    if (ImGui::Button("Revert", { buttionw,h }))
+    {
+        isprefab->RemoveChanges();
+        ImGui::CloseCurrentPopup();
+    }
+    ImGui::EndDisabled();
+
+    ImGui::SameLine();
+    if (ImGui::Button("Unpack Prefab", { buttionw,h }))
+    {
+        UC::Compoent::Destroy(isprefab);
+        ImGui::CloseCurrentPopup();
     }
 }
 
