@@ -1268,7 +1268,7 @@ void GameEditorWindow::ShowEntityData(SceneEditorTabData& data, UCode::Entity* I
             ImGuiTreeNodeFlags TreeFlags = IsSelectedEntity ? ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_Selected : 0;
             TreeFlags |= ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_OpenOnArrow;
             TreeFlags |= ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_SpanAvailWidth;
-            node_open = ImGuIHelper::TreeNode(Item, Item->NativeName().c_str(), AppFiles::sprite::Entity);
+            node_open = ImGuIHelper::TreeNode(Item, Item->NativeName().c_str(), AppFiles::sprite::Entity,TreeFlags);
             ShowingTree = true;
         }
 
