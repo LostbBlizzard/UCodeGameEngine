@@ -206,6 +206,12 @@ Texture::Texture(Texture&& source)
 }
 Texture& Texture::operator=(Texture&& source)
 {
+	if (_Buffer.get()) {
+		FreeFromCPU();
+	}
+	if (_RendererID.has_value()) {
+		FreeFromGPU();
+	}
 	PixelsPerUnit = source.PixelsPerUnit;
 	_RendererID = std::move(source._RendererID);
 	_Width = source._Width;

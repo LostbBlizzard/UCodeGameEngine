@@ -487,9 +487,9 @@ bool ImGuIHelper::MultLineText(const StringView label, String& buffer, ImVec2 Si
 {
 	return MultLineText(ToCStr(label), buffer, Size, flags);
 }
-bool ImGuIHelper::TreeNode(const void* id, const StringView label, UCode::Sprite* Sprite)
+bool ImGuIHelper::TreeNode(const void* id, const StringView label, UCode::Sprite* Sprite,ImGuiTreeNodeFlags Flags)
 {
-	return TreeNode(id, ToCStr(label), Sprite);
+	return TreeNode(id, ToCStr(label), Sprite,Flags);
 }
 
 bool ImGuIHelper::InputPath(const StringView label, String& buffer, ImGuiInputTextFlags flags, InputPathType PathType, Span<String> Extension)
@@ -526,12 +526,16 @@ ImGuIHelper::TreeNodeText ImGuIHelper::TreeNode(const void* id, String& buffer)
 
 	return Data;
 }
-bool ImGuIHelper::TreeNode(const void* id, const char* label, UCode::Sprite* Sprite)
+bool ImGuIHelper::TreeNode(const void* id, const char* label, UCode::Sprite* Sprite,ImGuiTreeNodeFlags Flags)
 {
 	auto& g = *GImGui;
 	auto SizeY = g.FontSize + g.Style.FramePadding.y * 2;
 	ImGuIHelper::Image(Sprite, ImVec2(SizeY, SizeY)); ImGui::SameLine();
-	bool r = ImGui::TreeNode(id, label);
+
+
+	ImGui::PushID(id);
+	bool r = ImGui::TreeNodeEx(label,Flags);
+	ImGui::PopID();
 	return r;
 }
 ImGuIHelper::TreeNodeText ImGuIHelper::TreeNode(const void* id, String& buffer, UCode::Sprite* Sprite)

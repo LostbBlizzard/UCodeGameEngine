@@ -221,6 +221,13 @@ void OpenGlRender::_DrawOpenGl(RenderRunTime2d::DrawData& Data, Camera2d* cam)
         Buffer.Bind();
     }
 
+    for (size_t i = 0; i < TextureSlots.size(); i++)
+    {
+        TextureSlots[i] = nullptr;
+    }
+    NextTextureSlot = 0;
+    
+    
     auto clearcolor = cam->Get_BackRoundClearColor();
     GlCall(glClearColor(clearcolor.R, clearcolor.G, clearcolor.B, clearcolor.A)); // Background color
     GlCall(glClear(GL_COLOR_BUFFER_BIT));

@@ -85,12 +85,12 @@ public:
 	static bool InputText(String& buffer, ImGuiInputTextFlags flags = 0);
 	static bool MultLineText(const char* label, String& buffer, ImVec2 Size, ImGuiInputTextFlags flags = 0);
 
-	static bool TreeNode(const void* id, const char* label, UCode::Sprite* Sprite);
+	static bool TreeNode(const void* id, const char* label, UCode::Sprite* Sprite,ImGuiTreeNodeFlags Flags = 0);
 
 	static bool InputText(const StringView label, String& buffer, ImGuiInputTextFlags flags = 0);
 	static bool MultLineText(const StringView label, String& buffer, ImVec2 Size, ImGuiInputTextFlags flags = 0);
 
-	static bool TreeNode(const void* id, const StringView label, UCode::Sprite* Sprite);
+	static bool TreeNode(const void* id, const StringView label, UCode::Sprite* Sprite,ImGuiTreeNodeFlags Flags = 0);
 
 
 	enum class InputPathType
@@ -106,9 +106,9 @@ public:
 	static bool InputPath(const char* label, String& buffer, ImGuiInputTextFlags flags = 0, InputPathType PathType = InputPathType::Any, Span<String> Extension = {});
 	static bool InputPath(const char* label, Path& buffer, ImGuiInputTextFlags flags = 0, InputPathType PathType = InputPathType::Any, Span<String> Extension = {});
 
-	UCODE_EDITOR_FORCEINLINE static bool TreeNode(const void* id, const char* label, AppFiles::sprite Sprite)
+	UCODE_EDITOR_FORCEINLINE static bool TreeNode(const void* id, const char* label, AppFiles::sprite Sprite, ImGuiTreeNodeFlags Flags = 0)
 	{
-		return  TreeNode(id, label, AppFiles::GetSprite(Sprite));
+		return  TreeNode(id, label, AppFiles::GetSprite(Sprite),Flags);
 	}
 
 	static TreeNodeText TreeNode(const void* id, String& buffer);

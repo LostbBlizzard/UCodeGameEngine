@@ -1,5 +1,7 @@
 #include "Entity.hpp"
 #include "GameRunTime.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/quaternion.hpp"
 CoreStart
 	
 
@@ -148,7 +150,20 @@ Vec3 Entity::WorldPosition() const
 		R += Ptr->NativeLocalPosition();
 		Ptr = Ptr->NativeParent();
 	}
-	return  R;
+
+	Vec3 rootrot;
+	{
+		const Entity* Ptr = this->NativeParent();
+		while (Ptr)
+		{
+			rootrot += Ptr->LocalRotation();
+			Ptr = Ptr->NativeParent();
+		}
+	}
+
+	glm::quat rot = glm::quat(glm::vec3(rootrot.X,rootrot.Y,rootrot.Z));
+	auto newp = glm::vec3(glm::mat3(rot) * glm::vec3(R.X, R.Y, R.Z));
+	return  Vec3(newp.x,newp.y,newp.z);
 }
 Vec2 Entity::WorldPosition2D() const
 {
@@ -159,7 +174,20 @@ Vec2 Entity::WorldPosition2D() const
 		R += Ptr->LocalPosition2D();
 		Ptr = Ptr->NativeParent();
 	}
-	return  R;
+
+	Vec2 rootrot;
+	{
+		const Entity* Ptr = this->NativeParent();
+		while (Ptr)
+		{
+			rootrot += Ptr->LocalRotation2D();
+			Ptr = Ptr->NativeParent();
+		}
+	}
+
+	glm::quat rot = glm::quat(glm::vec3(rootrot.X,rootrot.Y,0));
+	auto newp = glm::vec3(glm::mat3(rot) * glm::vec3(R.X, R.Y,0));
+	return Vec2(newp.x,newp.y);
 }
 Vec3 Entity::WorldRotation() const
 {
@@ -188,10 +216,20 @@ Vec2 Entity::WorldRotation2D() const
 Vec3 Entity::WorldScale() const
 {
 	Vec3 R;
+
 	const Entity* Ptr = this;
+	auto s = Ptr->LocalScale();
+	R.X = s.X;
+	R.Y = s.Y;
+	R.Z = s.Z;
+
+	Ptr = Ptr->NativeParent();
 	while (Ptr)
 	{
-		R += Ptr->LocalScale();
+		auto s = Ptr->LocalScale();
+		R.X *= s.X;
+		R.Y *= s.Y;
+		R.Z *= s.Z;
 		Ptr = Ptr->NativeParent();
 	}
 	return  R;
@@ -201,9 +239,16 @@ Vec2 Entity::WorldScale2D() const
 {
 	Vec2 R;
 	const Entity* Ptr = this;
+	auto s = Ptr->LocalScale();
+	R.X = s.X;
+	R.Y = s.Y;
+
+	Ptr = Ptr->NativeParent();
 	while (Ptr)
 	{
-		R += Ptr->LocalScale2D();
+		auto s = Ptr->LocalScale2D();
+		R.X *= s.X;
+		R.Y *= s.Y;
 		Ptr = Ptr->NativeParent();
 	}
 	return  R;
