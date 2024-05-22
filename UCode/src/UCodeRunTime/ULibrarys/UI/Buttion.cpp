@@ -2,19 +2,22 @@
 UIStart
 
 UComponentData Buttion::type_Data = { "Buttion",[](Entity* E) {return (Compoent*)new Buttion(E); } };
-Buttion::Buttion(Entity* e) : Compoent(e,&type_Data), _Renderer(nullptr)
+Buttion::Buttion(Entity* e) : Compoent(e,&type_Data)
 {
-	_Renderer = AddCompoent<UISpriteRenderer>();
+
 }
 
 Buttion::~Buttion()
 {
-	 Destroy(_Renderer); 
 }
 
 
+UComponentsID Buttion::Get_TypeID()
+{
+	return Buttion::type_Data._Type;
+}
+
 void Buttion::UIAPI_OnClick()
 {
-	_ClickCallBack();
 }
 UIEnd

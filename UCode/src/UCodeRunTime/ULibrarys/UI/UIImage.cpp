@@ -1,9 +1,9 @@
-#include "UISpriteRenderer.hpp"
+#include "UIImage.hpp"
 #include "../Rendering/Camera2d.hpp"
 UIStart
 
-UComponentData UISpriteRenderer::type_Data = { "UISpriteRenderer",nullptr};
-UISpriteRenderer::UISpriteRenderer(Entity* e) :Renderer2d(e,&type_Data),
+UComponentData UIImage::type_Data = { "UIImage",nullptr};
+UIImage::UIImage(Entity* e) :Renderer2d(e,&type_Data),
 shader(Shader::Default_Shader(e->NativeGameRunTime()->Get_Library_Edit())),
 texture(nullptr),
 flipX(false),
@@ -13,15 +13,20 @@ DrawLayer(UIHelper::UI_DrawLayer),
 DrawOrder(0)
 {
 }
-UISpriteRenderer::~UISpriteRenderer()
+UIImage::~UIImage()
 {
 }
 
-void UISpriteRenderer::Start()
+UComponentsID UIImage::Get_TypeID()
+{
+	return type_Data._Type;
+}
+
+void UIImage::Start()
 {
 }
 
-void UISpriteRenderer::OnDraw()
+void UIImage::OnDraw()
 {
 	auto Cam = Camera2d::FindMainCam(GetGameRunTime());
 	if (Cam == nullptr) { return; }

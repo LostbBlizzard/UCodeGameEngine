@@ -1,4 +1,4 @@
 #pragma once
 
-#include "UI/UISpriteRenderer.hpp"
+#include "UI/UIImage.hpp"
 #include "UI/Buttion.hpp"

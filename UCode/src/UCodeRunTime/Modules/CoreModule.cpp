@@ -9,6 +9,9 @@
 
 #include "../ULibrarys/AssetManagement/CoreAssets.hpp"
 #include "../ULibrarys/AssetManagement/UCodeLangAssets.hpp"
+
+#include "../ULibrarys/UI/Buttion.hpp"
+#include "../ULibrarys/UI/UIImage.hpp"
 CoreStart
 CoreModule::CoreModule()
 {
@@ -16,6 +19,8 @@ CoreModule::CoreModule()
 	_Compoents[1] = UModuleComponentData(&Camera2d::type_Data);
 	_Compoents[2] = UModuleComponentData(&ULangScript::type_Data);
 	_Compoents[3] = UModuleComponentData(&EntityPlaceHolder::type_Data);
+	_Compoents[4] = UModuleComponentData(&Buttion::type_Data);
+	_Compoents[5] = UModuleComponentData(&UIImage::type_Data);
 
 	_Assets[0] = UModuleAssetData(Path(UCode::Scene2dData::FileExtDot),[](UDeserializer& serializer)
 	{
@@ -129,6 +134,14 @@ CoreModule::CoreModule()
 
 			return r;
 	}); 
+
+	_Assets[4] = UModuleAssetData(Path(UCode::RawEntityData::FileExtDot), [](UDeserializer& serializer)
+	{
+		UCodeGEDebugStackFrame("AssetLoader:LoadAsset:RawEntityData");
+		Optional<Unique_ptr<Asset>> r;
+
+		return r;
+	});
 }
 CoreModule::~CoreModule()
 {
