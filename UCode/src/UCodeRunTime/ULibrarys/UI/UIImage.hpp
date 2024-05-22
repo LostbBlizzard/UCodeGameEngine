@@ -1,22 +1,21 @@
 #pragma once
-
-
 #include "UCodeRunTime/ULibrarys/Rendering/RenderRunTime2d.hpp"
 #include "UIRunTime.hpp"
 
 #include "UINamespace.hpp"
 UIStart
-class UISpriteRenderer  final :public Renderer2d
+class UIImage  final :public Renderer2d
 {
 private:
 	void Start() override;
 	void OnDraw()override;
 public:
-	UISpriteRenderer(Entity* e);
-	~UISpriteRenderer();
+	UIImage(Entity* e);
+	~UIImage();
 
 
-
+	static UComponentsID Get_TypeID();
+	static UComponentData type_Data;
 public:
 	UIInfo UIData;
 
@@ -27,7 +26,6 @@ public:
 	bool flipY;
 	RenderRunTime2d::DrawLayer_t DrawLayer;
 	RenderRunTime2d::DrawOrder_t DrawOrder;
-	static UComponentData type_Data;
 };
 UIEnd
 
