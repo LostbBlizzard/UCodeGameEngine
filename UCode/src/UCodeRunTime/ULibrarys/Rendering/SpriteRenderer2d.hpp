@@ -30,8 +30,8 @@ public:
 	Color color;
 	bool flipX;
 	bool flipY;
-	RenderRunTime2d::DrawLayer_t DrawLayer;
-	RenderRunTime2d::DrawOrder_t DrawOrder;
+	RenderRunTime2d::DrawLayer_t DrawLayer = {};
+	RenderRunTime2d::DrawOrder_t DrawOrder = {};
 	static UComponentData type_Data;
 };
 RenderingEnd

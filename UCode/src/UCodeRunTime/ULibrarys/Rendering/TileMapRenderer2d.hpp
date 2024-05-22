@@ -2,9 +2,44 @@
 
 #include "RenderRunTime2d.hpp"
 
-#include "GpuTypes/Texture.hpp"
-#include "GpuTypes/Sprite.hpp"
+#include "../AssetManagement/AssetRendering.hpp"
 RenderingStart
+
+struct TileData
+{
+	inline static const char* FileExt = "UTile";
+	inline static const char* FileExtDot = ".UTile";
+
+	SpritePtr Sprite;
+	Color Color;
+
+	void PushData(USerializer& node) const;
+	static bool FromString(TileData& out, UDeserializer& text);
+
+	static bool FromFile(TileData& out, const Path& Path);
+	static bool ToFile(const Path& path,const SpriteData& data, USerializerType Type);
+
+};
+struct TileAsset : public Asset
+{
+public:
+	TileAsset(TileData&& base) :_Base(std::move(base))
+	{
+
+	}
+	TileData _Base;
+
+	ManagedPtr<TileAsset> GetManaged()
+	{
+		auto v =this->Get_Managed();
+
+		return *(ManagedPtr<TileAsset>*)&v;
+	}
+};
+using TileAssetPtr = ManagedPtr<TileAsset>;
+using TilePtr =	AssetPtr<TileAsset,TileData>;
+
+
 class TileMapRenderer final : public Renderer2d
 {
 private:
@@ -12,66 +47,37 @@ private:
 	void OnDraw() override;
 
 public:
-	using IndexType = unsigned int;
 	struct Tile
 	{
-		Sprite* texture;
-		Color color;
-		Tile() :texture(nullptr)
-		{
-		}
+		TilePtr tile;
+		Color color;	
+		
+		int xoffset = 0;
+		int yoffset = 0;
 	};
-	TileMapRenderer(Entity* entity, IndexType MapX, IndexType MapY);
+	TileMapRenderer(Entity* entity);
 	~TileMapRenderer() override;
 
-public:
 	Bounds2d Get_Bounds() const;
+
+	void Serialize(USerializer& Serializer)  const override;
+
+	void Deserialize(UDeserializer& Serializer) override;
+
+	rttr::instance Get_Rttr_Instance() override { return rttr::instance(this); }
+
+	NullablePtr<Tile> Get_Tile(int x, int y);
+	void AddTile(Tile& tile);
+	
+
 	Color color;
-	Shader* shader;
-
-	RenderRunTime2d::DrawLayer_t DrawLayer;
-	RenderRunTime2d::DrawOrder_t DrawOrder;
-	inline Tile* Get_Tile(IndexType x, IndexType y)
-	{
-		auto numberofcolums = _TileMapSizeY;
-		auto index = y * numberofcolums + x;
-#if UCodeGEDebug
-		//if (TilesData.isvaldIndex(index))
-		{
-			return &TilesData[index];
-		}
-		//else
-		{
-			return nullptr;
-		}
-#else
-		return &TilesData[index];
-#endif // DEBUG
-	}
-
-	inline Tile* Get_Tile(size_t index)
-	{
-#if UCodeGEDebug
-		//if (TilesData.isvaldIndex(index))
-		{
-			return &TilesData[index];
-		}
-		//else
-		{
-			return nullptr;
-		}
-#else
-		return &TilesData[index];
-#endif // DEBUG
-	}
-
-	inline IndexType Get_TileMapSizeX() const { return _TileMapSizeX; }
-	inline IndexType Get_TileMapSizeY() const { return _TileMapSizeY; }
-	inline IndexType Get_MaxTiles() const { return _TileMapSizeX * _TileMapSizeY; }
-private:
-	IndexType _TileMapSizeX;
-	IndexType _TileMapSizeY;
-	Vector<Tile> TilesData;
+	ShaderPtr shader;
+	RenderRunTime2d::DrawLayer_t DrawLayer = {};
+	RenderRunTime2d::DrawOrder_t DrawOrder = {};
+	
+	static UComponentsID Get_TypeID();	
 	static UComponentData type_Data;
+private:
+	Vector<Tile> _Tiles;
 };
 RenderingEnd

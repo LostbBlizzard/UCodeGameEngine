@@ -21,6 +21,6 @@ public:
 	}
 private:
 	Array<Unique_ptr<UEditorAssetFileData>,4> Assets;
-	Array<Unique_ptr<UEditorComponentData>,2> Components;
+	Array<Unique_ptr<UEditorComponentData>,3> Components;
 };
 EditorEnd

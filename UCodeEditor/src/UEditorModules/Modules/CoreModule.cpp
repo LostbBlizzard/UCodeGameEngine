@@ -6,6 +6,7 @@
 #include "Assets/Core/SceneAssetFile.hpp"
 #include "Componets/Camera.hpp"
 #include "Componets/SpriteRenderer.hpp"
+#include "Componets/TileMapRenderer.hpp"
 EditorStart
 
 CoreModule::CoreModule()
@@ -32,6 +33,7 @@ void CoreModule::Init()
 	{
 		Components[0] = std::move(Unique_ptr<UEditorComponentData>(new SpriteRendererUEditorData()));
 		Components[1] = std::move(Unique_ptr<UEditorComponentData>(new CameraUEditorData()));
+		Components[2] = std::move(Unique_ptr<UEditorComponentData>(new TileMapRenderUEditorData()));
 	}
 }
 EditorEnd
