@@ -10,6 +10,7 @@
 RTTR_REGISTRATION
 {
  rttr::registration::class_<UCode::SpriteRenderer>("SpriteRenderer")
+ .property("Shader",&UCode::SpriteRenderer::shader)
  .property("Sprite",&UCode::SpriteRenderer::sprite)
  .property("Color",&UCode::SpriteRenderer::color)
  .property("FlipX",&UCode::SpriteRenderer::flipX)
@@ -44,7 +45,7 @@ void SpriteRenderer::Serialize(USerializer& Serializer) const
 {
 	Serializer.Write("Shader", shader);
 	Serializer.Write("Sprite", sprite);
-	Serializer.Write("Color2", color);
+	Serializer.Write("Color", color);
 	
 	Serializer.Write("flipX", flipX);
 	Serializer.Write("flipY", flipY);
@@ -56,7 +57,7 @@ void SpriteRenderer::Deserialize(UDeserializer& Serializer)
 {
 	Serializer.ReadType("Shader", shader, shader);
 	Serializer.ReadType("Sprite", sprite, sprite);
-	Serializer.ReadType("Color2", color,color);
+	Serializer.ReadType("Color", color,color);
 
 	Serializer.ReadType("flipX", flipX, flipX);
 	Serializer.ReadType("flipX", flipY, flipY);

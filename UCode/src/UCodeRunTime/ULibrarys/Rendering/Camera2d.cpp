@@ -10,7 +10,7 @@ RTTR_REGISTRATION
 {
  rttr::registration::class_<UCode::Camera2d>("Camera")
  .property("CamType",&UCode::Camera2d::Get_CamType,&UCode::Camera2d::Set_CamType)
- .property("Ortho_size",&UCode::Camera2d::Get_Ortho_size,&UCode::Camera2d::Set_Ortho_size)
+ .property("OrthoSize",&UCode::Camera2d::Get_Ortho_size,&UCode::Camera2d::Set_Ortho_size)
  .property("Fov",&UCode::Camera2d::Get_Fov,&UCode::Camera2d::Set_Fov)
  .property("BackRoundClearColor",&UCode::Camera2d::Get_BackRoundClearColor,&UCode::Camera2d::Set_BackRoundClearColor); 
 }
@@ -57,7 +57,7 @@ Camera2d::~Camera2d()
 void Camera2d::Serialize(USerializer& Serializer) const
 {
 	Serializer.Write("Type", (Camera2d::CamType_t)Get_CamType());
-	Serializer.Write("ortho_size", Get_Ortho_size());
+	Serializer.Write("OrthoSize", Get_Ortho_size());
 	Serializer.Write("Fov", Get_Fov());
 	Serializer.Write("BackRoundClearColor",BackRoundClearColor);
 }
@@ -66,7 +66,7 @@ void Camera2d::Deserialize(UDeserializer& Serializer)
 {
 	Camera2d::CamType_t& CamT = *(Camera2d::CamType_t*)&Type;
 	Serializer.ReadType("Type", CamT, CamT);
-	Serializer.ReadType("ortho_size", ortho_size, ortho_size);
+	Serializer.ReadType("OrthoSize", ortho_size, ortho_size);
 	Serializer.ReadType("Fov", Fov, Fov);
 	Serializer.ReadType("BackRoundClearColor",BackRoundClearColor,BackRoundClearColor);
 }
