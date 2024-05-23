@@ -63,7 +63,7 @@ void ScriptableAssetFile::Liveing::FileUpdated()
 	_Object.LoadScript(_Data);
 	_InFile = _Data;
 }
-inline void ScriptableAssetFile::Liveing::SaveFile(const UEditorAssetFileSaveFileContext& Context)
+void ScriptableAssetFile::Liveing::SaveFile(const UEditorAssetFileSaveFileContext& Context)
 {
 	if (!_Object.HasScript()) { return; }
 	auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();

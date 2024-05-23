@@ -1,9 +1,13 @@
 #include "CoreModule.hpp"
 #include "../ModuleNames.hpp"
+
+
 #include "Assets/Core/EntityAssetFile.hpp"
 #include "Assets/Art/PNGAssetFile.hpp"
 #include "Assets/Audio/MP3AssetFile.hpp"
 #include "Assets/Core/SceneAssetFile.hpp"
+#include "Assets/Tilemap/TilePalette.hpp"
+
 #include "Componets/Camera.hpp"
 #include "Componets/SpriteRenderer.hpp"
 #include "Componets/TileMapRenderer.hpp"
@@ -28,6 +32,7 @@ void CoreModule::Init()
 		Assets[1] = std::move(Unique_ptr<UEditorAssetFileData>(new PNGAssetFile()));
 		Assets[2] = std::move(Unique_ptr<UEditorAssetFileData>(new EntityAssetFile()));
 		Assets[3] = std::move(Unique_ptr<UEditorAssetFileData>(new MP3AssetFile()));
+		Assets[4] = std::move(Unique_ptr<UEditorAssetFileData>(new TilePaletteAssetFile()));
 	}
 
 	{

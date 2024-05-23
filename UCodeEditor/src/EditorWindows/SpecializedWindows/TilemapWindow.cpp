@@ -2,6 +2,7 @@
 #include "UCodeRunTime/ULibrarys/Rendering/TileMapRenderer2d.hpp"
 #include "Helper/ImGuIHelper.hpp"
 #include "EditorWindows/BasicWindows/GameEditorWindow.hpp"
+#include "Helper/ImGuIHelper_Asset.hpp"
 EditorStart
 TilemapWindow::TilemapWindow(const NewEditorWindowData& windowdata):EditorWindow(windowdata)
 {
@@ -23,8 +24,13 @@ void TilemapWindow::UpdateWindow()
 	if (currenttilemap == nullptr)
 	{
 		ImGuIHelper::Text(StringView("Seclect a Tilemap in Scene Hierarchy"));
-		return;
 	}
+
+	ImGui::BeginDisabled(currenttilemap == nullptr);
+	{
+		ImGuIHelper_Asset::AsssetField("Palette", _CurrentTilePalette);
+	}
+	ImGui::EndDisabled();
 }
 
 EditorWindowData TilemapWindow::GetEditorData()

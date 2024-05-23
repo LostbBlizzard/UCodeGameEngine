@@ -622,6 +622,16 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencAssetPtr&
 	data);
 }
 
+bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TilePalettePtr& Value)
+{
+	return false;
+}
+
+bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TilePaletteAssetPtr& Value)
+{
+	return false;
+}
+
 UCode::Sprite* GetAssetSpriteFromUID(const UID& value)
 {
 	return AppFiles::GetSprite(AppFiles::sprite::UCodeAssetIcon);
