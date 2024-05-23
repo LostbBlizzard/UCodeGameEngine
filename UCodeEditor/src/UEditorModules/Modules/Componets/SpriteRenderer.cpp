@@ -55,15 +55,15 @@ void SpriteRendererUEditorData::DrawInspect(const UEditorComponentDrawData& Data
 		Component->Set_CompoentActive(V);
 	}
 
-	Data.Draw->AsssetField("Shader", Component->shader);
-	Data.Draw->AsssetField("Sprite", Component->sprite);
+	ImGuIHelper_Asset::AsssetField("Shader", Component->shader);
+	ImGuIHelper_Asset::AsssetField("Sprite", Component->sprite);
 
-	Data.Draw->ColorField("Color", Component->color);
-	Data.Draw->ToggleField("flipX", Component->flipX);
-	Data.Draw->ToggleField("flipY", Component->flipY);
+	ImGuIHelper::ColorField("Color", Component->color);
+	ImGuIHelper::BoolEnumField("flipX", Component->flipX);
+	ImGuIHelper::BoolEnumField("flipY", Component->flipY);
 
-	Data.Draw->DrawLayerField("DrawLayer", Component->DrawLayer);
-	Data.Draw->uInt8Field("DrawOrder", Component->DrawOrder);
+	ImGuIHelper_Asset::DrawLayerField("DrawLayer", Component->DrawLayer);
+	ImGuIHelper::DrawOrdeField("DrawOrder", Component->DrawOrder);
 
 }
 EditorEnd

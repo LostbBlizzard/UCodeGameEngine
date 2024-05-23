@@ -82,10 +82,10 @@ void UModuleFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContext& Ite
 	ImGui::SameLine();
 
 	String tep = "UCodeLang/ModuleFile";
-	Item.Drawer->StringField("Type", tep);
+	ImGuIHelper::InputText("Type", tep);
 
 	String tep2 = FileFullPath.filename().replace_extension("").generic_string();
-	Item.Drawer->StringField("Name", tep2);
+	ImGuIHelper::InputText("Name", tep2);
 
 
 	ImGui::EndDisabled();

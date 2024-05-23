@@ -13,7 +13,7 @@ RTTR_REGISTRATION
 }
 
 RenderingStart
-UComponentData TileMapRenderer::type_Data = { "TileMapRenderer",nullptr};
+UComponentData TileMapRenderer::type_Data = { "TileMapRenderer",[](Entity* e) {return (Compoent*)new TileMapRenderer(e); },rttr::type::get<UCode::TileMapRenderer>() };
 TileMapRenderer::TileMapRenderer(Entity* entity) : Renderer2d(entity,&type_Data)
 , shader(Shader::Default_Shader(entity->NativeGameRunTime()->Get_Library_Edit()))
 , DrawOrder(RenderRunTime2d::DrawOrderType_Min)

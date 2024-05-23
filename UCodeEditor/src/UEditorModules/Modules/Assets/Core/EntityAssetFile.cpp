@@ -571,17 +571,17 @@ void EntityAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContext&
 			Vec2 Tep1 = entity->WorldRotation2D();
 			Vec2 Tep2 = entity->WorldScale2D();
 
-			if (Draw.Vec2Field("Position", Tep))
+			if (ImGuIHelper::Vec2Field("Position", Tep))
 			{
 				entity->WorldPosition(Tep);
 			}
 
-			if (Draw.Vec2Field("Rotation", Tep1))
+			if (ImGuIHelper::Vec2Field("Rotation", Tep1))
 			{
 				entity->WorldRotation(Tep1);
 			}
 
-			if (Draw.Vec2Field("Scale", Tep2))
+			if (ImGuIHelper::Vec2Field("Scale", Tep2))
 			{
 				entity->WorldScale(Tep2);
 			}
@@ -592,17 +592,17 @@ void EntityAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContext&
 			Vec3 Tep1 = entity->WorldRotation();
 			Vec3 Tep2 = entity->WorldScale();
 
-			if (Draw.Vec3Field("Position", Tep))
+			if (ImGuIHelper::Vec3Field("Position", Tep))
 			{
 				entity->WorldPosition(Tep);
 			}
 
-			if (Draw.Vec3Field("Rotation", Tep1))
+			if (ImGuIHelper::Vec3Field("Rotation", Tep1))
 			{
 				entity->WorldRotation(Tep2);
 			}
 
-			if (Draw.Vec3Field("Scale", Tep2))
+			if (ImGuIHelper::Vec3Field("Scale", Tep2))
 			{
 				entity->WorldScale(Tep2);
 			}

@@ -46,17 +46,17 @@ void UColorAssetFile::LiveingColor::DrawInspect(const UEditorAssetDrawInspectCon
 	ImGui::SameLine();
 
 	String tep = "Color";
-	Item.Drawer->StringField("Type", tep);
+	ImGuIHelper::InputText("Type", tep);
 
 	String tep2 = FileFullPath.filename().replace_extension("").generic_string();
-	Item.Drawer->StringField("Name", tep2);
+	ImGuIHelper::InputText("Name", tep2);
 
 
 	ImGui::EndDisabled();
 
 	ImGui::Separator();
 
-	if (Item.Drawer->ColorField("Color", _ColorInfoFromFile._Color))
+	if (ImGuIHelper::ColorField("Color", _ColorInfoFromFile._Color))
 	{
 		WasUpdated = true;
 	}

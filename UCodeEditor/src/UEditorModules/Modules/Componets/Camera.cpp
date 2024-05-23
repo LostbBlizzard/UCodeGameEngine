@@ -68,13 +68,13 @@ void CameraUEditorData::DrawInspect(const UEditorComponentDrawData& Data, UCode:
 	if (CamTV == UCode::Camera2d::CamType::Orthographic)
 	{
 		f32 V = Component->Get_Ortho_size();
-		Data.Draw->f32Field("Ortho_Size", V);
+		ImGuIHelper::f32Field("Ortho_Size", V);
 		Component->Set_Ortho_size(V);
 	}
 	else
 	{
 		f32 V = Component->Get_Fov();
-		Data.Draw->f32Field("Fov", V);
+		ImGuIHelper::f32Field("Fov", V);
 		Component->Set_Fov(V);
 	}
 	auto color = Component->Get_BackRoundClearColor();

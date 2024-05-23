@@ -23,6 +23,7 @@ enum class KeyBindList : KeyBindList_t
 	HierarchyWindow,
 	GameWindow,
 	InspectorWindow,
+	Inspector2Window,
 	ProjectWindow,
 	UserWindow,
 	ConsoleWindow,
