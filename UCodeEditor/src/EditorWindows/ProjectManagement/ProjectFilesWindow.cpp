@@ -23,6 +23,7 @@
 #include "DrawMenu.hpp"
 #include "Helper/Fuzzhelper.hpp"
 #include "Helper/UserSettings.hpp"
+#include "UEditorModules/Modules/Assets/Tilemap/TilePaletteData.hpp"
 EditorStart
 namespace fs = std::filesystem;
 
@@ -988,7 +989,7 @@ void ProjectFilesWindow::ShowDirButtions()
                     if (ImGui::MenuItem("Scene"))
                     {
                         Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New Scene").native()
-                            , Path("." + (UCode::String)UCode::Scene2dData::FileExt));
+                            , Path(UCode::Scene2dData::FileExtDot));
                         UCode::Scene2dData newScene = UCode::Scene2dData();
                         newScene._Name = UnNamedScene;
                         newScene._UID = Get_App()->Get_RunTimeProjectData()->GetNewUID();
@@ -996,6 +997,15 @@ void ProjectFilesWindow::ShowDirButtions()
                         UpdateDir();
                     }
 
+                    if (ImGui::MenuItem("Tile Palette"))
+                    {
+                        Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New Tile Palette").native()
+                            , Path(TilePalette::FileExtDot));
+                        TilePalette newScene = TilePalette();
+                        newScene._UID = Get_App()->Get_RunTimeProjectData()->GetNewUID();
+                        TilePalette::ToFile(NewPath, newScene, Get_ProjectData()->Get_ProjData()._SerializeType);
+                        UpdateDir();
+                    }
                     ImGui::EndMenu();
                 }
 

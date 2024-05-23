@@ -74,6 +74,10 @@ public:
 		UCodeEditor_Platform = UPugin,
 		UCodeAssetIcon =RawEntityData,
 
+		TileMap = Uility_image,
+		TilePalette = Uility_image,
+		TileAsset = Uility_image,
+
 		AudioIcon = Uility_image,
 		Linux_Platform,
 		Mac_Platform,

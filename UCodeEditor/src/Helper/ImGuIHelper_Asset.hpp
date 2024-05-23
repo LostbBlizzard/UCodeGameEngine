@@ -4,6 +4,7 @@
 #include "ImGuIHelper.hpp"
 #include "UCodeRunTime/ULibrarys/AssetManagement/AssetRendering.hpp"
 #include "UCodeRunTime/ULibrarys/AssetManagement/CoreAssets.hpp"
+#include "UEditorModules/Modules/Assets/Tilemap/TilePaletteData.hpp"
 EditorStart
 class ImGuIHelper_Asset
 {
@@ -22,6 +23,8 @@ public:
 	static bool AsssetField(const char* FieldName, UCode::ScencPtr& Value);
 	static bool AsssetField(const char* FieldName, UCode::ScencAssetPtr& Value);
 
+	static bool AsssetField(const char* FieldName, TilePalettePtr& Value);
+	static bool AsssetField(const char* FieldName, TilePaletteAssetPtr& Value);
 
 	static bool AnyAsssetField(UID& Value);
 	static bool AnyAsssetField(StringView FieldName, UID& Value)
