@@ -315,6 +315,12 @@ void GameEditorWindow::SetPrefabMode(UC::EntityPtr prefab, PrefabModeData&& data
     PrefabSceneData._SceneCameraData._Pos = prefab.Get_Value()->NativeLocalPosition();
     PrefabSceneData._GameRuntimeRef = prefab.Get_Value()->NativeScene()->Get_RunTime();
 }
+UC::EntityPtr GameEditorWindow::GetCurrentSeclectedEntity()
+{
+    auto win = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_Window<GameEditorWindow>();
+
+    return win->SelectedObject;
+}
 void GameEditorWindow::SceneEditorTab()
 {
 

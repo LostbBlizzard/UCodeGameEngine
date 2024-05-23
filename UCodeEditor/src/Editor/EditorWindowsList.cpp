@@ -16,6 +16,7 @@
 #include <EditorWindows/BasicWindows/UserSettingsWindow.hpp>
 #include <EditorWindows/BasicWindows/DebugingWindow.hpp>
 
+#include <EditorWindows/SpecializedWindows/TilemapWindow.hpp>
 EditorStart
 
 Variant<EditorWindowData, EditorWindowsList::NewMenu, EditorWindowsList::EndMenu> Data2[] =
@@ -41,8 +42,10 @@ Variant<EditorWindowData, EditorWindowsList::NewMenu, EditorWindowsList::EndMenu
 	ProfilerWindow::GetEditorData(),
 	EditorWindowsList::EndMenu(),
 	
-	/*
 	EditorWindowsList::NewMenu("Specialized"),
+	TilemapWindow::GetEditorData(),
+	EditorWindowsList::EndMenu(),
+	/*
 	
 	DebugingWindow::GetEditorData(),
 	ShaderGraphWindow::GetEditorData(),

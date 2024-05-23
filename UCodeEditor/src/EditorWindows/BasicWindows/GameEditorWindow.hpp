@@ -32,6 +32,7 @@ public:
 		std::function<void(UC::Entity* entity)> OnSave;
 	};
 	void SetPrefabMode(UC::EntityPtr prefab,PrefabModeData&& data);
+	static UC::EntityPtr GetCurrentSeclectedEntity();
 private:
 	static EditorWindow* MakeWin(const NewEditorWindowData& windowdata);
 
