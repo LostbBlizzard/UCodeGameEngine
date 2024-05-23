@@ -132,15 +132,15 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
     
         if (Is2D)
         {
-            Draw.Vec2Field("Position", *(Vec2*)&item->NativeLocalPosition());
-            Draw.Vec2Field("Rotation", *(Vec2*)&item->NativeLocalRotation());
-            Draw.Vec2Field("Scale", *(Vec2*)&item->NativeLocalScale());
+            ImGuIHelper::Vec2Field("Position", *(Vec2*)&item->NativeLocalPosition());
+            ImGuIHelper::Vec2Field("Rotation", *(Vec2*)&item->NativeLocalRotation());
+            ImGuIHelper::Vec2Field("Scale", *(Vec2*)&item->NativeLocalScale());
         }
         else 
         {
-            Draw.Vec3Field("Position", item->NativeLocalPosition());
-            Draw.Vec3Field("Rotation", item->NativeLocalRotation());
-            Draw.Vec3Field("Scale", item->NativeLocalScale());
+            ImGuIHelper::Vec3Field("Position", item->NativeLocalPosition());
+            ImGuIHelper::Vec3Field("Rotation", item->NativeLocalRotation());
+            ImGuIHelper::Vec3Field("Scale", item->NativeLocalScale());
         }
     }
     else
@@ -160,20 +160,20 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
             Vec2 Tep1 = item->WorldPosition2D();
             Vec2 Tep2 = item->WorldPosition2D();
 
-            if (Draw.Vec2Field("Position", Tep))
+            if (ImGuIHelper::Vec2Field("Position", Tep))
             {
                 item->WorldPosition2D(Tep);
             }
 
             Tep1 = item->WorldRotation2D();
 
-            if (Draw.Vec2Field("Rotation", Tep1))
+            if (ImGuIHelper::Vec2Field("Rotation", Tep1))
             {
                 item->WorldRotation(Tep1);
             }
 
             Tep2 = item->WorldScale2D();
-            if (Draw.Vec2Field("Scale", Tep2))
+            if (ImGuIHelper::Vec2Field("Scale", Tep2))
             {
                 item->WorldScale(Tep2);
             }
@@ -184,21 +184,21 @@ void Inspect_Entity2d::Insp_(InspectWindow::InspectDrawer& Draw)
             Vec3 Tep1 = item->WorldRotation();
             Vec3 Tep2 = item->WorldScale();
 
-            if (Draw.Vec3Field("Position", Tep))
+            if (ImGuIHelper::Vec3Field("Position", Tep))
             {
                 item->WorldPosition(Tep);
             }
 
             Tep = item->WorldRotation();
 
-            if (Draw.Vec3Field("Rotation", Tep1))
+            if (ImGuIHelper::Vec3Field("Rotation", Tep1))
             {
                 item->WorldRotation(Tep);
             }
 
             Tep2 = item->WorldScale();
 
-            if (Draw.Vec3Field("Scale", Tep2))
+            if (ImGuIHelper::Vec3Field("Scale", Tep2))
             {
                 item->WorldScale(Tep2);
             }
@@ -740,7 +740,7 @@ void Inspect_Compoent2d::Insp_(UCode::Compoent* item, InspectWindow::InspectDraw
         }
         else
         {
-            Draw.DrawText("Cannot Inspect This Compoent2d");
+            ImGuIHelper::Text(StringView("Cannot Inspect This Compoent"));
         }
 
     }

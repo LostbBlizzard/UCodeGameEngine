@@ -116,10 +116,10 @@ inline void ScriptableAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInsp
 
 	String tep = "ScirptableObject/";
 	tep += _Object.GetClassName();
-	Item.Drawer->StringField("Type", tep);
+	ImGuIHelper::InputText("Type", tep);
 
 	String tep2 = FileFullPath.filename().replace_extension("").generic_string();
-	Item.Drawer->StringField("Name", tep2);
+	ImGuIHelper::InputText("Name", tep2);
 
 
 	ImGui::EndDisabled();

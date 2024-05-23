@@ -396,14 +396,14 @@ void PNGAssetFile::LiveingPng::DrawInspect(const UEditorAssetDrawInspectContext&
 
 
 	String tep = "Image/Png";
-	Item.Drawer->StringField("Type", tep);
+	ImGuIHelper::InputText("Type", tep);
 	ImGui::SameLine();
 	auto imageh = ImGui::GetFrameHeight();
 	ImGuIHelper::Image(AppFiles::sprite::Uility_image, { imageh ,imageh });
 
 
 	String tep2 = FileFullPath.filename().replace_extension("").generic_string();
-	Item.Drawer->StringField("Name", tep2);
+	ImGuIHelper::InputText("Name", tep2);
 
 
 	ImGui::EndDisabled();

@@ -28,6 +28,7 @@ const Array<KeyBindData, (KeyBindList_t)KeyBindList::Max>  UserSettings::KeyBind
 	KeyBindData(StringView("HierarchyWindow"),KeyBinding(InputKey::H)),
 	KeyBindData(StringView("GameWindow"),KeyBinding(InputKey::G)),
 	KeyBindData(StringView("InspectorWindow"),KeyBinding(InputKey::I)),
+	KeyBindData(StringView("Inspector2Window"),KeyBinding(InputKey::K)),
 	KeyBindData(StringView("ProjectWindow"),KeyBinding(InputKey::P)),
 	KeyBindData(StringView("UserWindow"),KeyBinding(InputKey::U)),
 	KeyBindData(StringView("ConsoleWindow"),KeyBinding(InputKey::C)),

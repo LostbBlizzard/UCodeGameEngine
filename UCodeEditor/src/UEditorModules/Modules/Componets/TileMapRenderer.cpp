@@ -8,7 +8,11 @@ TileMapRenderUEditorData::TileMapRenderUEditorData()
 }
 void TileMapRenderUEditorData::DrawAsTree(const UEditorComponentDrawTreeData& Data, UCode::Compoent* Value) const
 {
-	UCode::TileMapRenderer* ValueAs = (UCode::TileMapRenderer*)Value;
+	UCode::TileMapRenderer* Component = (UCode::TileMapRenderer*)Value;
+
+	ImGuIHelper_Asset::AsssetField("Shader", Component->shader);
+	ImGuIHelper::ColorField("Color", Component->color);
+
 }
 
 void TileMapRenderUEditorData::DrawInspect(const UEditorComponentDrawData& Data, UCode::Compoent* Value) const
@@ -43,6 +47,10 @@ void TileMapRenderUEditorData::DrawInspect(const UEditorComponentDrawData& Data,
 		ImGui::PopID();
 		Value->Set_CompoentActive(V);
 	}
+
+	ImGuIHelper_Asset::AsssetField("Shader", ValueAs->shader);
+	ImGuIHelper::ColorField("Color", ValueAs->color);
+
 }
 
 EditorEnd
