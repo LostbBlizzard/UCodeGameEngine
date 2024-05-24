@@ -26,6 +26,9 @@ public:
 	static bool AsssetField(const char* FieldName, TilePalettePtr& Value);
 	static bool AsssetField(const char* FieldName, TilePaletteAssetPtr& Value);
 
+	static bool AsssetField(const char* FieldName, TileDataPtr& Value);
+	static bool AsssetField(const char* FieldName, TileDataAssetPtr& Value);
+
 	static bool AnyAsssetField(UID& Value);
 	static bool AnyAsssetField(StringView FieldName, UID& Value)
 	{

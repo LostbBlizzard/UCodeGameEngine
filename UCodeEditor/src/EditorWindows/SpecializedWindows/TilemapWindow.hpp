@@ -13,10 +13,21 @@ public:
 	~TilemapWindow() override;
 	void UpdateWindow() override;
 
+	void OnSaveWindow(USerializer& Input);
+	void OnLoadWindow(UDeserializer& JsonToOutof);
+
 	static EditorWindowData GetEditorData();
 private:
 	static EditorWindow* MakeWin(const NewEditorWindowData& windowdata);
+	enum class ToolBar
+	{
+		Draw,
+		Erase,
+		Move,
+		Copy,
+	};
 	TilePalettePtr _CurrentTilePalette;
+	ToolBar _toolbar = ToolBar::Draw;
 };
 
 EditorEnd 

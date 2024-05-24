@@ -996,15 +996,36 @@ void ProjectFilesWindow::ShowDirButtions()
                         UCode::Scene2dData::ToFile(NewPath, newScene, Get_ProjectData()->Get_ProjData()._SerializeType);
                         UpdateDir();
                     }
-
-                    if (ImGui::MenuItem("Tile Palette"))
+                    if (ImGui::BeginMenu("TileMap"))
                     {
-                        Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New Tile Palette").native()
-                            , Path(TilePalette::FileExtDot));
-                        TilePalette newScene = TilePalette();
-                        newScene._UID = Get_App()->Get_RunTimeProjectData()->GetNewUID();
-                        TilePalette::ToFile(NewPath, newScene, Get_ProjectData()->Get_ProjData()._SerializeType);
-                        UpdateDir();
+                        if (ImGui::MenuItem("Palette"))
+                        {
+                            Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New Tile Palette").native()
+                                , Path(TilePalette::FileExtDot));
+                            TilePalette newScene = TilePalette();
+                            newScene._UID = Get_App()->Get_RunTimeProjectData()->GetNewUID();
+                            TilePalette::ToFile(NewPath, newScene, Get_ProjectData()->Get_ProjData()._SerializeType);
+                            UpdateDir();
+                        }
+                        if (ImGui::MenuItem("Tile"))
+                        {
+                            Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New Tile").native()
+                                , Path(TileData::FileExtDot));
+                            TileData newScene = TileData();
+                            newScene._UID = Get_App()->Get_RunTimeProjectData()->GetNewUID();
+                            TileData::ToFile(NewPath, newScene, Get_ProjectData()->Get_ProjData()._SerializeType);
+                            UpdateDir();
+                        }
+                        if (ImGui::MenuItem("TilePack"))
+                        {
+                            Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New TilePack").native()
+                                , Path(TileDataPack::FileExtDot));
+                            TileDataPack newScene = TileDataPack();
+                            //newScene._UID = Get_App()->Get_RunTimeProjectData()->GetNewUID();
+                            TileDataPack::ToFile(NewPath, newScene, Get_ProjectData()->Get_ProjData()._SerializeType);
+                            UpdateDir();
+                        }
+                        ImGui::EndMenu();
                     }
                     ImGui::EndMenu();
                 }
