@@ -13,13 +13,27 @@ TilePaletteAssetFile::Liveing::~Liveing()
 
 void TilePaletteAssetFile::Liveing::Init(const UEditorAssetFileInitContext& Context)
 {
+	auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 	if (!TilePalette::FromFile(_Asset._Base, this->FileFullPath))
 	{
-		auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
-		
+
 		auto p = FileFullPath.generic_string();
 		auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
 		UCodeGEError("Unable to Read/Parse for " << relpath << " Failed");
+	}
+	else
+	{
+		auto& assetindex = runprojectdata->Get_AssetIndex();
+		if (!assetindex.FindFileUsingID(_Asset._Base._UID).has_value())
+		{
+			EditorIndex::IndexFile file;
+
+			auto assetdir = runprojectdata->GetAssetsDir();
+			file.RelativePath = FileFullPath.generic_string().substr(assetdir.generic_string().size());
+			file.RelativeAssetName = file.RelativePath;
+			file.UserID = _Asset._Base._UID;
+			assetindex._Files.push_back(std::move(file));
+		}
 	}
 }
 
@@ -59,12 +73,12 @@ void TilePaletteAssetFile::Liveing::SaveFile(const UEditorAssetFileSaveFileConte
 		UCodeGEError("Unable to Saveing for " << relpath << " Failed");
 	}
 }
-void TilePaletteAssetFile::Liveing::FileUpdated() 
+void TilePaletteAssetFile::Liveing::FileUpdated()
 {
 	if (!TilePalette::FromFile(_Asset._Base, this->FileFullPath))
 	{
 		auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
-		
+
 		auto p = FileFullPath.generic_string();
 		auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
 		UCodeGEError("Unable to Read/Parse for " << relpath << " Failed");
@@ -98,6 +112,14 @@ ExportFileRet TilePaletteAssetFile::ExportFile(const Path& path, const ExportFil
 
 Optional<GetUIDInfo> TilePaletteAssetFile::GetFileUID(UEditorGetUIDContext& context)
 {
+	TilePalette palette;
+	if (TilePalette::FromFile(palette, context.AssetPath))
+	{
+		GetUIDInfo info;
+		info._MainAssetID = palette._UID;
+
+		return info;
+	}
 	return Optional<GetUIDInfo>();
 }
 EditorEnd

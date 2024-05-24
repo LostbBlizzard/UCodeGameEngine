@@ -12,6 +12,189 @@
 EditorStart
 
 
+template<typename T>
+bool AsssetField_t(RunTimeProjectData* ProjectData,const char* FieldName, T& Value,const char* FileExtDot,AppFiles::sprite sprite)
+{
+	struct ObjectSceneAssetInfo
+	{
+		Path _RelativePath;
+		UID _UID;
+	};
+
+	Vector<ObjectSceneAssetInfo> List;
+	{
+		ObjectSceneAssetInfo P;
+		P._RelativePath = "None";
+
+		List.push_back(std::move(P));
+	}
+
+	Path ext = FileExtDot;
+
+	for (auto& Item : ProjectData->Get_AssetIndex()._Files)
+	{
+		if (!Item.UserID.has_value())
+		{
+			continue;
+		}
+
+		if (Path(Item.RelativePath).extension() != ext)
+		{
+			continue;
+		}
+
+		ObjectSceneAssetInfo P;
+		P._RelativePath = Item.RelativePath;
+		P._UID = Item.UserID.value();
+
+		List.push_back(std::move(P));
+	}
+
+	String MyName = "None";
+
+	if (Value.Has_UID()) {
+		for (auto& Item : List)
+		{
+			if (Item._UID == Value.Get_UID())
+			{
+				MyName = Item._RelativePath.generic_string();
+				break;
+			}
+		}
+	}
+
+	ImGuIHelper::ObjectFieldData data;
+	data.OnFileDroped = [ProjectData,FileExtDot](const Path& fullpath, void* object, ImGuIHelper::ObjectDropState state) -> bool
+		{
+			T& objectas =*(T*)object;
+
+			if (state == ImGuIHelper::ObjectDropState::CanBeDroped)
+			{
+				return (fullpath.extension() == FileExtDot);	
+			}
+			else if (state == ImGuIHelper::ObjectDropState::OnDroped)
+			{
+				auto& editorindex = ProjectData->Get_AssetIndex();
+				auto assetpath = ProjectData->GetAssetsDir();
+				Path relativepath = fullpath.native().substr(assetpath.native().size());
+
+				auto opasset = editorindex.FindFileRelativeAssetName(relativepath.generic_string());
+				if (opasset.has_value())
+				{
+					auto& asset = opasset.value();
+					if (asset.UserID.has_value())
+					{
+						objectas = asset.UserID.value();
+						return true;
+					}
+				}
+				return false;
+			}
+
+		};
+	data.OnObjectInList = [sprite](void* Ptr, void* Object, bool Listmode, const String& Find)
+		{
+			T& Value = *(T*)Ptr;
+			ObjectSceneAssetInfo* obj = (ObjectSceneAssetInfo*)Object;
+
+			auto Name = obj->_RelativePath.generic_string();
+			bool r = false;
+
+
+			if (StringHelper::Fllter(Find, Name))
+			{
+
+				if (Listmode)
+				{
+					auto imagesize = ImGui::GetFrameHeight();
+					ImGuIHelper::Image(sprite, { imagesize,imagesize });
+					ImGui::SameLine();
+
+					//ImGui::PushID(Object);
+					r = ImGui::Selectable(Name.c_str(),Value.Has_UID() ? Value.Get_UID() == obj->_UID : false);
+					//ImGui::PopID();
+
+					if (r)
+					{
+						Value = obj->_UID;
+						r = true;
+					}
+				}
+				else
+				{
+					auto NewName = Name;
+					ImGuIHelper::Text(NewName);
+					auto imagesize = ImGui::GetFrameHeight();
+					if (ImGuIHelper::ImageButton(obj + NewName.size(), AppFiles::sprite::Scene2dData, { imagesize,imagesize }))
+					{
+						Value = obj->_UID;
+						r = true;
+					}
+				}
+			}
+
+			return r;
+		};
+	data.OnInspect = [](void* object) -> bool
+		{
+			T& objectas = *(T*)object;
+
+			auto p = EditorAppCompoent::GetCurrentEditorAppCompoent();
+
+
+			bool r = false;
+			if (auto win = p->Get_Window<ProjectFilesWindow>())
+			{
+				if (objectas.Has_UID()) 
+				{
+					win->OpenAndFocusOnAsset(objectas.Get_UID());
+					r = true;
+				}
+			}
+			return r;
+		};
+	data.OnCopy = [](void* object) -> String
+		{
+			T& objectas = *(T*)object;
+
+			UID id = objectas.Has_UID() ? objectas.Get_UID() : UID();
+			return UserSettings::SetCopyBufferAsValueStr("_AssetUID",id);
+		};
+	data.OnPatse = [ProjectData,FileExtDot](void* object, const String& Paste) -> bool
+		{
+			bool isgood = false;
+			T& objectas = *(T*)object;
+			
+			auto idop = UserSettings::ReadCopyBufferAs<UID>("_AssetUID",Paste);
+		
+			if (idop.has_value())
+			{
+				UID id = idop.value();
+
+				auto& editorindex = ProjectData->Get_AssetIndex();
+				auto opasset = editorindex.FindFileUsingID(id);
+
+				if (opasset.has_value())
+				{
+					if (Path(opasset.value().RelativeAssetName).extension() == Path(FileExtDot))
+					{
+						objectas = id;
+						isgood = true;
+					}
+				}
+			}
+			return isgood;
+		};
+	data.OnDestory = [](void* object)
+		{
+			T& objectas = *(T*)object;
+			objectas = UID();
+		};
+
+	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
+		data, sprite, MyName);
+}
+
 
 float minscorebefordontshow()
 {
@@ -417,212 +600,11 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ShaderPtr& Val
 	data);
 }
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Value)
-{
-	struct ObjectSceneAssetInfo
-	{
-		Path _RelativePath;
-		UID _UID;
-	};
-
-	Vector<ObjectSceneAssetInfo> List;
-	{
-		ObjectSceneAssetInfo P;
-		P._RelativePath = "None";
-
-		List.push_back(std::move(P));
-	}
-
-	Path ext = UCode::Scene2dData::FileExtDot;
-
-	for (auto& Item : ProjectData->Get_AssetIndex()._Files)
-	{
-		if (!Item.UserID.has_value())
-		{
-			continue;
-		}
-
-		if (Path(Item.RelativePath).extension() != Path(ext))
-		{
-			continue;
-		}
-
-		ObjectSceneAssetInfo P;
-		P._RelativePath = Item.RelativePath;
-		P._UID = Item.UserID.value();
-
-		List.push_back(std::move(P));
-	}
-
-	String MyName = "None";
-
-	if (Value.Has_UID()) {
-		for (auto& Item : List)
-		{
-			if (Item._UID == Value.Get_UID())
-			{
-				MyName = Item._RelativePath.generic_string();
-				break;
-			}
-		}
-	}
-
-	ImGuIHelper::ObjectFieldData data;
-	data.OnFileDroped = [](const Path& fullpath, void* object, ImGuIHelper::ObjectDropState state) -> bool
-		{
-			UCode::ScencPtr& objectas =*(UCode::ScencPtr*)object;
-
-			if (state == ImGuIHelper::ObjectDropState::CanBeDroped)
-			{
-				return (fullpath.extension() == UCode::Scene2dData::FileExtDot);	
-			}
-			else if (state == ImGuIHelper::ObjectDropState::OnDroped)
-			{
-				auto& editorindex = ProjectData->Get_AssetIndex();
-				auto assetpath = ProjectData->GetAssetsDir();
-				Path relativepath = fullpath.native().substr(assetpath.native().size());
-
-				auto opasset = editorindex.FindFileRelativeAssetName(relativepath.generic_string());
-				if (opasset.has_value())
-				{
-					auto& asset = opasset.value();
-					if (asset.UserID.has_value())
-					{
-						objectas = asset.UserID.value();
-						return true;
-					}
-				}
-				return false;
-			}
-
-		};
-	data.OnObjectInList = [](void* Ptr, void* Object, bool Listmode, const String& Find)
-		{
-			UCode::ScencPtr& Value = *(UCode::ScencPtr*)Ptr;
-			ObjectSceneAssetInfo* obj = (ObjectSceneAssetInfo*)Object;
-
-			auto Name = obj->_RelativePath.generic_string();
-			bool r = false;
-
-
-			if (StringHelper::Fllter(Find, Name))
-			{
-
-				if (Listmode)
-				{
-					auto imagesize = ImGui::GetFrameHeight();
-					ImGuIHelper::Image(AppFiles::sprite::Scene2dData, { imagesize,imagesize });
-					ImGui::SameLine();
-
-					//ImGui::PushID(Object);
-					r = ImGui::Selectable(Name.c_str(), Value.Get_UID() == obj->_UID);
-					//ImGui::PopID();
-
-					if (r)
-					{
-						Value = obj->_UID;
-						r = true;
-					}
-				}
-				else
-				{
-					auto NewName = Name;
-					ImGuIHelper::Text(NewName);
-					auto imagesize = ImGui::GetFrameHeight();
-					if (ImGuIHelper::ImageButton(obj + NewName.size(), AppFiles::sprite::Scene2dData, { imagesize,imagesize }))
-					{
-						Value = obj->_UID;
-						r = true;
-					}
-				}
-			}
-
-			return r;
-		};
-	data.OnInspect = [](void* object) -> bool
-		{
-			UCode::ScencPtr& objectas = *(UCode::ScencPtr*)object;
-
-			auto p = EditorAppCompoent::GetCurrentEditorAppCompoent();
-
-
-			bool r = false;
-			if (auto win = p->Get_Window<ProjectFilesWindow>())
-			{
-				if (objectas.Has_UID()) 
-				{
-					win->OpenAndFocusOnAsset(objectas.Get_UID());
-					r = true;
-				}
-			}
-			return r;
-		};
-	data.OnCopy = [](void* object) -> String
-		{
-			UCode::ScencPtr& objectas = *(UCode::ScencPtr*)object;
-
-			UID id = objectas.Has_UID() ? objectas.Get_UID() : UID();
-			return UserSettings::SetCopyBufferAsValueStr("_AssetUID",id);
-		};
-	data.OnPatse = [](void* object, const String& Paste) -> bool
-		{
-			bool isgood = false;
-			UCode::ScencPtr& objectas = *(UCode::ScencPtr*)object;
-			
-			auto idop = UserSettings::ReadCopyBufferAs<UID>("_AssetUID",Paste);
-		
-			if (idop.has_value())
-			{
-				UID id = idop.value();
-
-				auto& editorindex = ProjectData->Get_AssetIndex();
-				auto opasset = editorindex.FindFileUsingID(id);
-
-				if (opasset.has_value())
-				{
-					if (Path(opasset.value().RelativeAssetName).extension() == Path(UCode::Scene2dData::FileExtDot))
-					{
-						objectas = id;
-						isgood = true;
-					}
-				}
-			}
-			return isgood;
-		};
-	data.OnDestory = [](void* object)
-		{
-			UCode::ScencPtr& objectas = *(UCode::ScencPtr*)object;
-			objectas = UID();
-		};
-
-	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
-		data, AppFiles::sprite::Scene2dData, MyName);
+{	
+	return AsssetField_t<UCode::ScencPtr>(ProjectData,FieldName, Value, UC::Scene2dData::FileExtDot, AppFiles::sprite::Scene2dData);
 }
+
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencAssetPtr& Value)
-{
-	struct ObjectSceneAssetInfo
-	{
-		UID _UID;
-	};
-	Vector<ObjectSceneAssetInfo> List;
-	for (auto& Item : ProjectData->Get_AssetIndex()._Files)
-	{
-		ObjectSceneAssetInfo P;
-
-		List.push_back(std::move(P));
-	}
-	ImGuIHelper::ObjectFieldData data;
-	data.OnObjectInList = [](void* Ptr, void* Object, bool Listmode, const String& Find)
-		{
-			bool r = false;
-			return r;
-		};
-
-
-	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
-	data);
-}
-
-bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TilePalettePtr& Value)
 {
 	return false;
 }
@@ -632,6 +614,21 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TilePaletteAssetPtr& 
 	return false;
 }
 
+
+bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TilePalettePtr& Value)
+{
+	return AsssetField_t<TilePalettePtr>(ProjectData,FieldName, Value, TilePalette::FileExtDot, AppFiles::sprite::TilePalette);
+}
+
+bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TileDataPtr& Value)
+{
+	return AsssetField_t<TileDataPtr>(ProjectData,FieldName, Value, TileData::FileExtDot, AppFiles::sprite::TileAsset);
+}
+
+bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TileDataAssetPtr& Value)
+{
+	return false;
+}
 UCode::Sprite* GetAssetSpriteFromUID(const UID& value)
 {
 	return AppFiles::GetSprite(AppFiles::sprite::UCodeAssetIcon);
