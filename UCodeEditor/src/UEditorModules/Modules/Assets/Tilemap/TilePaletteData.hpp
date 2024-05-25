@@ -47,7 +47,7 @@ struct TileDataPack
 		String _Name;
 		TileData _Data;
 	};
-	UC::TextureAssetPtr _BaseTexture;
+	UC::TexturePtr _BaseTexture;
 	Vector<PackTile> List;
 
 	inline static const char* FileExt = "UTilePack";

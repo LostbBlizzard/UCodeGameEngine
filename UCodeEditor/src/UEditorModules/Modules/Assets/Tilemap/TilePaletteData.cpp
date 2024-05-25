@@ -1,5 +1,6 @@
 #include "TilePaletteData.hpp"
-
+#include "UCodeRunTime/ULibrarys/Serialization/Bit_Implementation/AsssetPtr.hpp"
+#include "UCodeRunTime/ULibrarys/Serialization/Yaml_Implementation/AsssetPtr.hpp"
 EditorStart
 void TilePalette::PushData(USerializer& node) const
 {
@@ -57,11 +58,13 @@ bool TileData::ToFile(const Path& path, const TileData& data, USerializerType Ty
 
 void TileDataPack::PushData(USerializer& node) const
 {
+	node.Write("TextureAtlas", _BaseTexture);
 	node.Write("Tiles", List);
 }
 
 bool TileDataPack::FromString(TileDataPack& out, UDeserializer& text)
 {
+	text.ReadType("TextureAtlas", out._BaseTexture,out._BaseTexture);
 	text.ReadType("Tiles", out.List, out.List);
 	return true;
 }

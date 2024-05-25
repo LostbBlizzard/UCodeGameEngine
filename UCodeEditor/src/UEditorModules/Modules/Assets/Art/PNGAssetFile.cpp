@@ -18,6 +18,13 @@ PNGAssetFile::LiveingPng::LiveingPng()
 
 }
 
+
+Unordered_map<UID, PNGAssetFile::TextureSettings*> SettingsMap;
+PNGAssetFile::LiveingPng::~LiveingPng()
+{
+	SettingsMap.erase(setting.uid);
+}
+
 void PNGAssetFile::LiveingPng::LoadAssetIfNeeded(SpriteItem& spr)
 {
 	if (!spr._Asset.get())
@@ -329,6 +336,9 @@ inline NullablePtr<UC::Asset> PNGAssetFile::LiveingPng::LoadAsset(const LoadAsse
 		UCode::TextureAsset V(UCode::Texture::MakeNewPlaceHolderTexture());
 		SetupTexture(&V._Base);
 		asset = std::move(V);
+		asset.value().Uid = setting.uid;
+
+		SettingsMap.AddValue(setting.uid,&setting);
 
 		auto lib = EditorAppCompoent::GetCurrentEditorAppCompoent()->GetGameRunTime()->Get_Library_Edit();
 
@@ -516,6 +526,7 @@ void PNGAssetFile::LiveingPng::DrawInspect(const UEditorAssetDrawInspectContext&
 				windowdata.dragoffset = {};
 			}
 			ImGui::Columns(2);
+			ImGui::SetColumnOffset(1, 150.0f);
 			{
 				ImGui::BeginChild("Tp");
 
@@ -914,8 +925,8 @@ void PNGAssetFile::LiveingPng::DrawInspect(const UEditorAssetDrawInspectContext&
 
 					ImGuIHelper::Image(tex, *(ImVec2*)&objectsize);
 				}
+				ImGui::EndChild();
 			}
-			ImGui::EndChild();
 
 		}
 		ImGui::End();
@@ -1052,6 +1063,14 @@ Optional<GetUIDInfo> PNGAssetFile::GetFileUID(UEditorGetUIDContext& context)
 
 		val._MainAssetID = newid;
 		return val;
+	}
+	return {};
+}
+NullablePtr<PNGAssetFile::TextureSettings> PNGAssetFile::GetTextureSettings(const UID& id)
+{
+	if (SettingsMap.HasValue(id))
+	{
+		return SettingsMap.GetValue(id);
 	}
 	return {};
 }
