@@ -42,5 +42,12 @@ public:
 
 	inline static UCode::AssetManager* AssetManager =nullptr;
 	inline static RunTimeProjectData* ProjectData = nullptr;
+
+	enum class AssetSpriteType
+	{
+		Icon,
+		AssetType,
+	};
+	static UCode::Sprite* GetAssetSpriteFromUID(const UID& value,AssetSpriteType Type);
 };
 EditorEnd
