@@ -167,7 +167,6 @@ void TileAssetFile::Liveing::SaveFile(const UEditorAssetFileSaveFileContext& Con
 
 		UCodeGEError("Unable to Saveing for " << relpath << " Failed");
 	}
-
 }
 
 
