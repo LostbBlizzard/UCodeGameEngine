@@ -8,6 +8,7 @@
 #include "Assets/Core/SceneAssetFile.hpp"
 #include "Assets/Tilemap/TilePalette.hpp"
 #include "Assets/Tilemap/Tile.hpp"
+#include "Assets/Tilemap/TilePack.hpp"
 
 #include "Componets/Camera.hpp"
 #include "Componets/SpriteRenderer.hpp"
@@ -35,6 +36,7 @@ void CoreModule::Init()
 		Assets.push_back(Unique_ptr<UEditorAssetFileData>(new MP3AssetFile()));
 		Assets.push_back(Unique_ptr<UEditorAssetFileData>(new TilePaletteAssetFile()));
 		Assets.push_back(Unique_ptr<UEditorAssetFileData>(new TileAssetFile()));
+		Assets.push_back(Unique_ptr<UEditorAssetFileData>(new TilePackAssetFile()));
 	}
 
 	{

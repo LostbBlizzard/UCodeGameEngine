@@ -4,6 +4,8 @@
 #include "Typedefs.hpp"
 #include "Serialization.hpp"
 #include "UCodeRunTime/ULibrarys/Rendering/TileMapRenderer2d.hpp"
+#include "UCodeRunTime/ULibrarys/Serialization/SerlizeableType.hpp"
+#include "UCodeRunTime/ULibrarys/Serialization/UseUSerializerForYamlAndBit.hpp"
 EditorStart
 
 struct TilePalette
@@ -33,10 +35,20 @@ struct TileData
 	static bool FromFile(TileData& out, const Path& Path);
 	static bool ToFile(const Path& path,const TileData& data, USerializerType Type);
 };
+EditorEnd
 
+UseUSerializerForYamlAndBit(UCodeEditor::TileData);
+
+EditorStart
 struct TileDataPack
 {
-	Vector<TileData> List;
+	struct PackTile
+	{
+		String _Name;
+		TileData _Data;
+	};
+	UC::TextureAssetPtr _BaseTexture;
+	Vector<PackTile> List;
 
 	inline static const char* FileExt = "UTilePack";
 	inline static const char* FileExtDot = ".UTilePack";
@@ -47,6 +59,14 @@ struct TileDataPack
 	static bool FromFile(TileDataPack& out, const Path& Path);
 	static bool ToFile(const Path& path,const TileDataPack& data, USerializerType Type);
 };
+EditorEnd
+
+MakeSerlizeType(UCodeEditor::TileDataPack::PackTile,
+ Field("_Name", _this->_Name);
+ Field("_Data", _this->_Data);
+);
+
+EditorStart
 struct TilePaletteAsset : UC::Asset
 {
 public:
