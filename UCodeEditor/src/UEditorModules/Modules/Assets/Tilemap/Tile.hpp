@@ -9,6 +9,7 @@ class TileAssetFile :public UEditorAssetFileData
 {
 public:
 	TileAssetFile();
+	~TileAssetFile();
 	bool Draw(UEditorAssetDataConext& Data, const Path& path) override;
 	
 	

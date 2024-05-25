@@ -20,7 +20,7 @@ public:
 		return { (UEditorComponentData**)Components.data(),Components.size() };
 	}
 private:
-	Array<Unique_ptr<UEditorAssetFileData>,6> Assets;
-	Array<Unique_ptr<UEditorComponentData>,3> Components;
+	Vector<Unique_ptr<UEditorAssetFileData>> Assets;
+	Vector<Unique_ptr<UEditorComponentData>> Components;
 };
 EditorEnd
