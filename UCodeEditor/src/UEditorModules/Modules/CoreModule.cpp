@@ -29,18 +29,18 @@ void CoreModule::Init()
 	ID = UCODEEDITOR_MODULENAME_CORE;
 
 	{
-		Assets[0] = Unique_ptr<UEditorAssetFileData>(new ScencAssetFile());
-		Assets[1] = std::move(Unique_ptr<UEditorAssetFileData>(new PNGAssetFile()));
-		Assets[2] = std::move(Unique_ptr<UEditorAssetFileData>(new EntityAssetFile()));
-		Assets[3] = std::move(Unique_ptr<UEditorAssetFileData>(new MP3AssetFile()));
-		Assets[4] = std::move(Unique_ptr<UEditorAssetFileData>(new TilePaletteAssetFile()));
-		Assets[5] = std::move(Unique_ptr<UEditorAssetFileData>(new TileAssetFile()));
+		Assets.push_back(Unique_ptr<UEditorAssetFileData>(new ScencAssetFile()));
+		Assets.push_back(Unique_ptr<UEditorAssetFileData>(new PNGAssetFile()));
+		Assets.push_back(Unique_ptr<UEditorAssetFileData>(new EntityAssetFile()));
+		Assets.push_back(Unique_ptr<UEditorAssetFileData>(new MP3AssetFile()));
+		Assets.push_back(Unique_ptr<UEditorAssetFileData>(new TilePaletteAssetFile()));
+		Assets.push_back(Unique_ptr<UEditorAssetFileData>(new TileAssetFile()));
 	}
 
 	{
-		Components[0] = std::move(Unique_ptr<UEditorComponentData>(new SpriteRendererUEditorData()));
-		Components[1] = std::move(Unique_ptr<UEditorComponentData>(new CameraUEditorData()));
-		Components[2] = std::move(Unique_ptr<UEditorComponentData>(new TileMapRenderUEditorData()));
+		Components.push_back(Unique_ptr<UEditorComponentData>(new SpriteRendererUEditorData()));
+		Components.push_back(Unique_ptr<UEditorComponentData>(new CameraUEditorData()));
+		Components.push_back(Unique_ptr<UEditorComponentData>(new TileMapRenderUEditorData()));
 	}
 }
 EditorEnd

@@ -9,6 +9,10 @@ TileAssetFile::TileAssetFile()
 	FileExtWithDot = TileData::FileExtDot;
 }
 
+TileAssetFile::~TileAssetFile()
+{
+}
+
 bool TileAssetFile::Draw(UEditorAssetDataConext& Data, const Path& path)
 {
 	return false;
