@@ -1,4 +1,63 @@
 #include "TilePaletteData.hpp"
+
+namespace YAML
+{
+	template<>
+    struct convert<UCodeEditor::TileData>
+    {
+        using TypePtr = UCodeEditor::TileData;
+        static Node encode(const TypePtr& rhs) 
+		{
+
+			UCode::USerializer serializer(UCode::USerializerType::YAML);
+			rhs.PushData(serializer);
+
+			auto& maker = serializer.Get_TextMaker();
+			UCode::String r = maker.c_str();
+
+			
+			return YAML::Load(r);
+        }
+
+		static bool decode(const Node& node, TypePtr& rhs)
+		{
+			UCode::UDeserializer serializer("");
+			serializer.Get_TextReader() = node;
+
+			return TypePtr::FromString(rhs, serializer);
+		}
+    };
+
+
+}
+CoreStart
+
+template<>
+struct BitData<UCodeEditor::TileData>
+{
+	using TypePtr = UCodeEditor::TileData;
+	static void ToBytes(BitMaker& This, const TypePtr& Value)
+	{
+		UCode::USerializer serializer(UCode::USerializerType::Bytes);
+		Value.PushData(serializer);
+
+		Vector<UCode::Byte> bytes;
+		serializer.ToBytes(bytes, false);
+
+		This.WriteBytes(bytes.data(), bytes.size());
+	}
+	
+	static void FromBytes(BitReader& This, TypePtr& Out)
+	{
+		UCode::UDeserializer serializer(BytesView::Make((Byte*)This.Get_OffsetDataPointer(),This.GetBytesSize()));
+
+		TypePtr::FromString(Out, serializer);
+	
+		This.Addoffset(serializer.Get_BitReader().GetBytesOffset());
+	}
+};
+
+CoreEnd
 EditorStart
 void TilePalette::PushData(USerializer& node) const
 {
@@ -56,21 +115,31 @@ bool TileData::ToFile(const Path& path, const TileData& data, USerializerType Ty
 
 void TileDataPack::PushData(USerializer& node) const
 {
+	node.Write("Tiles", List);
 }
 
-bool TileDataPack::FromString(TilePalette& out, UDeserializer& text)
+bool TileDataPack::FromString(TileDataPack& out, UDeserializer& text)
 {
-	return false;
+	text.ReadType("Tiles", out.List, out.List);
+	return true;
 }
 
 bool TileDataPack::FromFile(TileDataPack& out, const Path& Path)
 {
-	return false;
+	UDeserializer V;
+	bool A = UDeserializer::FromFile(Path, V);
+	if (A)
+	{
+		return FromString(out, V);
+	}
+	return A;
 }
 
 bool TileDataPack::ToFile(const Path& path, const TileDataPack& data, USerializerType Type)
 {
-	return false;
+	USerializer V(Type);
+	data.PushData(V);
+	return V.ToFile(path);
 }
 EditorEnd
 
