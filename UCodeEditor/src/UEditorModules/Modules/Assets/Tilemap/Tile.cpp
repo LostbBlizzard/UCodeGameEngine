@@ -71,13 +71,55 @@ void TileAssetFile::Liveing::Init(const UEditorAssetFileInitContext& Context)
 
 bool TileAssetFile::Liveing::DrawButtion(const UEditorAssetDrawButtionContext& Item)
 {
-	return ImGuIHelper::ImageButton(Item.ObjectPtr, AppFiles::sprite::TilePalette, *(ImVec2*)&Item.ButtionSize);
+	UCode::Sprite* thumbnail = nullptr;
 
+	bool hasSprite = false;
+	auto& spriteptr = _Asset._Base._Data.Sprite;
+
+	if (!spriteptr.Has_Asset() && spriteptr.Has_UID())
+	{
+		auto app = EditorAppCompoent::GetCurrentEditorAppCompoent();
+
+		auto opasset = app->Get_AssetManager()->FindOrLoad_t<UC::SpriteAsset>(spriteptr.Get_UID());
+		if (opasset.has_value())
+		{
+			spriteptr = opasset.value().value()->GetManaged();
+		}
+	}
+	hasSprite = spriteptr.Has_Asset();
+
+	auto predrawpos = ImGui::GetCursorPos();
+	if (hasSprite)
+	{
+		{
+			auto imagescale = 3;
+			auto minimagesize = Item.ButtionSize / imagescale;
+			auto predrawasucode = Vec2(predrawpos.x, predrawpos.y);
+
+			auto newcursorpos = predrawasucode;
+			newcursorpos += {Item.ButtionSize.X - (minimagesize.X / 2), 0};
+
+			ImGui::SetCursorPos(ImVec2(newcursorpos.X, newcursorpos.Y));
+
+			ImGuIHelper::Image(AppFiles::sprite::TileAsset, *(ImVec2*)&minimagesize);
+
+			ImGui::SetCursorPos(predrawpos);
+		}
+
+		thumbnail = spriteptr.Get_Asset();
+	}
+	else
+	{
+
+		thumbnail = AppFiles::GetSprite(AppFiles::sprite::TileAsset);
+	}
+
+
+	return ImGuIHelper::ImageButton(Item.ObjectPtr, thumbnail, *(ImVec2*)&Item.ButtionSize);
 }
 void TileAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContext& Item)
 {
 	ImGui::BeginDisabled(true);
-
 
 	String tep = "Tilemap/Tile";
 	ImGuIHelper::InputText("Type", tep);
@@ -92,6 +134,12 @@ void TileAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContext& I
 
 	ImGui::EndDisabled();
 
+	ImGui::Separator();
+
+
+	auto& Data = _Asset._Base._Data;
+	ImGuIHelper_Asset::AsssetField("Sprite", Data.Sprite);
+	ImGuIHelper::ColorField(StringView("Color"), Data.Color);
 }
 NullablePtr<UCode::Asset> TileAssetFile::Liveing::LoadAsset(const LoadAssetContext& Item)
 {

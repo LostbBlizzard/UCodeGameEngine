@@ -159,6 +159,37 @@ public:
 	Optional<Assetptr> FindOrLoad(const UID& Path);
 	Optional<Assetptr> FindOrLoad(const Path& Path);
 
+	template<typename TAsset>
+	NullablePtr<TAsset> FindOrLoad_t(const UID& Path)
+	{
+		auto val = FindOrLoad(Path);
+		if (val.has_value())
+		{
+			auto opasset = val.value().Get_Value()->GetAssetAs<TAsset>();
+
+			if (opasset.has_value())
+			{
+				return opasset.value().value();
+			}
+		}
+		return {};
+	}
+	template<typename TAsset>
+	NullablePtr<TAsset> FindOrLoad_t(const Path& Path)
+	{
+		auto val = FindOrLoad(Path);
+		if (val.has_value())
+		{
+			auto opasset = val.value().Get_Value()->GetAssetAs<TAsset>();
+
+			if (opasset.has_value())
+			{
+				return opasset.value().value();
+			}
+		}
+		return {};
+	}
+
 	void Set_AssetLoader(AssetLoader* Loader)
 	{
 		_Loader = Loader;
