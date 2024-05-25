@@ -280,10 +280,10 @@ bool AssetField_tSprite(UCode::AssetManager* AssetManager,RunTimeProjectData* Pr
 				if (v.has_value())
 				{
 					if (v.value().Has_Value()) {
-						UCode::SpriteAsset* asset = dynamic_cast<UCode::SpriteAsset*>(v.value().Get_Value());
+						AssetType* asset = dynamic_cast<AssetType*>(v.value().Get_Value());
 						if (asset)
 						{
-							spr = &asset->_Base;
+							spr =GetSprite(*asset);
 						}
 					}
 				}
@@ -475,29 +475,17 @@ bool ImGuIHelper_Asset::DrawLayerField(const char* FieldName, UCode::RenderRunTi
 {
 	return ImGuIHelper::uInt8Field(FieldName, Value);
 }
-bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::TexturePtr& Value) 
-{ 
-	struct ObjectTextureAssetInfo
-	{
-		UID _UID;
-	};
-	Vector<ObjectTextureAssetInfo> List;
-	for (auto& Item : ProjectData->Get_AssetIndex()._Files)
-	{
-		ObjectTextureAssetInfo P;
-
-		List.push_back(std::move(P));
-	}
-	ImGuIHelper::ObjectFieldData data;
-	data.OnObjectInList = [](void* Ptr, void* Object, bool Listmode, const String& Find)
+bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::TexturePtr& Value)
+{
+	return AssetField_tSprite<UCode::TexturePtr, UCode::TextureAsset>(
+		AssetManager, ProjectData, FieldName, Value, ".png",
+		AppFiles::GetSprite(AppFiles::sprite::TextureAsset),
+		[](UCode::TextureAsset& value) -> UC::Sprite*
 		{
-			bool r = false;
-			return r;
-		};
-
-
-	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectTextureAssetInfo),
-		data);
+			static UC::Sprite tep = UC::Sprite(&value._Base, 0, 0, value._Base.Get_Width(), value._Base.Get_Height());;
+			tep = UC::Sprite(&value._Base, 0, 0, value._Base.Get_Width(), value._Base.Get_Height());
+			return &tep;
+		});
 }
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::TextureAssetPtr& Value)
 {
@@ -704,7 +692,16 @@ UCode::Sprite* ImGuIHelper_Asset::GetAssetSpriteFromUID(const UID& value, AssetS
 		}
 		if (ext == UC::TextureData::FileExtDot)
 		{
+			auto val = AssetManager->FindOrLoad_t<UC::TextureAsset>(value);
+			if (val.has_value())
+			{
+				auto& tex = val.value()->_Base;
 
+				static UC::Sprite tep = UC::Sprite(&tex, 0, 0, tex.Get_Height(), tex.Get_Width());
+				tep = UC::Sprite(&tex, 0, 0, tex.Get_Height(), tex.Get_Width());
+
+				return &tep;
+			}
 		}
 		if (ext == UC::TileData::FileExtDot)
 		{

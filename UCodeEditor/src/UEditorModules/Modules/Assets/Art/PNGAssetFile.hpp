@@ -54,7 +54,7 @@ public:
 	public:
 
 		LiveingPng();
-
+		~LiveingPng();
 		TextureSettings setting;
 		Optional<UCode::TextureAsset> asset;
 		bool IsLoadingTexture = false;
@@ -109,6 +109,8 @@ public:
 
 
 	Optional<GetUIDInfo> GetFileUID(UEditorGetUIDContext& context) override;
+
+	static NullablePtr<TextureSettings> GetTextureSettings(const UID& id);
 };
 
 EditorEnd
