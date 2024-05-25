@@ -539,6 +539,14 @@ public:
 		}
 	}
 
+	size_t GetBytesSize()
+	{
+		return _BytesSize;
+	}
+	size_t GetBytesOffset()
+	{
+		return _BitOffset;
+	}
 private:
 	const Byte* _Bytes = nullptr;
 	size_t _BytesSize = 0;

@@ -36,13 +36,13 @@ struct TileData
 
 struct TileDataPack
 {
-	Vector<UC::TileData> List;
+	Vector<TileData> List;
 
 	inline static const char* FileExt = "UTilePack";
 	inline static const char* FileExtDot = ".UTilePack";
 	
 	void PushData(USerializer& node) const;
-	static bool FromString(TilePalette& out, UDeserializer& text);
+	static bool FromString(TileDataPack& out, UDeserializer& text);
 
 	static bool FromFile(TileDataPack& out, const Path& Path);
 	static bool ToFile(const Path& path,const TileDataPack& data, USerializerType Type);
