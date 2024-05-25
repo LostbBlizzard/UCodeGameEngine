@@ -61,6 +61,22 @@ void PNGAssetFile::LiveingPng::DrawSubAssets(const UEditorDrawSubAssetContext& I
 			};
 
 		UCode::Sprite sp{ &asset.value()._Base,(i32)Spr.offset.X,(i32)Spr.offset.Y,(i32)Spr.size.X,(i32)Spr.size.Y };
+
+		auto predrawpos = ImGui::GetCursorPos();
+		{
+			auto imagescale = 3;
+			auto minimagesize = Item.ButtionSize / imagescale;
+			auto predrawasucode = Vec2(predrawpos.x, predrawpos.y);
+
+			auto newcursorpos = predrawasucode;
+			newcursorpos += {Item.ButtionSize.X - (minimagesize.X / 2), 0};
+
+			ImGui::SetCursorPos(ImVec2(newcursorpos.X, newcursorpos.Y));
+
+			ImGuIHelper::Image(AppFiles::sprite::SpriteAsset, *(ImVec2*)&minimagesize);
+
+			ImGui::SetCursorPos(predrawpos);
+		}
 		if (ImGuIHelper::ImageButton(&Spr, &sp, *(ImVec2*)&Item.ButtionSize))
 		{
 			auto App = EditorAppCompoent::GetCurrentEditorAppCompoent();
@@ -224,7 +240,21 @@ bool PNGAssetFile::LiveingPng::DrawButtion(const UEditorAssetDrawButtionContext&
 	LoadAsset(context);
 
 
+	auto predrawpos = ImGui::GetCursorPos();
+	{
+		auto imagescale = 3;
+		auto minimagesize = Item.ButtionSize / imagescale;
+		auto predrawasucode = Vec2(predrawpos.x, predrawpos.y);
 
+		auto newcursorpos = predrawasucode;
+		newcursorpos += {Item.ButtionSize.X - (minimagesize.X / 2), 0};
+
+		ImGui::SetCursorPos(ImVec2(newcursorpos.X, newcursorpos.Y));
+
+		ImGuIHelper::Image(AppFiles::sprite::TextureAsset, *(ImVec2*)&minimagesize);
+
+		ImGui::SetCursorPos(predrawpos);
+	}
 	return ImGuIHelper::ImageButton(Item.ObjectPtr, &asset.value()._Base, *(ImVec2*)&Item.ButtionSize);
 }
 

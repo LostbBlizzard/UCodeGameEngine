@@ -77,6 +77,9 @@ public:
 		TileMap = Uility_image,
 		TilePalette = Uility_image,
 		TileAsset = Uility_image,
+		TilePack = Uility_image,
+		SpriteAsset = AppIcon,
+		TextureAsset =AppIcon,
 
 		AudioIcon = Uility_image,
 		Linux_Platform,

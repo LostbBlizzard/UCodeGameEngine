@@ -9,6 +9,7 @@
 #include "Helper/UserSettings.hpp"
 #include "Editor/EditorAppCompoent.hpp"
 #include "EditorWindows/ProjectManagement/ProjectFilesWindow.hpp"
+#include "UCodeRunTime/ULibrarys/AssetManagement/RawEntityData.hpp"
 EditorStart
 
 
@@ -526,7 +527,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Val
 {
 	return AssetField_tSprite<UCode::SpritePtr, UCode::SpriteAsset>(
 		AssetManager,ProjectData, FieldName,Value, UC::SpriteData::FileExtDot,
-		AppFiles::GetSprite(AppFiles::sprite::AppIcon),
+		AppFiles::GetSprite(AppFiles::sprite::SpriteAsset),
 		[](UCode::SpriteAsset& value) -> UC::Sprite*
 		{
 			return &value._Base;
@@ -676,13 +677,56 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TileDataAssetPtr& Val
 
 UCode::Sprite* ImGuIHelper_Asset::GetAssetSpriteFromUID(const UID& value, AssetSpriteType Type)
 {
-	if (Type == AssetSpriteType::Icon)
+	auto& index = ProjectData->Get_AssetIndex();
+	auto file = index.FindFileUsingID(value);
+	if (!file.has_value())
 	{
-
 		return AppFiles::GetSprite(AppFiles::sprite::UCodeAssetIcon);
 	}
-	else if (Type ==AssetSpriteType::AssetType)
+
+
+	auto& asset = file.value();
+	auto ext = Path(asset.RelativeAssetName).extension().generic_string();
+
+
+	if (ext == UC::Scene2dData::FileExtDot)	{ return AppFiles::GetSprite(AppFiles::sprite::Scene2dData);}
+	else if (ext == UC::RawEntityData::FileExtDot){ return AppFiles::GetSprite(AppFiles::sprite::RawEntityData);}
+
+	if (Type == AssetSpriteType::Icon)
 	{
+		if (ext == UC::SpriteData::FileExtDot)
+		{
+			auto val = AssetManager->FindOrLoad_t<UC::SpriteAsset>(value);
+			if (val.has_value())
+			{
+				return &val.value()->_Base;
+			}
+		}
+		if (ext == UC::TextureData::FileExtDot)
+		{
+
+		}
+		if (ext == UC::TileData::FileExtDot)
+		{
+			auto val = AssetManager->FindOrLoad_t<UC::TileAsset>(value);
+			if (val.has_value())
+			{
+				auto& SpriteUID = val.value()->_Base.Sprite;
+				if (SpriteUID.Has_UID())
+				{
+					return GetAssetSpriteFromUID(SpriteUID.Get_UID(),Type);
+				}
+			}
+		}
+	}
+	
+	
+	{
+		if (ext == UC::TileData::FileExtDot) { return AppFiles::GetSprite(AppFiles::sprite::TileAsset); }
+		if (ext == TileDataPack::FileExtDot) { return AppFiles::GetSprite(AppFiles::sprite::TilePack); }
+		if (ext == TilePalette::FileExtDot) { return AppFiles::GetSprite(AppFiles::sprite::TilePalette); }
+		if (ext == UC::SpriteData::FileExtDot) { return AppFiles::GetSprite(AppFiles::sprite::SpriteAsset); }
+		if (ext == UC::TextureData::FileExtDot) { return AppFiles::GetSprite(AppFiles::sprite::TextureAsset); }
 
 		return AppFiles::GetSprite(AppFiles::sprite::UCodeAssetIcon);
 	}
