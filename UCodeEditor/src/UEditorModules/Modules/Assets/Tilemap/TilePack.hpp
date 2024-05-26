@@ -30,6 +30,7 @@ public:
 		void RenameTile(size_t Index, const String& newname);
 		void RemoveTile(size_t Index);
 		void DrawSubAssets(const UEditorDrawSubAssetContext& Item) override;
+		void NewTile(TileDataPack::PackTile&& tile);
 	};
 	Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
 	{

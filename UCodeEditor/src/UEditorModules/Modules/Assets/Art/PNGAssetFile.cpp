@@ -57,7 +57,7 @@ void PNGAssetFile::LiveingPng::DrawSubAssets(const UEditorDrawSubAssetContext& I
 	for (auto& Spr : setting.sprites)
 	{
 		UEditorDrawSubAssetContext::DoneDraw ondraw;
-		ondraw.AssetName = Spr.spritename;
+		ondraw.AssetName = Spr.spritename + UCode::SpriteData::FileExtDot;
 		ondraw.OnAssetRename = [](String&)
 			{
 
@@ -129,7 +129,7 @@ void PNGAssetFile::LiveingPng::DrawSubAssets(const UEditorDrawSubAssetContext& I
 			Vec2 imagesize = { ImageHight,ImageHight };
 			if (OnDropable)
 			{
-				String Text = "Drop " + Spr.spritename + "Here?";
+				String Text = "Drop " + Spr.spritename + " Here?";
 
 				ImGuIHelper::Text(Text);
 				ImGui::SameLine();
@@ -145,7 +145,9 @@ void PNGAssetFile::LiveingPng::DrawSubAssets(const UEditorDrawSubAssetContext& I
 			ImGui::EndDragDropSource();
 		}
 
+		ImGui::PushID(&Spr);
 		Item.OnDoneDrawingAssetButton(ondraw);
+		ImGui::PopID();
 	}
 }
 

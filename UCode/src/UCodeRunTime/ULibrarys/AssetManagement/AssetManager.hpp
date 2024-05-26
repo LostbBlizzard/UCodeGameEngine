@@ -77,7 +77,7 @@ public:
 	{
 		constexpr bool IsCompoent = std::is_base_of<Asset, T>();
 		static_assert(IsCompoent, " 'T' is not a Compoent");
-		return Nullableptr(dynamic_cast<T*>(this));
+		return UCode::Nullableptr(dynamic_cast<T*>(this));
 	}
 	Asset* GetAsset()
 	{
