@@ -210,14 +210,7 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 		
 		ImGui::Columns(2,nullptr,false);
 
-		static bool first = false;
-		bool onfirstframe = false;
-		if (first == false)
-		{
-			first = true;
-			onfirstframe= true;
-			ImGui::SetColumnOffset(1, 150.0f);
-		}
+		ImGui::SetColumnOffset(1, 150.0f);
 		{
 			ImGui::BeginChild("test2", {}, 0, flags);	
 	
@@ -497,7 +490,7 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 
 						auto run = app->Get_RunTimeProjectData();
 						auto& index = run->Get_AssetIndex();
-						for (size_t i = 0; i < _Data.List.size(); i++)
+						for (size_t i = 0; i < texturesettings->sprites.size(); i++)
 						{
 							auto& item = texturesettings->sprites[i];
 							auto& LastOut = _Data.List[i];
@@ -517,6 +510,16 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 							}
 						}
 						auto relpath = FileHelper::ToRelativePath(run->GetAssetsDir(), this->FileFullPath).generic_string();
+
+						i32 tilesize = 0;
+						if (texturesettings->sprites.size())
+						{
+							tilesize = texturesettings->sprites.front().size.X;
+							if (tilesize == 0)
+							{
+								tilesize = 1;
+							}
+						}
 						for (size_t i = _Data.List.size(); i < texturesettings->sprites.size(); i++)
 						{
 							auto& item = texturesettings->sprites[i];
@@ -525,6 +528,8 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 							newtile._Name = item.spritename;
 							newtile._Data._UID = app->Get_RunTimeProjectData()->GetNewUID();
 							newtile._Data._Data.Sprite = item.uid;	
+							newtile.X = item.offset.X / tilesize;
+							newtile.Y = item.offset.Y / tilesize;
 
 							EditorIndex::IndexFile file;
 							file.UserID = newtile._Data._UID;
@@ -611,6 +616,18 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 				{
 					size_t MaxGridX = 5;
 					size_t MaxGridY = 5;
+					size_t Padding = 2;
+					for (auto& Item : _Data.List)
+					{
+						if (Item.X > MaxGridX - Padding)
+						{
+							MaxGridX = Item.X + Padding;
+						}
+						if (Item.Y > MaxGridY - Padding)
+						{
+							MaxGridY = Item.Y + Padding;
+						}
+					}
 					float GridSize = 50;
 
 					ImU32 spritebordercolor = ImGuIHelper::ColorToImguiU32(Color32());
