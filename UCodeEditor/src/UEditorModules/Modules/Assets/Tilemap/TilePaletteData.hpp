@@ -46,6 +46,9 @@ struct TileDataPack
 	{
 		String _Name;
 		TileData _Data;
+
+		i32 X = 0;
+		i32 Y = 0;
 	};
 	UC::TexturePtr _BaseTexture;
 	Vector<PackTile> List;
@@ -64,6 +67,8 @@ EditorEnd
 MakeSerlizeType(UCodeEditor::TileDataPack::PackTile,
  Field("_Name", _this->_Name);
  Field("_Data", _this->_Data);
+ Field("X", _this->X);
+ Field("Y", _this->Y);
 );
 
 EditorStart
