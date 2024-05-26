@@ -690,7 +690,7 @@ UCode::Sprite* ImGuIHelper_Asset::GetAssetSpriteFromUID(const UID& value, AssetS
 				return &val.value()->_Base;
 			}
 		}
-		if (ext == UC::TextureData::FileExtDot)
+		if (ext == ".png")
 		{
 			auto val = AssetManager->FindOrLoad_t<UC::TextureAsset>(value);
 			if (val.has_value())
@@ -705,13 +705,18 @@ UCode::Sprite* ImGuIHelper_Asset::GetAssetSpriteFromUID(const UID& value, AssetS
 		}
 		if (ext == UC::TileData::FileExtDot)
 		{
-			auto val = AssetManager->FindOrLoad_t<UC::TileAsset>(value);
+			auto val = AssetManager->FindOrLoad(value);
 			if (val.has_value())
 			{
-				auto& SpriteUID = val.value()->_Base.Sprite;
-				if (SpriteUID.Has_UID())
+				auto p = dynamic_cast<TileDataAsset*>(val.value().Get_Value());
+				auto check = UC::Nullableptr<TileDataAsset>(p);
+				if (check.has_value()) 
 				{
-					return GetAssetSpriteFromUID(SpriteUID.Get_UID(),Type);
+					auto& SpriteUID = check.value().value()->_Base._Data.Sprite;
+					if (SpriteUID.Has_UID())
+					{
+						return GetAssetSpriteFromUID(SpriteUID.Get_UID(), Type);
+					}
 				}
 			}
 		}
