@@ -184,6 +184,31 @@ bool AsssetField_t(RunTimeProjectData* ProjectData,const char* FieldName, T& Val
 					}
 				}
 			}
+			else 
+			{
+				auto pathop = UserSettings::ReadCopyBufferAs<Path>("AssetPath",Paste);
+
+				if (pathop.has_value())
+				{
+					auto& editorindex = ProjectData->Get_AssetIndex();
+					auto rel = FileHelper::ToRelativePath(ProjectData->GetAssetsDir(), pathop.value().generic_string()).generic_string();
+					auto opasset = editorindex.FindFileRelativeAssetName(rel);
+				
+					
+					if (opasset.has_value())
+					{
+						auto asset = opasset.value();
+						if (Path(opasset.value().RelativeAssetName).extension() == Path(FileExtDot))
+						{
+							if (asset.UserID.has_value())
+							{
+								objectas = asset.UserID.value();
+								isgood = true;
+							}
+						}
+					}
+				}
+			}
 			return isgood;
 		};
 	data.OnDestory = [](void* object)
@@ -449,6 +474,30 @@ bool AssetField_tSprite(UCode::AssetManager* AssetManager,RunTimeProjectData* Pr
 					{
 						objectas = id;
 						isgood = true;
+					}
+				}
+			}
+			else 
+			{
+				auto pathop = UserSettings::ReadCopyBufferAs<Path>("AssetPath",Paste);
+
+				if (pathop.has_value())
+				{
+					auto& editorindex = ProjectData->Get_AssetIndex();
+					auto rel = FileHelper::ToRelativePath(ProjectData->GetAssetsDir(), pathop.value().generic_string()).generic_string();
+					auto opasset = editorindex.FindFileRelativeAssetName(rel);					
+					
+					if (opasset.has_value())
+					{
+						auto& asset = opasset.value();
+						if (Path(opasset.value().RelativeAssetName).extension() == Path(FileExtDot)) 
+						{
+							if (asset.UserID.has_value())
+							{
+								objectas = asset.UserID.value();
+								isgood = true;
+							}
+						}
 					}
 				}
 			}
@@ -936,6 +985,28 @@ bool ImGuIHelper_Asset::AnyAsssetField(UID& Value)
 					isgood = true;
 				}
 			}
+			else 
+			{
+				auto pathop = UserSettings::ReadCopyBufferAs<Path>("AssetPath",Paste);
+
+				if (pathop.has_value())
+				{
+					auto& editorindex = ProjectData->Get_AssetIndex();
+					auto rel = FileHelper::ToRelativePath(ProjectData->GetAssetsDir(), pathop.value().generic_string()).generic_string();
+					auto opasset = editorindex.FindFileRelativeAssetName(rel);					
+					
+					if (opasset.has_value())
+					{
+						auto asset = opasset.value();
+
+						if (asset.UserID.has_value())
+						{
+							objectas = asset.UserID.value();
+							isgood = true;
+						}
+					}
+				}
+			}
 			return isgood;
 		};
 	data.OnDestory = [](void* object)
@@ -1057,54 +1128,33 @@ bool ImGuIHelper_Asset::IconField(StringView FieldName, UCode::SpritePtr& Value,
 		}
 		ImGui::EndPopup();
 	}
+
+	bool isspect = false;
+	bool iscopy = false;
+	bool ispaste = false;
+	bool isdelete = false;
 	if (ImGui::IsItemFocused())
 	{
 		auto& Settings = UserSettings::GetSettings();
 
 		if (Settings.IsKeybindActive(KeyBindList::Inspect))
 		{
-			auto p = EditorAppCompoent::GetCurrentEditorAppCompoent();
-
-			if (auto win = p->Get_Window<ProjectFilesWindow>())
-			{
-				if (Value.Has_UID()) 
-				{
-					win->OpenAndFocusOnAsset(Value.Get_UID());
-				}
-			}
-
+			isspect = true;
 		}
+
 		if (Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-			UID id = Value.Has_UID() ? Value.Get_UID() : UID();
-			
-			UserSettings::SetCopyBufferAsValue("_AssetUID", id);
+			iscopy = true;
 		}
+
 		if (Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-			auto idop = UserSettings::ReadCopyBufferAs<UID>("_AssetUID");
-			
-			if (idop.has_value())
-			{
-				UID id = idop.value();
-
-				auto& editorindex = ProjectData->Get_AssetIndex();
-				auto opasset = editorindex.FindFileUsingID(id);
-
-				if (opasset.has_value())
-				{
-					if (Path(opasset.value().RelativeAssetName).extension() == Path(UCode::SpriteData::FileExtDot))
-					{
-						Value = id;
-						changed = true;
-					}
-				}
-			}	
-		}
+			ispaste = true;
+		}	
+		
 		if (Settings.IsKeybindActive(KeyBindList::Delete))
 		{
-			Value = UID();
-			changed = true;
+			isdelete = true;
 		}
 	}
 	if (ImGuIHelper::BeginPopupContextItem("IconFieldPopup"))
@@ -1116,63 +1166,101 @@ bool ImGuIHelper_Asset::IconField(StringView FieldName, UCode::SpritePtr& Value,
 
 		if (ImGui::MenuItem("Show Location", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Inspect))
 		{
-			auto p = EditorAppCompoent::GetCurrentEditorAppCompoent();
-
-			if (auto win = p->Get_Window<ProjectFilesWindow>())
-			{
-				if (Value.Has_UID())
-				{
-					win->OpenAndFocusOnAsset(Value.Get_UID());
-				}
-			}
+			isspect = true;
 			ImGui::CloseCurrentPopup();
 		}
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
 		if (ImGui::MenuItem("Copy", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Copy))
 		{
-			UID id = Value.Has_UID() ? Value.Get_UID() : UID();
-	
-			UserSettings::SetCopyBufferAsValue("_AssetUID", id);
-
+			iscopy = true;
 			ImGui::CloseCurrentPopup();
 		}
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
 		if (ImGui::MenuItem("Paste", str.c_str()) || Settings.IsKeybindActive(KeyBindList::Paste))
 		{
-			auto idop = UserSettings::ReadCopyBufferAs<UID>("_AssetUID");
-			
-			if (idop.has_value())
-			{
-				UID id = idop.value();
-
-				auto& editorindex = ProjectData->Get_AssetIndex();
-				auto opasset = editorindex.FindFileUsingID(id);
-
-				if (opasset.has_value())
-				{
-					if (Path(opasset.value().RelativeAssetName).extension() == Path(UCode::SpriteData::FileExtDot))
-					{
-						Value = id;
-						changed = true;
-					}
-				}
-			}
+			ispaste = true;
 			ImGui::CloseCurrentPopup();
 		}
 
 		str = Settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
 		if (ImGui::MenuItem("Set to None",str.c_str()) || Settings.IsKeybindActive(KeyBindList::Delete))
 		{	
-			Value = UID();
-			changed = true;
+			isdelete = true;
 			ImGui::CloseCurrentPopup();
 		}
 
 		ImGui::EndPopup();
 	}
 
+	if (isspect)
+	{
+		auto p = EditorAppCompoent::GetCurrentEditorAppCompoent();
+
+		if (auto win = p->Get_Window<ProjectFilesWindow>())
+		{
+			if (Value.Has_UID())
+			{
+				win->OpenAndFocusOnAsset(Value.Get_UID());
+			}
+		}
+	}
+	if (iscopy)
+	{
+		iscopy = true;
+		UID id = Value.Has_UID() ? Value.Get_UID() : UID();
+
+		UserSettings::SetCopyBufferAsValue("_AssetUID", id);
+	}
+	if (ispaste)
+	{
+		auto idop = UserSettings::ReadCopyBufferAs<UID>("_AssetUID");
+
+		if (idop.has_value())
+		{
+			UID id = idop.value();
+
+			auto& editorindex = ProjectData->Get_AssetIndex();
+			auto opasset = editorindex.FindFileUsingID(id);
+
+			if (opasset.has_value())
+			{
+				if (Path(opasset.value().RelativeAssetName).extension() == Path(UCode::SpriteData::FileExtDot))
+				{
+					Value = id;
+					changed = true;
+				}
+			}
+		}
+		else
+		{
+			auto pathop = UserSettings::ReadCopyBufferAs<Path>("AssetPath");
+
+			if (pathop.has_value())
+			{
+				auto& editorindex = ProjectData->Get_AssetIndex();
+				auto rel = FileHelper::ToRelativePath(ProjectData->GetAssetsDir(), pathop.value().generic_string()).generic_string();
+				auto opasset = editorindex.FindFileRelativeAssetName(rel);
+
+				if (opasset.has_value())
+				{
+					auto asset = opasset.value();
+
+					if (asset.UserID.has_value())
+					{
+						Value = asset.UserID.value();
+						changed = true;
+					}
+				}
+			}
+		}
+	}
+	if (isdelete)
+	{
+		Value = UID();
+		changed = true;
+	}
 
 	if (ImGui::BeginDragDropTarget())
 	{
