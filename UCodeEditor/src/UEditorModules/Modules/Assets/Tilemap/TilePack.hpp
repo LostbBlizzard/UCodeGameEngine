@@ -27,6 +27,8 @@ public:
 
 		void LoadAssetAt(size_t Index);
 		void OnFileLoaded();
+		void RenameTile(size_t Index, const String& newname);
+		void RemoveTile(size_t Index);
 		void DrawSubAssets(const UEditorDrawSubAssetContext& Item) override;
 	};
 	Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override

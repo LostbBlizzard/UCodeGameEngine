@@ -98,7 +98,7 @@ public:
 
 		bool ShouldBeUnloaded(const UEditorAssetShouldUnloadContext& Context) override;
 		void DrawInspect(const UEditorAssetDrawInspectContext& Item) override;
-
+		void RenmaeSprite(SpriteItem& Item, const String& newname);
 	};
 
 	Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override

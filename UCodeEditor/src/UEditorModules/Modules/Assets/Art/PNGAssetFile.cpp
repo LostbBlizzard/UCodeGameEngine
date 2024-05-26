@@ -421,6 +421,23 @@ bool PNGAssetFile::LiveingPng::ShouldBeUnloaded(const UEditorAssetShouldUnloadCo
 	return true;
 }
 
+void PNGAssetFile::LiveingPng::RenmaeSprite(SpriteItem& Item, const String& newname)
+{
+	auto runtimeproject = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+	auto& assetindex = runtimeproject->Get_AssetIndex();
+	auto f = assetindex.FindFileUsingID(Item.uid);
+	if (f.has_value())
+	{
+		auto& file = f.value();
+		file.RelativeAssetName = file.RelativePath + EditorIndex::SubAssetSeparator + Item.spritename + UCode::SpriteData::FileExtDot;
+
+		if (Item._Asset.get())
+		{
+			auto& asset = *Item._Asset.get();
+			asset.ObjectPath = file.RelativeAssetName;
+		}
+	}
+}
 void PNGAssetFile::LiveingPng::DrawInspect(const UEditorAssetDrawInspectContext& Item)
 {
 	if (isbroken) {
@@ -526,7 +543,13 @@ void PNGAssetFile::LiveingPng::DrawInspect(const UEditorAssetDrawInspectContext&
 				windowdata.dragoffset = {};
 			}
 			ImGui::Columns(2);
-			ImGui::SetColumnOffset(1, 150.0f);
+
+			static bool first = false;
+			if (first == false)
+			{
+				first = true;
+				ImGui::SetColumnOffset(1, 150.0f);
+			}
 			{
 				ImGui::BeginChild("Tp");
 
@@ -572,21 +595,9 @@ void PNGAssetFile::LiveingPng::DrawInspect(const UEditorAssetDrawInspectContext&
 
 						if (ImGuIHelper::InputText("Sprite Name", Item.spritename))
 						{
-							auto& assetindex = runtimeproject->Get_AssetIndex();
-							auto f = assetindex.FindFileUsingID(Item.uid);
-							if (f.has_value())
-							{
-								auto& file = f.value();
-								file.RelativeAssetName = file.RelativePath + EditorIndex::SubAssetSeparator + Item.spritename + UCode::SpriteData::FileExtDot;
-
-								if (Item._Asset.get())
-								{
-									auto& asset = *Item._Asset.get();
-									asset.ObjectPath = file.RelativeAssetName;
-								}
-							}
-
+							RenmaeSprite(Item, Item.spritename);
 						}
+
 
 						if (ImGuIHelper::uInt32Field("X offset", Item.offset.X))
 						{
