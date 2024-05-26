@@ -19,6 +19,7 @@ public:
 		UCODE_EDITOR_FORCEINLINE void SetPtrNull() { win->_Inspect._Data = nullptr; }
 		UCODE_EDITOR_FORCEINLINE AnyManagedPtr GetPtr() { return  win->_Inspect._Data; }
 
+		UCODE_EDITOR_FORCEINLINE void* GetData() { return  win->_Inspect._Data2; }
 	private:
 		InspectDrawer(InspectWindow* w) { win = w; }
 		InspectWindow* win;

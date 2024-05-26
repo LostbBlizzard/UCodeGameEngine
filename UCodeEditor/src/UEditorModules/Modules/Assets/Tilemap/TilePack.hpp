@@ -16,7 +16,7 @@ public:
 		Liveing();
 		~Liveing();
 		TileDataPack _Data;
-		Vector<TileDataAsset> _Assets;
+		Vector<Optional<TileDataAsset>> _Assets;
 		void Init(const UEditorAssetFileInitContext& Context) override;
 
 		bool DrawButtion(const UEditorAssetDrawButtionContext& Item);
@@ -24,6 +24,10 @@ public:
 		NullablePtr<UCode::Asset> LoadAsset(const LoadAssetContext& Item) override;
 		void FileUpdated() override;
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override;
+
+		void LoadAssetAt(size_t Index);
+		void OnFileLoaded();
+		void DrawSubAssets(const UEditorDrawSubAssetContext& Item) override;
 	};
 	Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
 	{
