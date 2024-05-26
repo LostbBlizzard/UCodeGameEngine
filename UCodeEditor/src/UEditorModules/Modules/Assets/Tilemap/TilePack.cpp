@@ -1,6 +1,7 @@
 #include "TilePack.hpp"
 #include "Editor/EditorAppCompoent.hpp"
 #include "../Art/PNGAssetFile.hpp"
+#include "Helper/UserSettings.hpp"
 EditorStart
 
 TilePackAssetFile::TilePackAssetFile()
@@ -56,7 +57,40 @@ void DrawInspectTile(TileDataPtr  ptr, TileDataPack::PackTile& tile)
 	}
 
 }
+void TilePackAssetFile::Liveing::RenameTile(size_t Index, const String& newname)
+{
+	auto& Item = _Data.List[Index];
+	auto& AssetItem = _Assets[Index];
 
+	Item._Name = newname;
+
+	auto runtimeproject = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+	auto& assetindex = runtimeproject->Get_AssetIndex();
+	auto f = assetindex.FindFileUsingID(Item._Data._UID);
+	if (f.has_value())
+	{
+		auto& file = f.value();
+		file.RelativeAssetName = file.RelativePath + EditorIndex::SubAssetSeparator + newname + TileData::FileExtDot;
+
+		if (AssetItem.has_value())
+		{
+			auto& asset = AssetItem.value();
+			asset.ObjectPath = file.RelativeAssetName;
+		}
+	}
+}
+void TilePackAssetFile::Liveing::RemoveTile(size_t Index)
+{
+	auto& Item = _Data.List[Index];
+	auto& AssetItem = _Assets[Index];
+
+	auto runtimeproject = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+	auto& assetindex = runtimeproject->Get_AssetIndex();
+	assetindex.RemoveIndexFileWithUID(Item._Data._UID);
+
+	_Assets.erase(_Assets.begin() + Index);
+	_Data.List.erase(_Data.List.begin() + Index);
+}
 void TilePackAssetFile::Liveing::LoadAssetAt(size_t Index)
 {
 	auto& Item = _Data.List[Index];
@@ -154,9 +188,16 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 		ImGuiWindowFlags flags = ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollbar;
 		flags |= ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollWithMouse;
 
+		auto& settings = UserSettings::GetSettings();
 		
 		ImGui::Columns(2);
-        ImGui::SetColumnOffset(1, 150.0f);
+
+		static bool first = false;
+		if (first == false)
+		{
+			first = true;
+			ImGui::SetColumnOffset(1, 150.0f);
+		}
 		{
 			ImGui::BeginChild("test2", {}, 0, flags);
 			{
@@ -188,26 +229,90 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 					}
 					ImGuIHelper::Image(spr, size);
 					ImGui::SameLine();
+					static Optional<size_t> isrenameing;
 
-					if (ImGui::Selectable(Item._Name.c_str(), false))
+					bool isrenamemode = isrenameing.has_value() && isrenameing.value() == i;
+					if (isrenamemode)
 					{
-						if (!AssetItem.has_value())
+						static String newname;
+						newname = Item._Name;
+						ImGui::SetKeyboardFocusHere();
+						bool renameing = true;
+
+						auto style = ImGui::GetStyleColorVec4(ImGuiCol_::ImGuiCol_ChildBg);
+						ImGui::PushStyleColor(ImGuiCol_::ImGuiCol_FrameBg, style);
+	
+						ImGuIHelper::DrawRenameName(newname, renameing);
+						
+						ImGui::PopStyleColor();
+						if (renameing == false)
 						{
-							LoadAssetAt(i);
+							RenameTile(i,newname);
+							isrenameing = {};
 						}
-						auto win = app->Get_Window<InspectWindow>();
-						InspectWindow::InspectData data;
-						data._Data = UC::AnyManagedPtr::As(AssetItem.value().Get_Managed());
-						data._Data2 = &Item;
-						data._Draw = [](InspectWindow::InspectDrawer& draw)
+					}
+					else
+					{
+						if (ImGui::Selectable(Item._Name.c_str(), false))
+						{
+							if (!AssetItem.has_value())
 							{
-								TileDataPtr ptr = UC::AnyManagedPtr::As<TileDataAsset>(draw.GetPtr());
-								TileDataPack::PackTile* tile = (TileDataPack::PackTile*)draw.GetData();
-								DrawInspectTile(ptr, *tile);
-							};
-						win->Inspect(data);
+								LoadAssetAt(i);
+							}
+							auto win = app->Get_Window<InspectWindow>();
+							InspectWindow::InspectData data;
+							data._Data = UC::AnyManagedPtr::As(AssetItem.value().Get_Managed());
+							data._Data2 = &Item;
+							data._Draw = [](InspectWindow::InspectDrawer& draw)
+								{
+									TileDataPtr ptr = UC::AnyManagedPtr::As<TileDataAsset>(draw.GetPtr());
+									TileDataPack::PackTile* tile = (TileDataPack::PackTile*)draw.GetData();
+									DrawInspectTile(ptr, *tile);
+								};
+							win->Inspect(data);
+						}
+					}
+					bool isrename = false;
+					bool isdelete = false;
+					if (ImGui::IsItemFocused())
+					{
+						if (settings.IsKeybindActive(KeyBindList::Rename))
+						{
+							isrename = true;
+						}
+						if (settings.IsKeybindActive(KeyBindList::Delete))
+						{
+							isdelete = true;
+						}
 					}
 
+					ImGui::PushID(&Item);
+					if (ImGuIHelper::BeginPopupContextItem("TileItem"))
+					{
+						String str = settings.KeyBinds[(size_t)KeyBindList::Rename].ToString();
+						if (ImGui::MenuItem("Rename", str.c_str()) || settings.IsKeybindActive(KeyBindList::Rename))
+						{
+							isrename = true;
+							ImGui::CloseCurrentPopup();
+						}
+						str = settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
+						if (ImGui::MenuItem("Delete", str.c_str()) || settings.IsKeybindActive(KeyBindList::Delete))
+						{
+							isdelete = true;
+							ImGui::CloseCurrentPopup();
+						}
+
+						ImGui::EndPopup();
+					}
+					ImGui::PopID();
+					if (isrename)
+					{
+						isrenameing = i;
+					}
+					if (isdelete)
+					{
+						RemoveTile(i);
+					}
 				}
 			}
 			ImGui::EndChild();
@@ -239,8 +344,8 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 						shouldcloseAtlastSettings = true;
 
 						_Data.List.reserve(texturesettings->sprites.size());
-						_Assets.reserve(texturesettings->sprites.size());
 						_Assets.clear();
+						_Assets.resize(texturesettings->sprites.size());
 
 						auto run = app->Get_RunTimeProjectData();
 						auto& index = run->Get_AssetIndex();
@@ -543,9 +648,8 @@ Optional<GetUIDInfo> TilePackAssetFile::GetFileUID(UEditorGetUIDContext& context
 	if (TileDataPack::FromFile(palette, context.AssetPath))
 	{
 		GetUIDInfo info;
-		//info._MainAssetID = palette._UID;
 
-		info._SubAssets.resize(palette.List.size());
+		info._SubAssets.reserve(palette.List.size());
 		for (auto& Item : palette.List)
 		{
 			GetSubAssetData val;
