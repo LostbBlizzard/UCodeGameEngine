@@ -2,6 +2,7 @@
 #include "Editor/EditorAppCompoent.hpp"
 #include "../Art/PNGAssetFile.hpp"
 #include "Helper/UserSettings.hpp"
+#include "Imgui/imgui_internal.h"
 EditorStart
 
 TilePackAssetFile::TilePackAssetFile()
@@ -45,6 +46,23 @@ void DrawInspectTile(TileDataPtr  ptr, TileDataPack::PackTile& tile)
 	{
 		return;
 	}
+	ImGui::BeginDisabled(true);
+
+	String tep = "Tilemap/Tile";
+	ImGuIHelper::InputText("Type", tep);
+	ImGui::SameLine();
+	auto imageh = ImGui::GetFrameHeight();
+	ImGuIHelper::Image(AppFiles::sprite::TilePalette, { imageh ,imageh });
+
+
+	String tep2 = tile._Name;
+	ImGuIHelper::InputText("Name", tep2);
+
+
+	ImGui::EndDisabled();
+
+	ImGui::Separator();
+
 
 	auto& Data = ptr.Get_Asset()->_Data;
 	if (ImGuIHelper_Asset::AsssetField("Sprite", Data.Sprite))
@@ -199,7 +217,8 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 			ImGui::SetColumnOffset(1, 150.0f);
 		}
 		{
-			ImGui::BeginChild("test2", {}, 0, flags);
+			ImGui::BeginChild("test2", {}, 0, flags);	
+	
 			{
 				ImVec2 size = { ImGui::GetFrameHeight(),ImGui::GetFrameHeight() };
 				for (size_t i = 0; i < _Data.List.size(); i++)
@@ -273,6 +292,7 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 						}
 					}
 					bool isrename = false;
+					bool iscopy = false;
 					bool isdelete = false;
 					if (ImGui::IsItemFocused())
 					{
@@ -284,6 +304,10 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 						{
 							isdelete = true;
 						}
+						if (settings.IsKeybindActive(KeyBindList::Copy))
+						{
+							iscopy = true;
+						}
 					}
 
 					ImGui::PushID(&Item);
@@ -293,6 +317,12 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 						if (ImGui::MenuItem("Rename", str.c_str()) || settings.IsKeybindActive(KeyBindList::Rename))
 						{
 							isrename = true;
+							ImGui::CloseCurrentPopup();
+						}
+						str = settings.KeyBinds[(size_t)KeyBindList::Copy].ToString();
+						if (ImGui::MenuItem("Copy", str.c_str()) || settings.IsKeybindActive(KeyBindList::Copy))
+						{
+							iscopy = true;
 							ImGui::CloseCurrentPopup();
 						}
 						str = settings.KeyBinds[(size_t)KeyBindList::Delete].ToString();
@@ -313,9 +343,123 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 					{
 						RemoveTile(i);
 					}
+					if (iscopy)
+					{
+						Path subassetpath = Path(FileFullPath).native() + Path(EditorIndex::SubAssetSeparator).native()
+							+ Path(Item._Name).native() + Path(TileData::FileExtDot).native();
+
+						UserSettings::SetCopyBufferAsValue("AssetPath", subassetpath);
+					}
+				}
+			}
+			bool newtile = false;
+			bool pastetile = false;
+			bool canpaste = false;
+
+			auto runtimeprojectdata = app->Get_RunTimeProjectData();
+			{
+				auto pathop =  UserSettings::ReadCopyBufferAs<Path>("AssetPath");
+				if (pathop.has_value())
+				{
+					auto relpath = FileHelper::ToRelativePath(runtimeprojectdata->GetAssetsDir(), pathop.value()).generic_string();
+					auto v = runtimeprojectdata->Get_AssetIndex().FindFileRelativeAssetName(relpath);
+					if (v.has_value())
+					{
+						auto& Item = pathop.value();
+						auto ext = Item.extension();
+						if (ext == UCode::SpriteData::FileExtDot)
+						{
+							canpaste = true;
+						}
+						if (ext == UCode::TileData::FileExtDot)
+						{
+							canpaste = true;
+						}
+					}
+				}
+			}
+
+			ImGui::InvisibleButton("TileSpace", ImGui::GetContentRegionAvail());
+			if (ImGui::IsItemFocused())
+			{
+				if (settings.IsKeybindActive(KeyBindList::New))
+				{
+					newtile= true;
+				}
+				if (canpaste && settings.IsKeybindActive(KeyBindList::Paste))
+				{
+					pastetile = true;
+				}
+			}
+			if (ImGuIHelper::BeginPopupContextItem("TileList"))
+			{
+				String str = settings.KeyBinds[(size_t)KeyBindList::New].ToString();
+				if (ImGui::MenuItem("New", str.c_str()) || settings.IsKeybindActive(KeyBindList::New))
+				{
+					newtile = true;
+					ImGui::CloseCurrentPopup();
+				}
+
+				str = settings.KeyBinds[(size_t)KeyBindList::Paste].ToString();
+				if (ImGui::MenuItem("Paste", str.c_str(),nullptr,canpaste) || settings.IsKeybindActive(KeyBindList::Paste))
+				{
+					pastetile = true;
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::EndPopup();
+			}
+
+			if (newtile)
+			{
+				TileDataPack::PackTile tile;
+				tile._Name = "New Tile";
+				NewTile(std::move(tile));
+			}
+			if (pastetile)
+			{
+				auto pathop = UserSettings::ReadCopyBufferAs<Path>("AssetPath");
+				if (pathop.has_value())
+				{
+					auto relpath = FileHelper::ToRelativePath(runtimeprojectdata->GetAssetsDir(), pathop.value()).generic_string();
+					auto v = runtimeprojectdata->Get_AssetIndex().FindFileRelativeAssetName(relpath);
+					if (v.has_value())
+					{
+						auto& file = v.value();
+						auto& Item = pathop.value();
+
+						auto ext = Item.extension();
+						if (ext == UCode::SpriteData::FileExtDot)
+						{
+							TileDataPack::PackTile tile;
+							tile._Name = "New Tile";//Should be SpriteName
+
+							if (file.UserID.has_value())
+							{
+								tile._Data._Data.Sprite = file.UserID.value();
+							}
+							NewTile(std::move(tile));
+						}
+						if (ext == UCode::TileData::FileExtDot)
+						{
+							TileDataPack::PackTile tile;
+							tile._Name = "New Tile";//Should be SpriteName
+
+							if (file.UserID.has_value()) 
+							{
+								auto tiledata = app->Get_AssetManager()->FindOrLoad_t<TileDataAsset>(file.UserID.value());
+								if (tiledata)
+								{
+									tile._Data = tiledata.value()->_Base;
+								}
+							}
+							NewTile(std::move(tile));
+						}
+					}
 				}
 			}
 			ImGui::EndChild();
+
 		}
 		ImGui::NextColumn();
 		{	
@@ -520,7 +664,7 @@ void TilePackAssetFile::Liveing::SaveFile(const UEditorAssetFileSaveFileContext&
 }
 void TilePackAssetFile::Liveing::DrawSubAssets(const UEditorDrawSubAssetContext& Item)
 {
-		auto app = EditorAppCompoent::GetCurrentEditorAppCompoent();
+	auto app = EditorAppCompoent::GetCurrentEditorAppCompoent();
 	for (size_t i = 0; i < _Data.List.size(); i++)
 	{
 		auto& ListItem = _Data.List[i];
@@ -532,7 +676,7 @@ void TilePackAssetFile::Liveing::DrawSubAssets(const UEditorDrawSubAssetContext&
 		}
 		auto& Asset = AssetItem.value();
 		UEditorDrawSubAssetContext::DoneDraw ondraw;
-		ondraw.AssetName = ListItem._Name;
+		ondraw.AssetName = ListItem._Name + TileData::FileExtDot;
 		ondraw.OnAssetRename = [](String&)
 			{
 
@@ -602,11 +746,11 @@ void TilePackAssetFile::Liveing::DrawSubAssets(const UEditorDrawSubAssetContext&
 
 		}
 
-		/*
+		
 		if (ImGui::BeginDragDropSource())
 		{
 			static Path tepAssetPath;
-			tepAssetPath = this->FileFullPath.native() + Path(EditorIndex::SubAssetSeparator).native() + Path(Spr.spritename).native() + Path(UCode::SpriteData::FileExtDot).native();
+			tepAssetPath = this->FileFullPath.native() + Path(EditorIndex::SubAssetSeparator).native() + Path(ListItem._Name).native() + Path(TileData::FileExtDot).native();
 			Path* p = &tepAssetPath;
 			bool OnDropable = ImGui::SetDragDropPayload(DragAndDropType_AssetPath, &p, sizeof(UCode::Path*));
 
@@ -617,25 +761,44 @@ void TilePackAssetFile::Liveing::DrawSubAssets(const UEditorDrawSubAssetContext&
 			Vec2 imagesize = { ImageHight,ImageHight };
 			if (OnDropable)
 			{
-				String Text = "Drop " + Spr.spritename + "Here?";
+				String Text = "Drop " + ListItem._Name + " Here?";
 
 				ImGuIHelper::Text(Text);
 				ImGui::SameLine();
-				ImGuIHelper::Image(&sp, *(ImVec2*)&imagesize);
+				ImGuIHelper::Image(Spr, *(ImVec2*)&imagesize);
 			}
 			else
 			{
-				ImGuIHelper::Text(Spr.spritename);
+				ImGuIHelper::Text(ListItem._Name);
 				ImGui::SameLine();
-				ImGuIHelper::Image(&sp, *(ImVec2*)&imagesize);
+				ImGuIHelper::Image(Spr, *(ImVec2*)&imagesize);
 			}
 
 			ImGui::EndDragDropSource();
 		}
-		*/
+		
 
+		ImGui::PushID(&ListItem);
 		Item.OnDoneDrawingAssetButton(ondraw);
+		ImGui::PopID();
 	}
+}
+void TilePackAssetFile::Liveing::NewTile(TileDataPack::PackTile&& tile)
+{
+	auto app = EditorAppCompoent::GetCurrentEditorAppCompoent();
+	auto runtimeprojectdata = app->Get_RunTimeProjectData();
+	tile._Data._UID = runtimeprojectdata->GetNewUID();
+
+	auto& index = app->Get_RunTimeProjectData()->Get_AssetIndex();
+	EditorIndex::IndexFile file;
+	file.UserID = tile._Data._UID;
+	file.RelativePath = FileHelper::ToRelativePath(runtimeprojectdata->GetAssetsDir(), FileFullPath).generic_string();
+	file.RelativeAssetName = file.RelativePath;
+	file.RelativeAssetName += EditorIndex::SubAssetSeparator + tile._Name;
+
+	index._Files.push_back(std::move(file));
+	_Data.List.push_back(std::move(tile));
+	_Assets.push_back({});
 }
 ExportFileRet TilePackAssetFile::ExportFile(const Path& path, const ExportFileContext& Item)
 {

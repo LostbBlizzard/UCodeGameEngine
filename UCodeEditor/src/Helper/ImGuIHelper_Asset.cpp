@@ -708,11 +708,10 @@ UCode::Sprite* ImGuIHelper_Asset::GetAssetSpriteFromUID(const UID& value, AssetS
 			auto val = AssetManager->FindOrLoad(value);
 			if (val.has_value())
 			{
-				auto p = dynamic_cast<TileDataAsset*>(val.value().Get_Value());
-				auto check = UC::Nullableptr<TileDataAsset>(p);
-				if (check.has_value()) 
+				auto val = AssetManager->FindOrLoad_t<TileDataAsset>(value);
+				if (val.has_value())
 				{
-					auto& SpriteUID = check.value().value()->_Base._Data.Sprite;
+					auto& SpriteUID = val.value()->_Base._Data.Sprite;
 					if (SpriteUID.Has_UID())
 					{
 						return GetAssetSpriteFromUID(SpriteUID.Get_UID(), Type);
