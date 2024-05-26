@@ -208,12 +208,14 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 
 		auto& settings = UserSettings::GetSettings();
 		
-		ImGui::Columns(2);
+		ImGui::Columns(2,nullptr,false);
 
 		static bool first = false;
+		bool onfirstframe = false;
 		if (first == false)
 		{
 			first = true;
+			onfirstframe= true;
 			ImGui::SetColumnOffset(1, 150.0f);
 		}
 		{
@@ -379,7 +381,9 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 				}
 			}
 
+			
 			ImGui::InvisibleButton("TileSpace", ImGui::GetContentRegionAvail());
+			
 			if (ImGui::IsItemFocused())
 			{
 				if (settings.IsKeybindActive(KeyBindList::New))
@@ -605,7 +609,123 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 				}
 				else
 				{
+					size_t MaxGridX = 5;
+					size_t MaxGridY = 5;
+					float GridSize = 50;
 
+					ImU32 spritebordercolor = ImGuIHelper::ColorToImguiU32(Color32());
+					ImU32 selecedspritebordercolor = ImGuIHelper::ColorToImguiU32(Color32(204, 161, 4));
+					ImU32  GridColor = spritebordercolor;
+
+					auto list = ImGui::GetWindowDrawList();
+
+					static Optional<size_t> HoldingTile = {};
+					bool dropedtile = false;
+					if (HoldingTile.has_value())
+					{
+						if (!ImGui::IsMouseDown(ImGuiMouseButton_::ImGuiMouseButton_Left))
+						{
+							dropedtile = true;
+						}
+					}
+
+					auto startpos = ImGui::GetWindowPos();
+					auto oldpos = ImGui::GetCursorPos();
+	
+					size_t G = 0;
+					for (size_t x = 0; x < MaxGridX; x++)
+					{
+						for (size_t y = 0; y < MaxGridY; y++)
+						{
+							auto xpos = x * GridSize;
+							auto ypos = y * GridSize;
+							list->AddRect(
+								{ startpos.x + (float)xpos   ,startpos.y + (float)ypos },
+								{ startpos.x + (float)(xpos + GridSize) , startpos.y + (float)(ypos + GridSize) },
+								GridColor
+							);
+
+							if (HoldingTile.has_value())
+							{
+								ImGui::SetCursorPos({ oldpos.x + (xpos),oldpos.y + (ypos) });
+								ImGui::PushID(G);
+								ImGui::InvisibleButton("gg", { GridSize,GridSize });
+								ImGui::PopID();
+
+								G++;
+
+								if (ImGui::IsItemHovered())
+								{
+									auto& CurrentItem = _Data.List[HoldingTile.value()];
+									
+									UC::Sprite* spr = nullptr;
+									{
+										if (CurrentItem._Data._Data.Sprite.Has_Asset())
+										{
+											spr = CurrentItem._Data._Data.Sprite.Get_Asset();
+										}
+										if (spr == nullptr)
+										{
+											spr = AppFiles::GetSprite(AppFiles::sprite::TileAsset);
+										}
+									}
+
+									ImGui::SetCursorPos({ oldpos.x + (xpos),oldpos.y + (ypos) });
+									ImGuIHelper::Image(spr, ImVec2(GridSize, GridSize));
+									if (dropedtile)
+									{
+										CurrentItem.X = x;
+										CurrentItem.Y = y;
+									}
+								}
+							}
+						}
+					}
+
+
+					if (dropedtile)
+					{
+						HoldingTile = {};
+					}
+				
+					for (size_t i = 0; i < _Data.List.size(); i++)
+					{
+						auto& Item = _Data.List[i];
+
+						UC::Sprite* spr = nullptr;
+						{
+							auto& SpritePtr = Item._Data._Data.Sprite;
+							if (SpritePtr.Has_UID() && !SpritePtr.Has_Asset())
+							{
+								auto val = app->Get_AssetManager()->FindOrLoad_t<UC::SpriteAsset>(SpritePtr.Get_UID());
+								if (val.has_value())
+								{
+									SpritePtr = val.value()->GetManaged();
+								}
+							}
+
+							if (SpritePtr.Has_Asset())
+							{
+								spr = SpritePtr.Get_Asset();
+							}
+						
+							if (spr == nullptr)
+							{
+								spr = AppFiles::GetSprite(AppFiles::sprite::TileAsset);
+							}
+						}
+
+						ImGui::SetCursorPos({ oldpos.x + (Item.X * GridSize),oldpos.y + (Item.Y * GridSize) });
+						ImGuIHelper::Image(spr, ImVec2(GridSize, GridSize));
+
+						if (!HoldingTile.has_value()) 
+						{
+							if (ImGui::IsMouseDown(ImGuiMouseButton_::ImGuiMouseButton_Left) && ImGui::IsItemHovered())
+							{
+								HoldingTile = i;
+							}
+						}
+					}
 				}
 			}
 			ImGui::EndChild();
