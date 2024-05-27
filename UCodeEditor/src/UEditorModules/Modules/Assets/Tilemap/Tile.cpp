@@ -65,6 +65,7 @@ void TileAssetFile::Liveing::Init(const UEditorAssetFileInitContext& Context)
 			file.UserID = _Asset._Base._UID;
 			assetindex._Files.push_back(std::move(file));
 		}
+		_Asset.Uid = _Asset._Base._UID;
 	}
 
 }
