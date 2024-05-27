@@ -31,6 +31,7 @@ public:
 		void RemoveTile(size_t Index);
 		void DrawSubAssets(const UEditorDrawSubAssetContext& Item) override;
 		void NewTile(TileDataPack::PackTile&& tile);
+		bool ShouldBeUnloaded(const UEditorAssetShouldUnloadContext& Context) override;
 	};
 	Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
 	{

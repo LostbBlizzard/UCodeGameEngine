@@ -74,6 +74,10 @@ void TilePaletteAssetFile::Liveing::SaveFile(const UEditorAssetFileSaveFileConte
 		UCodeGEError("Unable to Saveing for " << relpath << " Failed");
 	}
 }
+bool TilePaletteAssetFile::Liveing::ShouldBeUnloaded(const UEditorAssetShouldUnloadContext& Context)
+{
+	return _Asset.Get_Managed().GetCounter() == 1;
+}
 void TilePaletteAssetFile::Liveing::FileUpdated()
 {
 	if (!TilePalette::FromFile(_Asset._Base, this->FileFullPath))
@@ -98,6 +102,7 @@ NullablePtr<UCode::Asset> TilePaletteAssetFile::Liveing::LoadAsset(const LoadAss
 TilePaletteAssetFile::TilePaletteAssetFile()
 {
 	CanHaveLiveingAssets = true;
+	CallLiveingAssetsWhenUpdated = true;
 	FileExtWithDot = TilePalette::FileExtDot;
 }
 

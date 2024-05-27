@@ -3,7 +3,7 @@
 #include "Helper/ImGuIHelper.hpp"
 #include "EditorWindows/BasicWindows/GameEditorWindow.hpp"
 #include "Helper/ImGuIHelper_Asset.hpp"
-
+#include "Imgui/imgui_internal.h"
 #include "Editor/EditorAppCompoent.hpp"
 #include "UCodeRunTime/ULibrarys/Serialization/Yaml_Implementation/AsssetPtr.hpp"
 #include "UCodeRunTime/ULibrarys/Serialization/Bit_Implementation/AsssetPtr.hpp"
@@ -105,9 +105,11 @@ void TilemapWindow::UpdateWindow()
 			{
 				auto xpos = x * GridSize;
 				auto ypos = y * GridSize;
+
+				
 				list->AddRect(
-					{ startpos.x + (float)xpos   ,startpos.y + (float)ypos },
-					{ startpos.x + (float)(xpos + GridSize) , startpos.y + (float)(ypos + GridSize) },
+					{ -ImGui::GetScrollX() + startpos.x + (float)xpos   ,-ImGui::GetScrollY() + startpos.y + (float)ypos},
+					{ -ImGui::GetScrollX() + startpos.x + (float)(xpos + GridSize) ,-ImGui::GetScrollY() + startpos.y + (float)(ypos + GridSize) },
 					GridColor
 				);
 
@@ -205,19 +207,40 @@ void TilemapWindow::UpdateWindow()
 						justopened = true;
 					}
 					//ImGui::SetNextItemWidth(popwindowwdth/4);
-					bool wasset = ImGuIHelper_Asset::AsssetField("Set TIle", tile);
+					bool wasset = ImGuIHelper_Asset::AsssetField("Set Tile", tile);
 
 					if (wasset)
 					{
 						bool wasfound = false;
-						for (auto& Item : asset->_List)
-						{
-							if (Item.X == x && Item.Y == y)
-							{
-								wasfound = true;
 
-								Item.Ptr = std::move(tile); 
-								break;
+						bool isremove = tile.Has_UID() && tile.Get_UID() == UID();
+
+						if (isremove)
+						{
+							wasfound = true;
+							for (size_t i = 0; i < asset->_List.size(); i++)
+							{
+								auto& Item = asset->_List[i];
+
+								if (Item.X == x && Item.Y == y)
+								{
+									asset->_List.erase(asset->_List.begin() + i);
+									break;
+								}
+							}
+						}
+						else
+						{
+
+							for (auto& Item : asset->_List)
+							{
+								if (Item.X == x && Item.Y == y)
+								{
+									wasfound = true;
+
+									Item.Ptr = std::move(tile);
+									break;
+								}
 							}
 						}
 
@@ -238,6 +261,73 @@ void TilemapWindow::UpdateWindow()
 				{
 					justopened = false;
 				}
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					ImGuiDragDropFlags target_flags = 0;
+					target_flags |= ImGuiDragDropFlags_AcceptBeforeDelivery;
+					target_flags |= ImGuiDragDropFlags_AcceptNoDrawDefaultRect;
+
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragAndDropType_AssetPath, target_flags))
+					{
+						const Path* fullpath = *(Path**)payload->Data;
+
+
+						auto ext = Path(*fullpath).extension().generic_string();
+						bool canbedroped = ext ==TileData::FileExtDot || TileDataPack::FileExtDot;
+						if (payload->IsDelivery())
+						{
+							if (canbedroped)
+							{
+								auto app = EditorAppCompoent::GetCurrentEditorAppCompoent();
+								auto rundata = app->Get_RunTimeProjectData();
+
+								auto rel = FileHelper::ToRelativePath(rundata->GetAssetsDir(), *fullpath).generic_string();
+								auto& index = rundata->Get_AssetIndex();
+
+								auto valop = index.FindFileRelativeAssetName(rel);
+								if (valop.has_value())
+								{
+									auto& val = valop.value();
+
+
+									if (ext == TileData::FileExtDot)
+									{
+										if (val.UserID.has_value())
+										{
+											if (packtile.has_value())
+											{
+												packtile.value()->Ptr = val.UserID.value();
+											}
+											else
+											{
+												TilePalette::PaletteItem item;
+												item.X = x;
+												item.Y = y;
+												item.Ptr = val.UserID.value();
+												asset->_List.push_back(std::move(item));
+											}
+										}
+									}
+									else
+									{
+
+									}
+								}
+							}
+						}
+
+						if (canbedroped)
+						{
+							ImGuiContext& g = *GImGui;
+							ImGui::RenderDragDropTargetRect(g.DragDropTargetRect, g.DragDropTargetClipRect);
+						}
+					}
+
+
+					ImGui::EndDragDropTarget();
+				}
+
 
 				ImGui::PopID();
 				I++;

@@ -411,6 +411,15 @@ inline NullablePtr<UC::Asset> PNGAssetFile::LiveingPng::LoadAsset(const LoadAsse
 
 bool PNGAssetFile::LiveingPng::ShouldBeUnloaded(const UEditorAssetShouldUnloadContext& Context)
 {
+	if (asset.has_value())
+	{
+		bool isinuse = asset.value().GetManaged().GetCounter() > 1;
+
+		if (isinuse)
+		{
+			return false;
+		}
+	}
 	for (auto& Item : setting.sprites)
 	{
 		bool isinuse = Item._Asset.get() && Item._Asset->Get_Managed().GetCounter() > 1;
