@@ -675,15 +675,15 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TilePalettePtr& Value
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TileDataPtr& Value)
 {
 	
-	return AssetField_tSprite<TileDataPtr, UCode::TileAsset>(
+	return AssetField_tSprite<TileDataPtr, TileDataAsset>(
 		AssetManager,ProjectData, FieldName,Value, UC::TileData::FileExtDot,
 		AppFiles::GetSprite(AppFiles::sprite::TileAsset),
-		[](UCode::TileAsset& value) -> UC::Sprite*
+		[](TileDataAsset& value) -> UC::Sprite*
 		{
-			auto& assetptr = value._Base.Sprite;
+			auto& assetptr = value._Base._Data.Sprite;
 			UC::Sprite* r = nullptr;
 
-			if (assetptr.Has_UID() && !assetptr.Get_Asset())
+			if (assetptr.Has_UID() && !assetptr.Has_Asset())
 			{
 				auto val = AssetManager->FindOrLoad_t<UC::SpriteAsset>(assetptr.Get_UID());
 				if (val.has_value())
@@ -693,7 +693,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TileDataPtr& Value)
 				}
 			}
 			
-			if (assetptr.Get_Asset())
+			if (assetptr.Has_Asset())
 			{
 				r = assetptr.Get_Asset();
 			}
