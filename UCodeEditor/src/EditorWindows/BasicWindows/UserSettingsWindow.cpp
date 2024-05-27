@@ -6,6 +6,7 @@
 #include "Editor/EditorAppCompoent.hpp"
 #include "Plugin/ImGuiHelper_UPlugin.hpp"
 #include "UCodeRunTime/Rendering/InputHelper.hpp"
+#include "Imgui/imgui_internal.h"
 EditorStart
 UserSettingsWindow::UserSettingsWindow(const NewEditorWindowData& windowdata) : EditorWindow(windowdata)
 {
@@ -264,12 +265,25 @@ void UserSettingsWindow::UpdateWindow()
 			ImGuIHelper::InputPath("CodeEditor", Settings.CodeEditorPath, {}, ImGuIHelper::InputPathType::File, Span<String>(&RunableFilesExt[0], RunableFilesExtCount));
 
 
-			ImGuIHelper::InputText("Arguments to Pass", Settings.OpenCodeEditorFileArg);
+			ImGuiContext& g = *GImGui;
+			auto Size = g.FontSize + g.Style.FramePadding.y * 2;
+			ImVec2 minbuttionsize = { Size,Size };
+
+			
+			ImGuIHelper::ItemLabel(StringView("Arguments to Pass"), ImGuIHelper::ItemLabelFlag::Left);
+
+			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - (minbuttionsize.x + ImGui::GetStyle().FramePadding.y * 2));
+			ImGuIHelper::InputText(Settings.OpenCodeEditorFileArg);
+			ImGui::PopItemWidth();
 
 			if (IsShowingExampleArguments == false)
 			{
 				ImGui::SameLine();
-				if (ImGui::Button("..."))
+
+				ImGui::PushID(4);
+				bool v = ImGui::Button("+", minbuttionsize);
+				ImGui::PopID();
+				if (v)
 				{
 					IsShowingExampleArguments = true;
 				}
@@ -277,7 +291,7 @@ void UserSettingsWindow::UpdateWindow()
 			else
 			{
 				ImGui::SameLine();
-				if (ImGui::Button("Cancel"))
+				if (ImGui::Button("X",minbuttionsize))
 				{
 					IsShowingExampleArguments = false;
 				}
@@ -289,12 +303,12 @@ void UserSettingsWindow::UpdateWindow()
 
 					ImGui::PushID(&Item);
 
-					ImGuIHelper::Text(StringView(Item.EditorName)); ImGui::SameLine();
-
 					bool B = ImGui::Button("Select"); ImGui::SameLine();
 
+					ImGuIHelper::Text(StringView(Item.EditorName)); ImGui::SameLine();
+
 					ImGui::BeginDisabled(true);
-					ImGuIHelper::InputText(":", (String&)Item.Value);
+					ImGuIHelper::InputText("", (String&)Item.Value);
 					ImGui::EndDisabled();
 
 
