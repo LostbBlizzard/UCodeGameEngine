@@ -8,6 +8,7 @@ EditorStart
 TilePackAssetFile::TilePackAssetFile()
 {
 	CanHaveLiveingAssets = true;
+	CallLiveingAssetsWhenUpdated = true;
 	this->FileExtWithDot = TileDataPack::FileExtDot;
 }
 TilePackAssetFile::Liveing::Liveing()
@@ -142,6 +143,22 @@ void TilePackAssetFile::Liveing::OnFileLoaded()
 		}
 	}
 	_Assets.resize(_Data.List.size());
+}
+bool TilePackAssetFile::Liveing::ShouldBeUnloaded(const UEditorAssetShouldUnloadContext& Context)
+{
+	for (auto& Item : _Assets)
+	{
+
+		if (Item.has_value())
+		{
+			bool isinuse = Item.value().GetManaged().GetCounter() > 1;
+			if (isinuse)
+			{
+				return false;
+			}
+		}
+	}
+	return true;
 }
 void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContext& Item)
 {

@@ -27,6 +27,7 @@ public:
 		NullablePtr<UCode::Asset> LoadAsset(const LoadAssetContext& Item) override;
 		void FileUpdated() override;
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override;
+		bool ShouldBeUnloaded(const UEditorAssetShouldUnloadContext& Context) override;
 	};
 	Unique_ptr<UEditorAssetFile> GetMakeNewAssetFile() override
 	{

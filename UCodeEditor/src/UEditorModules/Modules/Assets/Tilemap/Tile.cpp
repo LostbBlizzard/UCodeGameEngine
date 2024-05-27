@@ -1,11 +1,13 @@
 #include "TilePalette.hpp"
 #include "Editor/EditorAppCompoent.hpp"
 #include "Tile.hpp"
+#include "Imgui/imgui_internal.h"
 EditorStart
 
 TileAssetFile::TileAssetFile()
 {
 	CanHaveLiveingAssets = true;
+	CallLiveingAssetsWhenUpdated = true;
 	FileExtWithDot = TileData::FileExtDot;
 }
 
@@ -116,7 +118,44 @@ bool TileAssetFile::Liveing::DrawButtion(const UEditorAssetDrawButtionContext& I
 	}
 
 
-	return ImGuIHelper::ImageButton(Item.ObjectPtr, thumbnail, *(ImVec2*)&Item.ButtionSize);
+	bool r = ImGuIHelper::ImageButton(Item.ObjectPtr, thumbnail, *(ImVec2*)&Item.ButtionSize);
+	if (ImGui::BeginDragDropSource())
+	{
+		static Path tepAssetPath;
+		tepAssetPath = this->FileFullPath.native();
+		Path* p = &tepAssetPath;
+		bool OnDropable = ImGui::SetDragDropPayload(DragAndDropType_AssetPath, &p, sizeof(UCode::Path*));
+
+		auto& g = *GImGui;
+		auto ImageHight = ImGui::GetFrameHeight();
+
+
+		Vec2 imagesize = { ImageHight,ImageHight };
+
+		auto tilename = this->FileFullPath.filename().replace_extension().generic_string();
+		if (OnDropable)
+		{
+			String Text = "Drop " + tilename + " Here?";
+
+			ImGuIHelper::Text(Text);
+		}
+		else
+		{
+			ImGuIHelper::Text(tilename);
+		}
+
+		ImGui::SameLine();
+		ImGuIHelper::Image(thumbnail, *(ImVec2*)&imagesize);
+		
+		ImGui::EndDragDropSource();
+	}
+
+	return r;
+}
+		
+bool TileAssetFile::Liveing::ShouldBeUnloaded(const UEditorAssetShouldUnloadContext& Context)
+{
+	return _Asset.Get_Managed().GetCounter() == 1;
 }
 void TileAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContext& Item)
 {

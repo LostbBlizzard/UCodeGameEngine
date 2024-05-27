@@ -406,7 +406,7 @@ bool AssetField_tSprite(UCode::AssetManager* AssetManager,RunTimeProjectData* Pr
 						}
 						else
 						{
-							Value = {};
+							Value = UID();
 						}
 						r = true;
 					}
@@ -692,7 +692,8 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TileDataPtr& Value)
 					assetptr = val.value()->GetManaged();
 				}
 			}
-			else if (assetptr.Get_Asset())
+			
+			if (assetptr.Get_Asset())
 			{
 				r = assetptr.Get_Asset();
 			}
