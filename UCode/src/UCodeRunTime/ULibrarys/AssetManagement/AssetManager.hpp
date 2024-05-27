@@ -41,10 +41,12 @@ public:
 	Asset(Asset&& asset) noexcept
 	{
 		_Managed.Set_Value(this);
+		Uid = std::move(asset.Uid);
 	}
 	Asset& operator=(Asset&& asset) noexcept
 	{
 		_Managed.Set_Value(this);
+		Uid = std::move(asset.Uid);
 		return *this;
 	}
 

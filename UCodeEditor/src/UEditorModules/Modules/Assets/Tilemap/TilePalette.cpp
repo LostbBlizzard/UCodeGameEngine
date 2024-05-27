@@ -23,6 +23,7 @@ void TilePaletteAssetFile::Liveing::Init(const UEditorAssetFileInitContext& Cont
 	}
 	else
 	{
+		_Asset.Uid = _Asset._Base._UID;
 		auto& assetindex = runprojectdata->Get_AssetIndex();
 		if (!assetindex.FindFileUsingID(_Asset._Base._UID).has_value())
 		{

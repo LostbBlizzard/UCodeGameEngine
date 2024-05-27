@@ -1,14 +1,14 @@
 #include "TilePaletteData.hpp"
-#include "UCodeRunTime/ULibrarys/Serialization/Bit_Implementation/AsssetPtr.hpp"
-#include "UCodeRunTime/ULibrarys/Serialization/Yaml_Implementation/AsssetPtr.hpp"
 EditorStart
 void TilePalette::PushData(USerializer& node) const
 {
 	node.Write("_UID", _UID);
+	node.Write("_List", _List);
 }
 bool TilePalette::FromString(TilePalette& out, UDeserializer& text)
 {
 	text.ReadType("_UID", out._UID);
+	text.ReadType("_List", out._List);
 	return true;
 }
 bool TilePalette::FromFile(TilePalette& out, const Path& Path)

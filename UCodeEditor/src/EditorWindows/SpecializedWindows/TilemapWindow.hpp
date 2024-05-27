@@ -27,6 +27,7 @@ private:
 		Copy,
 	};
 	TilePalettePtr _CurrentTilePalette;
+	TileDataPtr _CurrentTile;
 	ToolBar _toolbar = ToolBar::Draw;
 };
 

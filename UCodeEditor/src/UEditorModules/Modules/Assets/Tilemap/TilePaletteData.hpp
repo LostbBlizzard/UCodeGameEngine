@@ -6,21 +6,10 @@
 #include "UCodeRunTime/ULibrarys/Rendering/TileMapRenderer2d.hpp"
 #include "UCodeRunTime/ULibrarys/Serialization/SerlizeableType.hpp"
 #include "UCodeRunTime/ULibrarys/Serialization/UseUSerializerForYamlAndBit.hpp"
+#include "UCodeRunTime/ULibrarys/Serialization/Bit_Implementation/AsssetPtr.hpp"
+#include "UCodeRunTime/ULibrarys/Serialization/Yaml_Implementation/AsssetPtr.hpp"
 EditorStart
 
-struct TilePalette
-{
-	UID _UID;
-
-	inline static const char* FileExt = "UTilePalette";
-	inline static const char* FileExtDot = ".UTilePalette";
-	
-	void PushData(USerializer& node) const;
-	static bool FromString(TilePalette& out, UDeserializer& text);
-
-	static bool FromFile(TilePalette& out, const Path& Path);
-	static bool ToFile(const Path& path,const TilePalette& data, USerializerType Type);
-};
 struct TileData
 {
 	UID _UID;
@@ -40,6 +29,30 @@ EditorEnd
 UseUSerializerForYamlAndBit(UCodeEditor::TileData);
 
 EditorStart
+
+struct TileDataAsset : UC::Asset
+{
+public:
+	TileData _Base;
+	TileDataAsset()
+	{
+
+	}
+	TileDataAsset(TileData&& base)
+		:_Base(std::move(base))
+	{
+
+	}
+
+	ManagedPtr<TileDataAsset> GetManaged()
+	{
+		auto V = this->Get_Managed();
+		return *(ManagedPtr<TileDataAsset>*)&V;
+	}
+};
+using TileDataAssetPtr = ManagedPtr<TileDataAsset>;
+using TileDataPtr = UC::AssetPtr<TileDataAsset,TileData>;
+
 struct TileDataPack
 {
 	struct PackTile
@@ -62,6 +75,28 @@ struct TileDataPack
 	static bool FromFile(TileDataPack& out, const Path& Path);
 	static bool ToFile(const Path& path,const TileDataPack& data, USerializerType Type);
 };
+
+
+struct TilePalette
+{
+	struct PaletteItem
+	{
+		TileDataPtr Ptr;
+		i32 X = 0;
+		i32 Y = 0;
+	};
+	UID _UID;
+	Vector<PaletteItem> _List;
+
+	inline static const char* FileExt = "UTilePalette";
+	inline static const char* FileExtDot = ".UTilePalette";
+	
+	void PushData(USerializer& node) const;
+	static bool FromString(TilePalette& out, UDeserializer& text);
+
+	static bool FromFile(TilePalette& out, const Path& Path);
+	static bool ToFile(const Path& path,const TilePalette& data, USerializerType Type);
+};
 EditorEnd
 
 MakeSerlizeType(UCodeEditor::TileDataPack::PackTile,
@@ -71,6 +106,11 @@ MakeSerlizeType(UCodeEditor::TileDataPack::PackTile,
  Field("Y", _this->Y);
 );
 
+MakeSerlizeType(UCodeEditor::TilePalette::PaletteItem,
+ Field("Tile", _this->Ptr);
+ Field("X", _this->X);
+ Field("Y", _this->Y);
+);
 EditorStart
 struct TilePaletteAsset : UC::Asset
 {
@@ -95,28 +135,6 @@ public:
 using TilePaletteAssetPtr = ManagedPtr<TilePaletteAsset>;
 using TilePalettePtr = UC::AssetPtr<TilePaletteAsset,TilePalette>;
 
-struct TileDataAsset : UC::Asset
-{
-public:
-	TileData _Base;
-	TileDataAsset()
-	{
-
-	}
-	TileDataAsset(TileData&& base)
-		:_Base(std::move(base))
-	{
-
-	}
-
-	ManagedPtr<TileDataAsset> GetManaged()
-	{
-		auto V = this->Get_Managed();
-		return *(ManagedPtr<TileDataAsset>*)&V;
-	}
-};
-using TileDataAssetPtr = ManagedPtr<TileDataAsset>;
-using TileDataPtr = UC::AssetPtr<TileDataAsset,TileData>;
 
 
 EditorEnd

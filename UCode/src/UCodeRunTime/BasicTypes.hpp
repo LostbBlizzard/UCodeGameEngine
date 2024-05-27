@@ -895,17 +895,41 @@ public:
 
 		~RefData() = default;
 	};
-	Ref() :_Data(nullptr)
+	Ref() noexcept:_Data(nullptr)
 	{
 
 	}
-	Ref(const T& Data) : _Data(new RefData(Data))
+	Ref(const T& Data) noexcept: _Data(new RefData(Data)) 
 	{
 		AddPointerRef();
 	}
-	Ref(T&& Data) : _Data(new RefData(Data))
+	Ref(T&& Data) noexcept: _Data(new RefData(std::move(Data))) 
 	{
 		AddPointerRef();
+	}
+
+	Ref(const Ref& ToCopy) noexcept:_Data(ToCopy._Data) 
+	{
+		AddPointerRef();
+	}
+	UCodeGEForceinlne Ref& operator=(const Ref& ToCopy) noexcept
+	{
+		ReMovePointerRef();
+
+		_Data = ToCopy._Data;
+		AddPointerRef();
+
+		return *this;
+	}
+	Ref(Ref&& ToCopy) noexcept:_Data(ToCopy._Data) 
+	{
+		ToCopy._Data = nullptr;
+	}
+	UCodeGEForceinlne Ref& operator=(Ref&& ToCopy) noexcept
+	{
+		_Data = ToCopy._Data;
+		ToCopy._Data = nullptr;
+		return *this;
 	}
 
 	template<typename... Pars>
@@ -932,20 +956,7 @@ public:
 	{
 		ReMovePointerRef();
 	}
-
-	Ref(const Ref& ToCopy) :_Data(ToCopy._Data)
-	{
-		AddPointerRef();
-	}
-	UCodeGEForceinlne Ref& operator=(const Ref& ToCopy)
-	{
-		ReMovePointerRef();
-
-		_Data = ToCopy._Data;
-		AddPointerRef();
-
-		return *this;
-	}
+	
 
 	UCodeGEForceinlne void SetToNull()
 	{
