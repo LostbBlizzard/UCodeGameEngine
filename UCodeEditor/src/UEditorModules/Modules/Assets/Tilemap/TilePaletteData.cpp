@@ -58,12 +58,14 @@ bool TileData::ToFile(const Path& path, const TileData& data, USerializerType Ty
 
 void TileDataPack::PushData(USerializer& node) const
 {
+	node.Write("_UID", _UID);
 	node.Write("TextureAtlas", _BaseTexture);
 	node.Write("Tiles", List);
 }
 
 bool TileDataPack::FromString(TileDataPack& out, UDeserializer& text)
 {
+	text.ReadType("_UID", out._UID, out._UID);
 	text.ReadType("TextureAtlas", out._BaseTexture,out._BaseTexture);
 	text.ReadType("Tiles", out.List, out.List);
 	return true;

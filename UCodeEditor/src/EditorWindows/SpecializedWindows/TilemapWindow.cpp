@@ -29,23 +29,23 @@ void TilemapWindow::UpdateWindow()
 	{
 		ImGuIHelper::Text(StringView("Seclect a Tilemap in Scene Hierarchy"));
 
-        ImGui::Separator();
+		ImGui::Separator();
 	}
 
 	ImGui::BeginDisabled(currenttilemap == nullptr);
 	{
 		if (ImGui::RadioButton("Draw", _toolbar == ToolBar::Draw)) { _toolbar = ToolBar::Draw; }
-        ImGui::SameLine();
-	
-		if (ImGui::RadioButton("Copy", _toolbar == ToolBar::Erase)) { _toolbar = ToolBar::Copy; }
-        ImGui::SameLine();
-	
-		if (ImGui::RadioButton("Move", _toolbar == ToolBar::Move)) { _toolbar = ToolBar::Move; }
-        ImGui::SameLine();	
+		ImGui::SameLine();
 
-		if (ImGui::RadioButton("Erase", _toolbar == ToolBar::Erase)) { _toolbar = ToolBar::Erase; }	
-    
-        ImGui::Separator();
+		if (ImGui::RadioButton("Copy", _toolbar == ToolBar::Erase)) { _toolbar = ToolBar::Copy; }
+		ImGui::SameLine();
+
+		if (ImGui::RadioButton("Move", _toolbar == ToolBar::Move)) { _toolbar = ToolBar::Move; }
+		ImGui::SameLine();
+
+		if (ImGui::RadioButton("Erase", _toolbar == ToolBar::Erase)) { _toolbar = ToolBar::Erase; }
+
+		ImGui::Separator();
 	}
 	ImGui::EndDisabled();
 	{
@@ -61,7 +61,7 @@ void TilemapWindow::UpdateWindow()
 
 		ImGuIHelper_Asset::AsssetField("Palette", _CurrentTilePalette);
 	}
-	
+
 	auto app = EditorAppCompoent::GetCurrentEditorAppCompoent();
 	if (_CurrentTilePalette.Has_Asset())
 	{
@@ -99,6 +99,15 @@ void TilemapWindow::UpdateWindow()
 		auto startpos = ImGui::GetWindowPos();
 		auto oldcursorpos = ImGui::GetCursorPos();
 		size_t I = 0;
+		static Optional<size_t> HoldingTile = {};
+		bool dropedtile = false;
+		if (HoldingTile.has_value())
+		{
+			if (!ImGui::IsMouseDown(ImGuiMouseButton_::ImGuiMouseButton_Left))
+			{
+				dropedtile = true;
+			}
+		}
 		for (size_t x = 0; x < MaxGridX; x++)
 		{
 			for (size_t y = 0; y < MaxGridY; y++)
@@ -106,16 +115,16 @@ void TilemapWindow::UpdateWindow()
 				auto xpos = x * GridSize;
 				auto ypos = y * GridSize;
 
-				
+
 				list->AddRect(
-					{ -ImGui::GetScrollX() + startpos.x + (float)xpos   ,-ImGui::GetScrollY() + startpos.y + (float)ypos},
+					{ -ImGui::GetScrollX() + startpos.x + (float)xpos   ,-ImGui::GetScrollY() + startpos.y + (float)ypos },
 					{ -ImGui::GetScrollX() + startpos.x + (float)(xpos + GridSize) ,-ImGui::GetScrollY() + startpos.y + (float)(ypos + GridSize) },
 					GridColor
 				);
 
 				ImGui::SetCursorPos({ oldcursorpos.x + (xpos),oldcursorpos.y + (ypos) });
 				ImGui::PushID(I);
-				
+
 				NullablePtr<TilePalette::PaletteItem> packtile;
 				{
 					for (auto& Item : asset->_List)
@@ -182,11 +191,59 @@ void TilemapWindow::UpdateWindow()
 				static bool justopened = false;
 				static TileDataPtr tile;
 
-				if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_::ImGuiMouseButton_Left))
+				if (ImGui::IsItemHovered())
 				{
-					if (packtile.has_value()) 
+
+					if (ImGui::IsMouseClicked(ImGuiMouseButton_::ImGuiMouseButton_Left))
 					{
-						_CurrentTile = packtile.value()->Ptr;
+						if (packtile.has_value())
+						{
+							_CurrentTile = packtile.value()->Ptr;
+						}
+
+						for (size_t i = 0; i < asset->_List.size(); i++)
+						{
+							auto& Item = asset->_List[i];
+
+							if (Item.X == x && Item.Y == y)
+							{
+								HoldingTile = i;
+								break;
+							}
+						}
+					}
+
+					if (!packtile.has_value() && HoldingTile.has_value())
+					{
+						auto& heldtile = asset->_List[HoldingTile.value()];
+
+						ImGui::SetCursorPos({ oldcursorpos.x + (xpos),oldcursorpos.y + (ypos) });
+
+						UC::Sprite* sp = nullptr;
+
+						if (heldtile.Ptr.Has_Asset())
+						{
+							auto& spriteptr = heldtile.Ptr.Get_Asset()->_Data.Sprite;
+
+							if (spriteptr.Has_Asset())
+							{
+								sp = spriteptr.Get_Asset();
+							}
+						}
+						if (sp == nullptr)
+						{
+							sp = AppFiles::GetSprite(AppFiles::sprite::TileAsset);
+						}
+
+						ImGuIHelper::Image(sp, { GridSize,GridSize });
+					}
+
+					if (dropedtile)
+					{
+						auto& heldtile = asset->_List[HoldingTile.value()];
+						heldtile.X = x;
+						heldtile.Y = y;
+						HoldingTile = {};
 					}
 
 				}
@@ -274,7 +331,7 @@ void TilemapWindow::UpdateWindow()
 
 
 						auto ext = Path(*fullpath).extension().generic_string();
-						bool canbedroped = ext ==TileData::FileExtDot || TileDataPack::FileExtDot;
+						bool canbedroped = ext == TileData::FileExtDot || TileDataPack::FileExtDot;
 						if (payload->IsDelivery())
 						{
 							if (canbedroped)
@@ -309,9 +366,46 @@ void TilemapWindow::UpdateWindow()
 											}
 										}
 									}
-									else
+									else if (ext == TileDataPack::FileExtDot)
 									{
+										if (val.UserID.has_value())
+										{
+											auto assetop = app->Get_AssetManager()->FindOrLoad_t<TilePackAsset>(val.UserID.value());
 
+											if (assetop.has_value())
+											{
+												auto& packasset = assetop.value();
+
+												for (auto& packItem : packasset->_Base.List)
+												{
+													NullablePtr<TilePalette::PaletteItem> Item;
+													{
+														for (auto& tile : asset->_List)
+														{
+															if (tile.X == packItem.X && tile.Y == packItem.Y)
+															{
+																Item = Nullableptr(&tile);
+																break;
+															}
+														}
+													}
+
+													if (Item.has_value())
+													{
+														Item.value()->Ptr = packItem._Data._UID;
+													}
+													else
+													{
+														TilePalette::PaletteItem item;
+														item.X = packItem.X +x;
+														item.Y = packItem.Y + y;
+														item.Ptr = packItem._Data._UID;
+														asset->_List.push_back(std::move(item));
+													}
+
+												}
+											}
+										}
 									}
 								}
 							}
@@ -332,6 +426,11 @@ void TilemapWindow::UpdateWindow()
 				ImGui::PopID();
 				I++;
 			}
+		}
+
+		if (dropedtile)
+		{
+			HoldingTile = {};
 		}
 
 		ImGui::EndChild();
