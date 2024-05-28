@@ -15,7 +15,7 @@ public:
 	public:
 		Liveing();
 		~Liveing();
-		TileDataPack _Data;
+		TilePackAsset _Data;
 		Vector<Optional<TileDataAsset>> _Assets;
 		void Init(const UEditorAssetFileInitContext& Context) override;
 

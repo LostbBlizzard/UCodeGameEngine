@@ -24,7 +24,7 @@ TilePackAssetFile::Liveing::~Liveing()
 void TilePackAssetFile::Liveing::Init(const UEditorAssetFileInitContext& Context)
 {
 	auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
-	if (!TileDataPack::FromFile(_Data, this->FileFullPath))
+	if (!TileDataPack::FromFile(_Data._Base, this->FileFullPath))
 	{
 		auto p = FileFullPath.generic_string();
 		auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
@@ -32,13 +32,47 @@ void TilePackAssetFile::Liveing::Init(const UEditorAssetFileInitContext& Context
 	}
 	else
 	{
+		_Data.Uid = _Data._Base._UID;
 		OnFileLoaded();
 	}
 
 }
 bool TilePackAssetFile::Liveing::DrawButtion(const UEditorAssetDrawButtionContext& Item)
 {
-	return ImGuIHelper::ImageButton(Item.ObjectPtr, AppFiles::sprite::TilePack, *(ImVec2*)&Item.ButtionSize);
+	bool r = ImGuIHelper::ImageButton(Item.ObjectPtr, AppFiles::sprite::TilePack, *(ImVec2*)&Item.ButtionSize);
+
+	if (ImGui::BeginDragDropSource())
+	{
+		static Path tepAssetPath;
+		tepAssetPath = this->FileFullPath.native();
+		Path* p = &tepAssetPath;
+		bool OnDropable = ImGui::SetDragDropPayload(DragAndDropType_AssetPath, &p, sizeof(UCode::Path*));
+
+		auto& g = *GImGui;
+		auto ImageHight = ImGui::GetFrameHeight();
+
+
+		Vec2 imagesize = { ImageHight,ImageHight };
+
+		auto tilename = this->FileFullPath.filename().replace_extension().generic_string();
+		if (OnDropable)
+		{
+			String Text = "Drop " + tilename + " Here?";
+
+			ImGuIHelper::Text(Text);
+		}
+		else
+		{
+			ImGuIHelper::Text(tilename);
+		}
+
+		ImGui::SameLine();
+		ImGuIHelper::Image(AppFiles::sprite::TilePack, *(ImVec2*)&imagesize);
+		
+		ImGui::EndDragDropSource();
+	}
+
+	return r;
 }
 
 void DrawInspectTile(TileDataPtr  ptr, TileDataPack::PackTile& tile)
@@ -78,7 +112,7 @@ void DrawInspectTile(TileDataPtr  ptr, TileDataPack::PackTile& tile)
 }
 void TilePackAssetFile::Liveing::RenameTile(size_t Index, const String& newname)
 {
-	auto& Item = _Data.List[Index];
+	auto& Item = _Data._Base.List[Index];
 	auto& AssetItem = _Assets[Index];
 
 	Item._Name = newname;
@@ -100,7 +134,7 @@ void TilePackAssetFile::Liveing::RenameTile(size_t Index, const String& newname)
 }
 void TilePackAssetFile::Liveing::RemoveTile(size_t Index)
 {
-	auto& Item = _Data.List[Index];
+	auto& Item = _Data._Base.List[Index];
 	auto& AssetItem = _Assets[Index];
 
 	auto runtimeproject = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
@@ -108,11 +142,11 @@ void TilePackAssetFile::Liveing::RemoveTile(size_t Index)
 	assetindex.RemoveIndexFileWithUID(Item._Data._UID);
 
 	_Assets.erase(_Assets.begin() + Index);
-	_Data.List.erase(_Data.List.begin() + Index);
+	_Data._Base.List.erase(_Data._Base.List.begin() + Index);
 }
 void TilePackAssetFile::Liveing::LoadAssetAt(size_t Index)
 {
-	auto& Item = _Data.List[Index];
+	auto& Item = _Data._Base.List[Index];
 	auto& AssetItem = _Assets[Index];
 
 
@@ -128,7 +162,7 @@ void TilePackAssetFile::Liveing::OnFileLoaded()
 	auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 	auto& assetindex = runprojectdata->Get_AssetIndex();
 
-	for (auto& Item : _Data.List)
+	for (auto& Item : _Data._Base.List)
 	{
 		if (!assetindex.FindFileUsingID(Item._Data._UID).has_value())
 		{
@@ -142,7 +176,7 @@ void TilePackAssetFile::Liveing::OnFileLoaded()
 			assetindex._Files.push_back(std::move(file));
 		}
 	}
-	_Assets.resize(_Data.List.size());
+	_Assets.resize(_Data._Base.List.size());
 }
 bool TilePackAssetFile::Liveing::ShouldBeUnloaded(const UEditorAssetShouldUnloadContext& Context)
 {
@@ -206,6 +240,7 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 		};
 		static TilePackPopupWindowData PopupWindow;
 
+		auto& _Data = this->_Data._Base;
 		if (_Data._BaseTexture.Has_UID() && !_Data._BaseTexture.Has_Asset())
 		{
 			auto val = assetmanger->FindOrLoad_t<UC::TextureAsset>(_Data._BaseTexture.Get_UID());
@@ -480,7 +515,7 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 			bool showtilepreview = false;
 			
 			static bool shouldcloseAtlastSettings = false;
-			ImGuIHelper_Asset::AsssetField("Texture Atlas", this->_Data._BaseTexture);
+			ImGuIHelper_Asset::AsssetField("Texture Atlas", this->_Data._Base._BaseTexture);
 
 
 			auto texturesettingsop = PNGAssetFile::GetTextureSettings(_Data._BaseTexture.Get_UID());
@@ -772,9 +807,13 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 }
 NullablePtr<UCode::Asset> TilePackAssetFile::Liveing::LoadAsset(const LoadAssetContext& Item) 
 {
-	for (size_t i = 0; i < this->_Data.List.size(); i++)
+	if (_Data._Base._UID == Item._AssetToLoad)
 	{
-		auto& ListItem = _Data.List[i];
+		return _Data.GetAsset();
+	}
+	for (size_t i = 0; i < this->_Data._Base.List.size(); i++)
+	{
+		auto& ListItem = _Data._Base.List[i];
 		auto& Asset = _Assets[i];
 
 		if (ListItem._Data._UID == Item._AssetToLoad)
@@ -790,7 +829,7 @@ NullablePtr<UCode::Asset> TilePackAssetFile::Liveing::LoadAsset(const LoadAssetC
 }
 void TilePackAssetFile::Liveing::FileUpdated() 
 {
-	if (!TileDataPack::FromFile(_Data, this->FileFullPath))
+	if (!TileDataPack::FromFile(_Data._Base, this->FileFullPath))
 	{
 		auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 
@@ -807,21 +846,21 @@ void TilePackAssetFile::Liveing::SaveFile(const UEditorAssetFileSaveFileContext&
 {
 	auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 
-	if (!TileDataPack::ToFile(this->FileFullPath,_Data, runprojectdata->Get_ProjData()._SerializeType))
+	if (!TileDataPack::ToFile(this->FileFullPath,_Data._Base, runprojectdata->Get_ProjData()._SerializeType))
 	{
 		auto p = FileFullPath.generic_string();
 		auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
 
 		UCodeGEError("Unable to Saveing for " << relpath << " Failed");
 	}
-	_Assets.resize(_Data.List.size());
+	_Assets.resize(_Data._Base.List.size());
 }
 void TilePackAssetFile::Liveing::DrawSubAssets(const UEditorDrawSubAssetContext& Item)
 {
 	auto app = EditorAppCompoent::GetCurrentEditorAppCompoent();
-	for (size_t i = 0; i < _Data.List.size(); i++)
+	for (size_t i = 0; i < _Data._Base.List.size(); i++)
 	{
-		auto& ListItem = _Data.List[i];
+		auto& ListItem = _Data._Base.List[i];
 		auto& AssetItem = _Assets[i];
 
 		if (!AssetItem.has_value())
@@ -951,7 +990,7 @@ void TilePackAssetFile::Liveing::NewTile(TileDataPack::PackTile&& tile)
 	file.RelativeAssetName += EditorIndex::SubAssetSeparator + tile._Name;
 
 	index._Files.push_back(std::move(file));
-	_Data.List.push_back(std::move(tile));
+	_Data._Base.List.push_back(std::move(tile));
 	_Assets.push_back({});
 }
 ExportFileRet TilePackAssetFile::ExportFile(const Path& path, const ExportFileContext& Item)
@@ -965,6 +1004,7 @@ Optional<GetUIDInfo> TilePackAssetFile::GetFileUID(UEditorGetUIDContext& context
 	if (TileDataPack::FromFile(palette, context.AssetPath))
 	{
 		GetUIDInfo info;
+		info._MainAssetID = palette._UID;
 
 		info._SubAssets.reserve(palette.List.size());
 		for (auto& Item : palette.List)

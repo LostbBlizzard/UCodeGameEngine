@@ -63,6 +63,7 @@ struct TileDataPack
 		i32 X = 0;
 		i32 Y = 0;
 	};
+	UC::UID _UID;
 	UC::TexturePtr _BaseTexture;
 	Vector<PackTile> List;
 
@@ -135,6 +136,28 @@ public:
 using TilePaletteAssetPtr = ManagedPtr<TilePaletteAsset>;
 using TilePalettePtr = UC::AssetPtr<TilePaletteAsset,TilePalette>;
 
+struct TilePackAsset : UC::Asset
+{
+public:
+	TileDataPack _Base;
+	TilePackAsset()
+	{
+
+	}
+	TilePackAsset(TileDataPack&& base)
+		:_Base(std::move(base))
+	{
+
+	}
+
+	ManagedPtr<TilePackAsset> GetManaged()
+	{
+		auto V = this->Get_Managed();
+		return *(ManagedPtr<TilePackAsset>*)&V;
+	}
+};
+using TilePackPtr = ManagedPtr<TilePaletteAsset>;
+using TilePackAssetPtr = UC::AssetPtr<TilePaletteAsset,TilePalette>;
 
 
 EditorEnd

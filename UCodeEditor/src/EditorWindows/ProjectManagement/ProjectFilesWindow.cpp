@@ -1021,7 +1021,7 @@ void ProjectFilesWindow::ShowDirButtions()
                             Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New TilePack").native()
                                 , Path(TileDataPack::FileExtDot));
                             TileDataPack newScene = TileDataPack();
-                            //newScene._UID = Get_App()->Get_RunTimeProjectData()->GetNewUID();
+                            newScene._UID = Get_App()->Get_RunTimeProjectData()->GetNewUID();
                             TileDataPack::ToFile(NewPath, newScene, Get_ProjectData()->Get_ProjData()._SerializeType);
                             UpdateDir();
                         }
