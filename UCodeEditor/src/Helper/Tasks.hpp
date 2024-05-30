@@ -26,6 +26,7 @@ struct RuningTasksInfo
 {
 	static bool HasTaskRuning(RuningTask::Type Type);
 
+	static void SetTaskStatus(RuningTask::Type Type,String Status,Byte percentage);
 	static void AddTask(const RuningTask& Value);
 	static void ReMoveTask(RuningTask::Type Type);
 	static Vector<RuningTask>& Get_Tasks();

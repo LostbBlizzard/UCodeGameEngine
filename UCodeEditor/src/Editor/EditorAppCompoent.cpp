@@ -19,6 +19,7 @@
 #include "UEditorModules/Modules/CodeModule.hpp"
 #include "Helper/StringHelper.hpp"
 #include "Helper/UserSettings.hpp"
+#include "UCodeLang/Compilation/ModuleFile.hpp"
 EditorStart
 
 
@@ -483,20 +484,18 @@ void  EditorAppCompoent::ShowMainMenuBar()
             }
             if (ImGui::BeginMenu("UCodeLang"))
             {
+                bool rebuild = false;
+                bool fullrebuild = false;
                 if (ImGui::MenuItem("Rebuild"))
                 {
-                    std::filesystem::remove_all(_RunTimeProjectData.GetULangIntDir());
-                    std::filesystem::remove_all(_RunTimeProjectData.GetULangOutDir());
-
-                    auto assetsdir = _RunTimeProjectData.GetAssetsDir();
-                    auto tepfile = assetsdir / "ULangModule.ucm";
-
-                    if (std::filesystem::exists(tepfile))
-                    {
-                        OnFileUpdated(this, "ULangModule.ucm", ChangedFileType::FileUpdated);
-                    }
+                    rebuild = true;
                 }
-                if (ImGui::MenuItem("Clear Cache"))
+                if (ImGui::MenuItem("Full Rebuild"))
+                {
+                    rebuild = true;
+                    fullrebuild = true;
+                }
+                if (ImGui::MenuItem("Clear Cache and Close Project"))
                 {
                     std::filesystem::remove_all(_RunTimeProjectData.GetULangIntDir());
                 }
@@ -515,6 +514,80 @@ void  EditorAppCompoent::ShowMainMenuBar()
                 if (ImGui::MenuItem("Type was Renamed"))
                 {
 
+                }
+
+                if (fullrebuild)
+                {
+                    auto assetsdir = _RunTimeProjectData.GetAssetsDir();
+                    auto tepfile = assetsdir / "ULangModule.ucm";
+
+                    if (std::filesystem::exists(tepfile))
+                    {
+                        UCodeLang::ModuleFile file;
+                        if (UCodeLang::ModuleFile::FromFile(&file, tepfile)) 
+                        {
+                            std::function<void(UCodeLang::ModuleFile& file)> remove;
+                            UCodeLang::ModuleIndex index = UCodeLang::ModuleIndex::GetModuleIndex();
+
+                            remove = [&remove,&index](UCodeLang::ModuleFile& file)
+                                {
+
+                                    for (auto& Deps : file.ModuleDependencies)
+                                    {
+                                        UCodeLang::ModuleIndex::IndexModuleFile* modindex = nullptr;
+                                        for (auto& Item : index._IndexedFiles)
+                                        {
+                                            if (Item._ModuleData.AuthorName == Deps.Identifier.AuthorName &&
+                                                Item._ModuleData.ModuleName == Deps.Identifier.ModuleName &&
+                                                Item._ModuleData.MajorVersion == Deps.Identifier.MajorVersion &&
+                                                Item._ModuleData.MinorVersion == Deps.Identifier.MinorVersion &&
+                                                Item._ModuleData.RevisionVersion == Deps.Identifier.RevisionVersion)
+                                            {
+                                                modindex = &Item;
+                                                break;
+                                            }
+                                        }
+                                        if (modindex)
+                                        {
+                                            UCodeLang::ModuleFile file;
+                                            if (UCodeLang::ModuleFile::FromFile(&file,modindex->_ModuleFullPath))
+                                            {
+                                                remove(file);
+                                            }
+                                        }
+                                    }
+
+                                    Path intdir = file.ThisModuleDir / file.ModuleIntPath;
+                                    Path outdir = file.ThisModuleDir / file.ModuleOutPath;
+                                    if (std::filesystem::exists(intdir))
+                                    {
+                                        std::filesystem::remove_all(intdir);
+                                        UCodeGELog("FullRebuild removed:" << intdir)
+                                    }
+                                    if (std::filesystem::exists(outdir))
+                                    {
+                                        std::filesystem::remove_all(outdir);
+                                        UCodeGELog("FullRebuild removed:" << outdir)
+                                    }
+                                };
+
+                            remove(file);
+                            OnFileUpdated(this, "ULangModule.ucm", ChangedFileType::FileUpdated);
+                        }
+                    } 
+                }
+                if (rebuild)
+                {
+                    std::filesystem::remove_all(_RunTimeProjectData.GetULangIntDir());
+                    std::filesystem::remove_all(_RunTimeProjectData.GetULangOutDir());
+
+                    auto assetsdir = _RunTimeProjectData.GetAssetsDir();
+                    auto tepfile = assetsdir / "ULangModule.ucm";
+
+                    if (std::filesystem::exists(tepfile))
+                    {
+                        OnFileUpdated(this, "ULangModule.ucm", ChangedFileType::FileUpdated);
+                    }
                 }
                 ImGui::EndMenu();
             }

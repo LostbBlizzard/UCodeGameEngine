@@ -21,6 +21,9 @@ public:
 		Path OutPath;
 		bool Editor = false;
 		bool Is32bitMode = sizeof(void*) == 4;
+
+		using StatusUpdate = std::function<void(String str, size_t thread)>;
+		std::shared_ptr<UCode::Mutex<StatusUpdate>> OnStatusUpdate;
 		void Set(const RunTimeProjectData* Data)
 		{
 			InPath = Data->GetAssetsDir();
@@ -34,7 +37,7 @@ public:
 			OutPath = outlibPath;
 		}
 	};
-	static bool CompileProject(const CompileData& Data);
+	static bool CompileProject(CompileData& Data);
 
 	static Optional<Path> GetIntermediate(const Path& FullFilePath, RunTimeProjectData* RunTimeProject);
 	static Optional<Path> GetRelativeIntermediate(const Path& RelativeFilePath, RunTimeProjectData* RunTimeProject);

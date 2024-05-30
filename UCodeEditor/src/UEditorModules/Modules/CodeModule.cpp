@@ -129,7 +129,13 @@ void CodeModule::BuildUCode(bool IsInEditor)
 				data.Error = &_Errs;
 				data.Threads = Threads;
 				data.Editor = true;
-
+				data.OnStatusUpdate = std::make_shared<UCode::Mutex<UCompiler::CompileData::StatusUpdate>>([Threads](String str, size_t thread)
+				{
+					Threads->RunOnOnMainThread([str, thread]()
+						{
+							RuningTasksInfo::SetTaskStatus(RuningTask::Type::BuildingUCodeFiles, str, 30);
+						});
+				});
 
 				bool ok = UCompiler::CompileProject(data);
 

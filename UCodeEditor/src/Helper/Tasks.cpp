@@ -15,6 +15,20 @@ bool RuningTasksInfo::HasTaskRuning(RuningTask::Type Type)
 	return false;
 }
 
+void RuningTasksInfo::SetTaskStatus(RuningTask::Type Type, String Status, Byte percentage)
+{
+	UCode::Threads::ThrowErrIfNotOnMainThread();
+
+	for (auto& Items : _Tasks)
+	{
+		if (Items.TaskType == Type)
+		{
+			Items.Status = Status;
+			Items.percentage = percentage;
+		}
+	}
+}
+
 void RuningTasksInfo::AddTask(const RuningTask& Value)
 {
 	UCode::Threads::ThrowErrIfNotOnMainThread();
