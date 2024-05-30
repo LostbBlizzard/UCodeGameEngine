@@ -148,7 +148,11 @@ void OpenProjectWindow::UpdateWindow()
     else if (_State == State::MakeNewProject)
     {
         auto tep = ProjectDir.generic_string();
-        ImGuIHelper::InputPath("Project folder", tep, 0, ImGuIHelper::InputPathType::Dir);
+
+        if (ImGuIHelper::InputPath("Project folder", tep, 0, ImGuIHelper::InputPathType::Dir)) 
+        {
+            ProjectDir = tep;
+        }
 
         ImGuIHelper::InputText("New Project Name:", NewProjectName);
 
@@ -191,7 +195,7 @@ void OpenProjectWindow::UpdateWindow()
                 auto* ProjData = GetProjects();
 
                 ProjData->ProjectDir = ProjectDir;
-                ProjData->_Projects.push_back({ NewProjectName ,ProjectDir.native() + Path(NewProjectName).native() });
+                ProjData->_Projects.push_back({ NewProjectName ,ProjectDir / Path(NewProjectName)});
                 SaveProjects();
 
                 _State = State::ProjectList;

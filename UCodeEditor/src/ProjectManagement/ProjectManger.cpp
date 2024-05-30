@@ -51,7 +51,7 @@ bool ProjectManger::MakeNewProject(const Path& Dir, const String& ProjectName,Pr
 
 
 
-	const Path ProjectDir_s = Dir.native() + Path(ProjectName).native() + Path::preferred_separator;
+	const Path ProjectDir_s = (Dir/ Path(ProjectName)).native() + Path::preferred_separator;
 	const Path ProjectDataPath_s = GetProjectDataPath(ProjectDir_s);
 	
 	if (fs::create_directory(ProjectDir_s))
