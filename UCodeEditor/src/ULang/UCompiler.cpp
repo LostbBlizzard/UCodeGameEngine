@@ -111,15 +111,22 @@ bool UCompiler::CompileProject(CompileData& Data)
 		UCodeLang::TaskManger taskmanger;
 		taskmanger.Init();
 
-		if (false)
 		{
+			std::function<void(CompileData::StatusUpdate&)> func = [&mainmoule, threads = Data.Threads](CompileData::StatusUpdate& func)-> void
+				{
+					func("Downloading Dependencies", UCode::CurrentThreadInfo::CurrentThread.Get_Base());
+				};
+			Data.OnStatusUpdate->Lock(func);
+
 			std::mutex errorlock;
 
 			if (!mainmoule.DownloadModules(index, [&errorlock, &Data](String log)
 				{
-					errorlock.lock();
-					Data.Error->AddError(UCodeLang::ErrorCodes::InternalCompilerError, 0, 0, log);
-					errorlock.unlock();
+					std::function<void(CompileData::StatusUpdate&)> func = [&log,threads = Data.Threads](CompileData::StatusUpdate& func)-> void
+						{
+							func(log, UCode::CurrentThreadInfo::CurrentThread.Get_Base());
+						};
+					Data.OnStatusUpdate->Lock(func);
 
 				}, taskmanger))
 			{
@@ -131,6 +138,7 @@ bool UCompiler::CompileProject(CompileData& Data)
 		Vector<UCodeLang::TaskManger::Task<Optional<UCodeLang::ModuleFile::ModuleRet>>> DependsList;
 		DependsList.reserve(mainmoule.ModuleDependencies.size());
 
+		UCode::Mutex<size_t> BuildCount = 0;
 
 		for (auto& Deps : mainmoule.ModuleDependencies)
 		{
@@ -168,12 +176,12 @@ bool UCompiler::CompileProject(CompileData& Data)
 			}
 			else
 			{
-				std::function<Optional<UCodeLang::ModuleFile::ModuleRet>()> func = [&Data, &modindex, &index, &Compiler]()->Optional<UCodeLang::ModuleFile::ModuleRet>
+				std::function<Optional<UCodeLang::ModuleFile::ModuleRet>()> func = [&BuildCount,&Data, &modindex, &index, &Compiler]()->Optional<UCodeLang::ModuleFile::ModuleRet>
 					{
 						UCodeLang::ModuleFile file;
 						if (UCodeLang::ModuleFile::FromFile(&file, modindex->_ModuleFullPath))
 						{
-							return file.BuildModule(Compiler, index, true,
+							auto r = file.BuildModule(Compiler, index, true,
 								[&Data](String msg) mutable
 								{
 								std::function<void(CompileData::StatusUpdate&)> func = [msg, threads = Data.Threads](CompileData::StatusUpdate& func)->void
@@ -183,6 +191,12 @@ bool UCompiler::CompileProject(CompileData& Data)
 									};
 								Data.OnStatusUpdate->Lock(func);
 								});
+
+							BuildCount.Lock([](size_t& item)
+								{
+									item++;
+								});
+							return r;
 						}
 						else
 						{
@@ -209,7 +223,15 @@ bool UCompiler::CompileProject(CompileData& Data)
 			}
 		}	
 		
+		Compiler.SetLog([&Data,&mainmoule]()
+			{				
+				std::function<void(CompileData::StatusUpdate&)> func = [&mainmoule,threads = Data.Threads](CompileData::StatusUpdate& func)-> void
+									{
+										func("Building Project:" + mainmoule.ModuleName.ModuleName, UCode::CurrentThreadInfo::CurrentThread.Get_Base());
+									};
+				Data.OnStatusUpdate->Lock(func);
 
+			});
 		auto r = Compiler.CompileFiles_UseIntDir(pathData, External, taskmanger);
 
 
