@@ -20,17 +20,18 @@ bool HasModule(const UCodeLang::ModuleIndex& index,const String& name)
 	return false;
 }
 
-bool UCompiler::CompileProject(const CompileData& Data)
+
+bool UCompiler::CompileProject(CompileData& Data)
 {
 	UCodeGEStackFrame("UCompiler:CompileProject");
 	const Path& InPath = Data.InPath;
 	const Path& intPath = Data.IntPath;
 	const Path& outlibPath = Data.OutPath;
-	
+
 	const Path Modulepath = InPath / UCodeLang::ModuleFile::FileNameWithExt;
 
 	Data.Error->Remove_Errors();
-	
+
 	UCodeLang::Compiler Compiler;
 	UCodeLang::Compiler::CompilerPathData pathData;
 	pathData.FileDir = InPath.generic_string();
@@ -41,7 +42,7 @@ bool UCompiler::CompileProject(const CompileData& Data)
 
 
 	UCodeLang::ModuleIndex index = UCodeLang::ModuleIndex::GetModuleIndex();
-	
+
 	bool update = false;
 	if (!HasModule(index, "StandardLibrary")) {
 		index.AddModueToList(AppFiles::GetFilePathByMove("source") / "StandardLibrary" / UCodeLang::ModuleFile::FileNameWithExt);
@@ -63,10 +64,11 @@ bool UCompiler::CompileProject(const CompileData& Data)
 	if (!fs::exists(Modulepath))
 	{
 		UCodeLang::ModuleFile m;
-		
+
 		m.ModuleName.AuthorName = "UEngineDev";
 		m.ModuleName.ModuleName = "Project";
 
+		m.RemoveUnSafe = true;
 		{
 			UCodeLang::ModuleFile f;
 			Path modpath = AppFiles::GetFilePathByMove("source");
@@ -98,62 +100,122 @@ bool UCompiler::CompileProject(const CompileData& Data)
 		UCodeLang::ModuleFile::ToFile(&m, Modulepath);
 	}
 
-
 	if (update) {
 		UCodeLang::ModuleIndex::SaveModuleIndex(index);
 	}
 
+
+	UCodeLang::ModuleFile mainmoule;
+	if (UCodeLang::ModuleFile::FromFile(&mainmoule, Modulepath))
 	{
-		UCodeLang::ModuleFile f;
-		Path modpath = AppFiles::GetFilePathByMove("source");
-		modpath /= "UCodeGameEngine";
-		modpath /= UCodeLang::ModuleFile::FileNameWithExt;
+		UCodeLang::TaskManger taskmanger;
+		taskmanger.Init();
 
-		f.FromFile(&f, modpath);
-
-
-		auto v = f.BuildModule(Compiler, index, true);
-		if (v.CompilerRet.IsError())
+		if (false)
 		{
-			*Data.Error = Compiler.Get_Errors();
-			
-			return false;
+			std::mutex errorlock;
+
+			if (!mainmoule.DownloadModules(index, [&errorlock, &Data](String log)
+				{
+					errorlock.lock();
+					Data.Error->AddError(UCodeLang::ErrorCodes::InternalCompilerError, 0, 0, log);
+					errorlock.unlock();
+
+				}, taskmanger))
+			{
+				return Data.Error;
+			}
 		}
-		else 
+		Compiler.Get_Settings().PtrSize = Data.Is32bitMode ? UCodeLang::IntSizes::Int32 : UCodeLang::IntSizes::Int64;
+
+		Vector<UCodeLang::TaskManger::Task<Optional<UCodeLang::ModuleFile::ModuleRet>>> DependsList;
+		DependsList.reserve(mainmoule.ModuleDependencies.size());
+
+
+		for (auto& Deps : mainmoule.ModuleDependencies)
 		{
-			External.Files.push_back(v.OutputItemPath);
+			bool iseditor = false;
+			if (Deps.Identifier.AuthorName == "LostbBlizzard" && Deps.Identifier.ModuleName == "UCodeGameEngineEditor")
+			{
+				iseditor = true;
+			}
+
+			if (iseditor && !Data.Editor)
+			{
+				continue;
+			}
+
+			UCodeLang::ModuleIndex::IndexModuleFile* modindex = nullptr;
+
+
+			for (auto& Item : index._IndexedFiles)
+			{
+				if (Item._ModuleData.AuthorName == Deps.Identifier.AuthorName &&
+					Item._ModuleData.ModuleName == Deps.Identifier.ModuleName &&
+					Item._ModuleData.MajorVersion == Deps.Identifier.MajorVersion &&
+					Item._ModuleData.MinorVersion == Deps.Identifier.MinorVersion &&
+					Item._ModuleData.RevisionVersion == Deps.Identifier.RevisionVersion)
+				{
+					modindex = &Item;
+					break;
+				}
+			}
+
+			if (modindex == nullptr)
+			{
+
+
+			}
+			else
+			{
+				std::function<Optional<UCodeLang::ModuleFile::ModuleRet>()> func = [&Data, &modindex, &index, &Compiler]()->Optional<UCodeLang::ModuleFile::ModuleRet>
+					{
+						UCodeLang::ModuleFile file;
+						if (UCodeLang::ModuleFile::FromFile(&file, modindex->_ModuleFullPath))
+						{
+							return file.BuildModule(Compiler, index, true,
+								[&Data](String msg) mutable
+								{
+								std::function<void(CompileData::StatusUpdate&)> func = [msg, threads = Data.Threads](CompileData::StatusUpdate& func)->void
+									{
+										func(msg, UCode::CurrentThreadInfo::CurrentThread.Get_Base());
+
+									};
+								Data.OnStatusUpdate->Lock(func);
+								});
+						}
+						else
+						{
+							return {};
+						}
+					};
+				
+				DependsList.push_back(taskmanger.AddTask(func, {}));
+			}
 		}
+
+
+		
+		auto taskoutput = taskmanger.WaitFor(DependsList);
+		for (auto& Item : taskoutput)
+		{
+			if (Item.has_value())
+			{
+				External.Files.push_back(Item.value().OutputItemPath);
+			}
+			else
+			{
+
+			}
+		}	
+		
+
+		auto r = Compiler.CompileFiles_UseIntDir(pathData, External, taskmanger);
+
+
+		*Data.Error = std::move(Compiler.Get_Errors());
+		return !r.IsError();
 	}
-
-	if (Data.Editor)
-	{
-		UCodeLang::ModuleFile f;
-		Path modpath = AppFiles::GetFilePathByMove("source");
-		modpath /= "UCodeGameEngineEditor";
-		modpath /= UCodeLang::ModuleFile::FileNameWithExt;
-
-		f.FromFile(&f, modpath);
-
-
-		auto v = f.BuildModule(Compiler, index, true);
-		if (v.CompilerRet.IsError())
-		{
-			*Data.Error =  std::move(Compiler.Get_Errors());
-			return false;
-		}
-		else
-		{
-			External.Files.push_back(v.OutputItemPath);
-		}
-	}
-
-	Compiler.Get_Settings().PtrSize =Data.Is32bitMode ? UCodeLang::IntSizes::Int32 : UCodeLang::IntSizes::Int64;
-
-	auto r = Compiler.CompileFiles_UseIntDir(pathData, External);
-
-
-	*Data.Error = std::move(Compiler.Get_Errors());
-	return !r.IsError();
 }
 Optional<Path> UCompiler::GetIntermediate(const Path& FullFilePath, RunTimeProjectData* RunTimeProject)
 {
