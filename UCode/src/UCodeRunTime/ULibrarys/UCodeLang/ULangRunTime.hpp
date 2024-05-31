@@ -3,8 +3,7 @@
 #include <UCodeRunTime/includeULibrayCompoent.hpp>
 #include <UCodeLang/UCodeLang/UCodeLang.hpp>
 #include <UCodeRunTime/BasicTypes.hpp>
-LangStart
-
+CoreStart
 #define UScript_Attribute "UScript"
 #define UAsset_Attribute "UAsset"
 #define NoClassScript  "[NoClass]"
@@ -283,4 +282,4 @@ public:
 	static void Deserialize(UDeserializer& Serializer, void* Pointer, const UCodeLang::Enum_Data& Type, const UCodeLang::ClassAssembly& Assembly, bool Is32Mode);
 };
 
-LangEnd
+CoreEnd

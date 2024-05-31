@@ -1,5 +1,5 @@
 #pragma once
 #include <UCodeRunTime/Core/CoreNamespace.hpp>
 
-#define LangStart CoreStart 
-#define LangEnd CoreEnd 
+#define LangStart CoreStart namespace ULangAPI { using namespace UCode;
+#define LangEnd CoreEnd }
