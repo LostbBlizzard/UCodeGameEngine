@@ -5,7 +5,6 @@
 #include "Imgui/imgui_internal.h"
 #include <UCodeRunTime/ULibrarys/Input_Library.hpp>
 #include <UCodeRunTime/Rendering/InputHelper.hpp>
-#include "Editor/EditorApp.hpp"
 #include <Helper/FileHelper.hpp>
 #include "Helper/ImGuIHelper.hpp"
 #include "EditorWindows/InspectTypes/Inspect_Entity2d.hpp"
@@ -42,6 +41,11 @@ GameEditorWindow::~GameEditorWindow()
     {
         Get_App()->RemoveWaitForInput(_DontWaitInputKey.value());
         _DontWaitInputKey.reset();
+    } 
+    if (BlockKey.has_value())
+    {
+        Get_App()->RemoveBlockClose(BlockKey.value());
+        BlockKey = {};
     }
 }
 void GameEditorWindow::UpdateWindow()
@@ -105,10 +109,40 @@ void GameEditorWindow::UpdateWindow()
 
     ImGui::PopStyleVar();
 
+    if (_UseingScenePath.has_value() && _SceneDataAsRunTiime) 
+    {
+        if (BlockKey.has_value())
+        {
+            if (!ScencIsDiffent())
+            {
+                Get_App()->RemoveBlockClose(BlockKey.value());
+                BlockKey = {};
+            }
+        }
+        else
+        {
+            if (ScencIsDiffent())
+            {
+                BlockCloseData data;
+                data.Popname = "Save " + _UseingScenePath.value().filename().generic_string();
+                data.OnDontSave = [this]()
+                    {
+                        BlockKey = {};
+                    };
+                data.OnSave = [this]()
+                    {
+                        BlockKey = {};
+                        SaveScene();
+                    };
+                BlockKey = Get_App()->AddBlockClose(std::move(data));
+            }
+        }
+    }
 }
 
 void GameEditorWindow::OnSaveWindow(USerializer& JsonToSaveIn)
 {
+    
     auto Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
     if (_SceneData && _UseingScenePath.has_value() && !_IsRuningGame)
     {
@@ -117,8 +151,8 @@ void GameEditorWindow::OnSaveWindow(USerializer& JsonToSaveIn)
 
         JsonToSaveIn.Write("_ScenePath", PathString);
 
-        SaveScene();
     }
+    
 
 }
 
@@ -161,6 +195,24 @@ void GameEditorWindow::Scenehierarchy()
     */
 }
 
+
+bool GameEditorWindow::ScencIsDiffent()
+{
+    if (_SceneDataAsRunTiime) 
+    {
+        String asstr;
+        {
+            UCode::Scene2dData data;
+            UCode::Scene2dData::SaveScene(_SceneDataAsRunTiime, data,USerializerType::Fastest);
+            UCode::USerializer serializer;
+            data.PushData(serializer);
+            serializer.ToString(asstr, false);
+        }
+
+        return asstr != sceneassaved;
+    }
+    return false;
+}
 
 void GameEditorWindow::SetCopy(const UCode::Scene2dData::Entity_Data Entity)
 {
@@ -961,6 +1013,12 @@ void GameEditorWindow::ShowScene(SceneEditorTabData& data, UCode::RunTimeScene* 
     bool node_open;
     bool ShowingTree = false;
 
+    bool ischanged = false;
+    if (Item == _SceneDataAsRunTiime)
+    {
+        ischanged = ScencIsDiffent();
+    }
+
     if (IsRenameing && IsSelected(Item))
     {
         node_open = WasSelectedObjectOpened;
@@ -969,7 +1027,12 @@ void GameEditorWindow::ShowScene(SceneEditorTabData& data, UCode::RunTimeScene* 
     }
     else
     {
-        auto Data = ImGuIHelper::TreeNode(Item, SceneName.c_str(), AppFiles::sprite::Scene2dData);
+        String str = SceneName;
+        if (ischanged)
+        {
+            str += "*";
+        }
+        auto Data = ImGuIHelper::TreeNode(Item, str.c_str(), AppFiles::sprite::Scene2dData);
         node_open = Data;
         ShowingTree = true;
     }
@@ -1040,6 +1103,12 @@ void GameEditorWindow::ShowScene(SceneEditorTabData& data, UCode::RunTimeScene* 
             ImGui::CloseCurrentPopup();
         }
 
+
+        if (ImGui::MenuItem("Save"))
+        {
+            SaveScene();
+            ImGui::CloseCurrentPopup();
+        }
         keybindstring = settings.KeyBinds[(size_t)KeyBindList::New].ToString();
 
         if (ImGui::MenuItem("Add Entity") || settings.IsKeybindActive(KeyBindList::New))
@@ -1740,7 +1809,8 @@ void GameEditorWindow::ShowRunTimeGameLibrary()
 }
 void GameEditorWindow::SaveScene()
 {
-    if (_SceneData && _UseingScenePath.has_value()) {
+    if (_SceneData && _UseingScenePath.has_value())
+    {
         auto SaveType = Get_ProjectData()->Get_ProjData()._SerializeType;
         UCode::Scene2dData::SaveScene(_SceneDataAsRunTiime, *_SceneData, SaveType);
 
@@ -1767,6 +1837,15 @@ void GameEditorWindow::SaveScene()
             auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
             UCodeGEError("Saveing Asset for " << relpath << " Failed");
         }
+
+        {
+            UCode::Scene2dData data;
+            UCode::Scene2dData::SaveScene(_SceneDataAsRunTiime, data, USerializerType::Fastest);
+            UCode::USerializer serializer;
+            data.PushData(serializer);
+            serializer.ToString(sceneassaved, false);
+        }
+
     }
 }
 void GameEditorWindow::OpenScencAtPath(const Path& Path)
@@ -1778,6 +1857,13 @@ void GameEditorWindow::OpenScencAtPath(const Path& Path)
     UCode::AssetManager* Assets = UCode::AssetManager::Get(Get_GameLib());
     if (UCode::Scene2dData::FromFile(*NewSceneData, Path))
     {
+        if (BlockKey.has_value())
+        {
+            Get_App()->RemoveBlockClose(BlockKey.value());
+            BlockKey = {};
+        }
+           
+
         auto NewScene = UCode::Scene2dData::LoadScene(MainSceneData._GameRunTime.get(), *NewSceneData);
         // UCode::RunTimeScene::SetSceneMulti_Threaded(NewScene);
         if (Scenes.size() == 1)
@@ -1796,6 +1882,13 @@ void GameEditorWindow::OpenScencAtPath(const Path& Path)
             SelectedScene = NewScene->Get_ManagedPtr();
             _UseingScenePath = Path;
             _SceneDataAsRunTiime = NewScene;
+            {
+                UCode::Scene2dData data;
+                UCode::Scene2dData::SaveScene(_SceneDataAsRunTiime, data, USerializerType::Fastest);
+                UCode::USerializer serializer;
+                data.PushData(serializer);
+                serializer.ToString(sceneassaved, false);
+            }
         }
 
     }

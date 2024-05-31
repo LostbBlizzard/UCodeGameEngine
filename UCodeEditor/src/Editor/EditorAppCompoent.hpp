@@ -37,8 +37,19 @@ enum class KeyInputMode
 	Window,
 };
 
+struct BlockCloseData
+{
+	String Popname;
+	String Info;
+
+	std::function<void()> OnSave;
+	std::function<void()> OnDontSave;
+};
+
 using DontWaitInputKey = int;
 using ULangAssemblyID = int;
+using BlockCloseKey = int;
+
 class EditorAppCompoent :public UCode::Renderer2d
 {
 public:
@@ -51,7 +62,7 @@ public:
 	UCODE_EDITOR_FORCEINLINE RunTimeProjectData* Get_RunTimeProjectData() { return &_RunTimeProjectData; }
 	UCODE_EDITOR_FORCEINLINE UCode::Ref<UCode::Gamelibrary> Get_EditorLibraryRef() { return GetGameRunTime()->Get_LibraryRef(); }
 	UCODE_EDITOR_FORCEINLINE UCode::Gamelibrary* Get_EditorLibrary() { return GetGameRunTime()->Get_Library_Edit(); }
-	
+
 	template<typename T> T* Get_Window()
 	{
 		auto Data = T::GetEditorData();
@@ -84,11 +95,11 @@ public:
 	UCODE_EDITOR_FORCEINLINE UCode::AssetManager* Get_AssetManager() {
 		return UCode::AssetManager::Get(Get_EditorLibrary());
 	}
-	UCODE_EDITOR_NODISCARD Result<bool,String> OpenProject(const Path& ProjectDataPath);
+	UCODE_EDITOR_NODISCARD Result<bool, String> OpenProject(const Path& ProjectDataPath);
 	void Init(const Path& propath);
 	inline static const char* ImGUIDockName = "EditorApp";
 
-	
+
 	void AddUndo(const UndoData& V)
 	{
 		_Undos.push_back(V);
@@ -116,7 +127,7 @@ public:
 	std::function<void(bool)> SetWaitForInput;
 	DontWaitInputKey AddDontWaitForInput();
 	void RemoveWaitForInput(DontWaitInputKey key);
-	
+
 	//will change when ULang runtime reloads
 	ULangAssemblyID GetULangAssemblyID()
 	{
@@ -135,7 +146,7 @@ public:
 	{
 		return *_Loader;
 	}
-	
+
 	struct CloseRequestData
 	{
 		using OnClose = std::function<void()>;
@@ -143,15 +154,27 @@ public:
 		OnClose onclose;
 	};
 	bool CloseProjectRequest(CloseRequestData&& data);
+
+	BlockCloseKey AddBlockClose(BlockCloseData&& data)
+	{
+		auto newkey = GetNextKey();
+		List.AddValue(newkey, std::move(data));
+
+		return newkey;
+	}
+	void RemoveBlockClose(BlockCloseKey key)
+	{
+		List.erase(key);
+	}
 private:
 	DontWaitInputKey _NextDontWaitKey = {};
 	Vector<DontWaitInputKey> _ListDontWaitKeys;
 	ULangAssemblyID _AssemblyKey = {};
 	//CompoentStuff
 	void OnDraw() override;
-	
 
-	
+
+
 
 	void EndDockSpace();
 	void ShowEditiorWindows();
@@ -169,15 +192,15 @@ private:
 		NextWindowId++;
 		return V;
 	}
-	
+
 
 	void WaitForInput(bool Value)
 	{
 		SetWaitForInput(Value);
 	}
-	
-	
-	Vector<Unique_ptr<EditorWindow>> _EditorWindows;	
+
+
+	Vector<Unique_ptr<EditorWindow>> _EditorWindows;
 	i8 NextWindowId;
 
 	void ShowMainMenuBar();
@@ -214,16 +237,19 @@ private:
 	inline static EditorAppCompoent* _This = nullptr;
 
 	Optional<CloseRequestData> requestdata;
-	struct PopUpClose
-	{
-		String Popname;
-		String Info;
-
-		std::function<void()> OnSave;
-		std::function<void()> OnDontSave;
-	};
-	Vector<PopUpClose> popupscloserequestlist;
+	
+	Vector<BlockCloseData> popupscloserequestlist;
 	Unique_ptr<EditorAssetLoader> _Loader;
+
+	BlockCloseKey Next = BlockCloseKey();
+	Unordered_map<BlockCloseKey, BlockCloseData> List;
+	inline BlockCloseKey GetNextKey()
+	{
+		auto r = Next;
+		Next++;
+		return r;
+	}
 };
+
 EditorEnd
 
