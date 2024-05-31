@@ -287,6 +287,18 @@ void EditorAppCompoent::OnProjectLoaded()
     }
 
 
+    bool needtorecompileproject = true;
+    if (needtorecompileproject)
+    {//recompile project
+
+        auto assetsdir = _RunTimeProjectData.GetAssetsDir();
+        auto tepfile = assetsdir / "ULangModule.ucm";
+
+        if (std::filesystem::exists(tepfile))
+        {
+            OnFileUpdated(this, "ULangModule.ucm", ChangedFileType::FileUpdated);
+        }
+    }
 
     _AutoSaveTimer = MaxAutoTimer;
 }
@@ -495,14 +507,18 @@ void  EditorAppCompoent::ShowMainMenuBar()
                     rebuild = true;
                     fullrebuild = true;
                 }
-                if (ImGui::MenuItem("Clear Cache and Close Project"))
+                if (ImGui::MenuItem("Clear Cache and Reload Project"))
                 {
                     std::filesystem::remove_all(_RunTimeProjectData.GetULangIntDir());
+                    auto olddir = _RunTimeProjectData.Get_ProjectDir();
+                    EndProject();
+                    OpenProject(olddir);
                 }
                 if (ImGui::MenuItem("Dump"))
                 {
 
                 }
+                /*
                 if (ImGui::MenuItem("Dump as IR"))
                 {
 
@@ -511,10 +527,13 @@ void  EditorAppCompoent::ShowMainMenuBar()
                 {
 
                 }
+                */
+                /*
                 if (ImGui::MenuItem("Type was Renamed"))
                 {
 
                 }
+                */
 
                 if (fullrebuild)
                 {
