@@ -131,9 +131,11 @@ FileHelper::OpenFileData FileHelper::OpenFileFromUser(const Path&  FileType, con
 		TepString = defaultPath.generic_string();
 		FilePath = TepString.c_str();
 	}
-	if (!fs::exists(FilePath))
-	{
-		FilePath = nullptr;
+	if (FilePath) {
+		if (!fs::exists(FilePath))
+		{
+			FilePath = nullptr;
+		}
 	}
 
 	nfdresult_t result = NFD_OpenDialog(FileType.generic_string().c_str(), FilePath, &outPath);
