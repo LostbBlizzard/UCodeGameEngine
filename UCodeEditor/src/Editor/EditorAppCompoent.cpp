@@ -20,6 +20,7 @@
 #include "Helper/StringHelper.hpp"
 #include "Helper/UserSettings.hpp"
 #include "UCodeLang/Compilation/ModuleFile.hpp"
+#include "UCodeLang/Compilation/UAssembly/UAssembly.hpp"
 EditorStart
 
 
@@ -505,6 +506,7 @@ void  EditorAppCompoent::ShowMainMenuBar()
             {
                 bool rebuild = false;
                 bool fullrebuild = false;
+                bool dump = false;
                 if (ImGui::MenuItem("Rebuild"))
                 {
                     rebuild = true;
@@ -528,7 +530,8 @@ void  EditorAppCompoent::ShowMainMenuBar()
                 }
                 if (ImGui::MenuItem("Dump"))
                 {
-
+                    //rebuild = true;
+                    dump = true;
                 }
                 /*
                 if (ImGui::MenuItem("Dump as IR"))
@@ -618,6 +621,25 @@ void  EditorAppCompoent::ShowMainMenuBar()
                     if (std::filesystem::exists(tepfile))
                     {
                         OnFileUpdated(this, "ULangModule.ucm", ChangedFileType::FileUpdated);
+                    }
+                }
+                if (dump)
+                {
+                    auto libfile = _RunTimeProjectData.GetULangOutDir() / (String("ucode") + UCode::String(UCodeLang::FileExt::LibWithDot));
+
+                    UCodeLang::UClib lib;
+                    if (UCodeLang::UClib::FromFile(&lib, libfile)) 
+                    {
+                        auto outdir = _RunTimeProjectData.GetULangOutDir();
+                        auto outfile =  outdir / "dump.txt";
+                        auto str = UCodeLang::UAssembly::UAssembly::ToString(&lib);
+
+                        UC::GameFiles::Writetext(str, outfile);
+                        FileHelper::OpenPathinFiles(outdir);
+                    }
+                    else
+                    {
+                        UCodeGEError("unable to dump ucode.ulib is the project compiled")
                     }
                 }
                 ImGui::EndMenu();
