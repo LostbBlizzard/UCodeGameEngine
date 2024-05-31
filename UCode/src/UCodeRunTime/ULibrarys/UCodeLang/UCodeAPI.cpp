@@ -23,7 +23,6 @@ UCodeLang::RunTimeLib* UCodeAPI::Get()
 void UCodeAPI::MakeNewLib()
 {
 	_HasLib = true;
-	using namespace UCode::ULangAPI;
 	UCodeLang::SandBoxedIOLink::Link(_UCodeAPILib);
 
 	namespace UCAPI = UCode::ULangAPI;
@@ -40,6 +39,8 @@ void UCodeAPI::MakeNewLib()
 		using Debug__LogError0_ptr = void(*UCodeLangAPI)(const StringView); 
 		using Debug__LogFatalError_ptr = void(*UCodeLangAPI)(const String&); 
 		using Debug__LogFatalError0_ptr = void(*UCodeLangAPI)(const StringView); 
+		using ComponentAPI__entity_ptr = Entity*(*UCodeLangAPI)(uintptr_t); 
+		using ComponentAPI__ientity_ptr = const Entity*(*UCodeLangAPI)(uintptr_t); 
 		using Entity__Name_ptr = const StringView(*UCodeLangAPI)(UCAPI::Entity*); 
 		using Entity__Name0_ptr = void(*UCodeLangAPI)(UCAPI::Entity*,StringView); 
 		using Entity__Destroy_ptr = void(*UCodeLangAPI)(UCAPI::Entity*); 
@@ -170,6 +171,26 @@ void UCodeAPI::MakeNewLib()
 				Input.Set_Return();
 			
 			},(Debug__LogFatalError0_ptr)UCAPI::Debug::LogFatalError); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:ComponentAPI:entity",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				uintptr_t Par0 = Input.GetParameter<uintptr_t>();
+				
+				Entity* Ret =&UCAPI::ComponentAPI::entity(Par0);
+				
+				Input.Set_Return<Entity*>(Ret);
+			
+			},(ComponentAPI__entity_ptr)UCAPI::ComponentAPI::entity); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:ComponentAPI:ientity",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				uintptr_t Par0 = Input.GetParameter<uintptr_t>();
+				
+				const Entity* Ret =&UCAPI::ComponentAPI::ientity(Par0);
+				
+				Input.Set_Return<const Entity*>(Ret);
+			
+			},(ComponentAPI__ientity_ptr)UCAPI::ComponentAPI::ientity); 
 		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Entity:Name",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			

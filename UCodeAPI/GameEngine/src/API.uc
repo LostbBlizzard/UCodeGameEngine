@@ -97,13 +97,15 @@ UCodeGameEngine::Internal:
 
 //Entity.hpp
 UCodeGameEngine:
-  $Component export trait:
+  $Component trait export:
       uintptr _Handle = 0;
       |entity[this&]  => ComponentAPI::entity(_Handle);
       |entity[imut this&] => ComponentAPI::ientity(_Handle);
     
 
   $ComponentAPI export extern "c":
+   export extern dynamic |entity[uintptr _Handle] -> Entity&;
+   export extern dynamic |ientity[uintptr _Handle] -> imut Entity&;
 
 
   $Entity export extern "c":

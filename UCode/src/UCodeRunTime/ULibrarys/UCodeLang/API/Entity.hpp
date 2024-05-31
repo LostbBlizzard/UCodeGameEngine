@@ -7,7 +7,7 @@ LangStart
 
 UCodeLangExportSymbol("UCodeGameEngine") UCodeLangEmbed(
 	R"(
-    $Component export trait:
+    $Component trait export:
 	  uintptr _Handle = 0;
 	  |entity[this&]  => ComponentAPI::entity(_Handle);
 	  |entity[imut this&] => ComponentAPI::ientity(_Handle);
@@ -23,12 +23,13 @@ UCodeLangExportSymbol("UCodeGameEngine") struct ComponentAPI
 	{
 		return *(const Compoent*)_Handle;
 	}
+	using Entity = UCode::Entity;
 
-	UCodeLangExport static UCode::Entity& entity(uintptr_t _Handle)
+	UCodeLangExport static Entity& entity(uintptr_t _Handle)
 	{
 		return *Cast(_Handle).NativeEntity();
 	}
-	UCodeLangExport static const UCode::Entity& ientity(uintptr_t _Handle)
+	UCodeLangExport static const Entity& ientity(uintptr_t _Handle)
 	{
 		return *iCast(_Handle).NativeEntity();
 	}
