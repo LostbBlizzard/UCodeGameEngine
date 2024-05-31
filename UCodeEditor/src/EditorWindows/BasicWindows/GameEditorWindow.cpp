@@ -138,6 +138,12 @@ void GameEditorWindow::UpdateWindow()
             }
         }
     }
+
+    auto _GameRunTime = MainSceneData.GetGameRuntime();
+    if (!_IsRuningGame)
+    {
+        _GameRunTime->DestroyNullScenes();
+    }
 }
 
 void GameEditorWindow::OnSaveWindow(USerializer& JsonToSaveIn)
@@ -532,10 +538,7 @@ void GameEditorWindow::SceneEditor(SceneEditorTabData& data)
     }
 
 
-    if (!_IsRuningGame)
-    {
-        _GameRunTime->DestroyNullScenes();
-    }
+    
     ImGuiIO& io = ImGui::GetIO();
     bool IsFocused = ImGui::IsItemHovered() || ImGui::IsWindowFocused();
     if (IsFocused)
