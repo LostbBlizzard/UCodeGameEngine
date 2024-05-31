@@ -139,6 +139,12 @@ bool UCompiler::CompileProject(CompileData& Data)
 		DependsList.reserve(mainmoule.ModuleDependencies.size());
 
 		UCode::Mutex<size_t> BuildCount = 0;
+		std::function<void(CompileData::StatusUpdate&)> func = [&mainmoule, threads = Data.Threads](CompileData::StatusUpdate& func)-> void
+			{
+				func("Building Dependencies", UCode::CurrentThreadInfo::CurrentThread.Get_Base());
+			};
+		Data.OnStatusUpdate->Lock(func);
+
 
 		for (auto& Deps : mainmoule.ModuleDependencies)
 		{

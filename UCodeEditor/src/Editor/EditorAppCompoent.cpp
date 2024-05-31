@@ -507,6 +507,7 @@ void  EditorAppCompoent::ShowMainMenuBar()
                 bool rebuild = false;
                 bool fullrebuild = false;
                 bool dump = false;
+                Optional<Path> DumpAnyFile;
                 if (ImGui::MenuItem("Rebuild"))
                 {
                     rebuild = true;
@@ -520,9 +521,9 @@ void  EditorAppCompoent::ShowMainMenuBar()
                 {
                     std::filesystem::remove_all(_RunTimeProjectData.GetULangIntDir());
                     auto olddir = _RunTimeProjectData.Get_ProjectDir();
-                    
+
                     CloseRequestData data;
-                    data.onclose = [this,olddir =std::move(olddir)]()
+                    data.onclose = [this, olddir = std::move(olddir)]()
                         {
                             OpenProject(olddir);
                         };
@@ -533,6 +534,16 @@ void  EditorAppCompoent::ShowMainMenuBar()
                     //rebuild = true;
                     dump = true;
                 }
+                if (ImGui::MenuItem("Dump Path"))
+                {
+                    auto userpath = FileHelper::OpenFileFromUser(UCodeLang::FileExt::Lib);
+                    if (userpath.Result == FileHelper::OpenFileResult::OKAY)
+                    {
+                        DumpAnyFile = userpath.Path;
+                        dump = true;
+                    }
+                }
+            
                 /*
                 if (ImGui::MenuItem("Dump as IR"))
                 {
@@ -625,7 +636,7 @@ void  EditorAppCompoent::ShowMainMenuBar()
                 }
                 if (dump)
                 {
-                    auto libfile = _RunTimeProjectData.GetULangOutDir() / (String("ucode") + UCode::String(UCodeLang::FileExt::LibWithDot));
+                    auto libfile = DumpAnyFile.has_value() ? DumpAnyFile.value() : _RunTimeProjectData.GetULangOutDir() / (String("ucode") + UCode::String(UCodeLang::FileExt::LibWithDot));
 
                     UCodeLang::UClib lib;
                     if (UCodeLang::UClib::FromFile(&lib, libfile)) 
