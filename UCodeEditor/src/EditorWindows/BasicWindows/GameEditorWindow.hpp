@@ -10,6 +10,7 @@
 #include <UCodeRunTime/ULibrarys/AssetManagement/SceneData.hpp>
 #include "ImGui.hpp"
 #include <UCodeRunTime/ULibrarys/UCodeLang/ULangRunTime.hpp>
+#include "Editor/EditorApp.hpp"
 EditorStart
 
 
@@ -101,6 +102,9 @@ private:
 	SceneEditorTabData MainSceneData;
 	SceneEditorTabData PrefabSceneData;
 
+	Optional<BlockCloseKey> BlockKey;
+	String sceneassaved;
+	bool ScencIsDiffent();
 	
 	void SetCopy(const UCode::Scene2dData::Entity_Data Entity);
 	void SetCopy(const UCode::Entity* Entity,bool CopyRef);

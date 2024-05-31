@@ -346,7 +346,14 @@ void  EditorAppCompoent::ShowMainMenuBar()
                 }
                 if (ImGui::MenuItem("Close Project"))
                 {
-                    EndProject();
+                    CloseRequestData data;
+                    data.onclose = [this]()
+                        {
+                            EndProject();
+                            NewEditorWindowData DataForWindow(this);
+                            MakeNewWindow(OpenProjectWindow, DataForWindow);
+                        };
+                    CloseProjectRequest(std::move(data));
                 }
                 if (ImGui::MenuItem("Export Project"))
                 {
@@ -1075,9 +1082,14 @@ bool EditorAppCompoent::CloseProjectRequest(CloseRequestData&& data)
     requestdata = std::move(data);
 
     popupscloserequestlist.clear();
- 
+    popupscloserequestlist.reserve(List.size());
     {
-
+        for (auto& Item : List)
+        {
+            auto& val = Item.second;
+            popupscloserequestlist.push_back(std::move(val));
+        }
+        List.clear();
     }
 
 
