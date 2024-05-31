@@ -41,7 +41,20 @@ void EditorApp::Run(const String& ProjPath)
         {
             app->OnFilesDropedOnWindow(paths);
         };
-
+    winData.CloseAppRequest = []()
+        {
+            static bool didcall = false;
+            if (didcall == false)
+            {
+                didcall = true;
+                EditorAppCompoent::CloseRequestData data;
+                data.onclose = []()
+                    {
+                        app->GetGameRunTime()->StopRunTime();
+                    };
+                app->CloseProjectRequest(std::move(data));
+            }
+        };
     UCode::GameFilesData AppFilesData;
 
     _App.Init(winData, AppFilesData);

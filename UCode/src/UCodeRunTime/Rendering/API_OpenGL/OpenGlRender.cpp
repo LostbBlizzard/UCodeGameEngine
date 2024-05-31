@@ -485,8 +485,15 @@ void OpenGlRender::ProcessInput()
 
         if (glfwWindowShouldClose(window))
         {
-            RunTime->StopRunTime();
-            IsRuning = false;
+            if (_windowdata.CloseAppRequest.has_value())
+            {
+                _windowdata.CloseAppRequest.value()();
+            }
+            else 
+            {
+                RunTime->StopRunTime();
+                IsRuning = false;
+            }
         }
     }
 }
