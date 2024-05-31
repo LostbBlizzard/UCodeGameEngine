@@ -135,6 +135,14 @@ public:
 	{
 		return *_Loader;
 	}
+	
+	struct CloseRequestData
+	{
+		using OnClose = std::function<void()>;
+
+		OnClose onclose;
+	};
+	bool CloseProjectRequest(CloseRequestData&& data);
 private:
 	DontWaitInputKey _NextDontWaitKey = {};
 	Vector<DontWaitInputKey> _ListDontWaitKeys;
@@ -205,7 +213,16 @@ private:
 
 	inline static EditorAppCompoent* _This = nullptr;
 
+	Optional<CloseRequestData> requestdata;
+	struct PopUpClose
+	{
+		String Popname;
+		String Info;
 
+		std::function<void()> OnSave;
+		std::function<void()> OnDontSave;
+	};
+	Vector<PopUpClose> popupscloserequestlist;
 	Unique_ptr<EditorAssetLoader> _Loader;
 };
 EditorEnd

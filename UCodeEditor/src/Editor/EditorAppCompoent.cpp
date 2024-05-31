@@ -511,8 +511,13 @@ void  EditorAppCompoent::ShowMainMenuBar()
                 {
                     std::filesystem::remove_all(_RunTimeProjectData.GetULangIntDir());
                     auto olddir = _RunTimeProjectData.Get_ProjectDir();
-                    EndProject();
-                    OpenProject(olddir);
+                    
+                    CloseRequestData data;
+                    data.onclose = [this,olddir =std::move(olddir)]()
+                        {
+                            OpenProject(olddir);
+                        };
+                    CloseProjectRequest(std::move(data));
                 }
                 if (ImGui::MenuItem("Dump"))
                 {
@@ -1065,6 +1070,20 @@ void EditorAppCompoent::RemoveWaitForInput(DontWaitInputKey key)
     UCodeGEUnreachable();
 }
 
+bool EditorAppCompoent::CloseProjectRequest(CloseRequestData&& data)
+{
+    requestdata = std::move(data);
+
+    popupscloserequestlist.clear();
+ 
+    {
+
+    }
+
+
+    return popupscloserequestlist.size();
+}
+
 void EditorAppCompoent::OnDraw()
 {
     UCode::UCodeRunTimeState::Set_Current(UCode::ULangRunTime::Get(Get_EditorLibrary()));
@@ -1331,6 +1350,43 @@ void EditorAppCompoent::OnDraw()
         }
     }
  
+    if (popupscloserequestlist.size())
+    {
+        auto& Item = popupscloserequestlist.front();
+        ImGui::OpenPopup(Item.Popname.c_str());
+        if (ImGui::BeginPopupModal(Item.Popname.c_str()))
+        {
+            ImGuIHelper::Text(Item.Info);
+
+            bool onbuttion = false;
+
+
+            if (ImGui::Button("Save"))
+            {
+                Item.OnSave();
+                onbuttion = true;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Dont Save"))
+            {
+                Item.OnDontSave();
+                onbuttion = true;
+            }
+ 
+            if (onbuttion)
+            {
+                popupscloserequestlist.erase(popupscloserequestlist.begin());
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
+
+    }
+    else if (requestdata.has_value())
+    {
+        requestdata.value().onclose();
+        requestdata = {};
+    }
 
     UCodeGEStackFrame("EditorApp::Update");
     ShowEditiorWindows();

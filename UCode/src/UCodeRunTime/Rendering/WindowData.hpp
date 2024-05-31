@@ -4,6 +4,7 @@
 RenderAPIStart
 
 using OnFileDroped = void(*)(Vector<StringView>);
+using OnClose = void(*)();
 struct WindowData
 {
 public:
@@ -16,6 +17,9 @@ public:
 	bool SetUpInputs = true;
 	bool UpdateAppIfInputUpdate =false;
 	OnFileDroped _filedroped = nullptr;
+
+	//if this is set this will not close the runtime 
+	Optional<OnClose> CloseAppRequest;
 
 	WindowData(i32 w, i32 h, String name) :width(w), height(h), WindowName(name)
 	{
