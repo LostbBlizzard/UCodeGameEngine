@@ -1,7 +1,6 @@
 #pragma once
 #include "ULangRunTime.hpp"
-LangStart
-
+CoreStart
 struct ScirptableObjectData
 {
 	inline static const char* FileExt = "UScirptableObject";
@@ -119,5 +118,5 @@ class AssetAPI
 };
 
 
-LangEnd
 
+CoreEnd

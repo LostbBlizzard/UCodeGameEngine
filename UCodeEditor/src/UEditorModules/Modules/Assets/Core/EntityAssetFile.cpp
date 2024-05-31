@@ -74,7 +74,7 @@ UC::ImageData RenderFrame(RenderFrameData& Data, UC::RunTimeScene* scene)
 
 	render.EndRender();
 
-	newentity->Destroy();
+	UCode::Entity::Destroy(newentity);
 	scene->Get_RunTime()->DestroyNullScenes();
 
 	return v;

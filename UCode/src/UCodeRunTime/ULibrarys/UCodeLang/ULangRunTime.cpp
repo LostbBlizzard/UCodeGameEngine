@@ -1,7 +1,7 @@
 #include "ULangRunTime.hpp"
 #include <filesystem>
 #include "UCodeAPI.hpp"
-LangStart
+CoreStart
 using namespace UCodeLang;
 namespace fs = std::filesystem;
 ULangRunTime* ULangRunTime::Get(Gamelibrary* e)
@@ -1319,5 +1319,5 @@ void ULangHelper::Deserialize(UDeserializer& Serializer, void* Pointer, const UC
 	}
 }
 
-LangEnd
 
+CoreEnd

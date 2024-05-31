@@ -6,7 +6,7 @@ UCodeAPIEditorStart
 
 UCodeLangExportSymbol("UCodeGameEngineEditor") UCodeLangEmbed(
 	R"(
-    $Exporter trait:
+    $Exporter trait export:
 	  uintptr _Handle = 0;
     ")");
 

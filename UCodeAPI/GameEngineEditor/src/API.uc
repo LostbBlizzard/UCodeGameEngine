@@ -4,7 +4,7 @@ use ULang;
 
 //Exporter.hpp
 UCodeGameEngineEditor:
-  $Exporter trait:
+  $Exporter trait export:
       uintptr _Handle = 0;
     
 

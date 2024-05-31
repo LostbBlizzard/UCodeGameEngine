@@ -3,8 +3,8 @@
 #include "LangNamespace.hpp"
 #include <UCodeLang/UCodeLang.hpp>
 #include "UCodeRunTime/CoreRunTime.hpp"
-LangStart
 
+CoreStart
 #define GetUAPIFuncName(x) Core ##_ULangAPI##x 
 
 #define ToCString(x) #x
@@ -39,4 +39,4 @@ private:
 	static UCodeLang::RunTimeLib _UCodeAPILib;
 	inline static String _ULIbString;
 };
-LangEnd
+CoreEnd

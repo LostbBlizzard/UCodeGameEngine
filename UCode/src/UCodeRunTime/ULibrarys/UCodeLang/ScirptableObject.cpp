@@ -1,6 +1,5 @@
 #include "ScirptableObject.hpp"
-LangStart 
-
+CoreStart
 
 void ScirptableObjectData::PushData(USerializer& node) const
 {
@@ -150,5 +149,4 @@ void ScirptableObject::SaveTo(ScirptableObjectData& out, USerializerType type) c
     serlalizer.ToString(out._Data,false);
     out._DataSerializeType = type;
 }
-LangEnd
-
+CoreEnd
