@@ -135,7 +135,16 @@ bool UCompiler::CompileProject(CompileData& Data)
 		}
 		Compiler.Get_Settings().PtrSize = Data.Is32bitMode ? UCodeLang::IntSizes::Int32 : UCodeLang::IntSizes::Int64;
 
-		Vector<UCodeLang::TaskManger::Task<Optional<UCodeLang::ModuleFile::ModuleRet>>> DependsList;
+		struct ModuleBuildOut 
+		{
+			UCodeLang::ModuleFile::ModuleRet ret;
+			UCodeLang::CompilationErrors errors;
+			ModuleBuildOut(UCodeLang::ModuleFile::ModuleRet&& ret) :ret(std::move(ret))
+			{
+
+			}
+		};
+		Vector<UCodeLang::TaskManger::Task<Optional<ModuleBuildOut>>> DependsList;
 		DependsList.reserve(mainmoule.ModuleDependencies.size());
 
 		UCode::Mutex<size_t> BuildCount = 0;
@@ -162,18 +171,12 @@ bool UCompiler::CompileProject(CompileData& Data)
 			UCodeLang::ModuleIndex::IndexModuleFile* modindex = nullptr;
 
 
-			for (auto& Item : index._IndexedFiles)
+			auto val = index.FindFile(Deps.Identifier);
+			if (val.has_value())
 			{
-				if (Item._ModuleData.AuthorName == Deps.Identifier.AuthorName &&
-					Item._ModuleData.ModuleName == Deps.Identifier.ModuleName &&
-					Item._ModuleData.MajorVersion == Deps.Identifier.MajorVersion &&
-					Item._ModuleData.MinorVersion == Deps.Identifier.MinorVersion &&
-					Item._ModuleData.RevisionVersion == Deps.Identifier.RevisionVersion)
-				{
-					modindex = &Item;
-					break;
-				}
+				modindex = &index._IndexedFiles[val.value()];
 			}
+			
 
 			if (modindex == nullptr)
 			{
@@ -182,12 +185,12 @@ bool UCompiler::CompileProject(CompileData& Data)
 			}
 			else
 			{
-				std::function<Optional<UCodeLang::ModuleFile::ModuleRet>()> func = [&BuildCount,&Data, &modindex, &index, &Compiler]()->Optional<UCodeLang::ModuleFile::ModuleRet>
+				std::function<Optional<ModuleBuildOut>()> func = [&BuildCount,&Data, &modindex, &index, &Compiler,&taskmanger]()->Optional<ModuleBuildOut>
 					{
 						UCodeLang::ModuleFile file;
 						if (UCodeLang::ModuleFile::FromFile(&file, modindex->_ModuleFullPath))
 						{
-							auto r = file.BuildModule(Compiler, index, true,
+							ModuleBuildOut r = file.BuildModule(Compiler, index, true,
 								[&Data](String msg) mutable
 								{
 								std::function<void(CompileData::StatusUpdate&)> func = [msg, threads = Data.Threads](CompileData::StatusUpdate& func)->void
@@ -196,12 +199,17 @@ bool UCompiler::CompileProject(CompileData& Data)
 
 									};
 								Data.OnStatusUpdate->Lock(func);
-								});
+								},taskmanger);
 
 							BuildCount.Lock([](size_t& item)
 								{
 									item++;
 								});
+
+							if (r.ret.CompilerRet.IsError()) 
+							{
+								r.errors = Compiler.Get_Errors();
+							}
 							return r;
 						}
 						else
@@ -217,15 +225,35 @@ bool UCompiler::CompileProject(CompileData& Data)
 
 		
 		auto taskoutput = taskmanger.WaitFor(DependsList);
-		for (auto& Item : taskoutput)
+		for (size_t i = 0; i < taskoutput.size(); i++)
 		{
+			auto& Item = taskoutput[i];
+			auto& Dep = mainmoule.ModuleDependencies[i];
+
+			Path moddir = index._IndexedFiles[index.FindFile(Dep.Identifier).value()]._ModuleFullPath.parent_path();
 			if (Item.has_value())
 			{
-				External.Files.push_back(Item.value().OutputItemPath);
+				if (Item.value().ret.CompilerRet.IsError())
+				{
+					*Data.Error = std::move(Item.value().errors);
+
+					
+					for (auto& Item : (*Data.Error).Get_Errors())
+					{
+						Item.File = moddir.native() + Item.File.native();
+					}
+					return false;
+				}
+				else 
+				{
+					External.Files.push_back(Item.value().ret.OutputItemPath);
+				}
 			}
 			else
 			{
-
+				(*Data.Error).AddError(UCodeLang::ErrorCodes::InternalCompilerError, 0, 0
+					, String("Unable to Read ") + String(UCodeLang::ModuleFile::FileNameWithExt) + " at" + moddir.generic_string());
+				return false;
 			}
 		}	
 		
