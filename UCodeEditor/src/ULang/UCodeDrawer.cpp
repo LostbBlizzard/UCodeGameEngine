@@ -4,37 +4,10 @@
 #include "UCodeLang/RunTime/ReflectionStl.hpp"
 EditorStart
 
-struct InputTextCallback_UserData
-{
-    UCodeLang::ReflectionString*            Str;
-    ImGuiInputTextCallback  ChainCallback;
-    void*                   ChainCallbackUserData;
-};
-static int InputTextCallback(ImGuiInputTextCallbackData* data)
-{
-    InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
-    if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
-    {
-        // Resize string callback
-        // If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
-        UCodeLang::ReflectionString* str = user_data->Str;
-        IM_ASSERT(data->Buf == str->data());
-        str->resize(data->BufTextLen);
-        data->Buf = (char*)str->data();
-    }
-    else if (user_data->ChainCallback)
-    {
-        // Forward to user callback, if any
-        data->UserData = user_data->ChainCallbackUserData;
-        return user_data->ChainCallback(data);
-    }
-    return 0;
-}
 bool DrawString(void* Pointer, UCodeLang::ReflectionString& Type,
 	ImGuiInputTextFlags flags)
 {
-	if (Type.GetElementType()._Type == UCodeLang::ReflectionTypes::Char) 
-	{
+	if (Type.GetElementType()._Type == UCodeLang::ReflectionTypes::Char) {
 		String copy = String(Type.AsCharView());
 
 		bool r = ImGuIHelper::InputText(copy, flags);
@@ -53,17 +26,6 @@ bool DrawString(void* Pointer, UCodeLang::ReflectionString& Type,
 bool DrawStringMultiline(void* Pointer, UCodeLang::ReflectionString& Type,
 	ImVec2 size)
 {
-	/*
-	String copy = String(Type.AsCharView());
-
-	bool r = ImGuIHelper::MultLineText(copy, flags);
-
-	if (r)
-	{
-		Type = copy;
-	}
-	return r;
-	*/
 	return false;
 }
 bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& Type, const UCodeLang::ClassAssembly& Assembly, bool IfClassRemoveFlags)
@@ -346,8 +308,7 @@ bool UCodeDrawer::DrawClass(void* Pointer, const UCodeLang::Class_Data& Class, c
 }
 bool UCodeDrawer::DrawField(void* Pointer, const char* FieldName, const UCodeLang::ReflectionTypeInfo& Type, const UCodeLang::ClassAssembly& Assembly)
 {
-	ImGuIHelper::Text(StringView(FieldName));
-	ImGui::SameLine();
+	ImGuIHelper::ItemLabel(StringView(FieldName), ImGuIHelper::Left);
 	return DrawType(Pointer, Type, Assembly);
 }
 bool UCodeDrawer::DrawEnum(void* Pointer, const UCodeLang::Enum_Data& Class, const UCodeLang::ClassAssembly& Assembly)
