@@ -3,6 +3,69 @@
 #include "UCodeRunTime/ULibrarys/UCodeLang/ULangRunTime.hpp"
 #include "UCodeLang/RunTime/ReflectionStl.hpp"
 EditorStart
+
+struct InputTextCallback_UserData
+{
+    UCodeLang::ReflectionString*            Str;
+    ImGuiInputTextCallback  ChainCallback;
+    void*                   ChainCallbackUserData;
+};
+static int InputTextCallback(ImGuiInputTextCallbackData* data)
+{
+    InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
+    if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+    {
+        // Resize string callback
+        // If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
+        UCodeLang::ReflectionString* str = user_data->Str;
+        IM_ASSERT(data->Buf == str->data());
+        str->resize(data->BufTextLen);
+        data->Buf = (char*)str->data();
+    }
+    else if (user_data->ChainCallback)
+    {
+        // Forward to user callback, if any
+        data->UserData = user_data->ChainCallbackUserData;
+        return user_data->ChainCallback(data);
+    }
+    return 0;
+}
+bool DrawString(void* Pointer, UCodeLang::ReflectionString& Type,
+	ImGuiInputTextFlags flags)
+{
+	if (Type.GetElementType()._Type == UCodeLang::ReflectionTypes::Char) 
+	{
+		String copy = String(Type.AsCharView());
+
+		bool r = ImGuIHelper::InputText(copy, flags);
+
+		if (r)
+		{
+			Type = copy;
+		}
+		return r;
+	}
+	else
+	{
+		return false;
+	}
+}
+bool DrawStringMultiline(void* Pointer, UCodeLang::ReflectionString& Type,
+	ImVec2 size)
+{
+	/*
+	String copy = String(Type.AsCharView());
+
+	bool r = ImGuIHelper::MultLineText(copy, flags);
+
+	if (r)
+	{
+		Type = copy;
+	}
+	return r;
+	*/
+	return false;
+}
 bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& Type, const UCodeLang::ClassAssembly& Assembly, bool IfClassRemoveFlags)
 {
 	const bool Is32Mode = sizeof(void*) == 4;
@@ -129,10 +192,10 @@ bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& T
 	case UCodeLang::ReflectionTypes::CustomType:
 	{
 		auto Node = Assembly.Find_Node(Type._CustomTypeID);
-		{
-			auto state = UCode::UCodeRunTimeState::Get_Current();
-			UCodeLang::AnyInterpreterPtr anyptr = &state->GetCurrentInterpreter();
 
+		auto state = UCode::UCodeRunTimeState::Get_Current();
+		UCodeLang::AnyInterpreterPtr anyptr = &state->GetCurrentInterpreter();
+		{
 			auto typeop = Assembly.IsVector_t(Type);
 			if (typeop.has_value())
 			{
@@ -186,6 +249,27 @@ bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& T
 					};
 
 				return ImGuIHelper::DrawVector(&data, data.data(), data.size(), info);				
+			}
+		}
+		{
+			auto typeop = Assembly.IsString_t(Type);
+
+			if (typeop.has_value())
+			{
+				auto& type = typeop.value();
+
+				UCodeLang::ReflectionString data;
+				data.Set(Pointer, &type, anyptr, Assembly, Is32Mode);
+
+				bool useMultiline = false;
+				if (useMultiline)
+				{
+					return DrawStringMultiline(Pointer, data,{20,20});
+				}
+				else
+				{
+					return DrawString(Pointer, data,0);
+				}
 			}
 		}
 		if (Node)
