@@ -487,7 +487,12 @@ public:
 		Optional<std::function<void(void* Object, size_t NewSize)>> _ResizeVector;
 	};
 
-	static bool DrawVector(const char* label, void* Object, void* Buffer, size_t Size, const DrawVectorInfo& Item);
+	static bool DrawVector(const char* label, void* Object, void* Buffer, size_t Size, const DrawVectorInfo& Item)
+	{
+		ItemLabel(StringView(label), ItemLabelFlag::Left);
+		return DrawVector(Object, Buffer, Size, Item);
+	}
+	static bool DrawVector(void* Object, void* Buffer, size_t Size, const DrawVectorInfo& Item);
 
 	static bool InputSize_t(const char* label, size_t* v, int step = 1, int step_fast = 100, ImGuiInputTextFlags flags = 0);
 

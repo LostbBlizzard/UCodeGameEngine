@@ -1339,11 +1339,9 @@ bool ImGuIHelper::BufferingBar(const char* label, float value, const ImVec2& siz
 	window->DrawList->AddCircleFilled(ImVec2(pos.x + circleEnd - o2, bb.Min.y + r), r, bg_col);
 	window->DrawList->AddCircleFilled(ImVec2(pos.x + circleEnd - o3, bb.Min.y + r), r, bg_col);
 }
-bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size_t Size, const DrawVectorInfo& Item)
+bool ImGuIHelper::DrawVector(void* Object, void* Buffer, size_t Size, const DrawVectorInfo& Item)
 {
 	bool WasUpdated = false;
-
-	ItemLabel(StringView(label), ItemLabelFlag::Left);
 	
 	auto& g = *GImGui;
 	auto ImageHight = g.FontSize + g.Style.FramePadding.y * 2;
@@ -1351,7 +1349,7 @@ bool ImGuIHelper::DrawVector(const char* label, void* Object, void* Buffer, size
 	auto& spaceing = ImGui::GetStyle().ItemSpacing;
 	
 	
-	ImGui::PushID(label);
+	ImGui::PushID(Object);
 	bool Value = ImGui::TreeNode("");
 	ImGui::PopID();
 
