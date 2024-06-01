@@ -212,23 +212,5 @@ private:
 	Unique_Bytes _Bytes;
 };
 
-inline String ToString(YAML::Node& node)
-{
-    String r;
-    for (YAML::iterator it = node.begin(); it != node.end(); ++it)
-    {
-        if (r.size())
-        {
-            r += "\n";
-        }
-
-        r += it->first.as<std::string>();
-        r += ": ";
-        r += it->second.as<std::string>();
-
-       
-    }
-      
-    return r;
-}
+String ToString(YAML::Node& node,bool issub = false,size_t spaceing =0);
 CoreEnd

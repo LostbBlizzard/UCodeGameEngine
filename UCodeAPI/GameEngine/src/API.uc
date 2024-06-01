@@ -169,11 +169,11 @@ UCodeGameEngine:
 
 //ScirptableObject.hpp
 UCodeGameEngine:
-  $Asset trait:
+  $Asset trait export:
       uintptr _Handle = 0;
     
 
-  $MenuItem<(Size)> tag:
+  $MenuItem<(Size)> tag export:
       char[/Size] MenuName;
       |new[this&,char[/Size] name]:
        MenuName = name;
