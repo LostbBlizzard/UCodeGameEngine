@@ -581,7 +581,7 @@ String UCompiler::NewAssetTemplate(const StringView componentname)
 	r += Tab;
 	r+= "//Add Varables\n";
 	r += Tab;
-	r += "int Number;\n";
+	r += "int Number = 0;\n";
 	
 	r += Tab;
 	r += "String StringVal;\n";

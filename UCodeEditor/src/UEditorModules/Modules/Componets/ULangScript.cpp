@@ -3,6 +3,7 @@
 #include "ULang/UCodeDrawer.hpp"
 #include "ULang/UCompiler.hpp"
 #include "Imgui/misc/cpp/imgui_stdlib.h"
+#include "UEditorModules/Modules/CodeModule.hpp"
 EditorStart
 
 ULangScriptUEditorData::ULangScriptUEditorData()
@@ -35,11 +36,11 @@ void ULangScriptUEditorData::DrawInspect(const UEditorComponentDrawData& Data, U
 {
 	UCode::ULangScript* Component = (UCode::ULangScript*)Value;
 	{
-		ImGui::BeginDisabled(true);
+		ImGui::BeginDisabled(Component->HasScript());
 
 
 		const float square_sz = ImGui::GetFrameHeight();
-		ImGuIHelper::Image(AppFiles::sprite::Uility_image, { square_sz ,square_sz });
+		ImGuIHelper::Image(AppFiles::sprite::ULangScript, { square_sz ,square_sz });
 		ImGui::SameLine();
 
 		String tep = Component->GetClassName();
@@ -48,7 +49,34 @@ void ULangScriptUEditorData::DrawInspect(const UEditorComponentDrawData& Data, U
 
 		ImGui::PushItemWidth(ImGui::CalcItemWidth() - (ImGuIHelper::CheckBoxSizeWithPadding().x));
 		ImGui::PushID(&tep);
-		ImGui::InputText("", &tep);
+
+		if (!Component->HasScript())
+		{
+			const Vector<const UCodeLang::AssemblyNode*>& vaildcompoents = CodeModule::GetAllVaildCompoents();
+			ImGuIHelper::ObjectFieldData data;
+			data.OnObjectInList = [Component](void* Ptr, void* Object, bool Listmode, const String& Find) -> bool
+				{
+					const UCodeLang::AssemblyNode* item = *(const UCodeLang::AssemblyNode**)Object;
+	
+					auto imagesize = ImGui::GetFrameHeight();
+					ImGuIHelper::Image(AppFiles::sprite::ULangScript, { imagesize,imagesize });
+
+					ImGui::SameLine();
+					bool r =ImGui::Selectable(item->FullName.c_str(),false);
+					if (r)
+					{
+						Component->LoadScript(item);
+					}
+					return r;
+				};
+
+			ImGuIHelper::DrawObjectField(&tep, vaildcompoents.data(), vaildcompoents.size()
+				,sizeof(const UCodeLang::AssemblyNode*), data, AppFiles::sprite::ULangScript, tep);
+		}
+		else 
+		{
+			ImGui::InputText("", &tep);
+		}
 		ImGui::PopID();
 		ImGui::PopItemWidth();
 
@@ -71,22 +99,6 @@ void ULangScriptUEditorData::DrawInspect(const UEditorComponentDrawData& Data, U
 		{
 			Component->ReLoad();
 			return;
-		}
-		auto& Assembly = ULang->Get_Assembly();
-
-
-		for (const auto& Item : Assembly.Classes)
-		{
-			if (Item->Get_Type() == UCodeLang::ClassType::Class)
-			{
-				if (UCompiler::IsAComponent(*Item, Assembly))
-				{
-					if (ImGui::MenuItem(Item->FullName.size() ? Item->FullName.c_str() : "noname"))
-					{
-						Component->LoadScript(Item.get());
-					}
-				}
-			}
 		}
 	}
 	else
