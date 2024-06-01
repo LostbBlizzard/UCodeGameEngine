@@ -232,20 +232,37 @@ String ToString(YAML::Node& node,bool issub,size_t spaceing)
 
 	if (!node.IsScalar())
 	{
-		for (YAML::iterator it = node.begin(); it != node.end(); ++it)
+		if (node.IsSequence())
 		{
-			if (r.size() || issub)
+			for (auto& Item : node)
 			{
 				r += "\n";
 				for (size_t i = 0; i < spaceing; i++)
-				{
-					r += " ";
-				}
+					{
+						r += " ";
+					}
+				r += "- ";
+				r += ToString(Item, true, spaceing + 1);
 			}
+		}
+		else 
+		{
+			for (YAML::iterator it = node.begin(); it != node.end(); ++it)
+			{
+				if (r.size() || issub)
+				{
+					r += "\n";
+					for (size_t i = 0; i < spaceing; i++)
+					{
+						r += " ";
+					}
+				}
 
-			r += it->first.as<std::string>();
-			r += ": ";
-			r += ToString(it->second,true, spaceing +1);
+
+				r += it->first.as<std::string>();
+				r += ": ";
+				r += ToString(it->second, true, spaceing + 1);
+			}
 		}
 	}
 	else

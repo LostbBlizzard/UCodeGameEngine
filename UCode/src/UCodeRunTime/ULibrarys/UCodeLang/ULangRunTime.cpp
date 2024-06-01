@@ -747,6 +747,43 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 	case ReflectionTypes::CustomType:
 	{
 		auto Node = Assembly.Find_Node(Type._CustomTypeID);
+		{
+			auto state = UCode::UCodeRunTimeState::Get_Current();
+			UCodeLang::AnyInterpreterPtr anyptr = &state->GetCurrentInterpreter();
+
+			auto typeop = Assembly.IsVector_t(Type);
+			if (typeop.has_value())
+			{
+				auto& type = typeop.value();
+
+				UCodeLang::ReflectionVector data;
+				data.Set((void*)Pointer, &type, anyptr, Assembly, Is32Mode);
+				
+				if (Serializer.Get_Type() == USerializerType::Bytes)
+				{
+					auto& Bits = Serializer.Get_BitMaker();
+					Bits.WriteType((BitMaker::SizeAsBits)data.size());
+
+					for (auto item : data)
+					{
+						Serialize(Serializer, item, data.GetElementType(), Assembly, Is32Mode);
+					}
+				}
+				else
+				{
+					auto& Bits = Serializer.Get_TextMaker();
+					Bits << YAML::Value;
+					Bits << YAML::BeginSeq;
+					for (auto item : data)
+					{
+						Serialize(Serializer, item, data.GetElementType(), Assembly, Is32Mode);
+					}
+					Bits << YAML::EndSeq;
+				}
+				return;
+			}
+		}
+
 		if (Node)
 		{
 			switch (Node->Get_Type())
@@ -1077,6 +1114,92 @@ uInt64Case:
 	case ReflectionTypes::CustomType:
 	{
 		auto Node = Assembly.Find_Node(Type._CustomTypeID);
+		{
+			auto state = UCode::UCodeRunTimeState::Get_Current();
+			UCodeLang::AnyInterpreterPtr anyptr = &state->GetCurrentInterpreter();
+
+			auto typeop = Assembly.IsVector_t(Type);
+			if (typeop.has_value())
+			{
+				auto& type = typeop.value();
+
+				UCodeLang::ReflectionVector data;
+				data.Set((void*)Pointer, &type, anyptr, Assembly, Is32Mode);
+
+				data.clear();
+				
+				if (Serializer.Get_Mode() == USerializerType::Bytes)
+				{
+					BitReader::SizeAsBits NewSize = 0;
+					Serializer.Get_BitReader().ReadType(NewSize, NewSize);
+					data.resize(NewSize);
+
+					for (size_t i = 0; i < NewSize; i++)
+					{
+						auto ItemOut = data.at(i);
+						{//Construct was called on resize
+							auto item = Assembly.CallDestructor(data.GetElementType(),ItemOut, Is32Mode);
+							if (item.has_value())
+							{
+								if (item.value().has_value())
+								{
+									auto& List = item.value().value();
+									for (auto& func : List)
+									{
+										anyptr.ThisCall(func.MethodToCall, func.ThisPtr);
+									}
+								}
+							}
+						}
+						Deserialize(Serializer, ItemOut, data.GetElementType(), Assembly, Is32Mode);
+					}
+				}
+				else
+				{
+					auto& Yaml = Serializer.Get_TextReader();
+					BitReader::SizeAsBits NewSize = 0;
+				
+					for (auto& Item : Yaml)
+					{
+						NewSize++;
+					}
+					data.resize(NewSize);
+
+					size_t elmsize = data.GetElementTypeSize();
+
+					size_t index =0;
+					for (auto& Item : Yaml)
+					{
+						UDeserializer newSerializer = UDeserializer("");
+						newSerializer.Get_TextReader() = std::move((YAML::Node)Item);
+
+
+						uintptr_t FieldPtr = (uintptr_t)data.data() + (index * elmsize);
+						void* FieldP = (void*)FieldPtr;
+
+						{//Construct was called on resize
+							auto item = Assembly.CallDestructor(data.GetElementType(), FieldP, Is32Mode);
+							if (item.has_value())
+							{
+								if (item.value().has_value())
+								{
+									auto& List = item.value().value();
+									for (auto& func : List)
+									{
+										anyptr.ThisCall(func.MethodToCall, func.ThisPtr);
+									}
+								}
+							}
+						}
+						Deserialize(newSerializer, FieldP, data.GetElementType(), Assembly, Is32Mode);
+						index++;
+					}
+
+				}
+				return;
+			}
+		}
+
 		if (Node)
 		{
 			switch (Node->Get_Type())
