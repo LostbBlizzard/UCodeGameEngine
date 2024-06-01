@@ -784,7 +784,7 @@ bool Inspect_Compoent2d::ShowAddCompoenList(UCode::Entity* item)
                             auto Spr = Inspect_Compoent2d::GetCompoentSprite(UCode::ULangScript::Get_TypeID());
                             ImGuIHelper::Image(Spr, Size);
                             ImGui::SameLine();
-                            if (ImGui::Button(Item->FullName.size() ? Item->FullName.c_str() : "##"))
+                            if (ImGui::MenuItem(Item->FullName.size() ? Item->FullName.c_str() : "##"))
                             {
                                 auto script = item->AddCompoent<UCode::ULangScript>();
                                 script->LoadScript(Item);

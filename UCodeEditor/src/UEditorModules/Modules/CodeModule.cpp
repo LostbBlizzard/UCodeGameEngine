@@ -221,7 +221,7 @@ const Vector<const UCodeLang::AssemblyNode*>& CodeModule::GetAllVaildCompoents()
 
 	auto assemblykey = app->GetULangAssemblyID();
 
-	bool isoutofdate = myassemblykey.has_value() ? assemblykey != myassemblykey.value() : false;
+	bool isoutofdate = myassemblykey.has_value() ? assemblykey != myassemblykey.value() : true;
 
 	if (isoutofdate) 
 	{
