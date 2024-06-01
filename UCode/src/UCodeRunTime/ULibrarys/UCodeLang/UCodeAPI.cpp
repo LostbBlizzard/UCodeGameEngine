@@ -4,6 +4,7 @@
 #include "../../../UCodeRunTime/ULibrarys/InputManger/InputManger.hpp"
 #include "../../../UCodeRunTime/ULibrarys/Loger.hpp"
 #include "../../../UCodeRunTime/ULibrarys/UCodeLang/API/Entity.hpp"
+#include "../../../UCodeRunTime/ULibrarys/UCodeLang/API/Object.hpp"
 #include "../../../UCodeRunTime/ULibrarys/UCodeLang/API/Time.hpp"
 #include "../../../UCodeRunTime/ULibrarys/UCodeLang/ScirptableObject.hpp"
 //UCodeAutoLink include End
@@ -72,6 +73,11 @@ void UCodeAPI::MakeNewLib()
 		using Entity__WorldRotation2D0_ptr = void(*UCodeLangAPI)(UCAPI::Entity*,const Vec2&); 
 		using Entity__WorldScale0_ptr = void(*UCodeLangAPI)(UCAPI::Entity*,const Vec3&); 
 		using Entity__WorldScale2D0_ptr = void(*UCodeLangAPI)(UCAPI::Entity*,const Vec2&); 
+		using ObjectAPI__New_ptr = void(*UCodeLangAPI)(uintptr_t); 
+		using ObjectAPI__New_Copy_ptr = void(*UCodeLangAPI)(uintptr_t,uintptr_t); 
+		using ObjectAPI__New_Move_ptr = void(*UCodeLangAPI)(uintptr_t,uintptr_t); 
+		using ObjectAPI__Drop_ptr = void(*UCodeLangAPI)(uintptr_t); 
+		using ObjectAPI__Get_ptr = uintptr_t(*UCodeLangAPI)(uintptr_t,uintptr_t); 
 		using Time__DeltaTime_ptr = float(*UCodeLangAPI)(); 
 		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Input:IsKeyDown",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
@@ -622,6 +628,62 @@ void UCodeAPI::MakeNewLib()
 			{
 				thisPar->WorldScale2D(Par0);
 			}); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:ObjectAPI:New",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				uintptr_t Par0 = Input.GetParameter<uintptr_t>();
+				
+				UCAPI::ObjectAPI::New(Par0);
+				
+				Input.Set_Return();
+			
+			},(ObjectAPI__New_ptr)UCAPI::ObjectAPI::New); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:ObjectAPI:New_Copy",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				uintptr_t Par0 = Input.GetParameter<uintptr_t>();
+				
+				uintptr_t Par1 = Input.GetParameter<uintptr_t>();
+				
+				UCAPI::ObjectAPI::New_Copy(Par0,Par1);
+				
+				Input.Set_Return();
+			
+			},(ObjectAPI__New_Copy_ptr)UCAPI::ObjectAPI::New_Copy); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:ObjectAPI:New_Move",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				uintptr_t Par0 = Input.GetParameter<uintptr_t>();
+				
+				uintptr_t Par1 = Input.GetParameter<uintptr_t>();
+				
+				UCAPI::ObjectAPI::New_Move(Par0,Par1);
+				
+				Input.Set_Return();
+			
+			},(ObjectAPI__New_Move_ptr)UCAPI::ObjectAPI::New_Move); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:ObjectAPI:Drop",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				uintptr_t Par0 = Input.GetParameter<uintptr_t>();
+				
+				UCAPI::ObjectAPI::Drop(Par0);
+				
+				Input.Set_Return();
+			
+			},(ObjectAPI__Drop_ptr)UCAPI::ObjectAPI::Drop); 
+		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:ObjectAPI:Get",[](UCodeLang::InterpreterCPPinterface& Input) -> void
+			{
+			
+				uintptr_t Par0 = Input.GetParameter<uintptr_t>();
+				
+				uintptr_t Par1 = Input.GetParameter<uintptr_t>();
+				
+				uintptr_t Ret =UCAPI::ObjectAPI::Get(Par0,Par1);
+				
+				Input.Set_Return<uintptr_t>(Ret);
+			
+			},(ObjectAPI__Get_ptr)UCAPI::ObjectAPI::Get); 
 		_UCodeAPILib.Add_CPPCall("UCodeGameEngine:Time:DeltaTime",[](UCodeLang::InterpreterCPPinterface& Input) -> void
 			{
 			
