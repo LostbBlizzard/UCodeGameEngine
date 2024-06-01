@@ -159,6 +159,49 @@ UCodeGameEngine::Internal:
   extern dynamic |Entity__WorldScale2D0[Entity&,imut Vec2& Value] -> void;
 
 
+//Object.hpp
+UCodeGameEngine:
+  $Object<T> export:
+      private:
+        byte[/16] padding;
+        |GetHandle[imut this&]:
+          uintptr _this = unsafe bitcast<uintptr>(this);
+          ret _this;
+      public:
+        
+        |new[this&]: ObjectAPI::New(GetHandle());
+        |new[this&,imut this& other]: ObjectAPI::New_Copy(GetHandle(),other.GetHandle());
+        |new[this&,moved this other]: ObjectAPI::New_Move(GetHandle(),other.GetHandle());
+        |drop[this&]: ObjectAPI::Drop(GetHandle());
+
+        |Get[this&] -> T&:
+          eval uintptr typehint = type(T).TypeID();
+          uintptr pointer = ObjectAPI::Get(GetHandle(),typehint);
+          if pointer == 0:
+            //panic("Object is a Null Reference");
+          ret unsafe bitcast<T&>(pointer);
+        
+        |Get[imut this&] -> T&:
+          eval uintptr typehint = type(T).TypeID();
+          uintptr pointer = ObjectAPI::Get(GetHandle(),typehint);
+          if pointer == 0:
+            //panic("Object is a Null Reference");
+          ret unsafe bitcast<T&>(pointer);
+
+        |~>[this&] -> T&:ret Get();
+        |~>[imut this&] -> imut T&:ret Get();
+    
+
+  $ObjectAPI export extern "c":
+   export extern dynamic |New[uintptr Handle] -> void;
+   export extern dynamic |New_Copy[uintptr Handle,uintptr Source] -> void;
+   export extern dynamic |New_Move[uintptr Handle,uintptr Source] -> void;
+   export extern dynamic |Drop[uintptr Handle] -> void;
+   export extern dynamic |Get[uintptr Handle,uintptr typehint] -> uintptr;
+
+
+
+
 //Time.hpp
 UCodeGameEngine:
   $Time export extern "c":
@@ -169,11 +212,11 @@ UCodeGameEngine:
 
 //ScirptableObject.hpp
 UCodeGameEngine:
-  $Asset trait export:
+  $Asset trait:
       uintptr _Handle = 0;
     
 
-  $MenuItem<(Size)> tag export:
+  $MenuItem<(Size)> tag:
       char[/Size] MenuName;
       |new[this&,char[/Size] name]:
        MenuName = name;
