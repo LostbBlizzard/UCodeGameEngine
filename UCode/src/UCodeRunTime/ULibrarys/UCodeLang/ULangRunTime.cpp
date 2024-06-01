@@ -747,10 +747,10 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 	case ReflectionTypes::CustomType:
 	{
 		auto Node = Assembly.Find_Node(Type._CustomTypeID);
-		{
-			auto state = UCode::UCodeRunTimeState::Get_Current();
-			UCodeLang::AnyInterpreterPtr anyptr = &state->GetCurrentInterpreter();
+		auto state = UCode::UCodeRunTimeState::Get_Current();
+		UCodeLang::AnyInterpreterPtr anyptr = &state->GetCurrentInterpreter();
 
+		{
 			auto typeop = Assembly.IsVector_t(Type);
 			if (typeop.has_value())
 			{
@@ -783,6 +783,32 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 				return;
 			}
 		}
+		{
+			auto typeop = Assembly.IsString_t(Type);
+			if (typeop.has_value())
+			{
+				auto& type = typeop.value();
+
+				UCodeLang::ReflectionString data;
+				data.Set((void*)Pointer, &type, anyptr, Assembly, Is32Mode);
+
+				String copy = String(data.AsCharView());
+
+				if (Serializer.Get_Type() == USerializerType::Bytes)
+				{
+					auto& Bits = Serializer.Get_BitMaker();
+					Bits.WriteType(copy);
+				}
+				else
+				{
+					auto& Bits = Serializer.Get_TextMaker();
+					Bits << YAML::Value << copy;
+				}
+				return;
+			}
+
+		}
+
 
 		if (Node)
 		{
@@ -1114,10 +1140,11 @@ uInt64Case:
 	case ReflectionTypes::CustomType:
 	{
 		auto Node = Assembly.Find_Node(Type._CustomTypeID);
-		{
-			auto state = UCode::UCodeRunTimeState::Get_Current();
-			UCodeLang::AnyInterpreterPtr anyptr = &state->GetCurrentInterpreter();
+			
+		auto state = UCode::UCodeRunTimeState::Get_Current();
+		UCodeLang::AnyInterpreterPtr anyptr = &state->GetCurrentInterpreter();
 
+		{
 			auto typeop = Assembly.IsVector_t(Type);
 			if (typeop.has_value())
 			{
@@ -1200,6 +1227,34 @@ uInt64Case:
 			}
 		}
 
+		{
+			auto typeop = Assembly.IsString_t(Type);
+			if (typeop.has_value())
+			{
+				auto& type = typeop.value();
+
+				UCodeLang::ReflectionString data;
+				data.Set((void*)Pointer, &type, anyptr, Assembly, Is32Mode);
+
+				String copy;
+				if (Serializer.Get_Mode() == USerializerType::Bytes)
+				{
+					auto& Bits = Serializer.Get_BitReader();
+
+					Bits.ReadType(copy, copy);
+				}
+				else
+				{
+					auto& Bits = Serializer.Get_TextReader();
+
+					copy = Bits.as<String>(copy);
+				}
+
+				data = copy;
+				return;
+			}
+
+		}
 		if (Node)
 		{
 			switch (Node->Get_Type())
