@@ -159,17 +159,7 @@ Result<bool, String> EditorAppCompoent::OpenProject(const Path& ProjectDir)
 }
 void EditorAppCompoent::OnProjectLoadedPreWindows()
 {
-    auto GameLib = Get_EditorLibrary();
-    UCode::GameFiles* gamefiles = gamefiles->Get(GameLib);
-
-
-    //UCode::GameFilesData Newdata;
-    //Newdata.SetRedirectDir(_RunTimeProjectData.GetGameLibDir());
-    //gamefiles->ReInit(Newdata);
-
-    UCode::ULangRunTime* SRuntime = UCode::ULangRunTime::Get(GameLib);
-
-    SRuntime->OpenLibs(_RunTimeProjectData.GetULangOutDir());
+    
 }
 void EditorAppCompoent::OnProjectLoaded()
 {
