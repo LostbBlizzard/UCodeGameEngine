@@ -2,6 +2,7 @@
 #include "UCodeRunTime/ULibrarys/UCodeLang/ULangRunTime.hpp"
 #include "ULang/UCodeDrawer.hpp"
 #include "ULang/UCompiler.hpp"
+#include "Imgui/misc/cpp/imgui_stdlib.h"
 EditorStart
 
 ULangScriptUEditorData::ULangScriptUEditorData()
@@ -37,19 +38,28 @@ void ULangScriptUEditorData::DrawInspect(const UEditorComponentDrawData& Data, U
 		ImGui::BeginDisabled(true);
 
 
-		ImGuIHelper::Image(AppFiles::sprite::Uility_image, { 20 ,20 });
+		const float square_sz = ImGui::GetFrameHeight();
+		ImGuIHelper::Image(AppFiles::sprite::Uility_image, { square_sz ,square_sz });
 		ImGui::SameLine();
 
-		String TypeStr = "Compoent/ULangScript";
-		if (Component->HasClass())
-		{
-			TypeStr += "/" + Component->GetClassName();
-		}
-		ImGuIHelper::InputText("Type", TypeStr);
-		ImGui::EndDisabled();
+		String tep = Component->GetClassName();
+
+		ImGuIHelper::ItemLabel(StringView("Type"), ImGuIHelper::ItemLabelFlag::Left);
+
+		ImGui::PushItemWidth(ImGui::CalcItemWidth() - (ImGuIHelper::CheckBoxSizeWithPadding().x));
+		ImGui::PushID(&tep);
+		ImGui::InputText("", &tep);
+		ImGui::PopID();
+		ImGui::PopItemWidth();
+
 		ImGui::SameLine();
+
+		ImGui::EndDisabled();
+
 		bool V = Component->Get_IsActive();
-		ImGuIHelper::ToggleField("Active", V);
+		ImGui::PushID(&V);
+		ImGui::Checkbox("", &V);
+		ImGui::PopID();
 		Component->Set_CompoentActive(V);
 
 	}
