@@ -116,6 +116,10 @@ public:
 		_ScriptInfo.erase(key);
 	}
 
+	inline UCodeLang::Interpreter& GetCurrentInterpreter()
+	{
+		return _Interpreter;
+	}
 	inline static const char* MainFile = "bin/ucode.lib";
 private:
 	ULangRunTime(Gamelibrary* e);

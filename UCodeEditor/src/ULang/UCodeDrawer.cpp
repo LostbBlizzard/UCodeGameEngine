@@ -1,5 +1,7 @@
 #include "UCodeDrawer.hpp"
 #include <memory>
+#include "UCodeRunTime/ULibrarys/UCodeLang/ULangRunTime.hpp"
+#include "UCodeLang/RunTime/ReflectionStl.hpp"
 EditorStart
 bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& Type, const UCodeLang::ClassAssembly& Assembly, bool IfClassRemoveFlags)
 {
@@ -127,6 +129,65 @@ bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& T
 	case UCodeLang::ReflectionTypes::CustomType:
 	{
 		auto Node = Assembly.Find_Node(Type._CustomTypeID);
+		{
+			auto state = UCode::UCodeRunTimeState::Get_Current();
+			UCodeLang::AnyInterpreterPtr anyptr = &state->GetCurrentInterpreter();
+
+			auto typeop = Assembly.IsVector_t(Type);
+			if (typeop.has_value())
+			{
+				auto& type = typeop.value();
+
+				UCodeLang::ReflectionVector data;
+				data.Set(Pointer, &type, anyptr, Assembly, Is32Mode);
+				
+				
+				ImGuIHelper::DrawVectorInfo info;
+				info.ItemSize = data.GetElementTypeSize();
+				info._AddNewValue = [state, &anyptr, &Assembly, Is32Mode](void* Object, size_t index)
+					{
+						UCodeLang::ReflectionVector* info = (UCodeLang::ReflectionVector*)Object;
+						void* val = state->Lang_Malloc(info->GetElementTypeSize());
+
+						auto functocallop = Assembly.CallDefaultConstructor(info->GetElementType(), val, Is32Mode);
+						if (functocallop.has_value())
+						{
+							auto& func = functocallop.value();
+							
+							if (func.has_value()) 
+							{
+								auto& funclist = func.value();
+								for (auto& Item : funclist)
+								{
+									anyptr.ThisCall(Item.MethodToCall, Item.ThisPtr);
+								}
+							}
+							info->insert(index, val);
+						}
+						state->Lang_Free(val);
+					};
+				info._AddNewRemove =  [](void* Object, size_t index)
+					{
+						UCodeLang::ReflectionVector* info = (UCodeLang::ReflectionVector*)Object;
+						info->remove(index);
+					};
+				info._ResizeVector = [](void* Object, size_t newsize)
+					{
+						UCodeLang::ReflectionVector* info = (UCodeLang::ReflectionVector*)Object;
+						info->resize(newsize);
+					};
+
+				info._OnDrawItem = [&Assembly](void* Object, size_t index)
+					{
+						UCodeLang::ReflectionVector* info = (UCodeLang::ReflectionVector*)Object;
+						
+						void* objitem = info->at(index);
+						DrawType(objitem, info->GetElementType(), Assembly);
+					};
+
+				return ImGuIHelper::DrawVector(&data, data.data(), data.size(), info);				
+			}
+		}
 		if (Node)
 		{
 			switch (Node->Get_Type())
