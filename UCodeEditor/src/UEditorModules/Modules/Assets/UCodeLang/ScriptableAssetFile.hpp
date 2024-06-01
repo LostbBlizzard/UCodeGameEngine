@@ -26,6 +26,7 @@ public:
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override;
 		bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override;
 		void DrawInspect(const UEditorAssetDrawInspectContext& Item) override;
+		void TryLoadAsset();
 	};
 
 	ExportFileRet ExportFile(const Path& path, const ExportFileContext& Item) override;

@@ -140,8 +140,9 @@ void CodeModule::BuildUCode(bool IsInEditor)
 				bool ok = UCompiler::CompileProject(data);
 
 
-				Threads->RunOnOnMainThread([data,ok,app, MovedErrs = std::move(_Errs)]()
+				Threads->RunOnOnMainThread([data,ok,app, MovedErrs = std::move(_Errs)]() mutable
 					{
+						if (MovedErrs.Has_Errors())
 						{
 							static Vector<ConsoleWindow::LogMessageID> oldlogids;
 							

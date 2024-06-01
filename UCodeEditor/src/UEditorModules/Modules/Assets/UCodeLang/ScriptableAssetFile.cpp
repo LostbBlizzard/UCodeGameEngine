@@ -25,28 +25,34 @@ void ScriptableAssetFile::Liveing::Init(const UEditorAssetFileInitContext& Conte
 	{
 		UCodeGEError("Opening Asset for " << FileFullPath << " Failed");
 	}
-	_Object.LoadScript(_Data);
-	_InFile = _Data;
+}
+void ScriptableAssetFile::Liveing::TryLoadAsset()
+{
+	if (!_ScriptKey.has_value()) 
+	{
+		_Object.LoadScript(_Data);
+		_InFile = _Data;
 
-	UC::ULangRunTime::ScriptInfo info;
-	info.ObjPtr = _Object.Get_UObjPtr();
-	info.ScriptType = _Object.Get_ClassDataPtr();
-	info.SetScriptType = [this](const UCodeLang::AssemblyNode* nod)
-		{
-			_Object.LoadScript(nod);
-		};
-	info.PreReload = [this]()
-		{
-			_Object.SaveTo(_ReloadBufferObject, USerializerType::BytesSafeMode);
-			_Object.UnLoadScript();
-			return nullptr;
-		};
-	info.PostReload = [this](void* ptr)
-		{
-			_Object.LoadScript(_ReloadBufferObject);
-		};
+		UC::ULangRunTime::ScriptInfo info;
+		info.ObjPtr = _Object.Get_UObjPtr();
+		info.ScriptType = _Object.Get_ClassDataPtr();
+		info.SetScriptType = [this](const UCodeLang::AssemblyNode* nod)
+			{
+				_Object.LoadScript(nod);
+			};
+		info.PreReload = [this]()
+			{
+				_Object.SaveTo(_ReloadBufferObject, USerializerType::BytesSafeMode);
+				_Object.UnLoadScript();
+				return nullptr;
+			};
+		info.PostReload = [this](void* ptr)
+			{
+				_Object.LoadScript(_ReloadBufferObject);
+			};
 
-	_ScriptKey = UC::UCodeRunTimeState::Get_Current()->AddScript(std::move(info));
+		_ScriptKey = UC::UCodeRunTimeState::Get_Current()->AddScript(std::move(info));
+	}
 }
 void ScriptableAssetFile::Liveing::FileUpdated()
 {
@@ -102,11 +108,11 @@ void ScriptableAssetFile::Liveing::SaveFile(const UEditorAssetFileSaveFileContex
 		justsaved = true;
 	}
 }
-inline bool ScriptableAssetFile::Liveing::DrawButtion(const UEditorAssetDrawButtionContext& Item)
+bool ScriptableAssetFile::Liveing::DrawButtion(const UEditorAssetDrawButtionContext& Item)
 {
 	return ImGuIHelper::ImageButton(Item.ObjectPtr, AppFiles::sprite::ScirptableObjectFile, *(ImVec2*)&Item.ButtionSize);;
 }
-inline void ScriptableAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContext& Item)
+void ScriptableAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContext& Item)
 {
 	ImGui::BeginDisabled(true);
 
@@ -125,7 +131,8 @@ inline void ScriptableAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInsp
 	ImGui::EndDisabled();
 
 	ImGui::Separator();
-
+	
+	TryLoadAsset();
 	//
 	if (!_Object.HasScript())
 	{

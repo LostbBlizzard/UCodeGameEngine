@@ -225,6 +225,36 @@ UCodeGameEngineNoDiscard bool UDeserializer::FromFile(const Path& Path, UDeseria
 	return false;
 
 }
+String ToString(YAML::Node& node,bool issub,size_t spaceing)
+{
+    String r;
+
+
+	if (!node.IsScalar())
+	{
+		for (YAML::iterator it = node.begin(); it != node.end(); ++it)
+		{
+			if (r.size() || issub)
+			{
+				r += "\n";
+				for (size_t i = 0; i < spaceing; i++)
+				{
+					r += " ";
+				}
+			}
+
+			r += it->first.as<std::string>();
+			r += ": ";
+			r += ToString(it->second,true, spaceing +1);
+		}
+	}
+	else
+	{
+		r += node.as<String>();
+	}
+    return r;
+}
+
 CoreEnd
 
 
