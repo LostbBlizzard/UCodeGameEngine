@@ -10,7 +10,7 @@ MP3AssetFile::MP3AssetFile()
 }
 void MP3AssetFile::LiveingAsset::Init(const UEditorAssetFileInitContext& Context)
 {
-	file.Load(this->FileFullPath);
+	file._Base.Load(this->FileFullPath);
 }
 
 bool MP3AssetFile::LiveingAsset::DrawButtion(const UEditorAssetDrawButtionContext& Item)
@@ -24,7 +24,7 @@ void MP3AssetFile::LiveingAsset::DrawInspect(const UEditorAssetDrawInspectContex
 	{
 
 		auto audio = UCode::AudioSystem::Get(EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_EditorLibrary());
-		audio->Play(file, playsettings);
+		audio->Play(file._Base, playsettings);
 	}
 }
 

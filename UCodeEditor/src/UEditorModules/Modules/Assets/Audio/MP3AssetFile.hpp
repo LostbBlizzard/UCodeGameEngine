@@ -1,6 +1,7 @@
 #pragma once
 #include "UEditorModules/Modules/CoreModule.hpp" 
 #include "UCodeRunTime/ULibrarys/Audio/AudioSystem.hpp"
+#include "UCodeRunTime/ULibrarys/AssetManagement/AudioAssets.hpp"
 EditorStart
 class MP3AssetFile :public UEditorAssetFileData
 {
@@ -10,7 +11,7 @@ public:
 	class LiveingAsset :public UEditorAssetFile
 	{
 	public:
-		UCode::AudioFile file;
+		UCode::AudioAsset file;
 
 		inline static UCode::AudioPlaySettings playsettings;
 		void Init(const UEditorAssetFileInitContext& Context) override;

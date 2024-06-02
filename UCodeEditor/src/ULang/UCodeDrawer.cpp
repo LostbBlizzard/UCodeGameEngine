@@ -511,8 +511,8 @@ bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& T
 				}
 				else if (UCode::UCodeRunTimeState::IsAudio(type,Assembly))
 				{
-					//auto& ptr = *(TileDataPtr*)Pointer;
-					//return ImGuIHelper_Asset::AsssetField("", ptr);
+					auto& ptr = *(UC::AudioPtr*)Pointer;
+					return ImGuIHelper_Asset::AssetField(ptr);
 				}
 				else if (UCode::UCodeRunTimeState::IsSceneAsset(type,Assembly))
 				{
