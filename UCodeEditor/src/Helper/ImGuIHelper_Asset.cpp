@@ -762,6 +762,22 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UC::AudioAssetPtr& Va
 	return false;
 }
 
+bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UC::RawEntityDataAssetPtr& Value)
+{
+	return false;
+}
+
+bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UC::RawEntityDataPtr& Value)
+{
+	ImGuIHelper::ItemLabel(StringView(FieldName), ImGuIHelper::ItemLabelFlag::Left);
+	return AssetField(Value);
+}
+
+bool ImGuIHelper_Asset::AssetField(UC::RawEntityDataPtr& Value)
+{
+	return AsssetField_t<UCode::RawEntityDataPtr>(ProjectData, Value, UC::RawEntityData::FileExtDot, AppFiles::sprite::RawEntityData);
+}
+
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UC::AudioPtr& Value)
 {
 	ImGuIHelper::ItemLabel(StringView(FieldName), ImGuIHelper::ItemLabelFlag::Left);

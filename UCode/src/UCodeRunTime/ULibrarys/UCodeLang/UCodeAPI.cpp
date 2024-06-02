@@ -3,6 +3,10 @@
 //include Made By UCodeAutoLink
 #include "../../../UCodeRunTime/ULibrarys/InputManger/InputManger.hpp"
 #include "../../../UCodeRunTime/ULibrarys/Loger.hpp"
+#include "../../../UCodeRunTime/ULibrarys/UCodeLang/API/AssetTypes/Audio.hpp"
+#include "../../../UCodeRunTime/ULibrarys/UCodeLang/API/AssetTypes/Core.hpp"
+#include "../../../UCodeRunTime/ULibrarys/UCodeLang/API/AssetTypes/Rendering.hpp"
+#include "../../../UCodeRunTime/ULibrarys/UCodeLang/API/AssetTypes/TileMap.hpp"
 #include "../../../UCodeRunTime/ULibrarys/UCodeLang/API/Entity.hpp"
 #include "../../../UCodeRunTime/ULibrarys/UCodeLang/API/Object.hpp"
 #include "../../../UCodeRunTime/ULibrarys/UCodeLang/API/Time.hpp"

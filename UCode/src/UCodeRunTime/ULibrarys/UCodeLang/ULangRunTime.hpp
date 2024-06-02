@@ -242,6 +242,7 @@ public:
 	static bool IsTexture(UCodeLang::ReflectionTypeInfo Type,const UCodeLang::ClassAssembly& Assembly);
 	static bool IsAudio(UCodeLang::ReflectionTypeInfo Type,const UCodeLang::ClassAssembly& Assembly);
 	static bool IsSceneAsset(UCodeLang::ReflectionTypeInfo Type,const UCodeLang::ClassAssembly& Assembly);
+	static bool IsEntityAsset(UCodeLang::ReflectionTypeInfo Type,const UCodeLang::ClassAssembly& Assembly);
 	
 	template<typename... Args> static void LangCall(const UCodeLang::ClassMethod* Func, Args&&... parameters)
 	{

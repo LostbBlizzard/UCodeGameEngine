@@ -95,6 +95,40 @@ UCodeGameEngine::Internal:
   extern dynamic |Debug__LogFatalError0[imut StringSpan Msg] -> void;
 
 
+//Audio.hpp
+UCodeGameEngine:
+  $AudioAsset export;
+    
+
+
+
+//Core.hpp
+UCodeGameEngine:
+  $SceneAsset export;
+    
+
+  $EntityAsset export;
+    
+
+
+
+//Rendering.hpp
+UCodeGameEngine:
+  $Sprite export;
+    
+
+  $Texture export;
+    
+
+
+
+//TileMap.hpp
+UCodeGameEngine:
+  $TileAsset export;
+    
+
+
+
 //Entity.hpp
 UCodeGameEngine:
   $Component trait export:

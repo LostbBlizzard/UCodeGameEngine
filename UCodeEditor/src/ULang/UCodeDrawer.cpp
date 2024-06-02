@@ -519,6 +519,11 @@ bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& T
 					auto& ptr = *(UC::ScencPtr*)Pointer;
 					return ImGuIHelper_Asset::AssetField(ptr);
 				}
+				else if (UCode::UCodeRunTimeState::IsEntityAsset(type,Assembly))
+				{
+					auto& ptr = *(UC::RawEntityDataPtr*)Pointer;
+					return ImGuIHelper_Asset::AssetField(ptr);
+				}
 			}
 		}
 		if (Node)

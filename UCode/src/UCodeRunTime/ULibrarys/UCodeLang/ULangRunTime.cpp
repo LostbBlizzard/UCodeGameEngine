@@ -1620,7 +1620,7 @@ bool UCodeRunTimeState::IsTile(UCodeLang::ReflectionTypeInfo Type, const UCodeLa
 	{
 		if (type->Get_Type() == UCodeLang::ClassType::Class)
 		{
-			if (type->FullName == "UCodeGameEngine:Tile")
+			if (type->FullName == "UCodeGameEngine:TileAsset")
 			{
 				return true;
 			}
@@ -1665,7 +1665,7 @@ bool UCodeRunTimeState::IsAudio(UCodeLang::ReflectionTypeInfo Type, const UCodeL
 	{
 		if (type->Get_Type() == UCodeLang::ClassType::Class)
 		{
-			if (type->FullName == "UCodeGameEngine:Audio")
+			if (type->FullName == "UCodeGameEngine:AudioAsset")
 			{
 				return true;
 			}
@@ -1689,7 +1689,21 @@ bool UCodeRunTimeState::IsSceneAsset(UCodeLang::ReflectionTypeInfo Type, const U
 	}
 	return false;
 }
+bool UCodeRunTimeState::IsEntityAsset(UCodeLang::ReflectionTypeInfo Type, const UCodeLang::ClassAssembly& Assembly)
+{
+	if (auto type = Assembly.Find_Node(Type._CustomTypeID))
+	{
+		if (type->Get_Type() == UCodeLang::ClassType::Class)
+		{
+			if (type->FullName == "UCodeGameEngine:EntityAsset")
+			{
+				return true;
+			}
+		}
 
+	}
+	return false;
+}
 
 CoreEnd
 
