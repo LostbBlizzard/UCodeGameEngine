@@ -14,7 +14,7 @@ EditorStart
 
 
 template<typename T>
-bool AsssetField_t(RunTimeProjectData* ProjectData,const char* FieldName, T& Value,const char* FileExtDot,AppFiles::sprite sprite)
+bool AsssetField_t(RunTimeProjectData* ProjectData,T& Value, const char* FileExtDot,AppFiles::sprite sprite)
 {
 	struct ObjectSceneAssetInfo
 	{
@@ -217,13 +217,13 @@ bool AsssetField_t(RunTimeProjectData* ProjectData,const char* FieldName, T& Val
 			objectas = UID();
 		};
 
-	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
+	return ImGuIHelper::DrawObjectField(&Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
 		data, sprite, MyName);
 }
 
 template<typename T,typename AssetType>
-bool AssetField_tSprite(UCode::AssetManager* AssetManager,RunTimeProjectData* ProjectData,const char* FieldName, T& Value,
-	const char* FileExtDot,UC::Sprite* defailtsprite,std::function<UC::Sprite*(AssetType& Type)> GetSprite)
+bool AssetField_tSprite(UCode::AssetManager* AssetManager,RunTimeProjectData* ProjectData, T& Value,const char* FileExtDot,
+	UC::Sprite* defailtsprite,std::function<UC::Sprite*(AssetType& Type)> GetSprite)
 {
 	struct ObjectSpriteAssetInfo
 	{
@@ -510,9 +510,26 @@ bool AssetField_tSprite(UCode::AssetManager* AssetManager,RunTimeProjectData* Pr
 		};
 
 
-	return ImGuIHelper::DrawObjectField(spr, FieldName, &Value, List.data(), List.size(), sizeof(ObjectSpriteAssetInfo),
+	return ImGuIHelper::DrawObjectField(spr,&Value, List.data(), List.size(), sizeof(ObjectSpriteAssetInfo),
 			data, MyName);
 
+}
+
+
+
+template<typename T>
+bool AsssetField_t(RunTimeProjectData* ProjectData, const char* FieldName, T& Value, const char* FileExtDot, AppFiles::sprite sprite)
+{
+	ImGuIHelper::ItemLabel(StringView(FieldName), ImGuIHelper::ItemLabelFlag::Left);
+	return AsssetField_t<T>(ProjectData, Value, FileExtDot, sprite);
+}
+
+template<typename T,typename AssetType>
+bool AssetField_tSprite(UCode::AssetManager* AssetManager, RunTimeProjectData* ProjectData, const char* FieldName, T& Value,
+	const char* FileExtDot, UC::Sprite* defailtsprite, std::function<UC::Sprite* (AssetType& Type)> GetSprite)
+{
+	ImGuIHelper::ItemLabel(StringView(FieldName), ImGuIHelper::ItemLabelFlag::Left);
+	return AssetField_tSprite<T,AssetType>(AssetManager,ProjectData, Value, FileExtDot, defailtsprite,GetSprite);
 }
 
 float minscorebefordontshow()
@@ -526,15 +543,8 @@ bool ImGuIHelper_Asset::DrawLayerField(const char* FieldName, UCode::RenderRunTi
 }
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::TexturePtr& Value)
 {
-	return AssetField_tSprite<UCode::TexturePtr, UCode::TextureAsset>(
-		AssetManager, ProjectData, FieldName, Value, ".png",
-		AppFiles::GetSprite(AppFiles::sprite::TextureAsset),
-		[](UCode::TextureAsset& value) -> UC::Sprite*
-		{
-			static UC::Sprite tep = UC::Sprite(&value._Base, 0, 0, value._Base.Get_Width(), value._Base.Get_Height());;
-			tep = UC::Sprite(&value._Base, 0, 0, value._Base.Get_Width(), value._Base.Get_Height());
-			return &tep;
-		});
+	ImGuIHelper::ItemLabel(StringView(FieldName), ImGuIHelper::ItemLabelFlag::Left);
+	return AssetField(Value);
 }
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::TextureAssetPtr& Value)
 {
@@ -562,17 +572,20 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::TextureAssetPt
 }
 bool ImGuIHelper_Asset::AssetField(UCode::TexturePtr& Value)
 {
-	return false;
+	return AssetField_tSprite<UCode::TexturePtr, UCode::TextureAsset>(
+		AssetManager, ProjectData, Value, ".png",
+		AppFiles::GetSprite(AppFiles::sprite::TextureAsset),
+		[](UCode::TextureAsset& value) -> UC::Sprite*
+		{
+			static UC::Sprite tep = UC::Sprite(&value._Base, 0, 0, value._Base.Get_Width(), value._Base.Get_Height());;
+			tep = UC::Sprite(&value._Base, 0, 0, value._Base.Get_Width(), value._Base.Get_Height());
+			return &tep;
+		});
 }
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Value)
 {
-	return AssetField_tSprite<UCode::SpritePtr, UCode::SpriteAsset>(
-		AssetManager,ProjectData, FieldName,Value, UC::SpriteData::FileExtDot,
-		AppFiles::GetSprite(AppFiles::sprite::SpriteAsset),
-		[](UCode::SpriteAsset& value) -> UC::Sprite*
-		{
-			return &value._Base;
-		});
+	ImGuIHelper::ItemLabel(StringView(FieldName), ImGuIHelper::ItemLabelFlag::Left);
+	return AssetField(Value);
 }
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpriteAssetPtr& Value)
 {
@@ -608,7 +621,13 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpriteAssetPtr
 }
 bool ImGuIHelper_Asset::AssetField(UCode::SpritePtr& Value)
 {
-	return false;
+	return AssetField_tSprite<UCode::SpritePtr, UCode::SpriteAsset>(
+		AssetManager,ProjectData,Value, UC::SpriteData::FileExtDot,
+		AppFiles::GetSprite(AppFiles::sprite::SpriteAsset),
+		[](UCode::SpriteAsset& value) -> UC::Sprite*
+		{
+			return &value._Base;
+		});
 }
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ShaderAssetPtr& Value)
 {
@@ -661,7 +680,8 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ShaderPtr& Val
 }
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencPtr& Value)
 {	
-	return AsssetField_t<UCode::ScencPtr>(ProjectData,FieldName, Value, UC::Scene2dData::FileExtDot, AppFiles::sprite::Scene2dData);
+	ImGuIHelper::ItemLabel(StringView(FieldName), ImGuIHelper::ItemLabelFlag::Left);
+	return AssetField(Value);
 }
 
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencAssetPtr& Value)
@@ -671,7 +691,7 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencAssetPtr&
 
 bool ImGuIHelper_Asset::AssetField(UCode::ScencPtr& Value)
 {
-	return false;
+	return AsssetField_t<UCode::ScencPtr>(ProjectData, Value, UC::Scene2dData::FileExtDot, AppFiles::sprite::Scene2dData);
 }
 
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TilePaletteAssetPtr& Value)
@@ -692,9 +712,20 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TilePalettePtr& Value
 
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TileDataPtr& Value)
 {
-	
+	ImGuIHelper::ItemLabel(StringView(FieldName), ImGuIHelper::ItemLabelFlag::Left);
+	return AssetField(Value);
+
+}
+
+bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TileDataAssetPtr& Value)
+{
+	return false;
+}
+
+bool ImGuIHelper_Asset::AssetField(TileDataPtr& Value)
+{
 	return AssetField_tSprite<TileDataPtr, TileDataAsset>(
-		AssetManager,ProjectData, FieldName,Value, UC::TileData::FileExtDot,
+		AssetManager,ProjectData,Value, UC::TileData::FileExtDot,
 		AppFiles::GetSprite(AppFiles::sprite::TileAsset),
 		[](TileDataAsset& value) -> UC::Sprite*
 		{
@@ -726,16 +757,6 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TileDataPtr& Value)
 		});
 }
 
-bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TileDataAssetPtr& Value)
-{
-	return false;
-}
-
-bool ImGuIHelper_Asset::AssetField(TileDataPtr& Value)
-{
-	return false;
-}
-
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UC::AudioAssetPtr& Value)
 {
 	return false;
@@ -743,12 +764,13 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UC::AudioAssetPtr& Va
 
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UC::AudioPtr& Value)
 {
-	return false;
+	ImGuIHelper::ItemLabel(StringView(FieldName), ImGuIHelper::ItemLabelFlag::Left);
+	return AssetField(Value);
 }
 
 bool ImGuIHelper_Asset::AssetField(UC::AudioPtr& Value)
 {
-	return false;
+	return AsssetField_t<UCode::AudioPtr>(ProjectData, Value, ".mp3", AppFiles::sprite::AudioIcon);
 }
 
 UCode::Sprite* ImGuIHelper_Asset::GetAssetSpriteFromUID(const UID& value, AssetSpriteType Type)
