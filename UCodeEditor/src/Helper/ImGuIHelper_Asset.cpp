@@ -560,6 +560,10 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::TextureAssetPt
 	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectTextureAssetInfo),
 	data);
 }
+bool ImGuIHelper_Asset::AssetField(UCode::TexturePtr& Value)
+{
+	return false;
+}
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpritePtr& Value)
 {
 	return AssetField_tSprite<UCode::SpritePtr, UCode::SpriteAsset>(
@@ -601,6 +605,10 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::SpriteAssetPtr
 
 	return ImGuIHelper::DrawObjectField(FieldName, &Value, List.data(), List.size(), sizeof(ObjectSpriteAssetInfo),
 		data);
+}
+bool ImGuIHelper_Asset::AssetField(UCode::SpritePtr& Value)
+{
+	return false;
 }
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ShaderAssetPtr& Value)
 {
@@ -661,7 +669,17 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UCode::ScencAssetPtr&
 	return false;
 }
 
+bool ImGuIHelper_Asset::AssetField(UCode::ScencPtr& Value)
+{
+	return false;
+}
+
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TilePaletteAssetPtr& Value)
+{
+	return false;
+}
+
+bool ImGuIHelper_Asset::AssetField(TilePalettePtr& Value)
 {
 	return false;
 }
@@ -709,6 +727,11 @@ bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TileDataPtr& Value)
 }
 
 bool ImGuIHelper_Asset::AsssetField(const char* FieldName, TileDataAssetPtr& Value)
+{
+	return false;
+}
+
+bool ImGuIHelper_Asset::AssetField(TileDataPtr& Value)
 {
 	return false;
 }
