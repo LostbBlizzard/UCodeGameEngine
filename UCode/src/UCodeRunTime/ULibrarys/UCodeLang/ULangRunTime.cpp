@@ -1614,6 +1614,83 @@ bool UCodeRunTimeState::IsTypeAssetTrait(UCodeLang::ReflectionTypeInfo Type, con
 	}
 	return false;
 }
+bool UCodeRunTimeState::IsTile(UCodeLang::ReflectionTypeInfo Type, const UCodeLang::ClassAssembly& Assembly)
+{
+	if (auto type = Assembly.Find_Node(Type._CustomTypeID))
+	{
+		if (type->Get_Type() == UCodeLang::ClassType::Class)
+		{
+			if (type->FullName == "UCodeGameEngine:Tile")
+			{
+				return true;
+			}
+		}
+
+	}
+	return false;
+}
+bool UCodeRunTimeState::IsSprite(UCodeLang::ReflectionTypeInfo Type, const UCodeLang::ClassAssembly& Assembly)
+{
+	if (auto type = Assembly.Find_Node(Type._CustomTypeID))
+	{
+		if (type->Get_Type() == UCodeLang::ClassType::Class)
+		{
+			if (type->FullName == "UCodeGameEngine:Sprite")
+			{
+				return true;
+			}
+		}
+
+	}
+	return false;
+}
+bool UCodeRunTimeState::IsTexture(UCodeLang::ReflectionTypeInfo Type, const UCodeLang::ClassAssembly& Assembly)
+{
+	if (auto type = Assembly.Find_Node(Type._CustomTypeID))
+	{
+		if (type->Get_Type() == UCodeLang::ClassType::Class)
+		{
+			if (type->FullName == "UCodeGameEngine:Texture")
+			{
+				return true;
+			}
+		}
+
+	}
+	return false;
+}
+bool UCodeRunTimeState::IsAudio(UCodeLang::ReflectionTypeInfo Type, const UCodeLang::ClassAssembly& Assembly)
+{
+	if (auto type = Assembly.Find_Node(Type._CustomTypeID))
+	{
+		if (type->Get_Type() == UCodeLang::ClassType::Class)
+		{
+			if (type->FullName == "UCodeGameEngine:Audio")
+			{
+				return true;
+			}
+		}
+
+	}
+	return false;
+}
+bool UCodeRunTimeState::IsSceneAsset(UCodeLang::ReflectionTypeInfo Type, const UCodeLang::ClassAssembly& Assembly)
+{
+	if (auto type = Assembly.Find_Node(Type._CustomTypeID))
+	{
+		if (type->Get_Type() == UCodeLang::ClassType::Class)
+		{
+			if (type->FullName == "UCodeGameEngine:SceneAsset")
+			{
+				return true;
+			}
+		}
+
+	}
+	return false;
+}
+
+
 CoreEnd
 
 

@@ -13,21 +13,26 @@ public:
 
 	static bool AsssetField(const char* FieldName, UCode::TexturePtr& Value);
 	static bool AsssetField(const char* FieldName, UCode::TextureAssetPtr& Value);
-
+	static bool AssetField(UCode::TexturePtr& Value);
+	
 	static bool AsssetField(const char* FieldName, UCode::SpritePtr& Value);
 	static bool AsssetField(const char* FieldName, UCode::SpriteAssetPtr& Value);
+	static bool AssetField(UCode::SpritePtr& Value);
 
 	static bool AsssetField(const char* FieldName, UCode::ShaderPtr& Value);
 	static bool AsssetField(const char* FieldName, UCode::ShaderAssetPtr& Value);
 
 	static bool AsssetField(const char* FieldName, UCode::ScencPtr& Value);
 	static bool AsssetField(const char* FieldName, UCode::ScencAssetPtr& Value);
+	static bool AssetField(UCode::ScencPtr& Value);
 
 	static bool AsssetField(const char* FieldName, TilePalettePtr& Value);
 	static bool AsssetField(const char* FieldName, TilePaletteAssetPtr& Value);
-
+	static bool AssetField(TilePalettePtr& Value);
+	
 	static bool AsssetField(const char* FieldName, TileDataPtr& Value);
 	static bool AsssetField(const char* FieldName, TileDataAssetPtr& Value);
+	static bool AssetField(TileDataPtr& Value);
 
 	static bool AnyAsssetField(UID& Value);
 	static bool AnyAsssetField(StringView FieldName, UID& Value)

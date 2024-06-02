@@ -485,6 +485,42 @@ bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& T
 				return DrawObjectAsset(Pointer, type, Assembly);
 			}
 		}
+
+		//built-in
+		{
+			auto typeop = UCode::UCodeRunTimeState::IsTypeUCodeObject(Type, Assembly);
+
+			if (typeop.has_value())
+			{
+				auto& type = typeop.value();
+
+				if (UCode::UCodeRunTimeState::IsTile(type,Assembly))
+				{
+					auto& ptr = *(TileDataPtr*)Pointer;
+					return ImGuIHelper_Asset::AssetField(ptr);
+				}
+				else if (UCode::UCodeRunTimeState::IsSprite(type,Assembly))
+				{
+					auto& ptr = *(UC::SpritePtr*)Pointer;
+					return ImGuIHelper_Asset::AssetField(ptr);
+				}
+				else if (UCode::UCodeRunTimeState::IsTexture(type,Assembly))
+				{
+					auto& ptr = *(UC::TexturePtr*)Pointer;
+					return ImGuIHelper_Asset::AssetField(ptr);
+				}
+				else if (UCode::UCodeRunTimeState::IsAudio(type,Assembly))
+				{
+					//auto& ptr = *(TileDataPtr*)Pointer;
+					//return ImGuIHelper_Asset::AsssetField("", ptr);
+				}
+				else if (UCode::UCodeRunTimeState::IsSceneAsset(type,Assembly))
+				{
+					auto& ptr = *(UC::ScencPtr*)Pointer;
+					return ImGuIHelper_Asset::AssetField(ptr);
+				}
+			}
+		}
 		if (Node)
 		{
 			switch (Node->Get_Type())

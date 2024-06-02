@@ -236,6 +236,13 @@ public:
 	static Optional<UCodeLang::ReflectionTypeInfo> IsTypeUCodeObject(UCodeLang::ReflectionTypeInfo Type,const UCodeLang::ClassAssembly& Assembly);
 	static Optional<UCodeLang::ReflectionTypeInfo> IsTypeUCodeObjectAndAsset(UCodeLang::ReflectionTypeInfo Type,const UCodeLang::ClassAssembly& Assembly);
 	static bool IsTypeAssetTrait(UCodeLang::ReflectionTypeInfo Type,const UCodeLang::ClassAssembly& Assembly);
+	
+	static bool IsTile(UCodeLang::ReflectionTypeInfo Type,const UCodeLang::ClassAssembly& Assembly);
+	static bool IsSprite(UCodeLang::ReflectionTypeInfo Type,const UCodeLang::ClassAssembly& Assembly);
+	static bool IsTexture(UCodeLang::ReflectionTypeInfo Type,const UCodeLang::ClassAssembly& Assembly);
+	static bool IsAudio(UCodeLang::ReflectionTypeInfo Type,const UCodeLang::ClassAssembly& Assembly);
+	static bool IsSceneAsset(UCodeLang::ReflectionTypeInfo Type,const UCodeLang::ClassAssembly& Assembly);
+	
 	template<typename... Args> static void LangCall(const UCodeLang::ClassMethod* Func, Args&&... parameters)
 	{
 		if (Has_Current()) 
