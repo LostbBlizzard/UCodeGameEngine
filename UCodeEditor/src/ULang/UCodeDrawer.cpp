@@ -94,7 +94,7 @@ bool DrawObjectAsset(void* Pointer,const UCodeLang::ReflectionTypeInfo& AssetTyp
 		if (issametype)
 		{
 			ObjectSceneAssetInfo P;
-			P._RelativePath = Item.RelativePath;
+			P._RelativePath = Item.RelativePath.substr(0,Item.RelativePath.size() - strlen(UCode::ScirptableObjectData::FileExtDot));
 			P._UID = Item.UserID.value();
 			List.push_back(std::move(P));
 		}

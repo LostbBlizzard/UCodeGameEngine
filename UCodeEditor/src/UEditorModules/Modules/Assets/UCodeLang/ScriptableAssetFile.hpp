@@ -1,6 +1,7 @@
 #pragma once
 #include "UEditorModules/Modules/CoreModule.hpp" 
 #include "UCodeRunTime/ULibrarys/UCodeLang/ScirptableObject.hpp"
+#include "UCodeRunTime/ULibrarys/AssetManagement/UCodeLangAssets.hpp"
 EditorStart
 class ScriptableAssetFile :public UEditorAssetFileData
 {
@@ -10,12 +11,12 @@ public:
 	class Liveing :public UEditorAssetFile
 	{
 	public:
-		UC::ScirptableObject _Object;
-		
+		UC::ScirptableObjectAsset _Object;
+
 		UC::ScirptableObjectData _Data;
 		UC::ScirptableObjectData _ReloadBufferObject;
 		UC::ScirptableObjectData _InFile;
-			
+
 		Optional<UC::ULangRunTime::ScriptInfoKey> _ScriptKey = {};
 		bool justsaved = false;
 		Liveing();
@@ -27,6 +28,7 @@ public:
 		bool DrawButtion(const UEditorAssetDrawButtionContext& Item) override;
 		void DrawInspect(const UEditorAssetDrawInspectContext& Item) override;
 		void TryLoadAsset();
+		NullablePtr<UCode::Asset> LoadAsset(const LoadAssetContext& Item) override;
 	};
 
 	ExportFileRet ExportFile(const Path& path, const ExportFileContext& Item) override;
