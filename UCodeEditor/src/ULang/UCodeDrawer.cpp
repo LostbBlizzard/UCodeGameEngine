@@ -2,6 +2,13 @@
 #include <memory>
 #include "UCodeRunTime/ULibrarys/UCodeLang/ULangRunTime.hpp"
 #include "UCodeLang/RunTime/ReflectionStl.hpp"
+#include "UCodeRunTime/ULibrarys/UCodeLang/API/Object.hpp"
+#include "UCodeRunTime/ULibrarys/UCodeLang/ScirptableObject.hpp"
+#include "Editor/EditorAppCompoent.hpp"
+#include "Helper/StringHelper.hpp"
+#include "EditorWindows/ProjectManagement/ProjectFilesWindow.hpp"
+#include "Helper/UserSettings.hpp"
+#include "UCodeRunTime/ULibrarys/AssetManagement/UCodeLangAssets.hpp"
 EditorStart
 
 bool DrawString(void* Pointer, UCodeLang::ReflectionString& Type,
@@ -27,6 +34,241 @@ bool DrawStringMultiline(void* Pointer, UCodeLang::ReflectionString& Type,
 	ImVec2 size)
 {
 	return false;
+}
+bool DrawObjectAsset(void* Pointer,const UCodeLang::ReflectionTypeInfo& AssetType, const UCodeLang::ClassAssembly& Assembly)
+{
+	using Base = UC::ULangAPI::ObjectAPI::Base;
+	Base& Value = *(Base*)Pointer;
+
+	struct ObjectSceneAssetInfo
+	{
+		Path _RelativePath;
+		UID _UID;
+	};
+
+
+	Vector<ObjectSceneAssetInfo> List;
+	{
+		ObjectSceneAssetInfo P;
+		P._RelativePath = "None";
+
+		List.push_back(std::move(P));
+	}
+
+	auto sprite = AppFiles::GetSprite(AppFiles::sprite::ScirptableObjectFile);
+	
+
+	auto app = EditorAppCompoent::GetCurrentEditorAppCompoent();
+	auto assetmanager = app->Get_AssetManager();
+	auto ProjectData = app->Get_RunTimeProjectData();
+
+	auto tyoe_classdata = &Assembly.Find_Node(AssetType)->Get_ClassData();
+	for (auto& Item : ProjectData->Get_AssetIndex()._Files)
+	{
+		if (!Item.UserID.has_value())
+		{
+			continue;
+		}
+
+		if (Path(Item.RelativePath).extension() != UCode::ScirptableObjectData::FileExtDot)
+		{
+			continue;
+		}
+
+		bool issametype = false;
+		{
+			//may be this should be Chached and not load all the ScirptableObjects
+			auto opasset = assetmanager->FindOrLoad_t<UC::ScirptableObjectAsset>(Item.UserID.value());
+
+			if (opasset.has_value())
+			{
+				auto value = opasset.value();
+
+				if (value->_Base.Get_ClassData() == tyoe_classdata)
+				{
+					issametype = true;
+				}
+			}
+		}
+
+		if (issametype)
+		{
+			ObjectSceneAssetInfo P;
+			P._RelativePath = Item.RelativePath;
+			P._UID = Item.UserID.value();
+			List.push_back(std::move(P));
+		}
+	}
+
+	String MyName = "None";
+
+	if (Value.Has_UID()) {
+		for (auto& Item : List)
+		{
+			if (Item._UID == Value.Get_UID())
+			{
+				MyName = Item._RelativePath.generic_string();
+				break;
+			}
+		}
+	}
+
+	ImGuIHelper::ObjectFieldData data;
+	data.OnFileDroped = [ProjectData](const Path& fullpath, void* object, ImGuIHelper::ObjectDropState state) -> bool
+		{
+			Base& objectas =*(Base*)object;
+
+			if (state == ImGuIHelper::ObjectDropState::CanBeDroped)
+			{
+				return (fullpath.extension() == UCode::ScirptableObjectData::FileExtDot);	
+			}
+			else if (state == ImGuIHelper::ObjectDropState::OnDroped)
+			{
+				auto& editorindex = ProjectData->Get_AssetIndex();
+				auto assetpath = ProjectData->GetAssetsDir();
+				Path relativepath = fullpath.native().substr(assetpath.native().size());
+
+				auto opasset = editorindex.FindFileRelativeAssetName(relativepath.generic_string());
+				if (opasset.has_value())
+				{
+					auto& asset = opasset.value();
+					if (asset.UserID.has_value())
+					{
+						objectas = asset.UserID.value();
+						return true;
+					}
+				}
+				return false;
+			}
+
+		};
+	data.OnObjectInList = [sprite](void* Ptr, void* Object, bool Listmode, const String& Find)
+		{
+			Base& Value = *(Base*)Ptr;
+			ObjectSceneAssetInfo* obj = (ObjectSceneAssetInfo*)Object;
+
+			auto Name = obj->_RelativePath.generic_string();
+			bool r = false;
+
+
+			if (StringHelper::Fllter(Find, Name))
+			{
+
+				if (Listmode)
+				{
+					auto imagesize = ImGui::GetFrameHeight();
+					ImGuIHelper::Image(sprite, { imagesize,imagesize });
+					ImGui::SameLine();
+
+					//ImGui::PushID(Object);
+					r = ImGui::Selectable(Name.c_str(),Value.Has_UID() ? Value.Get_UID() == obj->_UID : false);
+					//ImGui::PopID();
+
+					if (r)
+					{
+						Value = obj->_UID;
+						r = true;
+					}
+				}
+				else
+				{
+					auto NewName = Name;
+					ImGuIHelper::Text(NewName);
+					auto imagesize = ImGui::GetFrameHeight();
+					if (ImGuIHelper::ImageButton(obj + NewName.size(), AppFiles::sprite::Scene2dData, { imagesize,imagesize }))
+					{
+						Value = obj->_UID;
+						r = true;
+					}
+				}
+			}
+
+			return r;
+		};
+	data.OnInspect = [](void* object) -> bool
+		{
+			Base& objectas = *(Base*)object;
+
+			auto p = EditorAppCompoent::GetCurrentEditorAppCompoent();
+
+
+			bool r = false;
+			if (auto win = p->Get_Window<ProjectFilesWindow>())
+			{
+				if (objectas.Has_UID()) 
+				{
+					win->OpenAndFocusOnAsset(objectas.Get_UID());
+					r = true;
+				}
+			}
+			return r;
+		};
+	data.OnCopy = [](void* object) -> String
+		{
+			Base& objectas = *(Base*)object;
+
+			UID id = objectas.Has_UID() ? objectas.Get_UID() : UID();
+			return UserSettings::SetCopyBufferAsValueStr("_AssetUID",id);
+		};
+	data.OnPatse = [ProjectData](void* object, const String& Paste) -> bool
+		{
+			bool isgood = false;
+			Base& objectas = *(Base*)object;
+			
+			auto idop = UserSettings::ReadCopyBufferAs<UID>("_AssetUID",Paste);
+		
+			if (idop.has_value())
+			{
+				UID id = idop.value();
+
+				auto& editorindex = ProjectData->Get_AssetIndex();
+				auto opasset = editorindex.FindFileUsingID(id);
+
+				if (opasset.has_value())
+				{
+					if (Path(opasset.value().RelativeAssetName).extension() == Path(UCode::ScirptableObjectData::FileExtDot))
+					{
+						objectas = id;
+						isgood = true;
+					}
+				}
+			}
+			else 
+			{
+				auto pathop = UserSettings::ReadCopyBufferAs<Path>("AssetPath",Paste);
+
+				if (pathop.has_value())
+				{
+					auto& editorindex = ProjectData->Get_AssetIndex();
+					auto rel = FileHelper::ToRelativePath(ProjectData->GetAssetsDir(), pathop.value().generic_string()).generic_string();
+					auto opasset = editorindex.FindFileRelativeAssetName(rel);
+				
+					
+					if (opasset.has_value())
+					{
+						auto asset = opasset.value();
+						if (Path(opasset.value().RelativeAssetName).extension() == Path(UCode::ScirptableObjectData::FileExtDot))
+						{
+							if (asset.UserID.has_value())
+							{
+								objectas = asset.UserID.value();
+								isgood = true;
+							}
+						}
+					}
+				}
+			}
+			return isgood;
+		};
+	data.OnDestory = [](void* object)
+		{
+			Base& objectas = *(Base*)object;
+			objectas = UID();
+		};
+
+	return ImGuIHelper::DrawObjectField(&Value, List.data(), List.size(), sizeof(ObjectSceneAssetInfo),
+		data,AppFiles::sprite::ScirptableObjectFile,MyName);
+
 }
 bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& Type, const UCodeLang::ClassAssembly& Assembly, bool IfClassRemoveFlags)
 {
@@ -232,6 +474,15 @@ bool UCodeDrawer::DrawType(void* Pointer, const UCodeLang::ReflectionTypeInfo& T
 				{
 					return DrawString(Pointer, data,0);
 				}
+			}
+		}
+		{
+			auto typeop = UCode::UCodeRunTimeState::IsTypeUCodeObjectAndAsset(Type, Assembly);
+
+			if (typeop.has_value())
+			{
+				auto& type = typeop.value();
+				return DrawObjectAsset(Pointer, type, Assembly);
 			}
 		}
 		if (Node)
