@@ -1,3 +1,4 @@
+#pragma once
 #include "AudioNamespace.hpp"
 #include "UCodeRunTime/Core/System.hpp"
 #include "UCodeRunTime/BasicTypes.hpp"

@@ -736,6 +736,21 @@ bool ImGuIHelper_Asset::AssetField(TileDataPtr& Value)
 	return false;
 }
 
+bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UC::AudioAssetPtr& Value)
+{
+	return false;
+}
+
+bool ImGuIHelper_Asset::AsssetField(const char* FieldName, UC::AudioPtr& Value)
+{
+	return false;
+}
+
+bool ImGuIHelper_Asset::AssetField(UC::AudioPtr& Value)
+{
+	return false;
+}
+
 UCode::Sprite* ImGuIHelper_Asset::GetAssetSpriteFromUID(const UID& value, AssetSpriteType Type)
 {
 	auto& index = ProjectData->Get_AssetIndex();
