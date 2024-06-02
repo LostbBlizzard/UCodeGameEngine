@@ -26,10 +26,23 @@ void ScriptableAssetFile::Liveing::Init(const UEditorAssetFileInitContext& Conte
 		UCodeGEError("Opening Asset for " << FileFullPath << " Failed");
 	}
 }
+NullablePtr<UCode::Asset> ScriptableAssetFile::Liveing::LoadAsset(const LoadAssetContext& Item) 
+{
+	TryLoadAsset();
+	if (_Data._UID == Item._AssetToLoad)
+	{
+		return _Object.GetAsset();
+	}
+
+	return {};
+}
 void ScriptableAssetFile::Liveing::TryLoadAsset()
 {
 	if (!_ScriptKey.has_value()) 
 	{
+		_Object.Uid = _Data._UID;
+		auto& _Object = this->_Object._Base;
+
 		_Object.LoadScript(_Data);
 		_InFile = _Data;
 
@@ -38,17 +51,17 @@ void ScriptableAssetFile::Liveing::TryLoadAsset()
 		info.ScriptType = _Object.Get_ClassDataPtr();
 		info.SetScriptType = [this](const UCodeLang::AssemblyNode* nod)
 			{
-				_Object.LoadScript(nod);
+				this->_Object._Base.LoadScript(nod);
 			};
 		info.PreReload = [this]()
 			{
-				_Object.SaveTo(_ReloadBufferObject, USerializerType::BytesSafeMode);
-				_Object.UnLoadScript();
+				this->_Object._Base.SaveTo(_ReloadBufferObject, USerializerType::BytesSafeMode);
+				this->_Object._Base.UnLoadScript();
 				return nullptr;
 			};
 		info.PostReload = [this](void* ptr)
 			{
-				_Object.LoadScript(_ReloadBufferObject);
+				this->_Object._Base.LoadScript(_ReloadBufferObject);
 			};
 
 		_ScriptKey = UC::UCodeRunTimeState::Get_Current()->AddScript(std::move(info));
@@ -66,11 +79,14 @@ void ScriptableAssetFile::Liveing::FileUpdated()
 	{
 		UCodeGEError("Opening Asset for " << FileFullPath << " Failed");
 	}
+	auto& _Object = this->_Object._Base;
 	_Object.LoadScript(_Data);
 	_InFile = _Data;
 }
 void ScriptableAssetFile::Liveing::SaveFile(const UEditorAssetFileSaveFileContext& Context)
 {
+	auto& _Object = this->_Object._Base;
+	
 	if (!_Object.HasScript()) { return; }
 	auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 	USerializerType type = runprojectdata->Get_ProjData()._SerializeType;
@@ -114,6 +130,7 @@ bool ScriptableAssetFile::Liveing::DrawButtion(const UEditorAssetDrawButtionCont
 }
 void ScriptableAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContext& Item)
 {
+	auto& _Object = this->_Object._Base;
 	ImGui::BeginDisabled(true);
 
 
