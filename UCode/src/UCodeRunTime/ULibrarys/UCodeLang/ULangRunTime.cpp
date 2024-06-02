@@ -1,6 +1,10 @@
 #include "ULangRunTime.hpp"
 #include <filesystem>
 #include "UCodeAPI.hpp"
+#include "../Others/StringHelper.hpp"
+#include "API//Object.hpp"
+#include "../Serialization/Bit_Implementation/AsssetPtr.hpp"
+#include "../Serialization/Yaml_Implementation/AsssetPtr.hpp"
 CoreStart
 using namespace UCodeLang;
 namespace fs = std::filesystem;
@@ -807,6 +811,27 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 				return;
 			}
 
+		}			
+		{
+			auto typeop = UCodeRunTimeState::IsTypeUCodeObjectAndAsset(Type, Assembly);
+			if (typeop.has_value())
+			{
+				auto& type = typeop.value();
+				ULangAPI::ObjectAPI::Base* ptr = (ULangAPI::ObjectAPI::Base*)Pointer;
+				
+				if (Serializer.Get_Type() == USerializerType::Bytes)
+				{
+					auto& Bits = Serializer.Get_BitMaker();
+					Bits.WriteType(*ptr);
+				}
+				else
+				{
+					auto& Bits = Serializer.Get_TextMaker();
+					Bits << YAML::Value << *ptr;
+				}
+			
+				return;
+			}
 		}
 
 
@@ -1255,6 +1280,29 @@ uInt64Case:
 			}
 
 		}
+
+		//UCodeEngine Objects
+		{
+			auto typeop = UCodeRunTimeState::IsTypeUCodeObjectAndAsset(Type, Assembly);
+			if (typeop.has_value())
+			{
+				auto& type = typeop.value();
+
+				ULangAPI::ObjectAPI::Base* ptr = (ULangAPI::ObjectAPI::Base*)Pointer;
+				
+				if (Serializer.Get_Mode() == USerializerType::Bytes)
+				{
+					auto& Bits = Serializer.Get_BitReader();
+					Bits.ReadType(*ptr,*ptr);
+				}
+				else
+				{
+					auto& Bits = Serializer.Get_TextReader();
+					*ptr = Bits.as<ULangAPI::ObjectAPI::Base>(*ptr);
+				}
+				return;
+			}
+		}
 		if (Node)
 		{
 			switch (Node->Get_Type())
@@ -1498,4 +1546,74 @@ void ULangHelper::Deserialize(UDeserializer& Serializer, void* Pointer, const UC
 }
 
 
+Optional<UCodeLang::ReflectionTypeInfo> UCodeRunTimeState::IsTypeUCodeObject(UCodeLang::ReflectionTypeInfo Type,const UCodeLang::ClassAssembly& Assembly)
+{
+	if (auto val = Assembly.Find_Node(Type._CustomTypeID))
+	{
+		if (val->Get_Type() == ClassType::Class)
+		{
+			if (StringHelper::StartWith(StringView(val->FullName), StringView("UCodeGameEngine:Object")))
+			{
+				auto& ClassData = val->Get_ClassData();
+
+				if (auto getfunc = ClassData.Get_ClassMethod("Get"))
+				{
+					return getfunc->RetType;
+				}
+			}
+		}
+	}
+	return Optional<UCodeLang::ReflectionTypeInfo>();
+}
+Optional<UCodeLang::ReflectionTypeInfo> UCodeRunTimeState::IsTypeUCodeObjectAndAsset(UCodeLang::ReflectionTypeInfo Type, const UCodeLang::ClassAssembly& Assembly)
+{
+	auto v = IsTypeUCodeObject(Type,Assembly);
+	if (v.has_value())
+	{
+		if (auto val = Assembly.Find_Node(v.value()))
+		{
+			if (val->Get_Type() == UCodeLang::ClassType::Class)
+			{
+				bool isasset = false;
+				auto& cdata = val->Get_ClassData();
+
+				for (auto& Item : cdata.InheritedTypes)
+				{
+					auto typein = UCodeLang::ReflectionTypeInfo();
+					typein._Type = ReflectionTypes::CustomType;
+					typein._CustomTypeID = Item.TraitID;
+					isasset = IsTypeAssetTrait(typein, Assembly);
+
+					if (isasset) 
+					{
+						break;
+					}
+				}
+
+				if (isasset)
+				{
+					return v;
+				}
+			}
+		}
+	}
+	return Optional<UCodeLang::ReflectionTypeInfo>();
+}
+bool UCodeRunTimeState::IsTypeAssetTrait(UCodeLang::ReflectionTypeInfo Type, const UCodeLang::ClassAssembly& Assembly)
+{
+	if (auto type = Assembly.Find_Node(Type._CustomTypeID))
+	{
+		if (type->Get_Type() == UCodeLang::ClassType::Trait)
+		{
+			if (type->FullName == "UCodeGameEngine:Asset")
+			{
+				return true;
+			}
+		}
+
+	}
+	return false;
+}
 CoreEnd
+
+
