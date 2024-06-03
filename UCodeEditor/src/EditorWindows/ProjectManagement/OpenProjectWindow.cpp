@@ -79,7 +79,7 @@ void OpenProjectWindow::UpdateWindow()
                 ImVec2 ButtonSize = { (fullWidth / 2) - ImGui::GetStyle().ItemSpacing.x,square_sz };
                 
                 ImGui::PushID(&Item);
-                bool a = ImGui::Button("OpenProject", ButtonSize);
+                bool a = ImGui::Button("Open Project", ButtonSize);
                 ImGui::PopID();
                 if (a)
                 {
@@ -92,7 +92,24 @@ void OpenProjectWindow::UpdateWindow()
                     {
                         Get_App()->SetProjectOpenError(v.GetError());
                     }
-                }ImGui::SameLine();
+                }
+
+                ImGui::PushID((uintptr_t(&Item)+2));
+                if (ImGuIHelper::BeginPopupContextItem("Open Project Popup"))
+                {
+                    if (ImGui::MenuItem("Open in Safe Mode"))
+                    {
+
+                    }
+                    if (ImGui::MenuItem("Show in Files"))
+                    {
+                        FileHelper::OpenPathinFiles(Item._Path);
+                    }
+                    ImGui::EndPopup();
+                }
+                ImGui::PopID();
+
+                ImGui::SameLine();
 
 
                 ImGui::PushID((uintptr_t(&Item)+1));
