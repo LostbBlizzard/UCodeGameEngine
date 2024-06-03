@@ -37,6 +37,7 @@ void ProjectData::ToBits(USerializer& output, const ProjectData& data)
 	output.Write("_ModingSupport", data.ModingSupport);
 	output.Write("_PrefabScene", data.PrefabScene);
 	output.Write("_PrefabUIScene", data.PrefabUIScene);
+	output.Write("_EditorOnlyFolders", data.EditorOnlyFolders);
 }
 
 bool ProjectData::ReadFromFile(const Path& Path, ProjectData& Out)
@@ -86,6 +87,10 @@ void ProjectData::FromBits(UDeserializer& input, ProjectData& Out)
 	if (input.HasField("_PrefabUIScene"))
 	{
 		input.ReadType("_PrefabUIScene", Out.PrefabUIScene, Out.PrefabUIScene);
+	}
+	if (input.HasField("_EditorOnlyFolders"))
+	{
+		input.ReadType("_EditorOnlyFolders", Out.EditorOnlyFolders, Out.EditorOnlyFolders);
 	}
 }
 EditorEnd
