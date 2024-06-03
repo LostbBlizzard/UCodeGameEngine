@@ -572,7 +572,7 @@ String UCompiler::NewAssetTemplate(const StringView componentname)
 
 	r += "\n";
 
-	r += "[MenuItem]\n";
+	r += String("[MenuItem(\"New ") + String(componentname) + "\")]\n";
 
 	r += "$";
 	r += componentname;
@@ -593,6 +593,60 @@ String UCompiler::NewAssetTemplate(const StringView componentname)
 	r += "//\n";
 
 	return r;
+}
+String UCompiler::NewWindowTemplate(const StringView componentname)
+{
+	StringView Tab = "  ";
+
+	String r;
+	r += "use ULang;\n";
+	r += "use UCodeGameEngine;\n";
+	r += "use UCodeGameEngineEditor;\n";
+
+	r += "\n";
+
+	r += String("[MenuItem(\"New ") + String(componentname) + "\")]\n";
+	r += "$";
+	r += componentname;
+	r += "[Window]:\n\n";
+
+	r += Tab;
+	r+= "//Add Varables\n";
+	r += Tab;
+	r += "int Number = 0;\n\n\n";
+	r += Tab;
+
+	r+= "//The EditorSave will automatically saved the varable when the editor closes\n";
+	r += Tab;
+	r += "//[EditorSave]\n";
+	r += Tab;
+	r += "int OtherNumber = 0;\n";
+
+	r += Tab;
+	r+= "//Called once when the Window is loaded.\n";
+	r += Tab;
+	r += "|Start[this&] -> void:\n";
+
+	r += Tab;
+	r += " //\n\n\n";
+
+	r += Tab;
+	r += "//Called once every Frame.\n";
+	r += Tab;
+	r += "|Update[this&] -> void:\n";
+
+	r += Tab;
+	r += " //\n";
+
+	return r;
+}
+String UCompiler::NewCustomDrawTemplate(const StringView componentname)
+{
+	return String();
+}
+String UCompiler::NewExportTemplate(const StringView componentname)
+{
+	return String();
 }
 EditorEnd
 

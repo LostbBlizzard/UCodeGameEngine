@@ -57,5 +57,8 @@ public:
 
 	static String NewComponentTemplate(const StringView componentname);
 	static String NewAssetTemplate(const StringView componentname);
+	static String NewWindowTemplate(const StringView componentname);
+	static String NewCustomDrawTemplate(const StringView componentname);
+	static String NewExportTemplate(const StringView componentname);
 };
 EditorEnd
