@@ -142,14 +142,16 @@ void CodeModule::BuildUCode(bool IsInEditor)
 
 				Threads->RunOnOnMainThread([data,ok,app, MovedErrs = std::move(_Errs)]() mutable
 					{
-						if (MovedErrs.Has_Errors())
 						{
 							static Vector<ConsoleWindow::LogMessageID> oldlogids;
-							
 							auto Win = app->Get_Window<ConsoleWindow>();
 							Win->RemoveLog(spanof(oldlogids));
-							oldlogids = LogErrors(Win, MovedErrs);
-							Win->FocusWindow();
+						
+							if (MovedErrs.Has_Errors()) 
+							{
+								oldlogids = LogErrors(Win, MovedErrs);
+								Win->FocusWindow();
+							}
 						}
 
 						
