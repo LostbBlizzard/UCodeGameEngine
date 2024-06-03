@@ -1047,7 +1047,7 @@ void ProjectFilesWindow::ShowDirButtions()
                     }
                     if (ImGui::MenuItem("Component"))
                     {
-                        Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New_Script").native(),
+                        Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New Script").native(),
                             Path("." + (UCode::String)UCodeLang::FileExt::SourceFile));
 
                         std::ofstream NewScirpt(NewPath);
@@ -1057,13 +1057,42 @@ void ProjectFilesWindow::ShowDirButtions()
                     }
                     if (ImGui::MenuItem("Asset"))
                     {
-                        Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New_Asset_Script").native(),
+                        Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New Asset").native(),
                             Path("." + (UCode::String)UCodeLang::FileExt::SourceFile));
 
                         std::ofstream NewScirpt(NewPath);
                         NewScirpt << UCompiler::NewAssetTemplate("NewAsset");
                         NewScirpt.close();
-                        //Go To TextEditor
+                        UpdateDir();
+                    }
+                    if (ImGui::MenuItem("Window"))
+                    {
+                        Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New Window").native(),
+                            Path("." + (UCode::String)UCodeLang::FileExt::SourceFile));
+
+                        std::ofstream NewScirpt(NewPath);
+                        NewScirpt << UCompiler::NewWindowTemplate("NewWindow");
+                        NewScirpt.close();
+                        UpdateDir();
+                    }
+                    if (ImGui::MenuItem("Custom Draw"))
+                    {
+                        Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New CustemDraw").native(),
+                            Path("." + (UCode::String)UCodeLang::FileExt::SourceFile));
+
+                        std::ofstream NewScirpt(NewPath);
+                        NewScirpt << UCompiler::NewCustomDrawTemplate("DrawType");
+                        NewScirpt.close();
+                        UpdateDir();
+                    }
+                    if (ImGui::MenuItem("Custom Export"))
+                    {
+                        Path NewPath = FileHelper::GetNewFileName(_LookingAtDir.value().native() + Path("New ExportSystem").native(),
+                            Path("." + (UCode::String)UCodeLang::FileExt::SourceFile));
+
+                        std::ofstream NewScirpt(NewPath);
+                        NewScirpt << UCompiler::NewCustomDrawTemplate("NewExportSysem");
+                        NewScirpt.close();
                         UpdateDir();
                     }
                     ImGui::EndMenu();
