@@ -68,6 +68,19 @@ void GameEditorWindow::UpdateWindow()
             Get_App()->SetToNormal();
         }
     }
+    if (!_UCodeLangReloadKey.has_value())
+    {
+        _UCodeLangReloadKey = Get_App()->GetULangAssemblyID();
+    }
+    else  
+    {
+        if (Get_App()->GetULangAssemblyID() != _UCodeLangReloadKey.value())
+        {
+            _UCodeLangReloadKey = Get_App()->GetULangAssemblyID();
+            OnULangReload();
+        }
+    }
+
     if (editorwindow)
     {
         ImGui::SetNextWindowFocus();
@@ -209,8 +222,8 @@ bool GameEditorWindow::ScencIsDiffent()
         String asstr;
         {
             UCode::Scene2dData data;
-            UCode::Scene2dData::SaveScene(_SceneDataAsRunTiime, data,USerializerType::Fastest);
-            UCode::USerializer serializer;
+            UCode::Scene2dData::SaveScene(_SceneDataAsRunTiime, data,USerializerType::Bytes);
+            UCode::USerializer serializer(USerializerType::Bytes);
             data.PushData(serializer);
             serializer.ToString(asstr, false);
         }
@@ -1833,6 +1846,7 @@ void GameEditorWindow::SaveScene()
                 auto& ind = op.value();
                 ind.FileLastUpdatedTime = std::filesystem::last_write_time(scenefilepath).time_since_epoch().count();
                 ind.FileSize = std::filesystem::file_size(scenefilepath);
+                SetSeneAsSaved();
             }
         }
         else
@@ -1840,15 +1854,6 @@ void GameEditorWindow::SaveScene()
             auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
             UCodeGEError("Saveing Asset for " << relpath << " Failed");
         }
-
-        {
-            UCode::Scene2dData data;
-            UCode::Scene2dData::SaveScene(_SceneDataAsRunTiime, data, USerializerType::Fastest);
-            UCode::USerializer serializer;
-            data.PushData(serializer);
-            serializer.ToString(sceneassaved, false);
-        }
-
     }
 }
 void GameEditorWindow::OpenScencAtPath(const Path& Path)
@@ -1885,13 +1890,7 @@ void GameEditorWindow::OpenScencAtPath(const Path& Path)
             SelectedScene = NewScene->Get_ManagedPtr();
             _UseingScenePath = Path;
             _SceneDataAsRunTiime = NewScene;
-            {
-                UCode::Scene2dData data;
-                UCode::Scene2dData::SaveScene(_SceneDataAsRunTiime, data, USerializerType::Fastest);
-                UCode::USerializer serializer;
-                data.PushData(serializer);
-                serializer.ToString(sceneassaved, false);
-            }
+            SetSeneAsSaved();
         }
 
     }
@@ -1908,6 +1907,33 @@ Vec2 GameEditorWindow::MousePosFromImage(const Vec2 CursorPos, const Vec2 ImageS
     //std::cout << Mpos.X << "," << Mpos.Y << ":" << CursorPosScreen.X << "," << CursorPosScreen.Y << '\n';
     //std::cout << A.X << "," << A.Y << '\n';
     return A;
+}
+void GameEditorWindow::OnULangReload()
+{
+    if (_UseingScenePath.has_value())
+    {
+        auto NewSceneData = std::make_unique<UCode::Scene2dData>();//Get from cash;
+        if (UCode::Scene2dData::FromFile(*NewSceneData, _UseingScenePath.value()))
+        {
+            auto NewScene = UCode::Scene2dData::LoadScene(MainSceneData._GameRunTime.get(), *NewSceneData);
+
+            UCode::Scene2dData data;
+            UCode::Scene2dData::SaveScene(NewScene, data, USerializerType::Bytes);
+            UCode::USerializer serializer(USerializerType::Bytes);
+            data.PushData(serializer);
+            serializer.ToString(sceneassaved, false);
+
+            UCode::RunTimeScene::Destroy(NewScene);
+        }
+    }
+}
+void GameEditorWindow::SetSeneAsSaved()
+{
+    UCode::Scene2dData data;
+    UCode::Scene2dData::SaveScene(_SceneDataAsRunTiime, data, USerializerType::Bytes);
+    UCode::USerializer serializer(USerializerType::Bytes);
+    data.PushData(serializer);
+    serializer.ToString(sceneassaved, false);
 }
 void GameEditorWindow::GameTab()
 {

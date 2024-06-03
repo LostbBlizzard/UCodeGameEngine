@@ -166,14 +166,14 @@ void CodeModule::BuildUCode(bool IsInEditor)
 
 							if (UCodeLang::UClib::FromFile(&lib, data.OutPath))
 							{
-								
+
 								if (!Libid.has_value())
 								{
 									UCode::ULangRunTime::Lib runlib;
-									
+
 									runlib.Ptr = std::make_unique<UCodeLang::UClib>(std::move(lib));
 									runlib.RunPtr = std::make_unique<UCodeLang::RunTimeLib>();
-									
+
 									runlib.RunPtr->Init(runlib.Ptr.get());
 
 									Libid = ULang->AddLib(std::move(runlib));
@@ -193,8 +193,8 @@ void CodeModule::BuildUCode(bool IsInEditor)
 										ULang->ReLoadScripts();
 									}
 
-									app->UpdateUAssemblyKey();
 								}
+								app->UpdateUAssemblyKey();
 
 							}
 							else

@@ -81,6 +81,7 @@ private:
 	bool _IsGameWindowFocused = false, _ShowingGameStats =false;
 	int _ShowingGameStatslocation = 0;
 	Optional<int> _DontWaitInputKey;	
+	Optional<int> _UCodeLangReloadKey;	
 	
 	Optional<Path> _UseingScenePath;
 	UCode::Scene2dData* _SceneData = nullptr;
@@ -176,6 +177,8 @@ private:
 	void SaveScene();
 	void OpenScencAtPath(const Path& Path);
 	static Vec2 MousePosFromImage(const Vec2 CursorPos, const Vec2 ImageSize);
+	void SetSeneAsSaved();
+	void OnULangReload();
 };
 EditorEnd
 
