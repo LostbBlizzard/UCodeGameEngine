@@ -293,9 +293,11 @@ public:
 	static void Serialize(USerializer& Serializer, const void* Pointer, const UCodeLang::Enum_Data& Type, const UCodeLang::ClassAssembly& Assembly, bool Is32Mode);
 	static void Serialize(USerializer& Serializer, const void* Pointer, const UCodeLang::ReflectionTypeInfo& Type, const UCodeLang::ClassAssembly& Assembly, bool Is32Mode);
 	static void Serialize(USerializer& Serializer, const void* Pointer, const UCodeLang::Class_Data& Type, const UCodeLang::ClassAssembly& Assembly, bool Is32Mode);
+	static void Serialize(USerializer& Serializer, const void* Pointer, const UCodeLang::StaticArray_Data& Type, const UCodeLang::ClassAssembly& Assembly, bool Is32Mode);
 	static void Deserialize(UDeserializer& Serializer, void* Pointer, const UCodeLang::ReflectionTypeInfo& Type, const UCodeLang::ClassAssembly& Assembly, bool Is32Mode);
 	static void Deserialize(UDeserializer& Serializer, void* Pointer, const UCodeLang::Class_Data& Type, const UCodeLang::ClassAssembly& Assembly, bool Is32Mode);
 	static void Deserialize(UDeserializer& Serializer, void* Pointer, const UCodeLang::Enum_Data& Type, const UCodeLang::ClassAssembly& Assembly, bool Is32Mode);
+	static void Deserialize(UDeserializer& Serializer, void* Pointer, const UCodeLang::StaticArray_Data& Type, const UCodeLang::ClassAssembly& Assembly, bool Is32Mode);
 };
 
 CoreEnd

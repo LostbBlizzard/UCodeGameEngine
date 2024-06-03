@@ -813,6 +813,39 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 
 		}			
 		{
+			auto typeop = Assembly.IsArray_t(Type);
+			if (typeop.has_value())
+			{
+				auto& type = typeop.value();
+
+				UCodeLang::ReflectionArray data;
+				data.Set((void*)Pointer, &type, anyptr, Assembly, Is32Mode);
+
+				if (Serializer.Get_Type() == USerializerType::Bytes)
+				{
+					auto& Bits = Serializer.Get_BitMaker();
+					Bits.WriteType((BitMaker::SizeAsBits)data.size());
+
+					for (auto item : data)
+					{
+						Serialize(Serializer, item, data.GetElementType(), Assembly, Is32Mode);
+					}
+				}
+				else
+				{
+					auto& Bits = Serializer.Get_TextMaker();
+					Bits << YAML::Value;
+					Bits << YAML::BeginSeq;
+					for (auto item : data)
+					{
+						Serialize(Serializer, item, data.GetElementType(), Assembly, Is32Mode);
+					}
+					Bits << YAML::EndSeq;
+				}
+				return;
+			}
+		}
+		{
 			auto typeop = UCodeRunTimeState::IsTypeUCodeObjectAndAsset(Type, Assembly);
 			if (typeop.has_value())
 			{
@@ -868,6 +901,13 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 				Serialize(Serializer, Pointer, Enum, Assembly, Is32Mode);
 			}
 			break;
+			case ClassType::StaticArray:
+			{
+				auto& Enum = Node->Get_StaticArray();
+				Serialize(Serializer, Pointer, Enum, Assembly, Is32Mode);
+			}
+			break;
+
 			default:
 				break;
 			}
@@ -901,6 +941,36 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 			Serializer.Get_TextMaker() << YAML::Key << Item.Name;
 		}
 		Serialize(Serializer, FieldP, Item.Type, Assembly, Is32Mode);
+
+	}
+}
+void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const UCodeLang::StaticArray_Data& Type, const UCodeLang::ClassAssembly& Assembly, bool Is32Mode)
+{
+	auto elmsize = Assembly.GetSize(Type.BaseType, Is32Mode).value();
+	if (Serializer.Get_Type() == USerializerType::Bytes)
+	{
+		auto& Bits = Serializer.Get_BitMaker();
+		Bits.WriteType((BitMaker::SizeAsBits)Type.Count);
+
+		for (size_t i = 0; i < Type.Count; i++)
+		{
+			void* elempointer =(void*)((uintptr_t)Pointer + (i * elmsize));
+
+			Serialize(Serializer,elempointer, Type.BaseType, Assembly, Is32Mode);
+		}
+		
+	}
+	else
+	{
+		auto& Bits = Serializer.Get_TextMaker();
+		Bits << YAML::Value;
+		Bits << YAML::BeginSeq;
+		for (size_t i = 0; i < Type.Count; i++)
+		{
+			void* elempointer =(void*)((uintptr_t)Pointer + (i * elmsize));
+			Serialize(Serializer, elempointer,  Type.BaseType,Assembly, Is32Mode);
+		}
+		Bits << YAML::EndSeq;
 
 	}
 }
@@ -1280,6 +1350,88 @@ uInt64Case:
 			}
 
 		}
+		{
+			auto typeop = Assembly.IsArray_t(Type);
+			if (typeop.has_value())
+			{
+				auto& type = typeop.value();
+
+				UCodeLang::ReflectionArray data;
+				data.Set((void*)Pointer, &type, anyptr, Assembly, Is32Mode);
+
+
+				if (Serializer.Get_Mode() == USerializerType::Bytes)
+				{
+					BitReader::SizeAsBits NewSize = 0;
+					Serializer.Get_BitReader().ReadType(NewSize, NewSize);
+
+					for (size_t i = 0; i < NewSize; i++)
+					{
+						if (i > data.size()) { break; }
+						auto ItemOut = data.at(i);
+						{//Construct was called on resize
+							auto item = Assembly.CallDestructor(data.GetElementType(), ItemOut, Is32Mode);
+							if (item.has_value())
+							{
+								if (item.value().has_value())
+								{
+									auto& List = item.value().value();
+									for (auto& func : List)
+									{
+										anyptr.ThisCall(func.MethodToCall, func.ThisPtr);
+									}
+								}
+							}
+						}
+						Deserialize(Serializer, ItemOut, data.GetElementType(), Assembly, Is32Mode);
+					}
+				}
+				else
+				{
+					auto& Yaml = Serializer.Get_TextReader();
+					BitReader::SizeAsBits NewSize = 0;
+
+					for (auto& Item : Yaml)
+					{
+						NewSize++;
+					}
+
+					size_t elmsize = data.GetElementTypeSize();
+
+					size_t index = 0;
+					for (auto& Item : Yaml)
+					{
+						if (index > data.size()) { break; }
+
+						UDeserializer newSerializer = UDeserializer("");
+						newSerializer.Get_TextReader() = std::move((YAML::Node)Item);
+
+
+						uintptr_t FieldPtr = (uintptr_t)data.data() + (index * elmsize);
+						void* FieldP = (void*)FieldPtr;
+
+						{//Construct was called on resize
+							auto item = Assembly.CallDestructor(data.GetElementType(), FieldP, Is32Mode);
+							if (item.has_value())
+							{
+								if (item.value().has_value())
+								{
+									auto& List = item.value().value();
+									for (auto& func : List)
+									{
+										anyptr.ThisCall(func.MethodToCall, func.ThisPtr);
+									}
+								}
+							}
+						}
+						Deserialize(newSerializer, FieldP, data.GetElementType(), Assembly, Is32Mode);
+						index++;
+					}
+
+					return;
+				}
+			}
+		}
 
 		//UCodeEngine Objects
 		{
@@ -1323,6 +1475,12 @@ uInt64Case:
 			{
 				auto& Enum = Node->Get_EnumData();
 				Deserialize(Serializer, Pointer, Enum, Assembly, Is32Mode);
+			}
+			break;
+			case ClassType::StaticArray:
+			{
+				auto& Static = Node->Get_StaticArray();
+				Deserialize(Serializer, Pointer, Static , Assembly, Is32Mode);
 			}
 			break;
 			default:
@@ -1542,6 +1700,83 @@ void ULangHelper::Deserialize(UDeserializer& Serializer, void* Pointer, const UC
 				}
 			}
 		}
+	}
+}
+
+void ULangHelper::Deserialize(UDeserializer& Serializer, void* Pointer, const UCodeLang::StaticArray_Data& Type, const UCodeLang::ClassAssembly& Assembly, bool Is32Mode)
+{
+	size_t elmsize = 0;
+
+	auto state = UCode::UCodeRunTimeState::Get_Current();
+	UCodeLang::AnyInterpreterPtr anyptr = &state->GetCurrentInterpreter();
+
+
+	if (Serializer.Get_Mode() == USerializerType::Bytes)
+	{
+		BitReader::SizeAsBits NewSize = 0;
+		Serializer.Get_BitReader().ReadType(NewSize, NewSize);
+
+		for (size_t i = 0; i < NewSize; i++)
+		{
+			if (i > Type.Count) { break; }
+			void* ItemOut =(void*)((uintptr_t)Pointer + (i * elmsize));
+			{//Construct was called on resize
+				auto item = Assembly.CallDestructor(Type.BaseType, ItemOut, Is32Mode);
+				if (item.has_value())
+				{
+					if (item.value().has_value())
+					{
+						auto& List = item.value().value();
+						for (auto& func : List)
+						{
+							anyptr.ThisCall(func.MethodToCall, func.ThisPtr);
+						}
+					}
+				}
+			}
+			Deserialize(Serializer, ItemOut, Type.BaseType, Assembly, Is32Mode);
+		}
+	}
+	else
+	{
+		auto& Yaml = Serializer.Get_TextReader();
+		BitReader::SizeAsBits NewSize = 0;
+
+		for (auto& Item : Yaml)
+		{
+			NewSize++;
+		}
+
+		size_t index = 0;
+		for (auto& Item : Yaml)
+		{
+			if (index > Type.Count) { break; }
+
+			UDeserializer newSerializer = UDeserializer("");
+			newSerializer.Get_TextReader() = std::move((YAML::Node)Item);
+
+
+			uintptr_t FieldPtr = (uintptr_t)Pointer + (index * elmsize);
+			void* FieldP = (void*)FieldPtr;
+
+			{//Construct was called on resize
+				auto item = Assembly.CallDestructor(Type.BaseType, FieldP, Is32Mode);
+				if (item.has_value())
+				{
+					if (item.value().has_value())
+					{
+						auto& List = item.value().value();
+						for (auto& func : List)
+						{
+							anyptr.ThisCall(func.MethodToCall, func.ThisPtr);
+						}
+					}
+				}
+			}
+			Deserialize(newSerializer, FieldP, Type.BaseType, Assembly, Is32Mode);
+			index++;
+		}
+
 	}
 }
 
