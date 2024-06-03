@@ -24,6 +24,7 @@ public:
 
 	UID PrefabScene;
 	UID PrefabUIScene;
+	Vector<Path> EditorOnlyFolders;
 	inline static const char* FileName = "UProjectData.data";
 
 	UCODE_EDITOR_NODISCARD static bool WriteToFile(const Path& Path, const ProjectData& data, USerializerType type= USerializerType::Default);

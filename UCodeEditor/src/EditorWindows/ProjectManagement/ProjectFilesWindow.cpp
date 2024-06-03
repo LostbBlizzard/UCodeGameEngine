@@ -1247,7 +1247,23 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
     Optional<std::function<void()>> OnShowSubAssets;
     if (Item.FileType == FileHelper::FileType::Dir)
     {
-        if (ImGuIHelper::ImageButton(&Item, AppFiles::sprite::Dir_folder_image, ButtionSize))
+        bool iseditoronly = false;
+        {
+            auto runtime = Get_App()->Get_RunTimeProjectData();
+            auto& EditorOnly = runtime->Get_ProjData().EditorOnlyFolders;
+
+            for (auto& editoritem : EditorOnly)
+            {
+                auto ItemFullPath = runtime->GetAssetsDir() / editoritem;
+
+                if (ItemFullPath == Item.FullFileName)
+                {
+                    iseditoronly = true;
+                    break;
+                }
+            }
+        }
+        if (ImGuIHelper::ImageButton(&Item,iseditoronly ? AppFiles::sprite::EditorOnlyDir_folder_image : AppFiles::sprite::Dir_folder_image, ButtionSize))
         {
             _LookingAtDir = Item.FullFileName / "";
             UpdateDir();
@@ -1445,16 +1461,58 @@ bool ProjectFilesWindow::DrawFileItem(UCodeEditor::ProjectFilesWindow::FileData&
             ImGui::CloseCurrentPopup();
         }
 
-        str = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
-        if (ImGui::MenuItem("Show SubAssets", str.c_str(), nullptr, OnShowSubAssets.has_value()) || (ImGui::IsKeyDown(ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
+        if (Item.FileType == FileHelper::FileType::Dir)
         {
-            if (OnShowSubAssets.has_value())
+            auto runtime = Get_App()->Get_RunTimeProjectData();
+            auto& EditorOnly = runtime->Get_ProjData().EditorOnlyFolders;
+            auto relpath = FileHelper::ToRelativePath(runtime->GetAssetsDir(), Item.FullFileName);
+            bool iseditoronly = false;
             {
-                (*OnShowSubAssets)();
+                for (auto& editoritem : EditorOnly)
+                {
+                    if (editoritem == relpath)
+                    {
+                        iseditoronly = true;
+                        break;
+                    }
+                }
             }
-            ImGui::CloseCurrentPopup();
-        }
+            if (ImGui::MenuItem(iseditoronly ? "Remove As Editor Only" : "Set As Editor Only", str.c_str(), nullptr))
+            {
+                if (iseditoronly)
+                {
+                    for (size_t i = 0; i < EditorOnly.size(); i++)
+                    {
+                        auto& editoritem = EditorOnly[i];
+                       
+                        if (editoritem == relpath) 
+                        {
+                            EditorOnly.erase(EditorOnly.begin() + i);
+                            break;
+                        }
+                    }
 
+                }
+                else
+                {
+                    EditorOnly.push_back(relpath);
+                }
+            }
+
+        }
+        else
+        {
+            str = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
+            if (ImGui::MenuItem("Show SubAssets", str.c_str(), nullptr, OnShowSubAssets.has_value()) || (ImGui::IsKeyDown(ImGuiMod_Ctrl) && settings.IsKeybindActive(KeyBindList::Inspect)))
+            {
+                if (OnShowSubAssets.has_value())
+                {
+                    (*OnShowSubAssets)();
+                }
+                ImGui::CloseCurrentPopup();
+            }
+
+        }
         //str = "Ctrl+" + settings.KeyBinds[(size_t)KeyBindList::Inspect].ToString();
         if (ImGui::MenuItem("Show in Files"))
         {

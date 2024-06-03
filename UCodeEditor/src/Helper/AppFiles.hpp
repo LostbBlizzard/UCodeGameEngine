@@ -86,6 +86,7 @@ public:
 		Mac_Platform,
 		IOS_Platform,
 
+		EditorOnlyDir_folder_image =AppIcon,
 
 		//
 		Max_Value,
