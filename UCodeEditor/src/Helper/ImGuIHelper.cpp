@@ -1943,7 +1943,42 @@ bool ImGuIHelper::DrawOrdeField(const char* FieldName, unsigned char& Value)
 
 	return V;
 }
+
+
 bool ImGuIHelper::EnumField(const char* label, void* Value, const EnumValue2* Values, size_t ValuesSize, size_t EnumBaseSize)
+{
+	ItemLabel(StringView(label), ItemLabelFlag::Left);
+	return EnumField(Value, Values,ValuesSize, EnumBaseSize);
+}
+bool ImGuIHelper::EnumField(const char* label, void* Value, const Vector<EnumValue2>& Values, size_t EnumBaseSize)
+{
+	ItemLabel(StringView(label), ItemLabelFlag::Left);
+	return EnumField(Value, Values, EnumBaseSize);
+}
+ ImGuIHelper::EnumVariantFieldUpdate ImGuIHelper::EnumVariantField(const char* label,VariantInfo Variant, std::function<bool(void* Tag, void* Union, bool UpdatedEnum, bool Draw)> DrawVariant, const EnumValue2* Values, size_t ValuesSize, size_t EnumBaseSize)
+{
+	ItemLabel(StringView(label), ItemLabelFlag::Left);
+	return EnumVariantField(Variant, DrawVariant, Values,ValuesSize,EnumBaseSize);
+}
+ImGuIHelper::EnumVariantFieldUpdate ImGuIHelper::EnumVariantField(VariantInfo Variant
+	, std::function<bool(void* Tag, void* Union, bool UpdatedEnum, bool Draw)> DrawVariant
+	, const EnumValue2* Values, size_t ValuesSize, size_t EnumBaseSize)
+{
+	EnumVariantFieldUpdate V;
+
+	bool IsOpen = ImGui::TreeNode((Byte*)Variant.Tag + 1, "");
+	ImGui::SameLine();
+	V.EnumUpdated = EnumField(Variant.Tag, Values, ValuesSize, EnumBaseSize);
+	V.VariantUpdated = DrawVariant(Variant.Tag, Variant.Union, V.EnumUpdated, IsOpen);
+
+	if (IsOpen)
+	{
+		ImGui::TreePop();
+	}
+	return V;
+
+}
+bool ImGuIHelper::EnumField(void* Value, const EnumValue2* Values, size_t ValuesSize, size_t EnumBaseSize)
 {
 	bool Updated = false;
 	const EnumValue2* current_item = nullptr;
@@ -1962,16 +1997,12 @@ bool ImGuIHelper::EnumField(const char* label, void* Value, const EnumValue2* Va
 	{
 		if (ValuesSize == 0)
 		{
-			ItemLabel(StringView(label), ItemLabelFlag::Left);	
 			ImGuIHelper::Text(StringView("No EnumValues"));
 			return false;
 		}
 		current_item = &Values[0];
 
 	}
-
-
-	ItemLabel(StringView(label), ItemLabelFlag::Left);	
 
 	ImGui::PushID(Value);
 	if (ImGui::BeginCombo("", current_item->label, ImGuiComboFlags_NoArrowButton))

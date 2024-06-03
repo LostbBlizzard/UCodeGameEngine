@@ -270,12 +270,16 @@ public:
 		const void* Value = nullptr;
 	};
 
+	static bool EnumField(void* Value, const EnumValue2* Values, size_t ValuesSize, size_t EnumBaseSize);
+
+	static bool EnumField(void* Value, const Vector<EnumValue2>& Values, size_t EnumBaseSize)
+	{
+		return EnumField(Value, Values.data(), Values.size(), EnumBaseSize);
+	}
+
 	static bool EnumField(const char* label, void* Value, const EnumValue2* Values, size_t ValuesSize, size_t EnumBaseSize);
 
-	static bool EnumField(const char* label, void* Value, const Vector<EnumValue2>& Values, size_t EnumBaseSize)
-	{
-		return EnumField(label, Value, Values.data(), Values.size(), EnumBaseSize);
-	}
+	static bool EnumField(const char* label, void* Value, const Vector<EnumValue2>& Values, size_t EnumBaseSize);
 
 	template<typename T>
 	static UCODE_EDITOR_FORCEINLINE bool EnumField(const char* label, T& Value, const Vector<EnumValue<T>>& Values)
@@ -328,21 +332,8 @@ public:
 		void* Tag = nullptr;
 		void* Union = nullptr;
 	};
-	static EnumVariantFieldUpdate EnumVariantField(const char* label, VariantInfo Variant, std::function<bool(void* Tag, void* Union, bool UpdatedEnum, bool Draw)> DrawVariant, const EnumValue2* Values, size_t ValuesSize, size_t EnumBaseSize)
-	{
-		EnumVariantFieldUpdate V;
-
-		bool IsOpen = ImGui::TreeNode((Byte*)Variant.Tag + 1, "");
-		ImGui::SameLine();
-		V.EnumUpdated = EnumField(label, Variant.Tag, Values, ValuesSize, EnumBaseSize);
-		V.VariantUpdated = DrawVariant(Variant.Tag, Variant.Union, V.EnumUpdated, IsOpen);
-
-		if (IsOpen)
-		{
-			ImGui::TreePop();
-		}
-		return V;
-	}
+	static EnumVariantFieldUpdate EnumVariantField(const char* label, VariantInfo Variant, std::function<bool(void* Tag, void* Union, bool UpdatedEnum, bool Draw)> DrawVariant, const EnumValue2* Values, size_t ValuesSize, size_t EnumBaseSize);
+	static EnumVariantFieldUpdate EnumVariantField(VariantInfo Variant, std::function<bool(void* Tag, void* Union, bool UpdatedEnum, bool Draw)> DrawVariant, const EnumValue2* Values, size_t ValuesSize, size_t EnumBaseSize);
 
 
 	template<typename... Types>
