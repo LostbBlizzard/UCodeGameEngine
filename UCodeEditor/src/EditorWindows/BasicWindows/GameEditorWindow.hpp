@@ -34,6 +34,10 @@ public:
 	};
 	void SetPrefabMode(UC::EntityPtr prefab,PrefabModeData&& data);
 	static UC::EntityPtr GetCurrentSeclectedEntity();
+
+	void OpenScencAtPathRemoveOthers(const UID& Path);
+	void OpenScencAtPath(const UID& Path);
+	void OpenScencAtPath(const Path& Path);
 private:
 	static EditorWindow* MakeWin(const NewEditorWindowData& windowdata);
 
@@ -175,8 +179,6 @@ private:
 	void ShowGameImage();
 	void ShowRunTimeGameLibrary();
 	void SaveScene();
-	void OpenScencAtPath(const UID& Path);
-	void OpenScencAtPath(const Path& Path);
 	static Vec2 MousePosFromImage(const Vec2 CursorPos, const Vec2 ImageSize);
 	void SetSeneAsSaved();
 	void OnULangReload();

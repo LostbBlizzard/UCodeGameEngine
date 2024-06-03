@@ -187,7 +187,7 @@ void GameEditorWindow::OnLoadWindow(UDeserializer& JsonToOutof)
         UID newid = {};
         JsonToOutof.ReadType("_SceneUID", newid, newid);
 
-        OpenScencAtPath(_UseingSceneAsset.value());
+        OpenScencAtPath(newid);
     }
 }
 
@@ -1891,6 +1891,10 @@ void GameEditorWindow::SaveScene()
             //TODO
         }
     }
+}
+void GameEditorWindow::OpenScencAtPathRemoveOthers(const UID& Path)
+{
+
 }
 void GameEditorWindow::OpenScencAtPath(const UID& Path)
 {
