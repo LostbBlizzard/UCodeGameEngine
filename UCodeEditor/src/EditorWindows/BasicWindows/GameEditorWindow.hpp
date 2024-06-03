@@ -57,8 +57,8 @@ private:
 	struct SceneEditorTabData
 	{
 		Unique_ptr<UCode::GameRunTime> _GameRunTime;
-		UCode::GameRunTime* _GameRuntimeRef;
 		Unique_ptr<UCode::RenderAPI::Render> _GameRender;
+		UCode::GameRunTime* _GameRuntimeRef = nullptr;
 		UCode::Camera2d* _SceneCamera = nullptr;
 		SceneCameraData _SceneCameraData;
 
@@ -83,7 +83,7 @@ private:
 	Optional<int> _DontWaitInputKey;	
 	Optional<int> _UCodeLangReloadKey;	
 	
-	Optional<Path> _UseingScenePath;
+	Optional<UID> _UseingSceneAsset;
 	UCode::Scene2dData* _SceneData = nullptr;
 	UCode::RunTimeScene* _SceneDataAsRunTiime = nullptr;
 	ToolBarType _ToolBar = ToolBarType::Select;
@@ -175,6 +175,7 @@ private:
 	void ShowGameImage();
 	void ShowRunTimeGameLibrary();
 	void SaveScene();
+	void OpenScencAtPath(const UID& Path);
 	void OpenScencAtPath(const Path& Path);
 	static Vec2 MousePosFromImage(const Vec2 CursorPos, const Vec2 ImageSize);
 	void SetSeneAsSaved();

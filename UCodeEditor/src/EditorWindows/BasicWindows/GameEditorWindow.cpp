@@ -122,7 +122,7 @@ void GameEditorWindow::UpdateWindow()
 
     ImGui::PopStyleVar();
 
-    if (_UseingScenePath.has_value() && _SceneDataAsRunTiime) 
+    if (_UseingSceneAsset.has_value() && _SceneDataAsRunTiime) 
     {
         if (BlockKey.has_value())
         {
@@ -136,18 +136,24 @@ void GameEditorWindow::UpdateWindow()
         {
             if (ScencIsDiffent())
             {
-                BlockCloseData data;
-                data.Popname = "Save " + _UseingScenePath.value().filename().generic_string();
-                data.OnDontSave = [this]()
-                    {
-                        BlockKey = {};
-                    };
-                data.OnSave = [this]()
-                    {
-                        BlockKey = {};
-                        SaveScene();
-                    };
-                BlockKey = Get_App()->AddBlockClose(std::move(data));
+                auto val = Get_App()->Get_RunTimeProjectData()->Get_AssetIndex().FindFileUsingID(_UseingSceneAsset.value());
+
+                if (val.has_value()) 
+                {
+                    BlockCloseData data;
+                    data.Popname = "Save " + Path(val.value().RelativePath).replace_extension().filename().generic_string();
+
+                    data.OnDontSave = [this]()
+                        {
+                            BlockKey = {};
+                        };
+                    data.OnSave = [this]()
+                        {
+                            BlockKey = {};
+                            SaveScene();
+                        };
+                    BlockKey = Get_App()->AddBlockClose(std::move(data));
+                }
             }
         }
     }
@@ -163,12 +169,9 @@ void GameEditorWindow::OnSaveWindow(USerializer& JsonToSaveIn)
 {
     
     auto Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
-    if (_SceneData && _UseingScenePath.has_value() && !_IsRuningGame)
+    if (_SceneData && _UseingSceneAsset.has_value() && !_IsRuningGame)
     {
-        auto PathString = FileHelper::ToRelativePath(Assespath, _UseingScenePath.value());
-
-
-        JsonToSaveIn.Write("_ScenePath", PathString);
+        JsonToSaveIn.Write("_SceneUID", _UseingSceneAsset.value());
 
     }
     
@@ -178,12 +181,14 @@ void GameEditorWindow::OnSaveWindow(USerializer& JsonToSaveIn)
 void GameEditorWindow::OnLoadWindow(UDeserializer& JsonToOutof)
 {
     auto Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
-    Path PathString = "";
 
-    JsonToOutof.ReadType("_ScenePath", PathString, PathString);
-    Path NewString = Assespath.native() + Path(PathString).native();
+    if (JsonToOutof.HasField("_SceneUID")) 
+    {
+        UID newid = {};
+        JsonToOutof.ReadType("_SceneUID", newid, newid);
 
-    OpenScencAtPath(NewString);
+        OpenScencAtPath(_UseingSceneAsset.value());
+    }
 }
 
 void GameEditorWindow::Scenehierarchy()
@@ -420,7 +425,9 @@ void GameEditorWindow::SceneEditor(SceneEditorTabData& data)
     auto& _GameRender = data._GameRender;
     if (_GameRunTime == nullptr)
     {
-        LoadRunTime(); LoadRender(data, false);
+        LoadRunTime();
+        LoadRender(data, false);
+        _GameRunTime = data.GetGameRuntime();
     }
 
 
@@ -774,6 +781,7 @@ void GameEditorWindow::ShowSceneData()
             if (v.has_value())
             {
                 auto& assetpath = *v;
+
                 OpenScencAtPath(assetpath);
             }
 
@@ -790,6 +798,17 @@ void GameEditorWindow::ShowSceneData()
         ImGui::EndDisabled();
 
         ImGui::EndPopup();
+    }
+}
+void GameEditorWindow::OpenScencAtPath(const Path& Path)
+{
+    auto runtime = Get_App()->Get_RunTimeProjectData();
+    auto& index = runtime->Get_AssetIndex();
+    auto valop = index.FindFileRelativeAssetName(FileHelper::ToRelativePath(runtime->GetAssetsDir(),Path).generic_string());
+
+    if (valop.has_value() && valop.value().UserID.has_value())
+    {
+        OpenScencAtPath(valop.value().UserID.value());
     }
 }
 void GameEditorWindow::DropSceneFromPath()
@@ -1825,54 +1844,74 @@ void GameEditorWindow::ShowRunTimeGameLibrary()
 }
 void GameEditorWindow::SaveScene()
 {
-    if (_SceneData && _UseingScenePath.has_value())
+    if (_SceneData && _UseingSceneAsset.has_value())
     {
         auto SaveType = Get_ProjectData()->Get_ProjData()._SerializeType;
         UCode::Scene2dData::SaveScene(_SceneDataAsRunTiime, *_SceneData, SaveType);
 
         auto runprojectdata = Get_ProjectData();
-        auto p = _UseingScenePath.value().generic_string();
-        auto& scenefilepath = _UseingScenePath.value();
-
-        if (UCode::Scene2dData::ToFile(scenefilepath, *_SceneData, SaveType))
+       
+        Optional<Path> path;
+        
+        auto runtimedata = Get_App()->Get_RunTimeProjectData();
+        auto index =runtimedata ->Get_AssetIndex();
         {
-            auto& index = runprojectdata->Get_AssetIndex();
-
-            auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
-            auto op = index.FindFileRelativeAssetName(relpath);
-
-            if (op.has_value())
+            auto fileop = index.FindFileUsingID(_UseingSceneAsset.value());
+            if (fileop.has_value())
             {
-                auto& ind = op.value();
-                ind.FileLastUpdatedTime = std::filesystem::last_write_time(scenefilepath).time_since_epoch().count();
-                ind.FileSize = std::filesystem::file_size(scenefilepath);
-                SetSeneAsSaved();
+                path = runtimedata->GetAssetsDir() / fileop.value().RelativePath;
+            }
+        }
+        if (path.has_value())
+        {
+            auto& scenefilepath = path.value();
+
+            auto relpath = FileHelper::ToRelativePath(runtimedata->GetAssetsDir(), path.value()).generic_string();
+            if (UCode::Scene2dData::ToFile(scenefilepath, *_SceneData, SaveType))
+            {
+                auto& index = runprojectdata->Get_AssetIndex();
+
+                auto op = index.FindFileRelativeAssetName(relpath);
+
+                if (op.has_value())
+                {
+                    auto& ind = op.value();
+                    ind.FileLastUpdatedTime = std::filesystem::last_write_time(scenefilepath).time_since_epoch().count();
+                    ind.FileSize = std::filesystem::file_size(scenefilepath);
+                    SetSeneAsSaved();
+                }
+            }
+            else
+            {
+                UCodeGEError("Saveing Asset for " << relpath << " Failed");
             }
         }
         else
         {
-            auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
-            UCodeGEError("Saveing Asset for " << relpath << " Failed");
+            //TODO
         }
     }
 }
-void GameEditorWindow::OpenScencAtPath(const Path& Path)
+void GameEditorWindow::OpenScencAtPath(const UID& Path)
 {
-    LoadRunTime();
-
-    auto& Scenes = MainSceneData._GameRunTime->Get_Scenes();
-    auto NewSceneData = std::make_unique<UCode::Scene2dData>();//Get from cash;
-    UCode::AssetManager* Assets = UCode::AssetManager::Get(Get_GameLib());
-    if (UCode::Scene2dData::FromFile(*NewSceneData, Path))
+    auto loadassetop = Get_App()->Get_AssetManager()->FindOrLoad_t<UC::ScencAsset>(Path);
+    if (loadassetop.has_value())
     {
+        LoadRunTime();
+
+        auto& Scenes = MainSceneData._GameRunTime->Get_Scenes();
+
+        auto& NewSceneData = loadassetop.value()->_Base;
+        UCode::AssetManager* Assets = UCode::AssetManager::Get(Get_GameLib());
+
         if (BlockKey.has_value())
         {
             Get_App()->RemoveBlockClose(BlockKey.value());
             BlockKey = {};
         }
-           
 
-        auto NewScene = UCode::Scene2dData::LoadScene(MainSceneData._GameRunTime.get(), *NewSceneData);
+
+        auto NewScene = UCode::Scene2dData::LoadScene(MainSceneData._GameRunTime.get(), NewSceneData);
         // UCode::RunTimeScene::SetSceneMulti_Threaded(NewScene);
         if (Scenes.size() == 1)
         {
@@ -1886,13 +1925,12 @@ void GameEditorWindow::OpenScencAtPath(const Path& Path)
                 _SceneData = new UCode::Scene2dData();
             }
 
-            _SceneData = NewSceneData.release();
+            *_SceneData = NewSceneData;
             SelectedScene = NewScene->Get_ManagedPtr();
-            _UseingScenePath = Path;
+            _UseingSceneAsset = Path;
             _SceneDataAsRunTiime = NewScene;
             SetSeneAsSaved();
         }
-
     }
 }
 Vec2 GameEditorWindow::MousePosFromImage(const Vec2 CursorPos, const Vec2 ImageSize)
@@ -1910,12 +1948,14 @@ Vec2 GameEditorWindow::MousePosFromImage(const Vec2 CursorPos, const Vec2 ImageS
 }
 void GameEditorWindow::OnULangReload()
 {
-    if (_UseingScenePath.has_value())
+    if (_UseingSceneAsset.has_value())
     {
-        auto NewSceneData = std::make_unique<UCode::Scene2dData>();//Get from cash;
-        if (UCode::Scene2dData::FromFile(*NewSceneData, _UseingScenePath.value()))
+        auto loadassetop = Get_App()->Get_AssetManager()->FindOrLoad_t<UC::ScencAsset>(_UseingSceneAsset.value());
+        if (loadassetop.has_value())
         {
-            auto NewScene = UCode::Scene2dData::LoadScene(MainSceneData._GameRunTime.get(), *NewSceneData);
+            auto& NewSceneData = loadassetop.value()->_Base;
+
+            auto NewScene = UCode::Scene2dData::LoadScene(MainSceneData._GameRunTime.get(), NewSceneData);
 
             UCode::Scene2dData data;
             UCode::Scene2dData::SaveScene(NewScene, data, USerializerType::Bytes);
@@ -2001,7 +2041,7 @@ void GameEditorWindow::GameTab()
 
         if (_IsRuningGame)
         {
-            if (!_UseingScenePath.has_value())
+            if (!_UseingSceneAsset.has_value())
             {
 
                 ImGui::OpenPopup(CantPlayScenePopName);
