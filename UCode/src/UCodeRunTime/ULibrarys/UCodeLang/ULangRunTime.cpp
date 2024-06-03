@@ -866,7 +866,38 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 				return;
 			}
 		}
+		{
+			auto typeop = UCodeRunTimeState::IsTypeUCodeObject(Type, Assembly);
+			if (typeop.has_value())
+			{
+				auto& type = typeop.value();
 
+				if (UCodeRunTimeState::IsTile(type, Assembly)
+					|| UCodeRunTimeState::IsSprite(type, Assembly)
+					|| UCodeRunTimeState::IsTexture(type, Assembly)
+					|| UCodeRunTimeState::IsAudio(type, Assembly)
+					|| UCodeRunTimeState::IsSceneAsset(type, Assembly)
+					|| UCodeRunTimeState::IsEntityAsset(type, Assembly)
+				   )
+				{
+					auto& type = typeop.value();
+					ULangAPI::ObjectAPI::Base* ptr = (ULangAPI::ObjectAPI::Base*)Pointer;
+
+					if (Serializer.Get_Type() == USerializerType::Bytes)
+					{
+						auto& Bits = Serializer.Get_BitMaker();
+						Bits.WriteType(*ptr);
+					}
+					else
+					{
+						auto& Bits = Serializer.Get_TextMaker();
+						Bits << YAML::Value << *ptr;
+					}
+
+					return;
+				}
+			}
+		}
 
 		if (Node)
 		{
@@ -1453,6 +1484,36 @@ uInt64Case:
 					*ptr = Bits.as<ULangAPI::ObjectAPI::Base>(*ptr);
 				}
 				return;
+			}
+		}
+		{
+			auto typeop = UCodeRunTimeState::IsTypeUCodeObject(Type, Assembly);
+			if (typeop.has_value())
+			{
+				auto& type = typeop.value();
+
+				if (UCodeRunTimeState::IsTile(type, Assembly)
+					|| UCodeRunTimeState::IsSprite(type, Assembly)
+					|| UCodeRunTimeState::IsTexture(type, Assembly)
+					|| UCodeRunTimeState::IsAudio(type, Assembly)
+					|| UCodeRunTimeState::IsSceneAsset(type, Assembly)
+					|| UCodeRunTimeState::IsEntityAsset(type, Assembly)
+				   )
+				{
+					ULangAPI::ObjectAPI::Base* ptr = (ULangAPI::ObjectAPI::Base*)Pointer;
+
+					if (Serializer.Get_Mode() == USerializerType::Bytes)
+					{
+						auto& Bits = Serializer.Get_BitReader();
+						Bits.ReadType(*ptr, *ptr);
+					}
+					else
+					{
+						auto& Bits = Serializer.Get_TextReader();
+						*ptr = Bits.as<ULangAPI::ObjectAPI::Base>(*ptr);
+					}
+					return;
+				}
 			}
 		}
 		if (Node)
