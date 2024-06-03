@@ -417,6 +417,7 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 					if (!memcmp(Item._Data.Get_Data(), Pointer, Size))
 					{
 						Value = &Item;
+						break;
 					}
 				}
 
@@ -438,6 +439,7 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 					if (!memcmp(Item._Data.Get_Data(), Pointer, Size))
 					{
 						Value = &Item;
+						break;
 					}
 				}
 
@@ -451,7 +453,8 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 
 					if (Value->EnumVariantType.has_value())
 					{
-						Serialize(Serializer, Pointer, Value->EnumVariantType.value(), Assembly, Is32Mode);
+						const void* UnionPointer = (const void*)((uintptr_t)Pointer + (uintptr_t)Size);
+						Serialize(Serializer, UnionPointer , Value->EnumVariantType.value(), Assembly, Is32Mode);
 					}
 					else
 					{
@@ -483,6 +486,7 @@ void ULangHelper::Serialize(USerializer& Serializer, const void* Pointer, const 
 				if (!memcmp(Item._Data.Get_Data(), Pointer, Size))
 				{
 					Value = &Item;
+					break;
 				}
 			}
 
@@ -1662,6 +1666,7 @@ void ULangHelper::Deserialize(UDeserializer& Serializer, void* Pointer, const UC
 					if (Item.Name == EnumKey)
 					{
 						Value = &Item;
+						break;
 					}
 				}
 
@@ -1671,7 +1676,7 @@ void ULangHelper::Deserialize(UDeserializer& Serializer, void* Pointer, const UC
 					{
 						auto oldYaml = std::move(Serializer.Get_TextReader());
 
-						Serializer.Get_TextReader() = oldYaml[EnumUnionTagFieldName];
+						Serializer.Get_TextReader() = oldYaml[EnumUnionObjectFieldName];
 
 
 						Deserialize(Serializer, UnionPointer,Value->EnumVariantType.value(), Assembly, Is32Mode);

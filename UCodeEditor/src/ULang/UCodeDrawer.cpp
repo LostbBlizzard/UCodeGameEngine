@@ -626,7 +626,7 @@ bool UCodeDrawer::DrawEnum(void* Pointer, const UCodeLang::Enum_Data& Class, con
 				ImguiEnum.Value = ClassItem._Data.Get_Data();
 			}
 
-			R = ImGuIHelper::EnumField("", Pointer, _Eunm, *Size);
+			R = ImGuIHelper::EnumField(Pointer, _Eunm, *Size);
 		}
 		ImGui::PopID();
 	}
@@ -658,9 +658,12 @@ bool UCodeDrawer::DrawEnum(void* Pointer, const UCodeLang::Enum_Data& Class, con
 			std::shared_ptr<Byte> LastTag = std::shared_ptr<Byte>(new Byte[TagSize]);
 			memcpy(LastTag.get(), _Info.Tag, TagSize);
 
-			std::function<bool(void* Tag, void* Union, bool UpdatedEnum, bool Draw)> OnDraw = [UnionTypeID,&Assembly, Class, TagSize,LastTag](void* Tag, void* Union, bool UpdatedEnum, bool Draw)
+			std::function<bool(void* Tag, void* Union, bool UpdatedEnum, bool Draw)> OnDraw = [UnionTypeID,&Assembly, Class, TagSize,LastTag,Is32Mode](void* Tag, void* Union, bool UpdatedEnum, bool Draw)
 			{
 				bool Updated = false;
+				auto state = UCode::UCodeRunTimeState::Get_Current();
+				UCodeLang::AnyInterpreterPtr anyptr = &state->GetCurrentInterpreter();
+
 
 				if (UpdatedEnum)
 				{
@@ -681,7 +684,23 @@ bool UCodeDrawer::DrawEnum(void* Pointer, const UCodeLang::Enum_Data& Class, con
 							{
 								auto TypeToInit = _UseingValue->EnumVariantType.value();
 								auto Ptr = Union;
-								//To-DO drop object
+
+								auto op = Assembly.CallDestructor(TypeToInit, Ptr, Is32Mode);
+								if (op.has_value())
+								{
+									if (op.value().has_value())
+									{
+										for (auto& Func : op.value().value())
+										{
+											anyptr.ThisCall(Func.MethodToCall, Func.ThisPtr);
+										}
+									}
+								}
+								else
+								{
+									String name = "[PutTypeNameHere]";
+									UCodeGEError("Unable to Call Destructor for type '" << name << "' we may have leak memory")
+								}
 							}
 						}
 					}
@@ -703,10 +722,26 @@ bool UCodeDrawer::DrawEnum(void* Pointer, const UCodeLang::Enum_Data& Class, con
 								auto TypeToInit = _UseingValue->EnumVariantType.value();
 								auto Ptr = Union;
 								//init new object
+								auto op = Assembly.CallDefaultConstructor(TypeToInit, Ptr, Is32Mode);
+								if (op.has_value())
+								{
+									if (op.value().has_value())
+									{
+										for (auto& Func : op.value().value())
+										{
+											anyptr.ThisCall(Func.MethodToCall, Func.ThisPtr);
+										}
+									}
+								}
+								else
+								{
+									String name = "[PutTypeNameHere]";
+									UCodeGEError("Unable to Call DefaultConstructor for type '" << name << "' we may have uninitialized object in memory")
+								}
 							}
 						}
 					}
-					
+				
 				}
 
 				if (Draw)
@@ -733,7 +768,7 @@ bool UCodeDrawer::DrawEnum(void* Pointer, const UCodeLang::Enum_Data& Class, con
 				return Updated;
 			};
 
-			auto Ret = ImGuIHelper::EnumVariantField("",_Info,OnDraw,_Eunm.data(),_Eunm.size(), TagSize);
+			auto Ret = ImGuIHelper::EnumVariantField(_Info,OnDraw,_Eunm.data(),_Eunm.size(), TagSize);
 			R = Ret.EnumUpdated || Ret.VariantUpdated;
 		}
 		ImGui::PopID();
