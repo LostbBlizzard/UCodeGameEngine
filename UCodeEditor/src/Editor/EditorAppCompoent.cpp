@@ -22,11 +22,13 @@
 #include "UCodeLang/Compilation/ModuleFile.hpp"
 #include "UCodeLang/Compilation/UAssembly/UAssembly.hpp"
 #include "EditorWindows/ProjectManagement/DrawMenu.hpp"
+#include "EditorWindows/BasicWindows/ULangWindow.hpp"
 EditorStart
 
 
 constexpr const float MaxAutoTimer = 30;
 #define OpenProjectWindow EditorWindowsList::EditorWindows[1].GetType<EditorWindowData>()
+#define ULangWindowID EditorWindowsList::EditorWindows[15].GetType<EditorWindowData>()
 EditorAppCompoent::EditorAppCompoent(UCode::Entity* entity) :
     UCode::Renderer2d(entity, nullptr),
     NextWindowId(0)
@@ -559,7 +561,11 @@ void  EditorAppCompoent::ShowMainMenuBar()
                     if (ClickedIndex.has_value())
                     {
                         auto& Script = MenuInfo[ClickedIndex.value()];
-                                           
+
+                        auto win = MakeNewWindow(ULangWindowID, NewEditorWindowData(this));
+                        ULangWindow* ulangwin = (ULangWindow*)win;
+
+                        ulangwin->LoadScript(Script.node);
                     }
                 }
 

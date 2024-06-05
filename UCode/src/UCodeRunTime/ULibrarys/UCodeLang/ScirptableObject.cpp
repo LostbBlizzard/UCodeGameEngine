@@ -149,4 +149,15 @@ void ScirptableObject::SaveTo(ScirptableObjectData& out, USerializerType type) c
     serlalizer.ToString(out._Data,false);
     out._DataSerializeType = type;
 }
+ScirptableObject::ScirptableObject()
+{
+
+}
+ScirptableObject::~ScirptableObject()
+{
+    if (HasScript())
+    {
+        UnLoadScript();
+    }
+}
 CoreEnd

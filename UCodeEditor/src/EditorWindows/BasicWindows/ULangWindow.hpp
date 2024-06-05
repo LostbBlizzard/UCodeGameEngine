@@ -8,6 +8,14 @@ EditorStart
 class ULangWindow :public EditorWindow
 {
 public:
+	ULangWindow(const NewEditorWindowData& windowdata);
+	~ULangWindow() override;
+
+	void UpdateWindow() override;
+	void OnSaveWindow(USerializer& Input);
+	void OnLoadWindow(UDeserializer& JsonToOutof);
+	
+
 	UCODE_EDITOR_FORCEINLINE UCode::ULangRunTime* GetULang() const
 	{
 		return nullptr;
@@ -33,7 +41,11 @@ public:
 	{
 		return _UObj;
 	}
-	void LoadScript(const UCodeLang::Class_Data* ClassData);
+	
+	void LoadScript(const UCodeLang::AssemblyNode* ClassData);
+	void UnLoadScript();
+	static EditorWindowData GetEditorData();
+	static EditorWindow* MakeWin(const NewEditorWindowData& project);
 private:
 	const UCodeLang::Class_Data* _ClassData = nullptr;
 	String _ClassName;
@@ -41,11 +53,13 @@ private:
 
 	const UCodeLang::ClassMethod* _LangConstructor = nullptr;
 	const UCodeLang::ClassMethod* _LangDestructor = nullptr;
+	const UCodeLang::ClassMethod* _LangUpdate = nullptr;
 	void GetCallBinds()
 	{
 		auto& Class = *_ClassData;
 		_LangConstructor = Class.Get_ClassInit();
 		_LangDestructor = Class.Get_ClassDestructor();
+		_LangUpdate = Class.Get_ClassMethod("Update");
 	}
 };
 EditorEnd
