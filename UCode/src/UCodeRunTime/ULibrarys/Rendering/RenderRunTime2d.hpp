@@ -83,9 +83,17 @@ public:
 		inline void SetDraworder(DrawOrder_t v) { draworder = v; }
 
 	};
+	struct Draw2DLineData
+	{
+		Vec2 Start;
+		Vec2 End;
+		Color color;
+		float Thickness = 0.2;
+	};
 	struct DrawData
 	{
 		Vector<DrawQuad2dData> Quad2d;
+		Vector<Draw2DLineData> Lines2d;
 		bool HasAnyPlaceHolders() const;	
 	}; 
 
@@ -105,6 +113,10 @@ public:
 	inline void DrawQuad2d(const DrawQuad2dData& Data)
 	{
 		_DrawData.Quad2d.push_back(Data);
+	}
+	inline void DrawLine2d(const Draw2DLineData& Data)
+	{
+		_DrawData.Lines2d.push_back(Data);
 	}
 	inline const Stats& Get_Stats() const { return DataStats; }
 

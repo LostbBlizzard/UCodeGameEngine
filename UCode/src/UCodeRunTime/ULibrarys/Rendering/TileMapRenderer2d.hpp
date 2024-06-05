@@ -74,10 +74,12 @@ public:
 	ShaderPtr shader;
 	RenderRunTime2d::DrawLayer_t DrawLayer = {};
 	RenderRunTime2d::DrawOrder_t DrawOrder = {};
+	bool Showgrid = false;
 	
 	static UComponentsID Get_TypeID();	
 	static UComponentData type_Data;
 private:
 	Vector<Tile> _Tiles;
+	void DragGrid();
 };
 RenderingEnd
