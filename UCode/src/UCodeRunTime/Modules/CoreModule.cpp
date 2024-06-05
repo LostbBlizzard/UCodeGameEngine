@@ -2,6 +2,7 @@
 
 
 #include "../ULibrarys/Rendering/SpriteRenderer2d.hpp"
+#include "../ULibrarys/Rendering/LineRenderer.hpp"
 #include "../ULibrarys/Rendering/TileMapRenderer2d.hpp"
 #include "../ULibrarys/Rendering/Camera2d.hpp"
 #include "../ULibrarys/UCodeLang/ULangRunTime.hpp"
@@ -23,6 +24,7 @@ CoreModule::CoreModule()
 	_Compoents[4] = UModuleComponentData(&Buttion::type_Data);
 	_Compoents[5] = UModuleComponentData(&UIImage::type_Data);
 	_Compoents[6] = UModuleComponentData(&TileMapRenderer::type_Data);
+	_Compoents[7] = UModuleComponentData(&LineRenderer::type_Data);
 
 	_Assets[0] = UModuleAssetData(Path(UCode::Scene2dData::FileExtDot),[](UDeserializer& serializer)
 	{

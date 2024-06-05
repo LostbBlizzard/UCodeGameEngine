@@ -66,10 +66,20 @@ void TileMapRenderer::OnDraw()
 		}
 	}
 	*/
+
+	if (Showgrid)
+	{
+		DragGrid();
+	}
 }
 UComponentsID TileMapRenderer::Get_TypeID()
 {
 	return type_Data._Type;
+}
+void TileMapRenderer::DragGrid()
+{
+	auto Render = GetRenderRunTime();
+
 }
 NullablePtr<TileMapRenderer::Tile> TileMapRenderer::Get_Tile(int x, int y)
 {

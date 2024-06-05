@@ -17,7 +17,7 @@ public:
 	};
 
 private:
-	Array< UModuleComponentData, 7> _Compoents;
+	Array< UModuleComponentData, 8> _Compoents;
 	Array<UModuleAssetData,5> _Assets;
 };
 CoreEnd
