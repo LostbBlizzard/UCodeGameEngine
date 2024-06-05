@@ -6,3 +6,4 @@
 
 #include "Rendering/SpriteRenderer2d.hpp"
 #include "Rendering/TileMapRenderer2d.hpp"
+#include "Rendering/LineRenderer.hpp"

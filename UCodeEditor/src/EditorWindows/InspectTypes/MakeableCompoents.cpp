@@ -14,10 +14,10 @@ MakeableCompoents::Lib Data[] =
 
 _NewMenu("Rendering")
 
-{"SpriteRenderer", UCode::SpriteRenderer::Get_TypeID(),&MakeableCompoents::Make_Compoent<UCode::SpriteRenderer>},
-{"TileMap", UCode::TileMapRenderer::Get_TypeID(),&MakeableCompoents::Make_Compoent<UCode::TileMapRenderer>},
 {"Camera",UCode::Camera2d::Get_TypeID(), &MakeableCompoents::Make_Compoent<UCode::Camera2d>},
-
+{"SpriteRenderer", UCode::SpriteRenderer::Get_TypeID(),&MakeableCompoents::Make_Compoent<UCode::SpriteRenderer>},
+{"LineRender", UCode::LineRenderer::Get_TypeID(),&MakeableCompoents::Make_Compoent<UCode::LineRenderer>},
+{"TileMap", UCode::TileMapRenderer::Get_TypeID(),&MakeableCompoents::Make_Compoent<UCode::TileMapRenderer>},
 
 _EndMenu()
 
