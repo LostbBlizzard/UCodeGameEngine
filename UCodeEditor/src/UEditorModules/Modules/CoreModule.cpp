@@ -13,6 +13,7 @@
 #include "Componets/Camera.hpp"
 #include "Componets/SpriteRenderer.hpp"
 #include "Componets/TileMapRenderer.hpp"
+#include "Componets/LineRenderer.hpp"
 EditorStart
 
 CoreModule::CoreModule()
@@ -43,6 +44,7 @@ void CoreModule::Init()
 		Components.push_back(Unique_ptr<UEditorComponentData>(new SpriteRendererUEditorData()));
 		Components.push_back(Unique_ptr<UEditorComponentData>(new CameraUEditorData()));
 		Components.push_back(Unique_ptr<UEditorComponentData>(new TileMapRenderUEditorData()));
+		Components.push_back(Unique_ptr<UEditorComponentData>(new LineRendererUEditorData()));
 	}
 }
 EditorEnd
