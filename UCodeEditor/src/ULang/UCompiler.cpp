@@ -185,7 +185,7 @@ bool UCompiler::CompileProject(CompileData& Data)
 			}
 			else
 			{
-				std::function<Optional<ModuleBuildOut>()> func = [&BuildCount,&Data, &modindex, &index, &Compiler,&taskmanger]()->Optional<ModuleBuildOut>
+				std::function<Optional<ModuleBuildOut>()> func = [&BuildCount,&Data, modindex, &index, &Compiler,&taskmanger]()->Optional<ModuleBuildOut>
 					{
 						UCodeLang::ModuleFile file;
 						if (UCodeLang::ModuleFile::FromFile(&file, modindex->_ModuleFullPath))
