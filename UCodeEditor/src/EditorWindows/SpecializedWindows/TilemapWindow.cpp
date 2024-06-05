@@ -382,7 +382,7 @@ void TilemapWindow::UpdateWindow()
 													{
 														for (auto& tile : asset->_List)
 														{
-															if (tile.X == packItem.X && tile.Y == packItem.Y)
+															if (tile.X == packItem.X + x && tile.Y == packItem.Y + y)
 															{
 																Item = Nullableptr(&tile);
 																break;
