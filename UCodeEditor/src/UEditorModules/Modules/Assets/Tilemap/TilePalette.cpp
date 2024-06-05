@@ -80,13 +80,18 @@ bool TilePaletteAssetFile::Liveing::ShouldBeUnloaded(const UEditorAssetShouldUnl
 }
 void TilePaletteAssetFile::Liveing::FileUpdated()
 {
-	if (!TilePalette::FromFile(_Asset._Base, this->FileFullPath))
+	TilePalette palette;
+	if (!TilePalette::FromFile(palette, this->FileFullPath))
 	{
 		auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 
 		auto p = FileFullPath.generic_string();
 		auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
 		UCodeGEError("Unable to Read/Parse for " << relpath << " Failed");
+	}
+	else
+	{
+		_Asset._Base = std::move(palette);
 	}
 }
 
