@@ -518,7 +518,12 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 			ImGuIHelper_Asset::AsssetField("Texture Atlas", this->_Data._Base._BaseTexture);
 
 
-			auto texturesettingsop = PNGAssetFile::GetTextureSettings(_Data._BaseTexture.Get_UID());
+			NullablePtr<PNGAssetFile::TextureSettings>  texturesettingsop;
+			
+			if (_Data._BaseTexture.Has_UID()) 
+			{
+				texturesettingsop = PNGAssetFile::GetTextureSettings(_Data._BaseTexture.Get_UID());
+			}
 			if (_Data._BaseTexture.Has_Asset()) 
 			{
 				if (shouldcloseAtlastSettings)
@@ -537,31 +542,10 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 						shouldcloseAtlastSettings = true;
 
 						_Data.List.reserve(texturesettings->sprites.size());
-						_Assets.clear();
-						_Assets.resize(texturesettings->sprites.size());
+						_Assets.reserve(texturesettings->sprites.size());
 
 						auto run = app->Get_RunTimeProjectData();
 						auto& index = run->Get_AssetIndex();
-						for (size_t i = 0; i < texturesettings->sprites.size(); i++)
-						{
-							auto& item = texturesettings->sprites[i];
-							auto& LastOut = _Data.List[i];
-
-							LastOut._Name = item.spritename;
-							LastOut._Data._Data.Sprite = item.uid;
-
-							auto fileop = index.FindFileUsingID(LastOut._Data._UID);
-
-							if (fileop.has_value())
-							{
-								auto& file = fileop.value();
-
-								file.RelativeAssetName = file.RelativePath;
-								file.RelativeAssetName += EditorIndex::SubAssetSeparator;
-								file.RelativeAssetName += LastOut._Name;
-							}
-						}
-						auto relpath = FileHelper::ToRelativePath(run->GetAssetsDir(), this->FileFullPath).generic_string();
 
 						i32 tilesize = 0;
 						if (texturesettings->sprites.size())
@@ -572,6 +556,32 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 								tilesize = 1;
 							}
 						}
+
+						for (size_t i = 0; i < std::min(_Data.List.size(),texturesettings->sprites.size()); i++)
+						{
+							auto& item = texturesettings->sprites[i];
+							auto& LastOut = _Data.List[i];
+
+							LastOut._Name = item.spritename;
+							LastOut._Data._Data.Sprite = item.uid;
+							LastOut.X = item.offset.X / tilesize;
+							LastOut.Y = item.offset.Y / tilesize;
+
+							auto fileop = index.FindFileUsingID(LastOut._Data._UID);
+
+							if (fileop.has_value())
+							{
+								auto& file = fileop.value();
+
+								file.RelativeAssetName = file.RelativePath;
+								file.RelativeAssetName += EditorIndex::SubAssetSeparator;
+								file.RelativeAssetName += LastOut._Name;
+								file.RelativeAssetName += TileData::FileExtDot;
+							}
+						}
+						auto relpath = FileHelper::ToRelativePath(run->GetAssetsDir(), this->FileFullPath).generic_string();
+
+						
 						for (size_t i = _Data.List.size(); i < texturesettings->sprites.size(); i++)
 						{
 							auto& item = texturesettings->sprites[i];
@@ -587,7 +597,7 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 							file.UserID = newtile._Data._UID;
 							file.RelativePath = relpath;
 							file.RelativeAssetName = relpath + EditorIndex::SubAssetSeparator + newtile._Name;
-
+							file.RelativeAssetName += TileData::FileExtDot;
 							
 							_Data.List.push_back(std::move(newtile));
 							index._Files.push_back(std::move(file));
@@ -599,6 +609,8 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 							{
 								auto& Item = _Data.List.back();
 								_Data.List.pop_back();
+
+								_Assets.pop_back();
 
 								index.RemoveIndexFileWithUID(Item._Data._UID);
 							}
