@@ -27,8 +27,8 @@ private:
 	String _ClassName;
 	UCodeLang::PtrType _UObj = nullptr;
 public:
-	ScirptableObject(){}
-	~ScirptableObject(){}
+	ScirptableObject();
+	~ScirptableObject();
 	ManagedPtr<ScirptableObject> Get_ManagedPtr()
 	{
 		return _Managed;

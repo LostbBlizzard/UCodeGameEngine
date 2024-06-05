@@ -239,7 +239,7 @@ UCodeGameEngine:
 //Time.hpp
 UCodeGameEngine:
   $Time export extern "c":
-   export extern dynamic |DeltaTime[] -> float;
+   export extern dynamic |DeltaTime[] -> float32;
 
 
 

@@ -14,6 +14,7 @@
 #include "ULang/UCompiler.hpp"
 #include "UCodeRunTime/CoreSystems/Threads.hpp"
 #include "Helper/Tasks.hpp"
+#include "ULang/EditorLink.hpp"
 EditorStart
 
 CodeModule::CodeModule()
@@ -165,6 +166,18 @@ void CodeModule::BuildUCode(bool IsInEditor)
 							UCodeLang::UClib lib;
 							static Optional<UCode::ULangRunTime::LibID> Libid;
 							
+							static bool SetEditorLink = false;
+							if (SetEditorLink == false)
+							{
+								SetEditorLink = true;
+
+								UCode::ULangRunTime::Lib runlib;
+
+								runlib.RunPtr = std::make_unique<UCodeLang::RunTimeLib>();
+								EditorLink::Link(*runlib.RunPtr.get());
+
+								auto libid =ULang->AddLib(std::move(runlib));
+							}
 
 							if (UCodeLang::UClib::FromFile(&lib, data.OutPath))
 							{

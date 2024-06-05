@@ -17,6 +17,7 @@
 #include <EditorWindows/BasicWindows/DebugingWindow.hpp>
 
 #include <EditorWindows/SpecializedWindows/TilemapWindow.hpp>
+#include <EditorWindows/BasicWindows/ULangWindow.hpp>
 EditorStart
 
 Variant<EditorWindowData, EditorWindowsList::NewMenu, EditorWindowsList::EndMenu> Data2[] =
@@ -44,6 +45,7 @@ Variant<EditorWindowData, EditorWindowsList::NewMenu, EditorWindowsList::EndMenu
 	
 	EditorWindowsList::NewMenu("Specialized"),
 	TilemapWindow::GetEditorData(),
+	ULangWindow::GetEditorData(),
 	EditorWindowsList::EndMenu(),
 	/*
 	
