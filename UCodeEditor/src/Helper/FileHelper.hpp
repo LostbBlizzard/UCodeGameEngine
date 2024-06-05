@@ -66,6 +66,7 @@ public:
 	};
 	static FileType GetFileType(const String& Ext);
 
+	static void OpenWebLink(const String& Url);
 	static void OpenExe(const Path& path,const String& Args);
 	static void OpenExeSubProcess(const Path& path, const String& Args);
 

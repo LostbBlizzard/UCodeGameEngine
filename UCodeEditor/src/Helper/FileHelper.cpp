@@ -196,6 +196,22 @@ FileHelper::FileType FileHelper::GetFileType(const String& Ext)
 	else { return FileType::File; }
 }
 
+void FileHelper::OpenWebLink(const String& Url)
+{
+	#if UCodeGEWindows
+	Path value = Url;
+	ShellExecute(0, 0, value.c_str(), 0, 0, SW_SHOW);
+	#elif UCodeGELinux 
+	String cmd = "xdg-open";
+	cmd += Url;
+	system(cmd.c_str());
+	#elif UCodeGEMacOS 
+	String cmd = "open ";
+	cmd += Url;
+	system(cmd.c_str());
+	#endif
+}
+
 void FileHelper::OpenExe(const Path& path, const String& Args)
 {
 #if UCodeGEWindows
