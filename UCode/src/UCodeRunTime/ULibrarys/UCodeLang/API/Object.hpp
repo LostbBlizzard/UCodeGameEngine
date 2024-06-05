@@ -25,14 +25,14 @@ UCodeLangExportSymbol("UCodeGameEngine") UCodeLangEmbed(
           eval uintptr typehint = type(T).TypeID();
           uintptr pointer = ObjectAPI::Get(GetHandle(),typehint);
           if pointer == 0:
-            //panic("Object is a Null Reference");
+            panic("Object is a Null Reference");
           ret unsafe bitcast<T&>(pointer);
         
         |Get[imut this&] -> T&:
           eval uintptr typehint = type(T).TypeID();
           uintptr pointer = ObjectAPI::Get(GetHandle(),typehint);
           if pointer == 0:
-            //panic("Object is a Null Reference");
+            panic("Object is a Null Reference");
           ret unsafe bitcast<T&>(pointer);
 
         |~>[this&] -> T&:ret Get();
