@@ -232,12 +232,13 @@ void OpenProjectWindow::UpdateWindow()
             if (ImGui::Button("GitHub Page",{(fullWidth/2) - ImGui::GetStyle().ItemSpacing.x * 2,square_sz,}))
             {
                 const char* link = "https://github.com/LostbBlizzard";
+                FileHelper::OpenWebLink(link);
             }
             ImGui::SameLine();
             if (ImGui::Button("Itch.io Page",{(fullWidth/2) - ImGui::GetStyle().ItemSpacing.x * 2,square_sz}))
             {
-                const char* link = "https://lost-blizzard.itch.io/";
-
+                const char* link = "https://lost-blizzard.itch.io";
+                FileHelper::OpenWebLink(link);
             }
         }
         auto buttionsize = ImVec2{ 180,square_sz  };
@@ -249,30 +250,63 @@ void OpenProjectWindow::UpdateWindow()
 
             if (ImGui::Button("Open Page", buttionsize))
             {
-
+                FileHelper::OpenWebLink("https://en.wikipedia.org/wiki/C%2B%2B");
             }
             ImGuIHelper::ItemLabel(StringView("BuildSytem:Premake"),ImGuIHelper::Left);
+
+            ImGui::PushID(1);
             if (ImGui::Button("Open Page", buttionsize))
             {
-
+                FileHelper::OpenWebLink("https://premake.github.io");
             }
+            ImGui::PopID();
             ImGui::Unindent();
         }
         {
             ImGuIHelper::Text(StringView("Project Librarys"));
 
             ImGui::Indent();
-            ImGuIHelper::ItemLabel(StringView("ImGui"), ImGuIHelper::Left);
-            if (ImGui::Button("Open Page", buttionsize))
-            {
 
+            struct Pages
+            {
+                StringView Name;
+                StringView Url;
+                Pages(StringView name, StringView url)
+                    :Name(name),Url(url)
+                {
+
+                }
+            };
+            static Array<Pages, 10> PagesList = {
+                Pages( StringView("ImGui"),StringView("https://github.com/ocornut/imgui")),
+                {"UCodeLang","https://github.com/LostbBlizzard/UCodeLang"},
+                {"Yaml-Cpp","https://github.com/jbeder/yaml-cpp"},
+               
+                {"Box2D","https://github.com/erincatto/box2d"},
+                {"SoLoad","https://solhsa.com/soloud/"},
+               
+                {"Rttr","https://github.com/rttrorg/rttr"},
+                {"MinimalSocket","https://github.com/andreacasalino/Minimal-Socket"},
+                
+                {"Stb_image","https://github.com/nothings/stb/blob/master/stb_image.h"},
+                {"Stb_image_write","https://github.com/nothings/stb/blob/master/stb_image_write.h"},
+                {"SimpleFileWatcher","https://github.com/apetrone/simplefilewatcher/tree/master"},
+
+                //ToDo add others
+            };
+
+            for (auto& Item : PagesList)
+            {
+                ImGuIHelper::ItemLabel(Item.Name, ImGuIHelper::Left);
+
+                ImGui::PushID(&Item);
+                if (ImGui::Button("Open Page", buttionsize))
+                {
+                    FileHelper::OpenWebLink(String(Item.Url));
+                }
+                ImGui::PopID();
             }
 
-            ImGuIHelper::ItemLabel(StringView("UCodeLang"), ImGuIHelper::Left);
-            if (ImGui::Button("Open Page", buttionsize))
-            {
-
-            }
             ImGui::Unindent();
         }
 
@@ -280,6 +314,11 @@ void OpenProjectWindow::UpdateWindow()
         if (ImGui::Button("Back", { fullWidth / 2,square_sz }))
         {
             _State = State::ProjectList;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Show Licenses", { fullWidth / 2,square_sz }))
+        {
+            FileHelper::OpenPathinFiles(std::filesystem::absolute(AppFiles::GetFilePathByMove("licenses")));
         }
     }
 }
