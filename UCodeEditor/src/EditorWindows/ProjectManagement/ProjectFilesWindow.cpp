@@ -1135,7 +1135,23 @@ void ProjectFilesWindow::ShowDirButtions()
                             {
                                 auto& nod = Item->Get_ClassData();
 
-                                tagsop = &nod.Attributes;
+                                bool isscriptableobject = false;
+                                for (auto& type : nod.InheritedTypes)
+                                {
+                                    const auto& typenod = CurrentAssembly.Find_Node(type.TraitID);
+                                    if (typenod)
+                                    {
+                                        if (typenod->FullName == "UCodeGameEngine:Asset")
+                                        {
+                                            isscriptableobject = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (isscriptableobject) 
+                                {
+                                    tagsop = &nod.Attributes;
+                                }
                             }
 
                             if (tagsop.has_value())

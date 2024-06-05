@@ -21,6 +21,7 @@
 #include "Helper/UserSettings.hpp"
 #include "UCodeLang/Compilation/ModuleFile.hpp"
 #include "UCodeLang/Compilation/UAssembly/UAssembly.hpp"
+#include "EditorWindows/ProjectManagement/DrawMenu.hpp"
 EditorStart
 
 
@@ -459,6 +460,108 @@ void  EditorAppCompoent::ShowMainMenuBar()
                     }
                 }
 
+                {//ULang Windows
+                    auto currentulangkey = GetULangAssemblyID();
+                    auto ULang = UCode::ULangRunTime::Get(GetGameRunTime()->Get_Library_Edit());
+
+                    struct ScriptMenuInfo
+                    {
+                        String MenuName;
+                        const UCodeLang::AssemblyNode* node = nullptr;
+                    };
+
+                    thread_local Vector<ScriptMenuInfo> MenuInfo;
+                    thread_local Optional<ULangAssemblyID> Myulangkey;
+                    {
+                        bool isoutofdate = Myulangkey.has_value() ? currentulangkey != Myulangkey.value() : true;
+                        if (isoutofdate)
+                        {
+                            Myulangkey = currentulangkey;
+                            const UCodeLang::ClassAssembly& CurrentAssembly = ULang->Get_Assembly();
+
+                            for (auto& Item : CurrentAssembly.Classes)
+                            {
+
+                                Optional<const UCodeLang::UsedTags*> tagsop;
+
+                                if (Item->Get_Type() == UCodeLang::ClassType::Class)
+                                {
+                                    auto& nod = Item->Get_ClassData();
+
+                                    bool iswindow = false;
+                                    for (auto& type : nod.InheritedTypes)
+                                    {
+                                        const auto& typenod = CurrentAssembly.Find_Node(type.TraitID);
+                                        if (typenod)
+                                        {
+                                            if (typenod->FullName == "UCodeGameEngineEditor:Window")
+                                            {
+                                                iswindow = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (iswindow)
+                                    {
+                                        tagsop = &nod.Attributes;
+                                    }
+                                }
+
+                                if (tagsop.has_value())
+                                {
+                                    const UCodeLang::UsedTags& tags = *tagsop.value();
+
+                                    for (auto& tag : tags.Attributes)
+                                    {
+                                        const auto& nod = CurrentAssembly.Find_Node(tag.TypeID);
+                                        if (nod) {
+                                            if (StringHelper::StartsWith(nod->FullName, "UCodeGameEngine:MenuItem"))
+                                            {
+                                                StringView menuname = StringView((const char*)tag._Data.Get_Data(), tag._Data.Size);
+
+                                                bool hasItem = false;
+
+                                                for (auto& Item : MenuInfo)
+                                                {
+                                                    if (Item.MenuName == menuname)
+                                                    {
+                                                        hasItem = true;
+                                                        break;
+                                                    }
+                                                }
+
+                                                if (!hasItem) {
+                                                    ScriptMenuInfo info;
+                                                    info.MenuName = menuname;
+                                                    info.node = Item.get();
+                                                    MenuInfo.push_back(info);
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            //sort by name
+                            std::sort(MenuInfo.begin(), MenuInfo.end(), [](ScriptMenuInfo& A, ScriptMenuInfo& B)
+                            {
+                                    return A.MenuName.compare(B.MenuName) < 0;
+                            });
+                        }
+                    }
+
+                    ImGui::Separator();
+
+
+
+                    Optional<size_t> ClickedIndex = DrawMenu<ScriptMenuInfo>(spanof(MenuInfo), [](const ScriptMenuInfo& Item) -> StringView {return StringView(Item.MenuName); });
+                    if (ClickedIndex.has_value())
+                    {
+                        auto& Script = MenuInfo[ClickedIndex.value()];
+                                           
+                    }
+                }
 
                 ImGui::EndMenu();
             }

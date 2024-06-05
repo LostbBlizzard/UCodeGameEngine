@@ -24,11 +24,11 @@ UCodeGameEngine:
 
 //Window.hpp
 UCodeGameEngineEditor:
-  $Window trait:
+  $Window trait export:
       uintptr _Handle = 0;
     
 
-  $OverWriteTypeDraw trait;
+  $OverWriteTypeDraw trait export;
     
 
 

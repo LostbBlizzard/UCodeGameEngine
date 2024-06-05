@@ -78,7 +78,7 @@ bool WindowDrawAPI::FieldRawView(const StringView FieldName, void* Value, uintpt
 }
 
 
-bool WindowDrawAPI::iField(const StringView FieldName,const uint8_t& Value)
+bool WindowDrawAPI::Field(const StringView FieldName,const uint8_t& Value)
 {
     BeginReadOnly();
     auto r = Field(FieldName, const_cast<uint8_t&>(Value));
@@ -86,7 +86,7 @@ bool WindowDrawAPI::iField(const StringView FieldName,const uint8_t& Value)
     return r;
 }
 
-bool WindowDrawAPI::iField(const StringView FieldName,const uint16_t& Value)
+bool WindowDrawAPI::Field(const StringView FieldName,const uint16_t& Value)
 {
     BeginReadOnly();
     auto r = Field(FieldName, const_cast<uint16_t&>(Value));
@@ -94,7 +94,7 @@ bool WindowDrawAPI::iField(const StringView FieldName,const uint16_t& Value)
     return r;
 }
 
-bool WindowDrawAPI::iField(const StringView FieldName,const uint32_t& Value)
+bool WindowDrawAPI::Field(const StringView FieldName,const uint32_t& Value)
 {
     BeginReadOnly();
     auto r = Field(FieldName, const_cast<uint32_t&>(Value));
@@ -102,7 +102,7 @@ bool WindowDrawAPI::iField(const StringView FieldName,const uint32_t& Value)
     return r;
 }
 
-bool WindowDrawAPI::iField(const StringView FieldName,const uint64_t& Value)
+bool WindowDrawAPI::Field(const StringView FieldName,const uint64_t& Value)
 {
     BeginReadOnly();
     auto r = Field(FieldName, const_cast<uint64_t&>(Value));
@@ -110,7 +110,7 @@ bool WindowDrawAPI::iField(const StringView FieldName,const uint64_t& Value)
     return r;
 }
 
-bool WindowDrawAPI::iField(const StringView FieldName,const int8_t& Value)
+bool WindowDrawAPI::Field(const StringView FieldName,const int8_t& Value)
 {
     BeginReadOnly();
     auto r = Field(FieldName, const_cast<int8_t&>(Value));
@@ -118,7 +118,7 @@ bool WindowDrawAPI::iField(const StringView FieldName,const int8_t& Value)
     return r;
 }
 
-bool WindowDrawAPI::iField(const StringView FieldName,const int16_t& Value)
+bool WindowDrawAPI::Field(const StringView FieldName,const int16_t& Value)
 {
     BeginReadOnly();
     auto r = Field(FieldName, const_cast<int16_t&>(Value));
@@ -126,7 +126,7 @@ bool WindowDrawAPI::iField(const StringView FieldName,const int16_t& Value)
     return r;
 }
 
-bool WindowDrawAPI::iField(const StringView FieldName,const int32_t& Value)
+bool WindowDrawAPI::Field(const StringView FieldName,const int32_t& Value)
 {
     BeginReadOnly();
     auto r = Field(FieldName, const_cast<int32_t&>(Value));
@@ -134,7 +134,7 @@ bool WindowDrawAPI::iField(const StringView FieldName,const int32_t& Value)
     return r;
 }
 
-bool WindowDrawAPI::iField(const StringView FieldName,const int64_t& Value)
+bool WindowDrawAPI::Field(const StringView FieldName,const int64_t& Value)
 {
     BeginReadOnly();
     auto r = Field(FieldName, const_cast<int64_t&>(Value));
@@ -142,7 +142,7 @@ bool WindowDrawAPI::iField(const StringView FieldName,const int64_t& Value)
     return r;
 }
 
-bool WindowDrawAPI::iFieldptr(const StringView FieldName,const uintptr_t& Value)
+bool WindowDrawAPI::Fieldptr(const StringView FieldName,const uintptr_t& Value)
 {
     BeginReadOnly();
     auto r = Fieldptr(FieldName, const_cast<uintptr_t&>(Value));
@@ -150,7 +150,7 @@ bool WindowDrawAPI::iFieldptr(const StringView FieldName,const uintptr_t& Value)
     return r;
 }
 
-bool WindowDrawAPI::iFieldptr(const StringView FieldName,const intptr_t& Value)
+bool WindowDrawAPI::Fieldptr(const StringView FieldName,const intptr_t& Value)
 {
     BeginReadOnly();
     auto r = Fieldptr(FieldName, const_cast<intptr_t&>(Value));
@@ -158,7 +158,7 @@ bool WindowDrawAPI::iFieldptr(const StringView FieldName,const intptr_t& Value)
     return r;
 }
 
-bool WindowDrawAPI::iField(const StringView FieldName, const bool& Value)
+bool WindowDrawAPI::Field(const StringView FieldName, const bool& Value)
 {
     BeginReadOnly();
     auto r = Field(FieldName, const_cast<bool&>(Value));
@@ -166,7 +166,7 @@ bool WindowDrawAPI::iField(const StringView FieldName, const bool& Value)
     return r;
 }
 
-bool WindowDrawAPI::iField(const StringView FieldName, const float& Value)
+bool WindowDrawAPI::Field(const StringView FieldName, const float& Value)
 {
     BeginReadOnly();
     auto r = Field(FieldName, const_cast<float&>(Value));
@@ -174,7 +174,7 @@ bool WindowDrawAPI::iField(const StringView FieldName, const float& Value)
     return r;
 }
 
-bool WindowDrawAPI::iField(const StringView FieldName, const double& Value)
+bool WindowDrawAPI::Field(const StringView FieldName, const double& Value)
 {
     BeginReadOnly();
     auto r = Field(FieldName, const_cast<double&>(Value));
@@ -182,12 +182,12 @@ bool WindowDrawAPI::iField(const StringView FieldName, const double& Value)
     return r;
 }
 
-bool WindowDrawAPI::iField(const StringView FieldName, const void* Value, uintptr_t id)
+bool WindowDrawAPI::Field(const StringView FieldName, const void* Value, uintptr_t id)
 {
     return false;
 }
 
-bool WindowDrawAPI::iFieldRawView(const StringView FieldName, const void* Value, uintptr_t id)
+bool WindowDrawAPI::FieldRawView(const StringView FieldName, const void* Value, uintptr_t id)
 {
     return false;
 }

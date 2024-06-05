@@ -6,18 +6,18 @@ UCodeAPIEditorStart
 
 UCodeLangExportSymbol("UCodeGameEngineEditor") UCodeLangEmbed(
 	R"(
-    $Window trait:
+    $Window trait export:
 	  uintptr _Handle = 0;
     ")");
 
 UCodeLangExportSymbol("UCodeGameEngineEditor") UCodeLangEmbed(
 	R"(
-    $OverWriteTypeDraw trait;
+    $OverWriteTypeDraw trait export;
     ")");
 
 UCodeLangEmbed(
 	R"(
-    $WindowDraw:
+    $EditorUI:
 	  |Field[imut StringSpan FieldName,uint8& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::Field(FieldName,Value);
 	  |Field[imut StringSpan FieldName,uint16& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::Field(FieldName,Value);
 	  |Field[imut StringSpan FieldName,uint32& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::Field(FieldName,Value);
@@ -35,21 +35,21 @@ UCodeLangEmbed(
 	  |Field<T>[imut StringSpan FieldName,T& Value] => false;
       //Readonly
 
-	  |iField[imut StringSpan FieldName,imut uint8& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::iField(FieldName,Value);
-	  |iField[imutStringSpan FieldName,imut uint16& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::iField(FieldName,Value);
-	  |iField[imut StringSpan FieldName,imut uint32& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::iField(FieldName,Value);
-	  |iField[imut StringSpan FieldName,imut uint64& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::iField(FieldName,Value);
+	  |Field[imut StringSpan FieldName,imut uint8& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::Field(FieldName,Value);
+	  |Field[imutStringSpan FieldName,imut uint16& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::Field(FieldName,Value);
+	  |Field[imut StringSpan FieldName,imut uint32& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::Field(FieldName,Value);
+	  |Field[imut StringSpan FieldName,imut uint64& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::Field(FieldName,Value);
 
 	  
-	  |iField[imut StringSpan FieldName,imut int8& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::iField(FieldName,Value);
-	  |iField[imut StringSpan FieldName,imut int16& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::iField(FieldName,Value);
-	  |iField[imut StringSpan FieldName,imut int32& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::iField(FieldName,Value);
-	  |iField[imut StringSpan FieldName,imut int64& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::iField(FieldName,Value);
+	  |Field[imut StringSpan FieldName,imut int8& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::Field(FieldName,Value);
+	  |Field[imut StringSpan FieldName,imut int16& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::Field(FieldName,Value);
+	  |Field[imut StringSpan FieldName,imut int32& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::Field(FieldName,Value);
+	  |Field[imut StringSpan FieldName,imut int64& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::Field(FieldName,Value);
 
-	  |iField[imut StringSpan FieldName,imut uintptr& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::iFieldptr(FieldName,Value);
-	  |iField[imut StringSpan FieldName,imut sintptr& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::iFieldptr(FieldName,Value);
+	  |Field[imut StringSpan FieldName,imut uintptr& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::Fieldptr(FieldName,Value);
+	  |Field[imut StringSpan FieldName,imut sintptr& Value] => UCodeGameEngineEditorInternal::WindowDrawAPI::Fieldptr(FieldName,Value);
 
-	  |iField<T>[imut StringSpan FieldName,T& Value] => false;
+	  |Field<T>[imut StringSpan FieldName,T& Value] => false;
     ")");
 
 
@@ -76,27 +76,27 @@ struct WindowDrawAPI
 	UCodeLangExport static bool Field(const StringView FieldName, void* Value, uintptr_t idtype);
 	UCodeLangExport static bool FieldRawView(const StringView FieldName, void* Value, uintptr_t idtype);
 	//
-	UCodeLangExport static bool iField(const StringView FieldName, const uint8_t& Value);
-	UCodeLangExport static bool iField(const StringView FieldName, const uint16_t& Value);
-	UCodeLangExport static bool iField(const StringView FieldName, const uint32_t& Value);
-	UCodeLangExport static bool iField(const StringView FieldName, const uint64_t& Value);
+	UCodeLangExport static bool Field(const StringView FieldName, const uint8_t& Value);
+	UCodeLangExport static bool Field(const StringView FieldName, const uint16_t& Value);
+	UCodeLangExport static bool Field(const StringView FieldName, const uint32_t& Value);
+	UCodeLangExport static bool Field(const StringView FieldName, const uint64_t& Value);
 
-	UCodeLangExport static bool iField(const StringView FieldName, const int8_t& Value);
-	UCodeLangExport static bool iField(const StringView FieldName, const int16_t& Value);
-	UCodeLangExport static bool iField(const StringView FieldName, const int32_t& Value);
-	UCodeLangExport static bool iField(const StringView FieldName, const int64_t& Value);
+	UCodeLangExport static bool Field(const StringView FieldName, const int8_t& Value);
+	UCodeLangExport static bool Field(const StringView FieldName, const int16_t& Value);
+	UCodeLangExport static bool Field(const StringView FieldName, const int32_t& Value);
+	UCodeLangExport static bool Field(const StringView FieldName, const int64_t& Value);
 
-	UCodeLangExport static bool iFieldptr(const StringView FieldName, const uintptr_t& Value);
-	UCodeLangExport static bool iFieldptr(const StringView FieldName, const intptr_t& Value);
+	UCodeLangExport static bool Fieldptr(const StringView FieldName, const uintptr_t& Value);
+	UCodeLangExport static bool Fieldptr(const StringView FieldName, const intptr_t& Value);
 
-	UCodeLangExport static bool iField(const StringView FieldName, const bool& Value);
+	UCodeLangExport static bool Field(const StringView FieldName, const bool& Value);
 
-	UCodeLangExport static bool iField(const StringView FieldName, const float& Value);
-	UCodeLangExport static bool iField(const StringView FieldName, const double& Value);
+	UCodeLangExport static bool Field(const StringView FieldName, const float& Value);
+	UCodeLangExport static bool Field(const StringView FieldName, const double& Value);
 
 
-	UCodeLangExport static bool iField(const StringView FieldName, const void* Value, uintptr_t idtype);
-	UCodeLangExport static bool iFieldRawView(const StringView FieldName, const void* Value, uintptr_t idtype);
+	UCodeLangExport static bool Field(const StringView FieldName, const void* Value, uintptr_t idtype);
+	UCodeLangExport static bool FieldRawView(const StringView FieldName, const void* Value, uintptr_t idtype);
 	//
 	UCodeLangExport static void BeginReadOnly();
 
