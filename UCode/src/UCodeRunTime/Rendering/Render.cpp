@@ -88,9 +88,11 @@ void Render::UpdateFrame()
 
 
 			if (ImguDraw) { ImGuiNewFrame(); }
-
-			RenderRunTime->UpdateDrawData();
-
+			
+			if (MainCam)
+			{
+				RenderRunTime->UpdateDrawData(MainCam);
+			}
 
 
 			_Render->UpdateCamWindowSize();

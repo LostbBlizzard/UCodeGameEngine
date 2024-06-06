@@ -56,8 +56,16 @@ RenderRunTime2d* RenderRunTime2d::GetRenderRunTime(GameRunTime* e)
 	}
 	return (RenderRunTime2d*)item;
 }
-void RenderRunTime2d::UpdateDrawData()
+
+thread_local Camera2d* Cam =nullptr;
+Camera2d* RenderRunTime2d::CurrentCam()
 {
+	return Cam;
+}
+void RenderRunTime2d::UpdateDrawData(Camera2d* cam)
+{
+	Cam = cam;
+
 	ReSetStats();
 
 	//resetdata
@@ -81,6 +89,16 @@ void RenderRunTime2d::ReSetStats()
 {
 	DataStats.DrawCount = 0;
 	DataStats.QuadCount = 0;
+}
+
+
+void RenderRunTime2d::EditorOnly_SetDrawingInSceneEditor(bool value)
+{
+	IsEditorScene = value;
+}
+bool RenderRunTime2d::IsDrawingInSceneEditor()
+{
+	return IsEditorScene;
 }
 
 bool RenderRunTime2d::DrawData::HasAnyPlaceHolders() const
