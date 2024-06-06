@@ -557,8 +557,18 @@ void GameEditorWindow::SceneEditor(SceneEditorTabData& data)
     bool IsOverImage = ImGui::IsItemHovered();
     if (IsOverImage)
     {
-        Vec2 Mpos = MousePosFromImage(V, *(Vec2*)&Viewportsize);
+        auto winpos = ImGui::GetWindowPos();
+        auto cpos = V;
+        cpos.X += winpos.x;
+        cpos.Y += winpos.y;
 
+        Vec2 Mpos = MousePosFromImage(cpos, *(Vec2*)&Viewportsize);
+
+        EditorSceneMIn3d = UC::Camera2d::ScreenToWorldPoint(data._SceneCamera, Mpos);
+    }
+    else
+    {
+        EditorSceneMIn3d = {};
     }
 
 
@@ -1970,13 +1980,8 @@ Vec2 GameEditorWindow::MousePosFromImage(const Vec2 CursorPos, const Vec2 ImageS
     auto tep = ImGui::GetMousePos();
     Vec2 Mpos = *(Vec2*)&tep;
 
-    auto tep2 = ImGui::GetMousePos();
-    auto  CursorPosScreen = CursorPos + *(Vec2*)&tep2;
-    auto A = Mpos - CursorPos;
-
-    //std::cout << Mpos.X << "," << Mpos.Y << ":" << CursorPosScreen.X << "," << CursorPosScreen.Y << '\n';
-    //std::cout << A.X << "," << A.Y << '\n';
-    return A;
+    auto R = Mpos - CursorPos;
+    return R;
 }
 void GameEditorWindow::OnULangReload()
 {
@@ -2173,7 +2178,10 @@ void GameEditorWindow::ShowGameImage()
         ImVec2 ViewportPOs = ImGui::GetCursorPos();
         ImVec2 Viewportsize = ImGui::GetContentRegionAvail();
 
-        ImgeVecPos = ViewportPOs;
+        ImgeVecPos = ImGui::GetWindowPos();
+        ImgeVecPos.x += ViewportPOs.x;
+        ImgeVecPos.y += ViewportPOs.y;
+
         ImgeVecSize = Viewportsize;
         ImGuiFocusedFlags flags = ImGuiFocusedFlags_::ImGuiFocusedFlags_None;
         flags &= ImGuiFocusedFlags_::ImGuiFocusedFlags_AnyWindow;

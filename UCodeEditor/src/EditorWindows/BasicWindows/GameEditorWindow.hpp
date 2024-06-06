@@ -38,6 +38,11 @@ public:
 	void OpenScencAtPathRemoveOthers(const UID& Path);
 	void OpenScencAtPath(const UID& Path);
 	void OpenScencAtPath(const Path& Path);
+	
+	inline Optional<Vec2> Get_EditorSceneMIn3d()
+	{
+		return EditorSceneMIn3d;
+	}
 private:
 	static EditorWindow* MakeWin(const NewEditorWindowData& windowdata);
 
@@ -94,6 +99,7 @@ private:
 	
 	ImVec2 ImgeVecPos;
 	ImVec2 ImgeVecSize;
+	Optional<Vec2> EditorSceneMIn3d = {};
 
 	bool WasSelectedObjectOpened = false;
 	bool IsRenameing = false;
