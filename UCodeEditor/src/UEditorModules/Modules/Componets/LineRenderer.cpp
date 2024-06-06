@@ -12,6 +12,10 @@ void LineRendererUEditorData::DrawAsTree(const UEditorComponentDrawTreeData& Dat
 	UCode::LineRenderer* Component = (UCode::LineRenderer*)Value;
 
 	ImGuIHelper_Asset::AsssetField("Shader", Component->shader);
+
+	ImGuIHelper::ColorField("Color", Component->color);
+	ImGuIHelper::f32Field("Line Thickness", Component->LineThickness);
+
 	ImGuIHelper_Asset::DrawLayerField("DrawLayer", Component->DrawLayer);
 	ImGuIHelper::uInt8Field("DrawOrder", Component->DrawOrder);
 	ImGuIHelper::Vec2Field("Start", Component->_Start);
@@ -49,9 +53,13 @@ void LineRendererUEditorData::DrawInspect(const UEditorComponentDrawData& Data, 
 		Component->Set_CompoentActive(V);
 	}
 	ImGuIHelper_Asset::AsssetField("Shader", Component->shader);
-	ImGuIHelper::ColorField("Color", Component->color);
+	
 	ImGuIHelper_Asset::DrawLayerField("DrawLayer", Component->DrawLayer);
 	ImGuIHelper::DrawOrdeField("DrawOrder", Component->DrawOrder);
+	
+	ImGuIHelper::ColorField("Color", Component->color);
+	ImGuIHelper::f32Field("Line Thckness", Component->LineThickness);
+	
 	ImGuIHelper::Vec2Field("Start", Component->_Start);
 	ImGuIHelper::Vec2Field("End", Component->_End);
 }
