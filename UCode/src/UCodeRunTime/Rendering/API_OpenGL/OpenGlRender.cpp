@@ -238,11 +238,8 @@ void OpenGlRender::_DrawOpenGl(RenderRunTime2d::DrawData& Data, Camera2d* cam)
     UseingShader->SetUniformMat4f("_ViewProj", Vp);
     UseingShader->SetUniformMat4f("_Transfrom", Tranform);
 
-    BeginBatch();
-    _DrawQuads2d(Data);
-    EndBatch();
-    Flush();
-
+    RunInstructions(MakeDrawInstruction(Data),Data);
+    
     Buffer.UnBind();
 }
 void OpenGlRender::SetStyle_WoodLandDay(ImGuiStyle* dst)
@@ -613,18 +610,18 @@ void OpenGlRender::Shutdown()
 {
 }
 
-void OpenGlRender::BeginBatch()
+void OpenGlRender::BeginBatchQuad()
 {
     QuadBufferPtr = QuadBuffer.get();
 }
 
-void OpenGlRender::EndBatch()
+void OpenGlRender::EndBatchQuad()
 {
     GLsizeiptr size = (GLsizeiptr)QuadBufferPtr - (GLsizeiptr)QuadBuffer.get();
     QuadVB->UpdateData(QuadBuffer.get(), size);
 }
 
-void OpenGlRender::Flush()
+void OpenGlRender::FlushQuad()
 {
 
     for (u32 i = 0; i < NextTextureSlot; i++)
@@ -663,10 +660,10 @@ void OpenGlRender::_DrawQuad2d(RenderRunTime2d::DrawQuad2dData& Data)
 
     if (IndexCount >= MaxIndexCount || NextTextureSlot > GetMaxTextureSlots() - 1)
     {
-        EndBatch();
-        Flush();
+        EndBatchQuad();
+        FlushQuad();
 
-        BeginBatch();
+        BeginBatchQuad();
     }
 
     i32 textureindex = -1;
@@ -798,14 +795,176 @@ void OpenGlRender::_DrawQuad2d(RenderRunTime2d::DrawQuad2dData& Data)
     DataStats.QuadCount++;
 #endif // ShowRunTimeStats
 }
-void OpenGlRender::_DrawQuads2d(RenderRunTime2d::DrawData& _DrawData)
+OpenGlRender::DrawInstructions OpenGlRender::MakeDrawInstruction(RenderRunTime2d::DrawData& _DrawData)
 {
-    std::sort(_DrawData.Quad2d.begin(), _DrawData.Quad2d.end(), draworder_Sort());
-    for (size_t i = 0; i < _DrawData.Quad2d.size(); i++)
+    OpenGlRender::DrawInstructions r;
+    std::sort(_DrawData.Quad2d.begin(), _DrawData.Quad2d.end(),
+        [](const RenderRunTime2d::DrawQuad2dData& a, const RenderRunTime2d::DrawQuad2dData& b)
     {
-        auto& Item = _DrawData.Quad2d[i];
-        _DrawQuad2d(Item);
+
+        if (a.drawLayer == b.drawLayer)
+        {
+            return a.draworder < b.draworder;
+        }
+        else
+        {
+            return a.drawLayer < b.drawLayer;
+        }
+    }
+    );
+
+    std::sort(_DrawData.Lines2d.begin(), _DrawData.Lines2d.end(),
+        [](const RenderRunTime2d::Draw2DLineData& a, const RenderRunTime2d::Draw2DLineData& b)
+    {
+
+        if (a.drawLayer == b.drawLayer)
+        {
+            return a.draworder < b.draworder;
+        }
+        else
+        {
+            return a.drawLayer < b.drawLayer;
+        }
+    }
+    );
+
+
+    size_t quadstart = 0;
+    size_t linestart = 0;
+
+    Optional<DrawInstructions::DrawType> last;
+    RenderRunTime2d::DrawLayer_t _LastDrawLayer;
+    RenderRunTime2d::DrawOrder_t _LastDrawOrder;
+
+    while (quadstart < _DrawData.Quad2d.size()
+        || linestart < _DrawData.Lines2d.size())
+    {
+        RenderRunTime2d::DrawLayer_t layervalue = {};
+        RenderRunTime2d::DrawOrder_t ordervalue = {};
+        size_t newindex = 0;
+        Optional<DrawInstructions::DrawType> TypeToPush;
+
+        //This need to be updated
+        if (quadstart < _DrawData.Quad2d.size())
+        {
+            auto& Item = _DrawData.Quad2d[quadstart];
+
+            bool canbenext = true;
+            
+            
+            if (canbenext) 
+            {
+                TypeToPush = DrawInstructions::DrawType::Ouad2d;
+                newindex = quadstart;
+                layervalue = Item.drawLayer;
+                ordervalue = Item.draworder;
+            }
+        }
+        if (linestart < _DrawData.Lines2d.size())
+        {
+            auto& Item = _DrawData.Lines2d[linestart];
+
+            bool canbenext = true;
+            
+            if (canbenext) 
+            {
+                TypeToPush = DrawInstructions::DrawType::Line;
+                newindex = linestart;
+                layervalue = Item.drawLayer;
+                ordervalue = Item.draworder;
+            }
+        }
+
+
+
+        if (TypeToPush.has_value()) 
+        {
+            DrawInstructions::Instruction* NewIns;
+            if (r.Instructions.size())
+            {
+                NewIns = &r.Instructions.back();
+
+                if (NewIns->type != TypeToPush.value())
+                {
+                    r.Instructions.push_back({});
+                    NewIns = &r.Instructions.back();
+                    NewIns->type = TypeToPush.value();
+                }
+            }
+            else
+            {
+                r.Instructions.push_back({});
+                NewIns = &r.Instructions.back();
+                NewIns->type = TypeToPush.value();
+            }
+
+            if (NewIns->span.Count == 0)
+            {
+                NewIns->span.StartIndex = newindex;
+            }
+            NewIns->span.Count++;
+
+            switch (TypeToPush.value())
+            {
+            case DrawInstructions::DrawType::Ouad2d:quadstart++; break;
+            case DrawInstructions::DrawType::Line:linestart++; break;
+            default:UCodeGEUnreachable(); break;
+            }
+            last = TypeToPush.value();
+
+            _LastDrawLayer = layervalue;
+            _LastDrawOrder = ordervalue;
+        }
+        else
+        {
+            last = {};
+        }
+    }
+
+    return r;
+}
+void OpenGlRender::RunInstructions(DrawInstructions& Instructions,RenderRunTime2d::DrawData& Data)
+{
+    for (auto& Item : Instructions.Instructions)
+    {
+        switch (Item.type)
+        {
+        case DrawInstructions::DrawType::Ouad2d:
+        {
+            Span<RenderRunTime2d::DrawQuad2dData> quads = spanof(Data.Quad2d, Item.span.StartIndex, Item.span.Count);
+
+
+            BeginBatchQuad();
+            for (auto& Item : quads)
+            {
+                _DrawQuad2d(Item);
+            }
+            EndBatchQuad();
+            FlushQuad();
+
+        }
+        break;
+        case DrawInstructions::DrawType::Line:
+        {
+            Span<RenderRunTime2d::Draw2DLineData> lines = spanof(Data.Lines2d, Item.span.StartIndex, Item.span.Count);
+
+            for (auto& Item : lines)
+            {
+                _DrawLine2d(Item);
+            }
+        }
+        break;
+        default:
+            UCodeGEUnreachable();
+            break;
+        }
+
     }
 }
+void OpenGlRender::_DrawLine2d(RenderRunTime2d::Draw2DLineData& Data)
+{
+
+}
+
 
 RenderAPIEnd

@@ -27,6 +27,8 @@ void LineRenderer::OnDraw()
 	data.Thickness = this->LineThickness;
 	data.Start = e->LocalPosition2D() + this->_Start;
 	data.End = e->LocalPosition2D() + this->_End;
+	data.drawLayer = this->DrawLayer;
+	data.draworder = this->DrawOrder;
 	Render->DrawLine2d(data);
 }
 
