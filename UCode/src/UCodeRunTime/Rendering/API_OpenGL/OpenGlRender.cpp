@@ -221,7 +221,7 @@ void OpenGlRender::_DrawOpenGl(RenderRunTime2d::DrawData& Data, Camera2d* cam)
         Buffer.Bind();
     }
 
-    for (size_t i = 0; i < TextureSlots.size(); i++)
+    for (size_t i = 1; i < TextureSlots.size(); i++)
     {
         TextureSlots[i] = nullptr;
     }
@@ -520,9 +520,14 @@ void OpenGlRender::glfwerror_callback(int error, const char* description)
     UCodeGEError("Glfw ERROR(" << error << "):" << description);
 }
 
-static const size_t MaxQuadCount = 1000;
-static const size_t MaxVertexCount = MaxQuadCount * 4;
-static const size_t MaxIndexCount = MaxQuadCount * 6;
+constexpr size_t MaxQuadCount = 1000;
+constexpr size_t MaxQuadVertexCount = MaxQuadCount * 4;
+constexpr size_t MaxQuadIndexCount = MaxQuadCount * 6;
+
+constexpr size_t MaxLineCount = 100;
+constexpr size_t MaxLineVertexCount = MaxLineCount * 2;
+
+
 
 GLuint GLVersionV()
 {
@@ -566,45 +571,50 @@ void OpenGlRender::Init()
     }
     UseingShader->SetUniform1iv("F_Textures", maxSamplers, samplers);
 
-    QuadBuffer = std::make_unique<RenderRunTime2d::Vertex[]>(MaxVertexCount);
-    QuadVA = std::make_unique<VertexArray>();
-    QuadVB = std::make_unique<VertexBuffer>(nullptr, MaxVertexCount * sizeof(RenderRunTime2d::Vertex));
-
-    VertexBufferLayout layout = VertexBufferLayout();
-
-    layout.Push_float(3); // pos
-    layout.Push_float(4); // color
-    layout.Push_float(2); // TexCoord
-    layout.Push_float(1); // TexIndex
-
-    QuadVA->AddBuffer(QuadVB.get(), layout);
-
-    Unique_array<u32> indices = std::make_unique<u32[]>(MaxIndexCount);
-
-    u32 offset = 0;
-    for (auto i = 0; i < MaxIndexCount; i += 6)
+    //Quads
     {
+        QuadBuffer = std::make_unique<RenderRunTime2d::Vertex[]>(MaxQuadVertexCount);
+        QuadVA = std::make_unique<VertexArray>();
+        QuadVB = std::make_unique<VertexBuffer>(nullptr, MaxQuadVertexCount * sizeof(RenderRunTime2d::Vertex));
 
-        indices[i + 0] = 0 + offset; // 0
-        indices[i + 1] = 1 + offset; // 1
-        indices[i + 2] = 2 + offset; // 2
+        VertexBufferLayout layout = VertexBufferLayout();
 
-        indices[i + 3] = 2 + offset; // 2
-        indices[i + 4] = 3 + offset; // 3
-        indices[i + 5] = 0 + offset; // 0
+        layout.Push_float(3); // pos
+        layout.Push_float(4); // color
+        layout.Push_float(2); // TexCoord
+        layout.Push_float(1); // TexIndex
 
-        offset += 4;
+        QuadVA->AddBuffer(QuadVB.get(), layout);
+
+        Unique_array<u32> indices = std::make_unique<u32[]>(MaxQuadIndexCount);
+
+        u32 offset = 0;
+        for (auto i = 0; i < MaxQuadIndexCount; i += 6)
+        {
+
+            indices[i + 0] = 0 + offset; // 0
+            indices[i + 1] = 1 + offset; // 1
+            indices[i + 2] = 2 + offset; // 2
+
+            indices[i + 3] = 2 + offset; // 2
+            indices[i + 4] = 3 + offset; // 3
+            indices[i + 5] = 0 + offset; // 0
+
+            offset += 4;
+        }
+
+        QuadIB = std::make_unique<IndexBuffer>(indices.get(), MaxQuadIndexCount);
     }
 
-    QuadIB = std::make_unique<IndexBuffer>(indices.get(), MaxIndexCount);
-
     // white texture
-    auto rgb32data = (Color32)Color::White();
-    WhiteTexture = std::make_unique<Texture>(1, 1, &rgb32data);
-    WhiteTextureSlot = 0;
-    TextureSlots[WhiteTextureSlot] = WhiteTexture.get();
+    {
+        auto rgb32data = (Color32)Color::White();
+        WhiteTexture = std::make_unique<Texture>(1, 1, &rgb32data);
+        WhiteTextureSlot = 0;
+        TextureSlots[WhiteTextureSlot] = WhiteTexture.get();
 
-    NextTextureSlot = 1;
+        NextTextureSlot = 1;
+    }
 }
 void OpenGlRender::Shutdown()
 {
@@ -623,42 +633,19 @@ void OpenGlRender::EndBatchQuad()
 
 void OpenGlRender::FlushQuad()
 {
-
-    for (u32 i = 0; i < NextTextureSlot; i++)
-    {
-        auto& Item = TextureSlots[i];
-        Item->TryUploadTexToGPU();
-
-#define CanCompileTextureUnit !UCodeGEWasm
-        bool CanUseTextureUnitAtRunTime = UCodeGEWindows;
-
-#if !CanCompileTextureUnit
-        CanUseTextureUnitAtRunTime = false;
-#endif
-        if (CanUseTextureUnitAtRunTime)
-        {
-#if CanCompileTextureUnit
-            glBindTextureUnit(i, Item->Get_RendererID());
-#endif
-        }
-        else
-        {
-            glActiveTexture(GL_TEXTURE0 + i);
-            glBindTexture(GL_TEXTURE_2D, Item->Get_RendererID());
-        }
-    }
+    BindTextures();
 
     QuadVA->Bind();
 
     GlCall(glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_INT, nullptr));
 
     IndexCount = 0;
-    NextTextureSlot = 1; // Seting to not WhiteTexture.
+    NextTextureSlot = 1;
 }
 void OpenGlRender::_DrawQuad2d(RenderRunTime2d::DrawQuad2dData& Data)
 {
 
-    if (IndexCount >= MaxIndexCount || NextTextureSlot > GetMaxTextureSlots() - 1)
+    if (IndexCount >= MaxQuadIndexCount || NextTextureSlot > GetMaxTextureSlots() - 1)
     {
         EndBatchQuad();
         FlushQuad();
@@ -666,82 +653,17 @@ void OpenGlRender::_DrawQuad2d(RenderRunTime2d::DrawQuad2dData& Data)
         BeginBatchQuad();
     }
 
-    i32 textureindex = -1;
 
     const auto pos = Data.pos;
     const auto color = Data.color;
     const auto size = Data.size;
 
-    Texture* tex;
-    Vec2 TC[4];
-    if (Data.Spr)
-    {
-        tex = Data.Spr->Get_texture();
-        f32 w = (f32)tex->Get_Width();
-        f32 h = (f32)tex->Get_Height();
 
-        f32 sx = (f32)Data.Spr->Get_Xoffset();
-        f32 sy = (f32)Data.Spr->Get_Yoffset();
-        f32 sw;
-        f32 sh;
+    auto info = GetTextureCords(Data.Spr);
+    Texture* tex = info.Tex;
+    auto& TC = info.Cords;
 
-        if (Data.Spr->Get_Width() == Sprite::GetTexureSize)
-        {
-            sw = (f32)tex->Get_Width();
-        }
-        else
-        {
-            sw = (f32)Data.Spr->Get_Width();
-        }
-
-        if (Data.Spr->Get_Height() == Sprite::GetTexureSize)
-        {
-            sh = (f32)tex->Get_Height();
-        }
-        else
-        {
-            sh = (f32)Data.Spr->Get_Height();
-        }
-
-        // float A =w/sw
-
-        TC[0] = { sx / w, sy / h };
-        TC[1] = { (sx + sw) / w, sy / h };
-        TC[2] = { (sx + sw) / w, (sy + sh) / h };
-        TC[3] = { sx / w, (sy + sh) / h };
-    }
-    else
-    {
-        tex = nullptr;
-
-        TC[0] = { 0.0f, 0.0f };
-        TC[1] = { 1.0f, 0.0f };
-        TC[2] = { 1.0f, 1.0f };
-        TC[3] = { 0.0f, 1.0f };
-    }
-
-    if (tex)
-    {
-        for (size_t i = 0; i < GetMaxTextureSlots(); i++)
-        {
-            if (TextureSlots[i] == tex)
-            {
-                textureindex = (i8)i;
-                break;
-            }
-        }
-    }
-    else
-    {
-        textureindex = WhiteTextureSlot;
-    }
-
-    if (textureindex == -1) // is not in Texture Slots.
-    {
-        textureindex = NextTextureSlot;
-        TextureSlots[NextTextureSlot] = tex;
-        NextTextureSlot++;
-    }
+    i32 textureindex = GetTextureIndex(tex); 
 
     const f32 Zpos = 0;
     Vec3 TryPos[]{
@@ -819,6 +741,10 @@ OpenGlRender::DrawInstructions OpenGlRender::MakeDrawInstruction(RenderRunTime2d
 
         if (a.drawLayer == b.drawLayer)
         {
+            if (a.draworder == b.draworder)
+            {
+                return a.Thickness < b.Thickness;
+            }
             return a.draworder < b.draworder;
         }
         else
@@ -947,11 +873,20 @@ void OpenGlRender::RunInstructions(DrawInstructions& Instructions,RenderRunTime2
         case DrawInstructions::DrawType::Line:
         {
             Span<RenderRunTime2d::Draw2DLineData> lines = spanof(Data.Lines2d, Item.span.StartIndex, Item.span.Count);
-
+            
+            BeginBatchLine();
             for (auto& Item : lines)
             {
+                if (linewidth != Item.Thickness)
+                {
+                    linewidth = Item.Thickness;
+                    glLineWidth(linewidth);
+                }
                 _DrawLine2d(Item);
             }
+            EndBatchLine();
+            FlushLine();
+            
         }
         break;
         default:
@@ -963,7 +898,161 @@ void OpenGlRender::RunInstructions(DrawInstructions& Instructions,RenderRunTime2
 }
 void OpenGlRender::_DrawLine2d(RenderRunTime2d::Draw2DLineData& Data)
 {
+    if (LineCount >= MaxLineCount || NextTextureSlot > GetMaxTextureSlots() - 1)
+    {
+        EndBatchLine();
+        FlushLine();
 
+        BeginBatchLine();
+    }
+
+    auto info = GetTextureCords(nullptr);
+    Texture* tex = info.Tex;
+    auto& TC = info.Cords;
+
+    auto index = GetTextureIndex(tex);
+
+    QuadBufferPtr->SetData(Data.Start, Data.color, { 0,0 }, index);
+    QuadBufferPtr++;
+    QuadBufferPtr->SetData(Data.End, Data.color, { 1,1 }, index);
+    QuadBufferPtr++;
+    LineCount++;
+
+}
+void OpenGlRender::BeginBatchLine()
+{
+    QuadBufferPtr = QuadBuffer.get();
+}
+
+void OpenGlRender::EndBatchLine()
+{
+    size_t count = (size_t)QuadBufferPtr - (size_t)QuadBuffer.get();
+    QuadVB->UpdateData(QuadBuffer.get(), count);
+}
+
+void OpenGlRender::FlushLine()
+{
+    BindTextures();
+
+    QuadVA->Bind();
+
+    size_t count = QuadBufferPtr  - QuadBuffer.get();
+    GlCall(glDrawArrays(GL_LINES, 0, count));
+    LineCount = 0;
+
+    NextTextureSlot = 1;
+}
+
+OpenGlRender::TextureCod OpenGlRender::GetTextureCords(Sprite* spr)
+{
+    TextureCod r;
+
+    auto& tex = r.Tex;
+    auto& TC = r.Cords;
+    if (spr)
+    {
+        tex = spr->Get_texture();
+        f32 w = (f32)tex->Get_Width();
+        f32 h = (f32)tex->Get_Height();
+
+        f32 sx = (f32)spr->Get_Xoffset();
+        f32 sy = (f32)spr->Get_Yoffset();
+        f32 sw;
+        f32 sh;
+
+        if (spr->Get_Width() == Sprite::GetTexureSize)
+        {
+            sw = (f32)tex->Get_Width();
+        }
+        else
+        {
+            sw = (f32)spr->Get_Width();
+        }
+
+        if (spr->Get_Height() == Sprite::GetTexureSize)
+        {
+            sh = (f32)tex->Get_Height();
+        }
+        else
+        {
+            sh = (f32)spr->Get_Height();
+        }
+
+        // float A =w/sw
+
+        TC[0] = { sx / w, sy / h };
+        TC[1] = { (sx + sw) / w, sy / h };
+        TC[2] = { (sx + sw) / w, (sy + sh) / h };
+        TC[3] = { sx / w, (sy + sh) / h };
+    }
+    else
+    {
+        tex = nullptr;
+
+        TC[0] = { 0.0f, 0.0f };
+        TC[1] = { 1.0f, 0.0f };
+        TC[2] = { 1.0f, 1.0f };
+        TC[3] = { 0.0f, 1.0f };
+    }
+
+    
+    return r;
+}
+
+i32 OpenGlRender::GetTextureIndex(Texture* tex)
+{
+    i32 textureindex = -1;
+
+    if (tex)
+    {
+        for (size_t i = 0; i < GetMaxTextureSlots(); i++)
+        {
+            if (TextureSlots[i] == tex)
+            {
+                textureindex = (i8)i;
+                break;
+            }
+        }
+    }
+    else
+    {
+        textureindex = WhiteTextureSlot;
+    }
+
+    if (textureindex == -1) // is not in Texture Slots.
+    {
+        textureindex = NextTextureSlot;
+        TextureSlots[NextTextureSlot] = tex;
+        NextTextureSlot++;
+    }
+    return textureindex;
+}
+
+void OpenGlRender::BindTextures()
+{
+    for (u32 i = 0; i < NextTextureSlot; i++)
+    {
+        auto& Item = TextureSlots[i];
+        Item->TryUploadTexToGPU();
+
+#define CanCompileTextureUnit !UCodeGEWasm
+        bool CanUseTextureUnitAtRunTime = UCodeGEWindows;
+
+#if !CanCompileTextureUnit
+        CanUseTextureUnitAtRunTime = false;
+#endif
+        if (CanUseTextureUnitAtRunTime)
+        {
+#if CanCompileTextureUnit
+            GlCall(glBindTextureUnit(i, Item->Get_RendererID()));
+#endif
+        }
+        else
+        {
+            GlCall(glActiveTexture(GL_TEXTURE0 + i));
+            GlCall(glBindTexture(GL_TEXTURE_2D, Item->Get_RendererID()));
+        }
+    }
 }
 
 
