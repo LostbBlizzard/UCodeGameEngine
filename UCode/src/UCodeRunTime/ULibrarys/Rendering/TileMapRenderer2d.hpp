@@ -80,6 +80,6 @@ public:
 	static UComponentData type_Data;
 private:
 	Vector<Tile> _Tiles;
-	void DragGrid();
+	void DrawGrid();
 };
 RenderingEnd

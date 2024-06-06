@@ -72,9 +72,16 @@ void SpriteRenderer::Start()
 }
 
 void SpriteRenderer::OnDraw()
-{
-	auto Entity = NativeEntity();
+{	
 	auto Render = GetRenderRunTime();
+	auto cam = Render->CurrentCam();
+	auto bounds = cam->GetCam_Bounds();
+
+	bool isinbound = bounds.Intersects(Get_Bounds());
+
+	if (!isinbound) { return; }
+
+	auto Entity = NativeEntity();
 	auto Scale =Entity->WorldScale2D();
 	if (flipX) {Scale.X = -Scale.X;}
 	if (!flipY) { Scale.Y = -Scale.Y; }
@@ -121,9 +128,28 @@ void SpriteRenderer::OnDraw()
 Bounds2d SpriteRenderer::Get_Bounds() const
 {
 	auto Entity = NativeEntity();
+	auto Scale =Entity->WorldScale2D();
+	
 	Bounds2d r;
 	r.center = Entity->WorldPosition2D();
-	const Vec2 size = Entity->WorldScale2D();
+	
+	Vec2 size = Entity->WorldScale2D();
+
+	if (sprite.Has_Asset())
+	{
+		auto sp = sprite.Get_Asset();
+		auto ppu = sp->Get_texture()->PixelsPerUnit;
+
+		size = {(f32)sp->Get_Width(),(f32)sp->Get_Height()};
+		size /= (f32)ppu;
+
+		size.X *= Scale.X;	
+		size.Y *= Scale.Y;	
+	}
+	else
+	{
+		size = Scale;
+	}
 	r.extents = size - Vec2(size.X / 2, size.Y / 2);
 	return r;
 }
