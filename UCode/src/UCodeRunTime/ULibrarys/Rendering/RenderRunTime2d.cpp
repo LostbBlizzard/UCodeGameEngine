@@ -62,6 +62,7 @@ void RenderRunTime2d::UpdateDrawData()
 
 	//resetdata
 	_DrawData.Quad2d.clear();
+	_DrawData.Lines2d.clear();
 	
 	for (size_t i = 0; i < All_Renderers.size(); i++)
 	{

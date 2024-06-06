@@ -91,7 +91,10 @@ private:
 	void FlushQuad();
 	void _DrawQuad2d(RenderRunTime2d::DrawQuad2dData& Data);
 	void _DrawLine2d(RenderRunTime2d::Draw2DLineData& Data);
-
+	
+	void BeginBatchLine();
+	void EndBatchLine();
+	void FlushLine();
 
 	inline size_t GetMaxTextureSlots() const { return TextureSlots.size(); }
 	Shader* UseingShader;
@@ -109,6 +112,18 @@ private:
 
 	Unique_array<RenderRunTime2d::Vertex> QuadBuffer;
 	RenderRunTime2d::Vertex* QuadBufferPtr;
+	
+	size_t LineCount = 0;
+    float linewidth = 0;
+	struct TextureCod
+	{
+		Texture* Tex;
+		Array<Vec2, 4> Cords;
+	};
+	TextureCod GetTextureCords(Sprite* spr);
+	i32 GetTextureIndex(Texture* tex );
+
+	void BindTextures();
 };
 RenderAPIEnd
 

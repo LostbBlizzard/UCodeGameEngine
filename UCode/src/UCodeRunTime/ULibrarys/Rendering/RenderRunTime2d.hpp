@@ -132,20 +132,4 @@ private:
 	Stats DataStats;
 	static UComponentData type_Data;
 };
-struct draworder_Sort
-{
-
-	inline bool operator()(const RenderRunTime2d::DrawQuad2dData& a, const RenderRunTime2d::DrawQuad2dData& b)
-	{
-
-		if (a.drawLayer == b.drawLayer)
-		{
-			return a.draworder < b.draworder;
-		}
-		else
-		{
-			return a.drawLayer < b.drawLayer;
-		}
-	}
-};
 RenderingEnd
