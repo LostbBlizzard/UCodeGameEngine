@@ -348,32 +348,35 @@ void GameEditorWindow::SceneCameraGetInputs(SceneEditorTabData& data)
     }
 
     {
-        auto iSDraging = ImGui::IsMouseDragging(ImGuiMouseButton_::ImGuiMouseButton_Right);
-        static UCode::Vec2 CamOnDrag;
+        auto IsDragging = ImGui::IsMouseDragging(ImGuiMouseButton_::ImGuiMouseButton_Right);
+        static ImVec2 DragStart;
+        static ImVec2 PosStart;
         static bool SetDragPos = false;
-        if (iSDraging)
+
+        if (IsDragging)
         {
-            if (SetDragPos)
-            {
-                auto Drag = ImGui::GetMouseDragDelta(ImGuiMouseButton_::ImGuiMouseButton_Right);
-                auto DragAsVec2 = (*(UCode::Vec2*)&Drag);
-
-                DragAsVec2.Y = -DragAsVec2.Y;
-                float Div = 7;
-
-                CamPos = CamOnDrag - (DragAsVec2 / Div) * (_SceneCameraData.Orth_Size / 18);
-            }
-            else
+            if (!SetDragPos)
             {
                 SetDragPos = true;
-                CamOnDrag = CamPos;
+                DragStart = ImGui::GetMousePos();
+                PosStart.x = CamPos.X;
+                PosStart.y = CamPos.Y;
             }
+            ImVec2 dragDelta = ImGui::GetMousePos();
+            dragDelta.x -= DragStart.x;
+            dragDelta.y -= DragStart.y;
+        
+            dragDelta.x /= _SceneCameraData.Orth_Size;
+            dragDelta.y /= _SceneCameraData.Orth_Size;
+            CamPos = { PosStart.x, PosStart.y };
+            CamPos -= { dragDelta.x, -dragDelta.y };
         }
         else
         {
             SetDragPos = false;
         }
     }
+
 
     //
 
