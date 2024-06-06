@@ -1068,7 +1068,31 @@ void GameEditorWindow::ShowScene(SceneEditorTabData& data, UCode::RunTimeScene* 
         {
             str += "*";
         }
+
+        static bool UpdatedIsChanged = false;
+        static bool LastIsOpen = false;
+        static bool LastIsChange = false;
+        
+        if (Item == _SceneDataAsRunTiime)
+        {
+            if (LastIsChange != ischanged)
+            {
+                LastIsChange = ischanged;
+                UpdatedIsChanged = false;
+
+                ImGui::PushID(Item);
+                ImGui::TreeNodeSetOpen(ImGui::GetID(str.c_str()), LastIsOpen );
+                ImGui::TreeNodeSetOpen(ImGui::GetID(Item), LastIsOpen );
+                ImGui::PopID();
+            }
+        }
         auto Data = ImGuIHelper::TreeNode(Item, str.c_str(), AppFiles::sprite::Scene2dData);
+
+        if (Item == _SceneDataAsRunTiime)
+        {
+            LastIsOpen = Data;
+        }
+
         node_open = Data;
         ShowingTree = true;
     }
