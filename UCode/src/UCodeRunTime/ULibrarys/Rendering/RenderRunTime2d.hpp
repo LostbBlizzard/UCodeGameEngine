@@ -89,6 +89,9 @@ public:
 		Vec2 End;
 		Color color;
 		float Thickness = 0.2;
+		DrawLayer_t drawLayer;
+		DrawOrder_t draworder;
+
 	};
 	struct DrawData
 	{

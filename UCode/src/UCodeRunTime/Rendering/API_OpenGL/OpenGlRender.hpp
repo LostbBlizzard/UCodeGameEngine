@@ -62,13 +62,36 @@ private:
 	inline static Vector<OpenGlRender*> Classes;
 
 	//
+	struct DrawInstructions
+	{
+
+		enum class DrawType
+		{
+			Ouad2d,
+			Line,
+		};
+		struct IndexSpan
+		{
+			size_t StartIndex = 0;
+			size_t Count = 0;
+		};
+		struct Instruction
+		{
+			IndexSpan span;
+			DrawType type = DrawType::Ouad2d;
+		};
+		Vector<Instruction> Instructions;
+	};
+	DrawInstructions MakeDrawInstruction(RenderRunTime2d::DrawData& Data);
+	void RunInstructions(DrawInstructions& Instructions,RenderRunTime2d::DrawData& Data);
 	void Init();
 	void Shutdown();
-	void BeginBatch();
-	void EndBatch();
-	void Flush();
+	void BeginBatchQuad();
+	void EndBatchQuad();
+	void FlushQuad();
 	void _DrawQuad2d(RenderRunTime2d::DrawQuad2dData& Data);
-	void _DrawQuads2d(RenderRunTime2d::DrawData& Data);
+	void _DrawLine2d(RenderRunTime2d::Draw2DLineData& Data);
+
 
 	inline size_t GetMaxTextureSlots() const { return TextureSlots.size(); }
 	Shader* UseingShader;
