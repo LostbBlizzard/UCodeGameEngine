@@ -107,7 +107,7 @@ public:
 	
 	
 	//
-	void UpdateDrawData();
+	void UpdateDrawData(Camera2d* Cam);
 
 	void ReSetStats();
 
@@ -124,10 +124,16 @@ public:
 	inline const Stats& Get_Stats() const { return DataStats; }
 
 	inline Gamelibrary* GetGameLib() { return GetGameRunTime()->Get_Library_Edit(); }
+
+	void EditorOnly_SetDrawingInSceneEditor(bool value);
+	bool IsDrawingInSceneEditor();
+
+	Camera2d* CurrentCam();
 private:	
 	Vector<Renderer2d*> All_Renderers;
 	DrawData _DrawData;
 	
+	bool IsEditorScene = false;
 
 	Stats DataStats;
 	static UComponentData type_Data;

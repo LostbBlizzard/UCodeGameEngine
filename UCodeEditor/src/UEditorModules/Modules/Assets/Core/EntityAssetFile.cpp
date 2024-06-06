@@ -10,7 +10,7 @@
 #include "EditorWindows/BasicWindows/GameEditorWindow.hpp"
 #include "EditorWindows/InspectTypes/Inspect_Entity2d.hpp"
 EditorStart
-UC::ImageData RenderFrame(RenderFrameData& Data, UC::RenderRunTime2d::DrawData drawdata, UC::Entity* newentity)
+UC::ImageData RenderFrame(RenderFrameData& Data, UC::RenderRunTime2d::DrawData& drawdata, UC::Entity* newentity)
 {
 	UC::Camera2d* Cam = newentity->AddCompoent<UC::Camera2d>();
 	Cam->Set_Ortho_size(Data.CamOrth);
@@ -44,41 +44,6 @@ UC::ImageData RenderFrame(RenderFrameData& Data, UC::RenderRunTime2d::DrawData d
 	return v;
 }
 
-UC::ImageData RenderFrame(RenderFrameData& Data, UC::RunTimeScene* scene)
-{
-	auto newentity = scene->NewEntity();
-	newentity->WorldPosition(Data.CamPos);
-
-	UC::Camera2d* Cam = newentity->AddCompoent<UC::Camera2d>();
-	Cam->Set_Ortho_size(Data.CamOrth);
-	Cam->API_Set_WindowSize(Data.CamWidth, Data.CamHeight);
-
-	auto ren = UC::RenderRunTime2d::GetRenderRunTime(scene->Get_RunTime());
-	UC::RenderAPI::Render render;
-
-	UC::RenderAPI::WindowData window;
-	window.height = Data.CamWidth;
-	window.width = Data.CamHeight;
-	window.shared_window = glfwGetCurrentContext();
-	window.ImGui_Init = false;
-	window.GenNewWindow = false;
-
-	render.Init(window, scene->Get_RunTime());
-
-	Cam->Get_Buffer().UpdateBufferSize(window.height, window.width);
-	ren->UpdateDrawData();
-
-	render.Draw(ren->Get_DrawData(), Cam);
-
-	auto v = Cam->Get_Buffer().GetGPUImageData();
-
-	render.EndRender();
-
-	UCode::Entity::Destroy(newentity);
-	scene->Get_RunTime()->DestroyNullScenes();
-
-	return v;
-}
 EntityAssetFile::EntityAssetFile()
 {
 	FileExtWithDot = UC::RawEntityData::FileExtDot;
@@ -183,12 +148,26 @@ void EntityAssetFile::Liveing::LoadThumbnail()
 
 
 		auto ren = UC::RenderRunTime2d::GetRenderRunTime(_tepRunTime.get());
-		ren->UpdateDrawData();
+
+		
+		RenderFrameData data;
+		data.CamHeight = 500;
+		data.CamWidth = 500;
+		data.CamPos = myentity->WorldPosition();
+		data.CamOrth = 1;
+
+		UC::Camera2d* Cam = myentity->AddCompoent<UC::Camera2d>();
+		Cam->Set_Ortho_size(data.CamOrth);
+		Cam->API_Set_WindowSize(data.CamWidth, data.CamHeight);
+		Cam->Set_BackRoundClearColor(Color(0, 0, 0, 0));
+
+
+		ren->UpdateDrawData(Cam);
 		auto renderdata = ren->Get_DrawData();
 
 
 
-		*LoopFunc = [LoopFunc, this, renderdata = std::move(renderdata), _tepRunTime = std::move(_tepRunTime), _tepScene, myentity]()
+		*LoopFunc = [LoopFunc, this, renderdata = std::move(renderdata),data, _tepRunTime = std::move(_tepRunTime),Cam, _tepScene, myentity]()
 			{
 
 				bool issceneloading = renderdata.HasAnyPlaceHolders();
@@ -205,20 +184,13 @@ void EntityAssetFile::Liveing::LoadThumbnail()
 					return;
 				}
 
-				Delegate<UC::ImageData> RenderFunc = [this, _tepScene, myentity, _tepRunTime]() -> UC::ImageData
+				Delegate<UC::ImageData> RenderFunc = [this, _tepScene, myentity, _tepRunTime,data,Cam]() mutable -> UC::ImageData
 					{
-						RenderFrameData data;
-						data.CamHeight = 500;
-						data.CamWidth = 500;
-						data.CamPos = myentity->WorldPosition();
-						data.CamOrth = 1;
-
 						auto ren = UC::RenderRunTime2d::GetRenderRunTime(_tepRunTime.get());
-						ren->UpdateDrawData();//We need UpdateDrawData because of how SpriteRenderer2d PixelsPerUnit Work Right now.
+						ren->UpdateDrawData(Cam);//We need UpdateDrawData because of how SpriteRenderer2d PixelsPerUnit Work Right now.
 						auto renderdata = ren->Get_DrawData();
 
-
-						return RenderFrame(data, renderdata, myentity);
+						return RenderFrame(data, renderdata,myentity);
 					};
 				Delegate<UC::ImageData, UC::ImageData&&> WriteToOutput = [this](UC::ImageData&& val) -> UC::ImageData
 					{

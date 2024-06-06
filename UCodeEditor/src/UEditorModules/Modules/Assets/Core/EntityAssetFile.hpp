@@ -12,8 +12,7 @@ struct RenderFrameData
 	float CamOrth = 5;
 };
 
-UC::ImageData RenderFrame(RenderFrameData& Data, UC::RenderRunTime2d::DrawData drawdata, UC::Entity* newentity);
-UC::ImageData RenderFrame(RenderFrameData& Data, UC::RunTimeScene* scene);
+UC::ImageData RenderFrame(RenderFrameData& Data, UC::RenderRunTime2d::DrawData& drawdata, UC::Entity* newentity);
 
 
 class EntityAssetFile :public UEditorAssetFileData

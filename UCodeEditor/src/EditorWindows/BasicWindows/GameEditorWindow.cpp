@@ -445,8 +445,9 @@ void GameEditorWindow::SceneEditor(SceneEditorTabData& data)
 
 
     UpdateRunTimeWindowSize(Viewportsize, data._SceneCamera);
-    runtime->UpdateDrawData();
-
+    runtime->EditorOnly_SetDrawingInSceneEditor(true);
+    runtime->UpdateDrawData(data._SceneCamera);
+    runtime->EditorOnly_SetDrawingInSceneEditor(false);
 
 
     {

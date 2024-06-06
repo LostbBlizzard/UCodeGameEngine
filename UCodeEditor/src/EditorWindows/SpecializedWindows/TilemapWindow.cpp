@@ -24,6 +24,7 @@ void TilemapWindow::UpdateWindow()
 	if (currententity.Has_Value())
 	{
 		currenttilemap = currententity.Get_Value()->GetCompent<UC::TileMapRenderer>().value_unchecked();
+		currenttilemap->Showgrid = true;
 	}
 	if (currenttilemap == nullptr)
 	{

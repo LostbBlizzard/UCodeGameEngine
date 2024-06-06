@@ -30,6 +30,7 @@ void TileMapRenderer::Start()
 }
 void TileMapRenderer::OnDraw()
 {
+	auto Render = GetRenderRunTime();
 	/*
 	auto Entity = GetMyEntity();
 	auto Render = GetRenderRunTime();
@@ -67,9 +68,13 @@ void TileMapRenderer::OnDraw()
 	}
 	*/
 
-	if (Showgrid)
+
+	if (Render->IsDrawingInSceneEditor()) 
 	{
-		DragGrid();
+		if (Showgrid)
+		{
+			DragGrid();
+		}
 	}
 }
 UComponentsID TileMapRenderer::Get_TypeID()
@@ -80,6 +85,36 @@ void TileMapRenderer::DragGrid()
 {
 	auto Render = GetRenderRunTime();
 
+	auto cam = Render->CurrentCam();
+	size_t Griddwidth = 5;
+	size_t Gridheight = 5;
+
+	Color gridcolor = { 0.7,0.7,0.7 };
+	for (size_t x = 0; x < Griddwidth; x++)
+	{
+		RenderRunTime2d::Draw2DLineData linedata;
+		linedata.color = gridcolor;
+
+		linedata.Start = { (float)x,(float)0 };
+		linedata.End = { (float)x,(float)Gridheight };
+		linedata.draworder = 0;
+		linedata.drawLayer = 0;
+
+		Render->DrawLine2d(linedata);
+	}
+
+	for (size_t y = 0; y < Gridheight; y++)
+	{
+		RenderRunTime2d::Draw2DLineData linedata;
+		linedata.color = gridcolor;
+
+		linedata.Start = { (float)0,(float)y };
+		linedata.End = { (float)Griddwidth,(float)y };
+		linedata.draworder = 0;
+		linedata.drawLayer = 0;
+
+		Render->DrawLine2d(linedata);
+	}
 }
 NullablePtr<TileMapRenderer::Tile> TileMapRenderer::Get_Tile(int x, int y)
 {
