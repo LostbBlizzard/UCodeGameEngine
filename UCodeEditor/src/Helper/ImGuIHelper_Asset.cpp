@@ -729,7 +729,7 @@ bool ImGuIHelper_Asset::AssetField(TileDataPtr& Value)
 		AppFiles::GetSprite(AppFiles::sprite::TileAsset),
 		[](TileDataAsset& value) -> UC::Sprite*
 		{
-			auto& assetptr = value._Base._Data.Sprite;
+			auto& assetptr = value._Base._Base.Sprite;
 			UC::Sprite* r = nullptr;
 
 			if (assetptr.Has_UID() && !assetptr.Has_Asset())
@@ -837,7 +837,7 @@ UCode::Sprite* ImGuIHelper_Asset::GetAssetSpriteFromUID(const UID& value, AssetS
 				auto val = AssetManager->FindOrLoad_t<TileDataAsset>(value);
 				if (val.has_value())
 				{
-					auto& SpriteUID = val.value()->_Base._Data.Sprite;
+					auto& SpriteUID = val.value()->_Base._Base.Sprite;
 					if (SpriteUID.Has_UID())
 					{
 						return GetAssetSpriteFromUID(SpriteUID.Get_UID(), Type);

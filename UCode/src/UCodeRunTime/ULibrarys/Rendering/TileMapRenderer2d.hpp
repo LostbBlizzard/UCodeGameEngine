@@ -23,6 +23,10 @@ struct TileData
 struct TileAsset : public Asset
 {
 public:
+	TileAsset() 
+	{
+
+	}
 	TileAsset(TileData&& base) :_Base(std::move(base))
 	{
 
