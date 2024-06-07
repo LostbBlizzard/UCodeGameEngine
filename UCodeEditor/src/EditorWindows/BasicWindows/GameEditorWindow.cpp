@@ -544,6 +544,11 @@ void GameEditorWindow::SceneEditor(SceneEditorTabData& data)
                 }
             }
         }
+
+        if (PreDraw.has_value())
+        {
+            (*PreDraw)(runtime->Get_DrawData());
+        }
     }
     _GameRender->Draw(runtime->Get_DrawData(), data._SceneCamera);
 
@@ -564,7 +569,11 @@ void GameEditorWindow::SceneEditor(SceneEditorTabData& data)
 
         Vec2 Mpos = MousePosFromImage(cpos, *(Vec2*)&Viewportsize);
 
-        EditorSceneMIn3d = UC::Camera2d::ScreenToWorldPoint(data._SceneCamera, Mpos);
+
+        auto val = UC::Camera2d::ScreenToWorldPoint(data._SceneCamera, Mpos);
+        val.Y *= -1;
+
+        EditorSceneMIn3d = val;
     }
     else
     {
