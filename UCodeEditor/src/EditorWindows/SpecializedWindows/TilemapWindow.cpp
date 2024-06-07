@@ -92,88 +92,85 @@ void TilemapWindow::UpdateWindow()
 	{
 		auto win = app->Get_Window<GameEditorWindow>();
 
-		if (_toolbar == ToolBar::Draw)
+		if (!_CurrentTile.Has_Asset() && _CurrentTile.Has_UID())
 		{
-			if (!_CurrentTile.Has_Asset() && _CurrentTile.Has_UID())
-			{
-				auto tep = app->Get_AssetManager()->FindOrLoad_t<TileDataAsset>(_CurrentTile.Get_UID());
+			auto tep = app->Get_AssetManager()->FindOrLoad_t<TileDataAsset>(_CurrentTile.Get_UID());
 
-				if (tep.has_value())
-				{
-					_CurrentTile = tep.value()->GetManaged();
-				}
+			if (tep.has_value())
+			{
+				_CurrentTile = tep.value()->GetManaged();
 			}
-			if (_CurrentTile.Has_Asset())
+		}
+		if (_CurrentTile.Has_Asset())
+		{
+			if (!win->PreDraw.has_value())
 			{
-				if (!win->PreDraw.has_value())
-				{
-					win->PreDraw = [this, win, &currenttilemap](UC::RenderRunTime2d::DrawData& Data)
+				win->PreDraw = [this, win, &currenttilemap](UC::RenderRunTime2d::DrawData& Data)
+					{
+						auto currententity = GameEditorWindow::GetCurrentSeclectedEntity();
+
+						auto posin3d = win->Get_EditorSceneMIn3d();
+						UC::TileMapRenderer* currenttilemap = nullptr;
+
+						if (currententity.Has_Value())
 						{
-							auto currententity = GameEditorWindow::GetCurrentSeclectedEntity();
+							currenttilemap = currententity.Get_Value()->GetCompent<UC::TileMapRenderer>().value_unchecked();
 
-							auto posin3d = win->Get_EditorSceneMIn3d();
-							UC::TileMapRenderer* currenttilemap = nullptr;
 
-							if (currententity.Has_Value())
+							if (currenttilemap)
 							{
-								currenttilemap = currententity.Get_Value()->GetCompent<UC::TileMapRenderer>().value_unchecked();
-
-
-								if (currenttilemap)
-								{
-									currenttilemap->Showgrid = true;
-								}
+								currenttilemap->Showgrid = true;
 							}
-							if (currenttilemap == nullptr) { return; }
-							if (posin3d.has_value())
+						}
+						if (currenttilemap == nullptr) { return; }
+						if (posin3d.has_value())
+						{
+							auto pos = posin3d.value();
+							auto tilemap = currenttilemap;
+
+							auto p = tilemap->GetTilePos({ pos.X,pos.Y });
+
+							auto e = tilemap->NativeEntity();
+							auto scale = e->LocalScale2D();
+							float w = scale.X;
+							float h = scale.Y;
+
+							UC::RenderRunTime2d::DrawQuad2dData data(
+								{ p.X + (w / 2),p.Y + (h / 2) }, { w,h }, { 0,0 });
+							data.color.A = 0.5f;
+							Data.Quad2d.push_back(data);
+
+							if (ImGui::IsMouseDown(ImGuiMouseButton_::ImGuiMouseButton_Left))
 							{
-								auto pos = posin3d.value();
-								auto tilemap = currenttilemap;
-
-								auto p = tilemap->GetTilePos({ pos.X,pos.Y });
-
-								auto e = tilemap->NativeEntity();
-								auto scale = e->LocalScale2D();
-								float w = scale.X;
-								float h = scale.Y;
-
-								UC::RenderRunTime2d::DrawQuad2dData data(
-									{ p.X + (w / 2),p.Y + (h / 2) }, { w,h }, { 0,0 });
-								data.color.A = 0.5f;
-								Data.Quad2d.push_back(data);
-
-								if (ImGui::IsMouseDown(ImGuiMouseButton_::ImGuiMouseButton_Left))
+								if (_toolbar == ToolBar::Draw)
 								{
-									if (_toolbar == ToolBar::Draw) 
-									{
-										UC::TilePtr ptr = _CurrentTile.Get_Asset()->_UID;
-										UC::TileMapRenderer::Tile tile;
+									UC::TilePtr ptr = _CurrentTile.Get_UID();
+									UC::TileMapRenderer::Tile tile;
 
-										tile.tile = ptr;
-										tile.color = {};
-										tile.xoffset = p.X;
-										tile.yoffset = p.Y;
+									tile.tile = ptr;
+									tile.color = {};
+									tile.xoffset = p.X;
+									tile.yoffset = p.Y;
 
-										tilemap->AddTile(tile);
-									}
-									else if (_toolbar == ToolBar::Erase) 
-									{
-										tilemap->RemoveTile(p.X,p.Y);
-									}
-									else if (_toolbar == ToolBar::Copy)
-									{
-										auto v = tilemap->Get_Tile(p.X, p.Y);
+									tilemap->AddTile(tile);
+								}
+								else if (_toolbar == ToolBar::Erase)
+								{
+									tilemap->RemoveTile(p.X, p.Y);
+								}
+								else if (_toolbar == ToolBar::Copy)
+								{
+									auto v = tilemap->Get_Tile(p.X, p.Y);
 
-										if (v.has_value())
-										{
-											_CurrentTile = v.value()->tile.Get_UID();
-											_toolbar = ToolBar::Draw;
-										}
+									if (v.has_value())
+									{
+										_CurrentTile = v.value()->tile.Get_UID();
+										_toolbar = ToolBar::Draw;
 									}
 								}
 							}
-						};
-				}
+						}
+					};
 			}
 		}
 	}

@@ -47,7 +47,7 @@ TileAssetFile::Liveing::~Liveing()
 void TileAssetFile::Liveing::Init(const UEditorAssetFileInitContext& Context)
 {
 	auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
-	if (!TileData::FromFile(_Asset._Base, this->FileFullPath))
+	if (!TileData::FromFile(_Asset, this->FileFullPath))
 	{
 
 		auto p = FileFullPath.generic_string();
@@ -57,17 +57,17 @@ void TileAssetFile::Liveing::Init(const UEditorAssetFileInitContext& Context)
 	else
 	{
 		auto& assetindex = runprojectdata->Get_AssetIndex();
-		if (!assetindex.FindFileUsingID(_Asset._Base._UID).has_value())
+		if (!assetindex.FindFileUsingID(_Asset._UID).has_value())
 		{
 			EditorIndex::IndexFile file;
 
 			auto assetdir = runprojectdata->GetAssetsDir();
 			file.RelativePath = FileFullPath.generic_string().substr(assetdir.generic_string().size());
 			file.RelativeAssetName = file.RelativePath;
-			file.UserID = _Asset._Base._UID;
+			file.UserID = _Asset._UID;
 			assetindex._Files.push_back(std::move(file));
 		}
-		_Asset.Uid = _Asset._Base._UID;
+		_Asset.Uid = _Asset._UID;
 	}
 
 }
@@ -77,7 +77,7 @@ bool TileAssetFile::Liveing::DrawButtion(const UEditorAssetDrawButtionContext& I
 	UCode::Sprite* thumbnail = nullptr;
 
 	bool hasSprite = false;
-	auto& spriteptr = _Asset._Base._Base.Sprite;
+	auto& spriteptr = _Asset._Base.Sprite;
 
 	if (!spriteptr.Has_Asset() && spriteptr.Has_UID())
 	{
@@ -177,7 +177,7 @@ void TileAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContext& I
 	ImGui::Separator();
 
 
-	auto& Data = _Asset._Base._Base;
+	auto& Data = _Asset._Base;
 	ImGuIHelper_Asset::AsssetField("Sprite", Data.Sprite);
 	ImGuIHelper::ColorField(StringView("Color"), Data.Color);
 }
@@ -187,7 +187,7 @@ NullablePtr<UCode::Asset> TileAssetFile::Liveing::LoadAsset(const LoadAssetConte
 }
 void TileAssetFile::Liveing::FileUpdated()
 {
-	if (!TileData::FromFile(_Asset._Base, this->FileFullPath))
+	if (!TileData::FromFile(_Asset, this->FileFullPath))
 	{
 		auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 
@@ -200,7 +200,7 @@ void TileAssetFile::Liveing::SaveFile(const UEditorAssetFileSaveFileContext& Con
 {
 	auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 
-	if (!TileData::ToFile(this->FileFullPath, _Asset._Base, runprojectdata->Get_ProjData()._SerializeType))
+	if (!TileData::ToFile(this->FileFullPath, _Asset, runprojectdata->Get_ProjData()._SerializeType))
 	{
 		auto p = FileFullPath.generic_string();
 		auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
