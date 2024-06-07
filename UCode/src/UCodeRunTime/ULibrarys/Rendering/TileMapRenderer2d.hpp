@@ -68,7 +68,9 @@ public:
 
 	NullablePtr<Tile> Get_Tile(int x, int y);
 	void AddTile(Tile& tile);
+	void AddTileRaw(Tile& tile);
 	
+	Vec2 GetTilePos(Vec2 pos);
 
 	Color color;
 	ShaderPtr shader;

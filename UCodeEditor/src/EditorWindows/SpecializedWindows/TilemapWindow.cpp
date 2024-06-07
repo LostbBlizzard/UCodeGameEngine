@@ -8,7 +8,7 @@
 #include "UCodeRunTime/ULibrarys/Serialization/Yaml_Implementation/AsssetPtr.hpp"
 #include "UCodeRunTime/ULibrarys/Serialization/Bit_Implementation/AsssetPtr.hpp"
 EditorStart
-TilemapWindow::TilemapWindow(const NewEditorWindowData& windowdata):EditorWindow(windowdata)
+TilemapWindow::TilemapWindow(const NewEditorWindowData& windowdata) :EditorWindow(windowdata)
 {
 
 }
@@ -24,9 +24,9 @@ void TilemapWindow::UpdateWindow()
 	if (currententity.Has_Value())
 	{
 		currenttilemap = currententity.Get_Value()->GetCompent<UC::TileMapRenderer>().value_unchecked();
-		
-		
-		if (currenttilemap) 
+
+
+		if (currenttilemap)
 		{
 			currenttilemap->Showgrid = true;
 		}
@@ -69,6 +69,81 @@ void TilemapWindow::UpdateWindow()
 	}
 
 	auto app = EditorAppCompoent::GetCurrentEditorAppCompoent();
+	{
+		auto win = app->Get_Window<GameEditorWindow>();
+
+		if (_toolbar == ToolBar::Draw)
+		{
+			if (!_CurrentTile.Has_Asset() && _CurrentTile.Has_UID())
+			{
+				auto tep = app->Get_AssetManager()->FindOrLoad_t<TileDataAsset>(_CurrentTile.Get_UID());
+
+				if (tep.has_value())
+				{
+					_CurrentTile = tep.value()->GetManaged();
+				}
+			}
+			if (_CurrentTile.Has_Asset())
+			{
+				if (!win->PreDraw.has_value())
+				{
+					win->PreDraw = [this, win, &currenttilemap](UC::RenderRunTime2d::DrawData& Data)
+						{
+							auto currententity = GameEditorWindow::GetCurrentSeclectedEntity();
+
+							auto posin3d = win->Get_EditorSceneMIn3d();
+							UC::TileMapRenderer* currenttilemap = nullptr;
+
+							if (currententity.Has_Value())
+							{
+								currenttilemap = currententity.Get_Value()->GetCompent<UC::TileMapRenderer>().value_unchecked();
+
+
+								if (currenttilemap)
+								{
+									currenttilemap->Showgrid = true;
+								}
+							}
+							if (currenttilemap == nullptr) { return; }
+							if (posin3d.has_value())
+							{
+								auto pos = posin3d.value();
+								auto tilemap = currenttilemap;
+
+								auto p = tilemap->GetTilePos({ pos.X,pos.Y });
+
+								auto e = tilemap->NativeEntity();
+								auto scale = e->LocalScale2D();
+								float w = scale.X;
+								float h = scale.Y;
+
+								UC::RenderRunTime2d::DrawQuad2dData data(
+									{ p.X + (w / 2),p.Y + (h / 2) }, { w,h }, { 0,0 });
+								data.color.A = 0.5f;
+								Data.Quad2d.push_back(data);
+
+								if (ImGui::IsMouseDown(ImGuiMouseButton_::ImGuiMouseButton_Left))
+								{
+									UC::TilePtr ptr;
+									{
+										UID val;
+										//ptr = _CurrentTile.Get_Asset()->_Data;
+									}
+									UC::TileMapRenderer::Tile tile;
+
+									tile.tile = ptr;
+									tile.color = {};
+									tile.xoffset = p.X;
+									tile.yoffset = p.Y;
+
+									tilemap->AddTile(tile);
+								}
+							}
+						};
+				}
+			}
+		}
+	}
 	if (_CurrentTilePalette.Has_Asset())
 	{
 		ImGuIHelper_Asset::AsssetField("Tile", _CurrentTile);

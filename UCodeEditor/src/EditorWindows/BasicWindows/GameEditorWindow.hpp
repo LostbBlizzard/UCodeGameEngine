@@ -43,6 +43,7 @@ public:
 	{
 		return EditorSceneMIn3d;
 	}
+	 Optional<std::function<void(UC::RenderRunTime2d::DrawData& Data)>> PreDraw;
 private:
 	static EditorWindow* MakeWin(const NewEditorWindowData& windowdata);
 

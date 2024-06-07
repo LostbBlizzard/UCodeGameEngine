@@ -35,43 +35,64 @@ void TileMapRenderer::OnDraw()
 	auto bounds = cam->GetCam_Bounds();
 
 
-	/*
-	auto Entity = GetMyEntity();
-	auto Render = GetRenderRunTime();
+	auto Entity = NativeEntity();
+	auto Scale = Entity->WorldScale2D();
+	Vec2 min = Entity->WorldPosition2D();
+		
+	float w = Scale.X;
+	float h = Scale.Y;
 
-	Vec2 offset = (Vec2)Vec2i(_TileMapSizeX / 2, _TileMapSizeY / 2);
-	Vec2 min = Entity->Get_WorldPosition2D() - offset;
-	auto Ro = Entity->Get_WorldRotation2D();
-	auto Scale = Entity->Get_WorldScale2D();
+	auto AssetManager = AssetManager::Get(Render->GetGameLib());
 
-	size_t i = 0;
-
-
-	for (size_t x = 0; x < _TileMapSizeX; x++)
+	for (auto& Item : _Tiles)
 	{
-		for (size_t y = 0; y < _TileMapSizeY; y++)
+		Vec2 tilepos = GetTilePos( min + Vec2((f32)Item.xoffset, (f32)Item.yoffset));
+
+		tilepos.X += w / 2;
+		tilepos.Y += h / 2;
+
+
+		RenderRunTime2d::DrawQuad2dData Data = RenderRunTime2d::DrawQuad2dData(tilepos,Scale, {});
+
+		Sprite* sprptr = nullptr;
 		{
-			const auto& Item = TilesData[i];
+			NullablePtr<SpritePtr> ptr;
+			if (!Item.tile.Has_Asset() && Item.tile.Has_UID())
+			{
+				auto assetop = AssetManager->FindOrLoad_t<TileAsset>(Item.tile.Get_UID());
+				if (assetop.has_value())
+				{
+					Item.tile = assetop.value()->GetManaged();
+				}
+			}
+			if (Item.tile.Has_Asset())
+			{
+				auto asset = Item.tile.Get_Asset();
+				ptr = &asset->Sprite;
+			}
 
+			if (ptr.has_value()) 
+			{
+				AssetRendering::UpdatePtr(AssetManager,*ptr.value());
 
-
-			Vec2 tilepos = min + Vec2((f32)x, (f32)y);
-
-			RenderRunTime2d::DrawQuad2dData Data = RenderRunTime2d::DrawQuad2dData(tilepos, Scale, Ro);
-			Data.Spr = Item.texture;
-			Data.color = color * Item.color;
-			Data.drawLayer = DrawLayer;
-			Data.draworder = DrawOrder;
-#if UCodeGameEngineDEBUG
-			Data.madeby = this;
-#endif
-			Render->DrawQuad2d(Data);
-
-			i++;
+				auto& val = *ptr.value();
+				if (val.Has_Asset())
+				{
+					sprptr = val.Get_Asset();
+				}
+			}
 		}
-	}
-	*/
+		Data.Spr = sprptr;
+		Data.color = color * Item.color;
+		Data.drawLayer = DrawLayer;
+		Data.draworder = DrawOrder;
+#if UCodeGameEngineDEBUG
+		Data.madeby = this;
+#endif
+		Render->DrawQuad2d(Data);
 
+
+	}
 
 	if (Render->IsDrawingInSceneEditor()) 
 	{
@@ -133,10 +154,29 @@ void TileMapRenderer::DrawGrid()
 }
 NullablePtr<TileMapRenderer::Tile> TileMapRenderer::Get_Tile(int x, int y)
 {
+	for (auto& Item : _Tiles)
+	{
+		if (Item.xoffset == x && Item.yoffset == y)
+		{
+			return &Item;
+		}
+	}
 	return {};
 }
 void TileMapRenderer::AddTile(Tile& tile)
 {
+	AddTileRaw(tile);
+}
+void TileMapRenderer::AddTileRaw(Tile& tile)
+{
+	auto v = Get_Tile(tile.xoffset, tile.yoffset);
+
+	if (v.has_value())
+	{
+		*v.value() = tile;	
+	}
+
+	_Tiles.push_back(std::move(tile));
 }
 Bounds2d TileMapRenderer::Get_Bounds() const
 {
@@ -189,6 +229,13 @@ bool TileData::ToFile(const Path& path, const SpriteData& data, USerializerType 
 	USerializer V(Type);
 	data.PushData(V);
 	return V.ToFile(path);
+}
+Vec2 TileMapRenderer::GetTilePos(Vec2 pos)
+{
+	Vec2 r;
+	r.X = std::floor(pos.X);
+	r.Y = std::floor(pos.Y);
+	return r;
 }
 
 RenderingEnd
