@@ -571,7 +571,6 @@ void GameEditorWindow::SceneEditor(SceneEditorTabData& data)
 
 
         auto val = UC::Camera2d::ScreenToWorldPoint(data._SceneCamera, Mpos);
-        val.Y *= -1;
 
         EditorSceneMIn3d = val;
     }
@@ -1990,6 +1989,10 @@ Vec2 GameEditorWindow::MousePosFromImage(const Vec2 CursorPos, const Vec2 ImageS
     Vec2 Mpos = *(Vec2*)&tep;
 
     auto R = Mpos - CursorPos;
+
+
+    //for OpenGL
+    R.Y = ImageSize.Y - R.Y;
     return R;
 }
 void GameEditorWindow::OnULangReload()
