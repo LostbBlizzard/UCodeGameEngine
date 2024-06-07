@@ -124,11 +124,7 @@ void TilemapWindow::UpdateWindow()
 
 								if (ImGui::IsMouseDown(ImGuiMouseButton_::ImGuiMouseButton_Left))
 								{
-									UC::TilePtr ptr;
-									{
-										UID val;
-										//ptr = _CurrentTile.Get_Asset()->_Data;
-									}
+									UC::TilePtr ptr = _CurrentTile.Get_Asset()->GetManaged();
 									UC::TileMapRenderer::Tile tile;
 
 									tile.tile = ptr;
@@ -238,7 +234,7 @@ void TilemapWindow::UpdateWindow()
 
 					if (tile->Ptr.Has_Asset())
 					{
-						auto& spritesptr = tile->Ptr.Get_Asset()->_Data.Sprite;
+						auto& spritesptr = tile->Ptr.Get_Asset()->_Base.Sprite;
 
 						if (!spritesptr.Has_Asset() && spritesptr.Has_UID())
 						{
@@ -304,7 +300,7 @@ void TilemapWindow::UpdateWindow()
 
 						if (heldtile.Ptr.Has_Asset())
 						{
-							auto& spriteptr = heldtile.Ptr.Get_Asset()->_Data.Sprite;
+							auto& spriteptr = heldtile.Ptr.Get_Asset()->_Base.Sprite;
 
 							if (spriteptr.Has_Asset())
 							{

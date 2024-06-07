@@ -77,7 +77,7 @@ bool TileAssetFile::Liveing::DrawButtion(const UEditorAssetDrawButtionContext& I
 	UCode::Sprite* thumbnail = nullptr;
 
 	bool hasSprite = false;
-	auto& spriteptr = _Asset._Base._Data.Sprite;
+	auto& spriteptr = _Asset._Base._Base.Sprite;
 
 	if (!spriteptr.Has_Asset() && spriteptr.Has_UID())
 	{
@@ -177,7 +177,7 @@ void TileAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContext& I
 	ImGui::Separator();
 
 
-	auto& Data = _Asset._Base._Data;
+	auto& Data = _Asset._Base._Base;
 	ImGuIHelper_Asset::AsssetField("Sprite", Data.Sprite);
 	ImGuIHelper::ColorField(StringView("Color"), Data.Color);
 }

@@ -99,14 +99,14 @@ void DrawInspectTile(TileDataPtr  ptr, TileDataPack::PackTile& tile)
 	ImGui::Separator();
 
 
-	auto& Data = ptr.Get_Asset()->_Data;
+	auto& Data = ptr.Get_Asset()->_Base;
 	if (ImGuIHelper_Asset::AsssetField("Sprite", Data.Sprite))
 	{
-		tile._Data._Data.Sprite = Data.Sprite;
+		tile._Data._Base.Sprite = Data.Sprite;
 	}
 	if (ImGuIHelper::ColorField(StringView("Color"), Data.Color))
 	{
-		tile._Data._Data.Color = Data.Color;
+		tile._Data._Base.Color = Data.Color;
 	}
 
 }
@@ -274,7 +274,7 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 					auto& AssetItem = _Assets[i];
 
 					UCode::Sprite* spr = nullptr;
-					auto& spriteptr = Item._Data._Data.Sprite;
+					auto& spriteptr = Item._Data._Base.Sprite;
 					if (spriteptr.Has_UID() && !spriteptr.Has_Asset())
 					{
 						auto tep = app->Get_AssetManager()->FindOrLoad_t<UC::SpriteAsset>(spriteptr.Get_UID());
@@ -485,7 +485,7 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 
 							if (file.UserID.has_value())
 							{
-								tile._Data._Data.Sprite = file.UserID.value();
+								tile._Data._Base.Sprite = file.UserID.value();
 							}
 							NewTile(std::move(tile));
 						}
@@ -542,7 +542,7 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 						shouldcloseAtlastSettings = true;
 
 						_Data.List.reserve(texturesettings->sprites.size());
-						_Assets.reserve(texturesettings->sprites.size());
+						_Assets.resize(texturesettings->sprites.size());
 
 						auto run = app->Get_RunTimeProjectData();
 						auto& index = run->Get_AssetIndex();
@@ -563,7 +563,7 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 							auto& LastOut = _Data.List[i];
 
 							LastOut._Name = item.spritename;
-							LastOut._Data._Data.Sprite = item.uid;
+							LastOut._Data._Base.Sprite = item.uid;
 							LastOut.X = item.offset.X / tilesize;
 							LastOut.Y = item.offset.Y / tilesize;
 
@@ -589,7 +589,7 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 							TileDataPack::PackTile newtile;
 							newtile._Name = item.spritename;
 							newtile._Data._UID = app->Get_RunTimeProjectData()->GetNewUID();
-							newtile._Data._Data.Sprite = item.uid;	
+							newtile._Data._Base.Sprite = item.uid;	
 							newtile.X = item.offset.X / tilesize;
 							newtile.Y = item.offset.Y / tilesize;
 
@@ -741,9 +741,9 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 									
 									UC::Sprite* spr = nullptr;
 									{
-										if (CurrentItem._Data._Data.Sprite.Has_Asset())
+										if (CurrentItem._Data._Base.Sprite.Has_Asset())
 										{
-											spr = CurrentItem._Data._Data.Sprite.Get_Asset();
+											spr = CurrentItem._Data._Base.Sprite.Get_Asset();
 										}
 										if (spr == nullptr)
 										{
@@ -775,7 +775,7 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 
 						UC::Sprite* spr = nullptr;
 						{
-							auto& SpritePtr = Item._Data._Data.Sprite;
+							auto& SpritePtr = Item._Data._Base.Sprite;
 							if (SpritePtr.Has_UID() && !SpritePtr.Has_Asset())
 							{
 								auto val = app->Get_AssetManager()->FindOrLoad_t<UC::SpriteAsset>(SpritePtr.Get_UID());
@@ -893,7 +893,7 @@ void TilePackAssetFile::Liveing::DrawSubAssets(const UEditorDrawSubAssetContext&
 
 		UCode::Sprite* Spr = nullptr;
 		{
-			auto& SpritePtr = ListItem._Data._Data.Sprite;
+			auto& SpritePtr = ListItem._Data._Base.Sprite;
 
 			if (SpritePtr.Has_UID() && !SpritePtr.Has_Asset())
 			{

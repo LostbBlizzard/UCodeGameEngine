@@ -10,10 +10,37 @@
 #include "UCodeRunTime/ULibrarys/Serialization/Yaml_Implementation/AsssetPtr.hpp"
 EditorStart
 
-struct TileData
+struct TileData : UC::TileAsset 
 {
 	UID _UID;
-	UC::TileData _Data;
+	TileData()
+	{
+
+	}
+	TileData(const TileData& data)
+		: _UID(data._UID)
+	{
+		this->_Base = data._Base;
+	}
+	TileData& operator=(const TileData& data)
+	{
+		this->_Base = data._Base;
+		_UID = data._UID;
+		return *this;
+	}
+	TileData(TileData&& data) noexcept
+		: _UID(data._UID)
+	{
+		this->_Base = std::move(data._Base);
+		data._UID = {};
+	}
+	TileData& operator=(TileData&& data) noexcept
+	{
+		this->_Base = std::move(data._Base);
+		_UID = data._UID;
+		data._UID = {};
+		return *this;
+	}
 
 	inline static const char* FileExt = "UTile";
 	inline static const char* FileExtDot = ".UTile";

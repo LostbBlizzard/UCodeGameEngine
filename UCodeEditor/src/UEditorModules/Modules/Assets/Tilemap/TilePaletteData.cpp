@@ -31,12 +31,13 @@ bool TilePalette::ToFile(const Path& path, const TilePalette& data, USerializerT
 void TileData::PushData(USerializer& node) const
 {
 	node.Write("_UID", _UID);
-	_Data.PushData(node);
+	this->_Base.PushData(node);
 }
 bool TileData::FromString(TileData& out, UDeserializer& text)
 {
 	text.ReadType("_UID", out._UID);
-	return UC::TileData::FromString(out._Data, text);
+	out.Uid = out.Uid;
+	return UC::TileData::FromString(out._Base, text);
 }
 bool TileData::FromFile(TileData& out, const Path& Path)
 {
