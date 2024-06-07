@@ -39,19 +39,39 @@ void TilemapWindow::UpdateWindow()
 	}
 
 	ImGui::BeginDisabled(currenttilemap == nullptr);
+	
 	{
+		if (ImGui::IsKeyDown(ImGuiKey_M))
+		{
+			_toolbar = ToolBar::Selection;
+		}
+		if (ImGui::IsKeyDown(ImGuiKey_B))
+		{
+			_toolbar = ToolBar::Draw;
+		}
+		if (ImGui::IsKeyDown(ImGuiKey_E))
+		{
+			_toolbar = ToolBar::Erase;
+		}
+		if (ImGui::IsKeyDown(ImGuiKey_I))
+		{
+			_toolbar = ToolBar::Copy;
+		}
+		if (ImGui::RadioButton("Selection", _toolbar == ToolBar::Selection)) { _toolbar = ToolBar::Selection; }
+		ImGui::SameLine();
+
 		if (ImGui::RadioButton("Draw", _toolbar == ToolBar::Draw)) { _toolbar = ToolBar::Draw; }
 		ImGui::SameLine();
 
-		if (ImGui::RadioButton("Copy", _toolbar == ToolBar::Erase)) { _toolbar = ToolBar::Copy; }
-		ImGui::SameLine();
-
-		if (ImGui::RadioButton("Move", _toolbar == ToolBar::Move)) { _toolbar = ToolBar::Move; }
+		if (ImGui::RadioButton("Copy", _toolbar == ToolBar::Copy)) { _toolbar = ToolBar::Copy; }
 		ImGui::SameLine();
 
 		if (ImGui::RadioButton("Erase", _toolbar == ToolBar::Erase)) { _toolbar = ToolBar::Erase; }
-
 		ImGui::Separator();
+		
+		//if (ImGui::RadioButton("Move", _toolbar == ToolBar::Move)) { _toolbar = ToolBar::Move; }
+		//ImGui::SameLine();
+		
 	}
 	ImGui::EndDisabled();
 	{
@@ -124,15 +144,32 @@ void TilemapWindow::UpdateWindow()
 
 								if (ImGui::IsMouseDown(ImGuiMouseButton_::ImGuiMouseButton_Left))
 								{
-									UC::TilePtr ptr = _CurrentTile.Get_Asset()->GetManaged();
-									UC::TileMapRenderer::Tile tile;
+									if (_toolbar == ToolBar::Draw) 
+									{
+										UC::TilePtr ptr = _CurrentTile.Get_Asset()->_UID;
+										UC::TileMapRenderer::Tile tile;
 
-									tile.tile = ptr;
-									tile.color = {};
-									tile.xoffset = p.X;
-									tile.yoffset = p.Y;
+										tile.tile = ptr;
+										tile.color = {};
+										tile.xoffset = p.X;
+										tile.yoffset = p.Y;
 
-									tilemap->AddTile(tile);
+										tilemap->AddTile(tile);
+									}
+									else if (_toolbar == ToolBar::Erase) 
+									{
+										tilemap->RemoveTile(p.X,p.Y);
+									}
+									else if (_toolbar == ToolBar::Copy)
+									{
+										auto v = tilemap->Get_Tile(p.X, p.Y);
+
+										if (v.has_value())
+										{
+											_CurrentTile = v.value()->tile.Get_UID();
+											_toolbar = ToolBar::Draw;
+										}
+									}
 								}
 							}
 						};
@@ -140,6 +177,7 @@ void TilemapWindow::UpdateWindow()
 			}
 		}
 	}
+
 	if (_CurrentTilePalette.Has_Asset())
 	{
 		ImGuIHelper_Asset::AsssetField("Tile", _CurrentTile);

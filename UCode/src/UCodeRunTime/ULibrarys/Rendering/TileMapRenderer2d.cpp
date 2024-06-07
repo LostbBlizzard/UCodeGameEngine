@@ -3,6 +3,7 @@
 #include "../Serialization/Yaml_Implementation/AsssetPtr.hpp"
 #include "../Serialization/Bit_Implementation/AsssetPtr.hpp"
 
+#include "UCodeRunTime/ULibrarys/Serialization/SerlizeableType.hpp"
 RTTR_REGISTRATION
 {
  rttr::registration::class_<UCode::TileMapRenderer>("TileMapRenderer")
@@ -11,6 +12,13 @@ RTTR_REGISTRATION
  .property("DrawLayer",&UCode::TileMapRenderer::DrawLayer)
  .property("DrawOrder",&UCode::TileMapRenderer::DrawOrder);
 }
+
+MakeSerlizeType(UCode::TileMapRenderer::Tile,
+ Field("xoffset", _this->xoffset);
+ Field("yoffset", _this->yoffset);
+ Field("color", _this->color);
+ Field("tile", _this->tile);
+);
 
 RenderingStart
 UComponentData TileMapRenderer::type_Data = { "TileMapRenderer",[](Entity* e) {return (Compoent*)new TileMapRenderer(e); },rttr::type::get<UCode::TileMapRenderer>() };
@@ -175,13 +183,27 @@ void TileMapRenderer::AddTileRaw(Tile& tile)
 	{
 		*v.value() = tile;	
 	}
+	else 
+	{
+		_Tiles.push_back(std::move(tile));
+	}
+}
+void TileMapRenderer::RemoveTile(int x, int y)
+{
+	auto v = Get_Tile(x,y);
 
-	_Tiles.push_back(std::move(tile));
+	if (v.has_value())
+	{
+		size_t index = v.value().value() - _Tiles.data();
+
+		_Tiles.erase(_Tiles.begin() + index);
+	}
 }
 Bounds2d TileMapRenderer::Get_Bounds() const
 {
 	return {};
 }
+
 
 void TileMapRenderer::Serialize(USerializer& Serializer) const
 {
@@ -189,6 +211,7 @@ void TileMapRenderer::Serialize(USerializer& Serializer) const
 	Serializer.Write("Color", color);
 	Serializer.Write("DrawLayer", DrawLayer);
 	Serializer.Write("DrawOrder", DrawOrder);
+	Serializer.Write("Tiles", _Tiles);
 }
 
 void TileMapRenderer::Deserialize(UDeserializer& Serializer)
@@ -197,6 +220,7 @@ void TileMapRenderer::Deserialize(UDeserializer& Serializer)
 	Serializer.ReadType("Color", color);
 	Serializer.ReadType("DrawLayer", DrawLayer, DrawLayer);
 	Serializer.ReadType("DrawOrder", DrawOrder, DrawOrder);
+	Serializer.ReadType("Tiles", _Tiles,_Tiles);
 }
 
 

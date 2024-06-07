@@ -21,6 +21,7 @@ private:
 	static EditorWindow* MakeWin(const NewEditorWindowData& windowdata);
 	enum class ToolBar
 	{
+		Selection,
 		Draw,
 		Erase,
 		Move,
@@ -28,7 +29,7 @@ private:
 	};
 	TilePalettePtr _CurrentTilePalette;
 	TileDataPtr _CurrentTile;
-	ToolBar _toolbar = ToolBar::Draw;
+	ToolBar _toolbar = ToolBar::Selection;
 };
 
 EditorEnd 
