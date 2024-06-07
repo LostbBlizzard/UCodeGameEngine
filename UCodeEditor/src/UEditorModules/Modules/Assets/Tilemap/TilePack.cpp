@@ -151,8 +151,9 @@ void TilePackAssetFile::Liveing::LoadAssetAt(size_t Index)
 
 
 	TileDataAsset data;
-	data.Uid = Item._Data._UID;
-	data._Base = Item._Data;
+	data._UID =Item._Data._UID;
+	data.Uid = data._UID;
+	data._Base = Item._Data._Base;
 
 
 	AssetItem = std::move(data);
@@ -499,7 +500,7 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 								auto tiledata = app->Get_AssetManager()->FindOrLoad_t<TileDataAsset>(file.UserID.value());
 								if (tiledata)
 								{
-									tile._Data = tiledata.value()->_Base;
+									tile._Data = *tiledata.value().value();
 								}
 							}
 							NewTile(std::move(tile));

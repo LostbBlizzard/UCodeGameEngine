@@ -163,7 +163,7 @@ public:
 
 			if (Get_State() == State::ManagedPtr)
 			{
-				return &_Base.template GetType<ManagedAssetPtr>().Get_Value()->_Base;
+				return (AssetBase*) & _Base.template GetType<ManagedAssetPtr>().Get_Value()->_Base;
 			}
 		return nullptr;
 	}

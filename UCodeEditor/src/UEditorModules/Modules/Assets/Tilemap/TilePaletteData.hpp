@@ -21,23 +21,27 @@ struct TileData : UC::TileAsset
 		: _UID(data._UID)
 	{
 		this->_Base = data._Base;
+		Uid = _UID;
 	}
 	TileData& operator=(const TileData& data)
 	{
 		this->_Base = data._Base;
 		_UID = data._UID;
+		Uid = _UID;
 		return *this;
 	}
 	TileData(TileData&& data) noexcept
 		: _UID(data._UID)
 	{
 		this->_Base = std::move(data._Base);
+		this->Uid = _UID;
 		data._UID = {};
 	}
 	TileData& operator=(TileData&& data) noexcept
 	{
 		this->_Base = std::move(data._Base);
 		_UID = data._UID;
+		Uid = _UID;
 		data._UID = {};
 		return *this;
 	}
@@ -57,16 +61,15 @@ UseUSerializerForYamlAndBit(UCodeEditor::TileData);
 
 EditorStart
 
-struct TileDataAsset : UC::Asset
+struct TileDataAsset : TileData
 {
 public:
-	TileData _Base;
 	TileDataAsset()
 	{
 
 	}
 	TileDataAsset(TileData&& base)
-		:_Base(std::move(base))
+		:TileData(std::move(base))
 	{
 
 	}
