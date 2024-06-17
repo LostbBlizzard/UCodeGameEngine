@@ -32,9 +32,6 @@ GameEditorWindow::~GameEditorWindow()
 {
     UnLoadRender(MainSceneData);
     UnLoadRunTime();
-    if (_SceneData) {
-        delete _SceneData;
-    }
 
 
     if (_DontWaitInputKey.has_value())
@@ -122,7 +119,7 @@ void GameEditorWindow::UpdateWindow()
 
     ImGui::PopStyleVar();
 
-    if (_UseingSceneAsset.has_value() && _SceneDataAsRunTiime) 
+    if (_UseingSceneAsset.has_value() && _SceneDataAsRunTime.Has_Value()) 
     {
         if (BlockKey.has_value())
         {
@@ -222,12 +219,12 @@ void GameEditorWindow::Scenehierarchy()
 
 bool GameEditorWindow::ScencIsDiffent()
 {
-    if (_SceneDataAsRunTiime) 
+    if (_SceneDataAsRunTime.Has_Value()) 
     {
         String asstr;
         {
             UCode::Scene2dData data;
-            UCode::Scene2dData::SaveScene(_SceneDataAsRunTiime, data,USerializerType::Bytes);
+            UCode::Scene2dData::SaveScene(_SceneDataAsRunTime.Get_Value(), data, USerializerType::Bytes);
             UCode::USerializer serializer(USerializerType::Bytes);
             data.PushData(serializer);
             serializer.ToString(asstr, false);
@@ -649,13 +646,13 @@ void GameEditorWindow::ShowSceneDataAddNewScene()
     {
         if (_SceneData == nullptr)
         {
-            _SceneData = new  UCode::Scene2dData();
+            _SceneData =std::make_unique<UCode::Scene2dData>();
 
             UCode::Scene2dData::SaveScene(e, *_SceneData, USerializerType::Fastest);
         }
 
 
-        _SceneDataAsRunTiime = e;
+        _SceneDataAsRunTime = e->Get_ManagedPtr();
     }
 
 }
@@ -1071,7 +1068,7 @@ void GameEditorWindow::ShowScene(SceneEditorTabData& data, UCode::RunTimeScene* 
     bool ShowingTree = false;
 
     bool ischanged = false;
-    if (Item == _SceneDataAsRunTiime)
+    if (Item == _SceneDataAsRunTime.Get_Value())
     {
         ischanged = ScencIsDiffent();
     }
@@ -1094,7 +1091,7 @@ void GameEditorWindow::ShowScene(SceneEditorTabData& data, UCode::RunTimeScene* 
         static bool LastIsOpen = false;
         static bool LastIsChange = false;
         
-        if (Item == _SceneDataAsRunTiime)
+        if (Item == _SceneDataAsRunTime.Get_Value())
         {
             if (LastIsChange != ischanged)
             {
@@ -1109,7 +1106,7 @@ void GameEditorWindow::ShowScene(SceneEditorTabData& data, UCode::RunTimeScene* 
         }
         auto Data = ImGuIHelper::TreeNode(Item, str.c_str(), AppFiles::sprite::Scene2dData);
 
-        if (Item == _SceneDataAsRunTiime)
+        if (Item == _SceneDataAsRunTime.Get_Value())
         {
             LastIsOpen = Data;
         }
@@ -1883,10 +1880,10 @@ void GameEditorWindow::ShowRunTimeGameLibrary()
 }
 void GameEditorWindow::SaveScene()
 {
-    if (_SceneData && _UseingSceneAsset.has_value())
+    if (_SceneData && _UseingSceneAsset.has_value() && _SceneDataAsRunTime.Has_Value())
     {
         auto SaveType = Get_ProjectData()->Get_ProjData()._SerializeType;
-        UCode::Scene2dData::SaveScene(_SceneDataAsRunTiime, *_SceneData, SaveType);
+        UCode::Scene2dData::SaveScene(_SceneDataAsRunTime.Get_Value(), *_SceneData, SaveType);
 
         auto runprojectdata = Get_ProjectData();
        
@@ -1955,23 +1952,13 @@ void GameEditorWindow::OpenScencAtPath(const UID& Path)
 
 
         auto NewScene = UCode::Scene2dData::LoadScene(MainSceneData._GameRunTime.get(), NewSceneData);
-        // UCode::RunTimeScene::SetSceneMulti_Threaded(NewScene);
         if (Scenes.size() == 1)
         {
-            if (_SceneData)
-            {
-                delete _SceneData;
-                _SceneData = nullptr;
-            }
-            if (_SceneData == nullptr)
-            {
-                _SceneData = new UCode::Scene2dData();
-            }
 
-            *_SceneData = NewSceneData;
+            _SceneData =std::make_unique<UCode::Scene2dData>(NewSceneData);
             SelectedScene = NewScene->Get_ManagedPtr();
             _UseingSceneAsset = Path;
-            _SceneDataAsRunTiime = NewScene;
+            _SceneDataAsRunTime = NewScene->Get_ManagedPtr();
             SetSeneAsSaved();
         }
     }
@@ -2012,7 +1999,7 @@ void GameEditorWindow::OnULangReload()
 void GameEditorWindow::SetSeneAsSaved()
 {
     UCode::Scene2dData data;
-    UCode::Scene2dData::SaveScene(_SceneDataAsRunTiime, data, USerializerType::Bytes);
+    UCode::Scene2dData::SaveScene(_SceneDataAsRunTime.Get_Value(), data, USerializerType::Bytes);
     UCode::USerializer serializer(USerializerType::Bytes);
     data.PushData(serializer);
     serializer.ToString(sceneassaved, false);
@@ -2144,7 +2131,7 @@ void GameEditorWindow::OnStopPlaying()
     if (_SceneData)
     {
         auto ShowScene = UCode::Scene2dData::LoadScene(MainSceneData._GameRunTime.get(), *_SceneData);
-        _SceneDataAsRunTiime = ShowScene;
+        _SceneDataAsRunTime = ShowScene->Get_ManagedPtr();
     }
     LoadRender(MainSceneData, false);
 
@@ -2244,8 +2231,7 @@ void GameEditorWindow::UnLoadRender(SceneEditorTabData& data)
     if (_GameRender)
     {
         _GameRender->EndRender();
-        delete _GameRender.release();
-        _GameRender = nullptr;
+        _GameRender = {};
     }
 }
 void GameEditorWindow::UnLoadRunTime()
@@ -2257,8 +2243,7 @@ void GameEditorWindow::UnLoadRunTime()
         UnLoadRender(MainSceneData);
 
         _GameRunTime->EndRunTime();
-        delete _GameRunTime.release();
-        _GameRunTime = nullptr;
+        _GameRunTime = {};
     }
 }
 void GameEditorWindow::LoadRunTime()
@@ -2270,10 +2255,10 @@ void GameEditorWindow::LoadRunTime()
         _GameRunTime->Set_GameTime_FramesToDestroy(2);//Because The Inspector be able to deselect RunTimeObjects instead of reading freed memory.
         _GameRunTime->Init();
 
-        if (_SceneData && _SceneDataAsRunTiime == nullptr)
+        if (_SceneData && !_SceneDataAsRunTime.Has_Value())
         {
             auto ShowScene = UCode::Scene2dData::LoadScene(_GameRunTime.get(), *_SceneData);
-            _SceneDataAsRunTiime = ShowScene;
+            _SceneDataAsRunTime= ShowScene->Get_ManagedPtr();
         }
     }
 }
