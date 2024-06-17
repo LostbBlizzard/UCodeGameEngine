@@ -633,10 +633,6 @@ Path GameFiles::Get_PersistentDataPath(const AppData& data)
 
 	fs::path Persistentpath;
 
-	#if UCodeGEDebug
-	Persistentpath = (String)UCode_VS_PROJECTPATH + "Persistentpath/";
-	#else 
-
 	#if UCodeGEWindows
 
 	PWSTR path_tmp;
@@ -666,8 +662,6 @@ Path GameFiles::Get_PersistentDataPath(const AppData& data)
 
 	UCodeGEToDo();
 	#endif 
-
-	#endif
 	
 	String S_Persistentpath = Persistentpath.generic_u8string();
 	S_Persistentpath += '/' + CompanyName + '/' += APPName;//Comany
