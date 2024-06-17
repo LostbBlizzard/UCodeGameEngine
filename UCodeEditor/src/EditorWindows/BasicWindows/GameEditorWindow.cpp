@@ -1194,16 +1194,9 @@ void GameEditorWindow::ShowScene(SceneEditorTabData& data, UCode::RunTimeScene* 
 
         if (ImGui::MenuItem("Add Entity") || settings.IsKeybindActive(KeyBindList::New))
         {
-            if (node_open)
-            {
-                UCode::Entity* e = Item->NewEntity();
-                e->NativeName() = UnNamedEntity;
-                e->WorldPosition(data._SceneCameraData._Pos);
-            }
-            else
-            {
-                ShowSceneDataAddNewScene();
-            }
+            UCode::Entity* e = Item->NewEntity();
+            e->NativeName() = UnNamedEntity;
+            e->WorldPosition(data._SceneCameraData._Pos);
 
             ImGui::CloseCurrentPopup();
         }
