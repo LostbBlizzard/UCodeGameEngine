@@ -3,7 +3,7 @@
 #include <Editor/EditorNamespace.hpp>
 #include <UCodeRunTime/BasicTypes.hpp>
 #include "UEditorModules/UEditorModule.hpp"
-
+#include "../Serialization.hpp"
 EditorStart
 
 class EditorIndex;
@@ -49,7 +49,7 @@ public:
 		ProjDir = Proj;
 	}
 
-	void ReIndex(EditorIndex& index, std::function<UID()> _newuid);
+	void ReIndex(EditorIndex& index, std::function<UID()> _newuid,USerializerType SerializerType);
 	std::function<UID()> _newuid;
 private:
 	Path ProjDir;

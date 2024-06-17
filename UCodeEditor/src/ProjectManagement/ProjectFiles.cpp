@@ -65,7 +65,7 @@ void ProjectFiles::Update(float UpateDelta)
 	}
 }
 
-void ProjectFiles::ReIndex(EditorIndex& index, std::function<UID()> _newuid)
+void ProjectFiles::ReIndex(EditorIndex& index, std::function<UID()> _newuid,USerializerType SerializerType)
 {
 	using recursive_directory_iterator = std::filesystem::recursive_directory_iterator;
 
@@ -83,7 +83,10 @@ void ProjectFiles::ReIndex(EditorIndex& index, std::function<UID()> _newuid)
 			auto relative = dirEntry.path().generic_string().substr(ProjDir.native().size());
 
 			Vector<GetSubAssetData> subassets;
-			EditorIndex::UpdateFile(Index, dirEntry.path(), relative,subassets);
+
+			EditorIndex::ProjectInfo info;
+			info.ProjectSerializerType = SerializerType;
+			EditorIndex::UpdateFile(Index, dirEntry.path(), relative,info,subassets);
 
 			for (auto& Item : subassets)
 			{

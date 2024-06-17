@@ -26,7 +26,7 @@ void RunTimeProjectData::SetProject(const ProjectData& Data, const Path&  ProjDi
 		{
 			_Index._Files.clear();
 			
-			files.ReIndex(_Index, [this] {return GetNewUID(); });
+			files.ReIndex(_Index, [this] {return GetNewUID(); },Data._SerializeType);
 
 			EditorIndex::ToFile(_Index, Path);
 		}

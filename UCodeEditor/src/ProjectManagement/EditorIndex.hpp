@@ -1,6 +1,6 @@
 #pragma once
 #include "../Typedefs.hpp"
-
+#include "../Serialization.hpp"
 #include <FileWatcher/FileWatcher.h>
 EditorStart
 
@@ -147,7 +147,12 @@ public:
 
 	static bool FromFile(EditorIndex& Out, const Path& path);
 	static bool ToFile(const EditorIndex& Out, const Path& path);
-	static void UpdateFile(IndexFile& file, const Path& path, const String& relativepath,Vector<GetSubAssetData>& outsubassets);
+
+	struct ProjectInfo
+	{
+		USerializerType ProjectSerializerType;
+	};
+	static void UpdateFile(IndexFile& file, const Path& path, const String& relativepath,const ProjectInfo& info,Vector<GetSubAssetData>& outsubassets);
 
 	static bool FromBytes(EditorIndex& Out, const BytesView Bytes);
 	static Unique_Bytes ToBytes(const EditorIndex& Out);

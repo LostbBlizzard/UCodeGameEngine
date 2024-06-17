@@ -200,7 +200,7 @@ void UDeserializer::SetData(const BytesView Bytes, USerializerType type)
 	}
 }
 
-UCodeGameEngineNoDiscard bool UDeserializer::FromFile(const Path& Path, UDeserializer& Out)
+bool UDeserializer::FromFile(const Path& Path, UDeserializer& Out)
 {
 	if (std::filesystem::is_regular_file(Path))
 	{
@@ -223,7 +223,30 @@ UCodeGameEngineNoDiscard bool UDeserializer::FromFile(const Path& Path, UDeseria
 		}
 	}
 	return false;
+}
+bool UDeserializer::FromFile(const Path& Path, UDeserializer& Out, USerializerType type)
+{
+	if (std::filesystem::is_regular_file(Path))
+	{
+		String Text;
+		String line;
+		std::ifstream File(Path, std::ios::binary);
+		if (File.is_open())
+		{
+			Unique_Bytes Bits;
+			File.seekg(0, File.end);
+			Bits.Resize(File.tellg());
+			File.seekg(0, File.beg);
+			File.read((char*)Bits.Data(), Bits.Size());
 
+
+			Out.SetData(Bits.AsView(),type);
+			Out.SetBytesPtr(std::move(Bits));
+
+			return true;
+		}
+	}
+	return false;
 }
 String ToString(YAML::Node& node,bool issub,size_t spaceing)
 {

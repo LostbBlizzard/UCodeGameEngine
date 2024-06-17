@@ -160,12 +160,22 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 
 	auto ModulesList = UCodeEditor::UEditorModules::GetModules();
 
+
+	ProjectData prj;
+	if (!ProjectData::ReadFromFile(Path(Setings._InputDir).parent_path().parent_path() / Path(ProjectData::FileName).native(), prj))
+	{
+		auto e = ExportErrors();
+		e.AddError(Setings._InputDir.parent_path().parent_path() / ProjectData::FileName,"unable open able to read and parse file");
+		return e;
+	}
+
 	ExportEditorContext Export;
 	Export.AssetPath = Setings._InputDir;
 	Export.TemporaryGlobalPath = Setings.TemporaryGlobalPath;
 	Export.TemporaryPlatfromPathSpecificPath = Platfromteppath;
 	Export.ChachInfo = &Chache;
 	Export.settings = std::move(Settings);
+	Export.projectinfo.type = prj._SerializeType;
 
 	fs::create_directories(Export.TemporaryGlobalPath);
 
@@ -199,13 +209,6 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 		return errors.value();
 	}
 
-	ProjectData prj;
-	if (!ProjectData::ReadFromFile(Path(Export.AssetPath).parent_path().parent_path() / Path(ProjectData::FileName).native(), prj))
-	{
-		auto e = ExportErrors();
-		e.AddError(Export.AssetPath.parent_path().parent_path() / ProjectData::FileName,"unable open able to read and parse file");
-		return e;
-	}
 
 
 	auto Uidmappath = UCode::GameFilesData::GetUCodeDir() / UCode::StandardAssetLoader::UIdMap::FileWithDot;

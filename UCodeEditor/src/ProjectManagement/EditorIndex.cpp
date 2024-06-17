@@ -135,7 +135,7 @@ bool EditorIndex::ToFile(const EditorIndex& Out, const Path& path)
 	}
 }
 
-void EditorIndex::UpdateFile(IndexFile& file, const Path& path, const String& relativepath,Vector<GetSubAssetData>& outsubassets)
+void EditorIndex::UpdateFile(IndexFile& file, const Path& path, const String& relativepath,const ProjectInfo& info,Vector<GetSubAssetData>& outsubassets)
 {
 	outsubassets.clear();
 
@@ -160,6 +160,7 @@ void EditorIndex::UpdateFile(IndexFile& file, const Path& path, const String& re
 
 			UEditorGetUIDContext context;
 			context.AssetPath = path;
+			context.ProjectSerializerType = info.ProjectSerializerType;
 			context._newuid = []() ->UID
 				{
 					return EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetNewUID();
