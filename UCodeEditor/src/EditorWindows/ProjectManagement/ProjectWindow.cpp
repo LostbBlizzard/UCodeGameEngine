@@ -134,9 +134,20 @@ void ProjectWindow::UpdateWindow()
 		UpdateValue = true;
 	}
 
-	if (ImGuIHelper::BoolEnumField("Modding Support", ProjectData2.ModingSupport))
+	ImGuIHelper::Text(StringView("Modding Support"));
+	ImGui::Indent();
 	{
-		UpdateValue = true;
+		if (ImGuIHelper::BoolEnumField("Allow Modding", ProjectData2.ModingSupport))
+		{
+			UpdateValue = true;
+		}
+
+
+		ImGui::BeginDisabled(!ProjectData2.ModingSupport);
+		{
+
+		}
+		ImGui::EndDisabled();
 	}
 
 	ImGuIHelper::Text(StringView("Prefabs"));

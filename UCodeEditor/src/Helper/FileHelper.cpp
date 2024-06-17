@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include <unistd.h>
 #endif
 
 namespace fs = std::filesystem;
@@ -341,22 +342,37 @@ void FileHelper::OpenPathinFiles(const Path&  Dir)
 
 Path FileHelper::Get_PersistentDataPath()
 {
-	UCode::AppData Data;
-	Data.CompanyName = "Lost blizzard";
-	Data.APPName = "UCodeEditor";
-	Path R;
-	#if UCodeGEDebug
-	R = UCode_VS_PROJECTPATH "PersistentData/";
-	#else
-	R = UCode::GameFiles::Get_PersistentDataPath(Data);
-	#endif // DEBUG
-	if (!fs::exists(R))
-	{
-		if (fs::create_directory(R)) {
+	#if UCodeLang_Platform_Windows
+    WCHAR my_documents[MAX_PATH];
+    HRESULT result = SHGetFolderPathW(0, CSIDL_PROFILE, 0, 0,my_documents);
 
-		}
-	}
-	return R;
+    if (SUCCEEDED(result)) 
+    {
+        Path DocPath = my_documents;
+    
+        DocPath /= ".ucodegameengine";
+
+        if (!std::filesystem::exists(DocPath)) {
+            std::filesystem::create_directory(DocPath);
+        }
+
+        return DocPath;
+    }
+    else
+    {
+        return "";
+    }
+    #elif UCodeLang_Platform_Posix
+    struct passwd *pw = getpwuid(getuid());
+
+    const char *homedir = pw->pw_dir;
+    Path DocPath = homedir;
+    DocPath /= ".ucodegameengine";
+    if (!std::filesystem::exists(DocPath)) {
+            std::filesystem::create_directory(DocPath);
+    }
+    return DocPath;
+	#endif
 }
 
 bool FileHelper::TrashFile(const Path& File)

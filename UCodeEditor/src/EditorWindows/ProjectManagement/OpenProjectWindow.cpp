@@ -48,7 +48,7 @@ OpenProjectWindow::~OpenProjectWindow()
 }
 Path GetProjectsPaths_Path()
 {
-    return FileHelper::Get_PersistentDataPath().native() + Path("Projects.data").native();
+    return FileHelper::Get_PersistentDataPath() / Path("Projects.data");
 }
 void OpenProjectWindow::SetUp()
 {
