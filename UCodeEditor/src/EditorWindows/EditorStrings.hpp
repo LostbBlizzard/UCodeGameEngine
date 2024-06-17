@@ -1,4 +1,3 @@
 #pragma once
-#define UnNamedEntity "[UnNamedEntity]"
-#define UnNamedEntityFolder "[UnNamedFolder]"
-#define UnNamedScene "[UnNamedScene]"
+#define UnNamedEntity "New Entity"
+#define UnNamedScene "New Scene"
