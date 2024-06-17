@@ -53,7 +53,7 @@ EntityAssetFile::EntityAssetFile()
 Optional<GetUIDInfo> EntityAssetFile::GetFileUID(UEditorGetUIDContext& context)
 {
 	UC::RawEntityData val;
-	if (UC::RawEntityData::ReadFromFile(context.AssetPath, val))
+	if (UC::RawEntityData::ReadFromFile(context.AssetPath, val,context.ProjectSerializerType))
 	{
 		GetUIDInfo r;
 		r._MainAssetID = val._UID;
@@ -104,7 +104,8 @@ Vector<Byte> EntityAssetFile::Liveing::GetAssetAsBytes(UC::Scene2dData::Entity_D
 }
 void EntityAssetFile::Liveing::Init(const UEditorAssetFileInitContext& Context)
 {
-	if (UC::RawEntityData::ReadFromFile(FileFullPath, _asset._Base))
+	auto& projectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->Get_ProjData();
+	if (UC::RawEntityData::ReadFromFile(FileFullPath, _asset._Base,projectdata._SerializeType))
 	{
 		_assetasbytes = GetAssetAsBytes(_asset._Base._Data);
 	}
@@ -613,8 +614,10 @@ void EntityAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContext&
 }
 void EntityAssetFile::Liveing::FileUpdated()
 {
+	auto& projectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->Get_ProjData();
+
 	UC::RawEntityData _val;
-	if (UC::RawEntityData::ReadFromFile(FileFullPath, _val))
+	if (UC::RawEntityData::ReadFromFile(FileFullPath, _val,projectdata._SerializeType))
 	{
 		hascalledloadthumnail = false;
 		if (_entity.Has_Value())

@@ -60,6 +60,8 @@ struct ExportFileContext
 {
 	Path Output;
 	Path ChashPath;
+	//Project Settings
+	USerializerType ProjectSerializerType;
 };
 
 struct ExportSetting
@@ -196,11 +198,16 @@ struct ExportSettings
 
 struct ExportEditorContext
 {
+	struct ProjectInfo
+	{
+		USerializerType type; 
+	};
 	Path AssetPath;
 	Path TemporaryGlobalPath;
 	Path TemporaryPlatfromPathSpecificPath;
 	ExportChacheFile* ChachInfo = nullptr;
 	ExportSettings settings;
+	ProjectInfo projectinfo;
 };
 struct ExportEditorReturn
 {
@@ -238,6 +245,7 @@ struct UEditorGetUIDContext
 {
 	Path AssetPath;
 
+	USerializerType ProjectSerializerType;
 	std::function<UID()> _newuid;
 
 	UID GetNewUID()

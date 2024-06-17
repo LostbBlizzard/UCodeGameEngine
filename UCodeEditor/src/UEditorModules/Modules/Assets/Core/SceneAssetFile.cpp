@@ -15,7 +15,7 @@ ExportFileRet ScencAssetFile::ExportFile(const Path& path, const ExportFileConte
 	std::filesystem::copy_file(path, Item.Output, std::filesystem::copy_options::overwrite_existing);
 
 	UCode::Scene2dData V;
-	UCode::Scene2dData::FromFile(V, path);
+	UCode::Scene2dData::FromFile(V, path,Item.ProjectSerializerType);
 
 	UCode::GameRunTime runtime;
 	auto scenc = UCode::Scene2dData::LoadScene(&runtime, V);
@@ -32,7 +32,7 @@ ExportFileRet ScencAssetFile::ExportFile(const Path& path, const ExportFileConte
 Optional<GetUIDInfo> ScencAssetFile::GetFileUID(UEditorGetUIDContext& context)
 {
 	UCode::Scene2dData V;
-	if (UCode::Scene2dData::FromFile(V, context.AssetPath))
+	if (UCode::Scene2dData::FromFile(V, context.AssetPath,context.ProjectSerializerType))
 	{
 		GetUIDInfo val;
 		val._MainAssetID = V._UID;
@@ -89,7 +89,7 @@ NullablePtr<UCode::Asset> ScencAssetFile::LiveingAsset::LoadAsset(const LoadAsse
 void ScencAssetFile::LiveingAsset::TryLoadAsset()
 {
 	auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
-	if (!UCode::Scene2dData::FromFile(file._Base, this->FileFullPath))
+	if (!UCode::Scene2dData::FromFile(file._Base, this->FileFullPath,runprojectdata->Get_ProjData()._SerializeType))
 	{
 		auto p = FileFullPath.generic_string();
 		auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());

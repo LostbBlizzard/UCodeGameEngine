@@ -38,7 +38,7 @@ public:
 	void PushData(USerializer& node);
 	static bool FromString(Scene2dData& out, UDeserializer& text);
 
-	static bool FromFile(Scene2dData& out, const Path& Path);
+	static bool FromFile(Scene2dData& out, const Path& Path,USerializerType Type);
 	static bool ToFile(const Path& path, Scene2dData& data, USerializerType Type);
 	inline static Entity* CloneEntity(Entity* entity)
 	{

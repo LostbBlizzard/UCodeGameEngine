@@ -183,10 +183,10 @@ Compoent *Scene2dData::LoadCompoent(Entity *Entity, const Compoent_Data &Item)
     }
     return nullptr;
 }
-bool Scene2dData::FromFile(Scene2dData &out, const Path &Path)
+bool Scene2dData::FromFile(Scene2dData &out, const Path &Path,USerializerType Type)
 {
     UDeserializer V;
-    bool A = UDeserializer::FromFile(Path, V);
+    bool A = UDeserializer::FromFile(Path, V,Type);
     if (A)
     {
         return FromString(out, V);
@@ -197,7 +197,7 @@ bool Scene2dData::ToFile(const Path &path, Scene2dData &data, USerializerType Ty
 {
     USerializer V(Type);
     data.PushData(V);
-    return V.ToFile(path);
+    return V.ToFile(path,false);
 }
 Entity *Scene2dData::CloneEntity(Entity *entity, RunTimeScene *Scene)
 {

@@ -1458,7 +1458,7 @@ void GameEditorWindow::ShowEntityData(SceneEditorTabData& data, UCode::Entity* I
                 if (file.has_value())
                 {
                     Path Path = runtimeprj->GetAssetsDir() / file.value().RelativePath;
-                    if (UC::RawEntityData::ReadFromFile(Path, Data))
+                    if (UC::RawEntityData::ReadFromFile(Path, Data,runtimeprj->Get_ProjData()._SerializeType))
                     {
                         UCode::Entity* e = Item->NativeAddEntity();
                         UCode::Scene2dData::LoadEntity(e, Data.Get_Value());

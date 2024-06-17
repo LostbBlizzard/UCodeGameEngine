@@ -242,7 +242,7 @@ void EditorAppCompoent::OnProjectLoaded()
             EditorIndex::IndexFile newfileIndex;
 
             Vector<GetSubAssetData> subassets;
-            EditorIndex::UpdateFile(newfileIndex, path, fileitem.RelativePath.generic_string(), subassets);
+            EditorIndex::UpdateFile(newfileIndex, path,fileitem.RelativePath.generic_string(),GetEditorProjectInfo(), subassets);
 
             for (auto& Item : subassets)
             {
@@ -265,7 +265,7 @@ void EditorAppCompoent::OnProjectLoaded()
             auto& oldv = old.value();
 
             Vector<GetSubAssetData> subassets;
-            EditorIndex::UpdateFile(oldv, path, r, subassets);
+            EditorIndex::UpdateFile(oldv, path, r,GetEditorProjectInfo(), subassets);
 
             for (auto& Item : subassets)
             {
@@ -1026,15 +1026,16 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
 
     auto Modules = UEditorModules::GetModules();
 
+    auto app = EditorAppCompoent::GetCurrentEditorAppCompoent();
     if (Type == ChangedFileType::FileAdded)
     {
-        auto AssetDir = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetAssetsDir();
+        auto AssetDir = app->Get_RunTimeProjectData()->GetAssetsDir();
         auto fullpath = AssetDir.native() + path.native();
-        auto& Indexlist = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->Get_AssetIndex();
+        auto& Indexlist = app->Get_RunTimeProjectData()->Get_AssetIndex();
 
         EditorIndex::IndexFile Index;
         Vector<GetSubAssetData> subassets;
-        EditorIndex::UpdateFile(Index, fullpath, path.generic_string(), subassets);
+        EditorIndex::UpdateFile(Index, fullpath, path.generic_string(),app->GetEditorProjectInfo(), subassets);
 
         for (auto& Item : subassets)
         {
@@ -1049,7 +1050,7 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
     }
     else if (Type == ChangedFileType::FileRemoved)
     {
-        auto AssetDir = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetAssetsDir();
+        auto AssetDir = app->Get_RunTimeProjectData()->GetAssetsDir();
         auto relpath = path.generic_string();
         auto fullpath = AssetDir.native() + path.native();
 
@@ -1068,7 +1069,7 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
         }
 
 
-        EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->Get_AssetIndex().RemoveIndexFilesRelativePath(relpath);
+        app->Get_RunTimeProjectData()->Get_AssetIndex().RemoveIndexFilesRelativePath(relpath);
     }
 
     if (Info.Index)
@@ -1081,9 +1082,9 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
 
         if (Type == ChangedFileType::FileUpdated)
         {
-            auto& Files = EditorAppCompoent::GetCurrentEditorAppCompoent()->GetPrjectFiles();
-            auto AssetDir = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData()->GetAssetsDir();
-            auto runtime = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+            auto& Files = app->GetPrjectFiles();
+            auto AssetDir = app->Get_RunTimeProjectData()->GetAssetsDir();
+            auto runtime = app->Get_RunTimeProjectData();
 
             for (auto& Item : Info.Ptr->GetAssetData())
             {
@@ -1105,7 +1106,7 @@ void EditorAppCompoent::OnFileUpdated(void* This, const Path& path, ChangedFileT
             auto v = runtime->Get_AssetIndex().FindFileRelativeAssetName(vstr);
 
             Vector<GetSubAssetData> subassets;
-            EditorIndex::UpdateFile(v.value(), AssetDir / path, vstr, subassets);
+            EditorIndex::UpdateFile(v.value(), AssetDir / path, vstr,app->GetEditorProjectInfo(), subassets);
 
             for (auto& Item : subassets)
             {
@@ -1146,6 +1147,14 @@ void EditorAppCompoent::Redo()
         auto Undo = _Redos.back();  _Redos.pop_back();
         Undo._RedoCallBack(Undo);
     }
+}
+EditorIndex::ProjectInfo EditorAppCompoent::GetEditorProjectInfo()
+{
+    auto& runtimeprojectdata = Get_RunTimeProjectData()->Get_ProjData();
+    EditorIndex::ProjectInfo r;
+    r.ProjectSerializerType = runtimeprojectdata._SerializeType;
+
+    return r;
 }
 void  EditorAppCompoent::EndDockSpace()
 {

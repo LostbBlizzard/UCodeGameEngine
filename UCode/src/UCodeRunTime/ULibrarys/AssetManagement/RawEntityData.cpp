@@ -21,17 +21,17 @@ bool RawEntityData::WriteToFile(const Path&  Path, const RawEntityData& Data,USe
 
 		ToBits(output, Data);
 		//
-		output.ToStream(File, true);
+		output.ToStream(File, false);
 
 		File.close();
 		return true;
 	}
 	return false;
 }
-bool RawEntityData::ReadFromFile(const Path& Path, RawEntityData& Data)
+bool RawEntityData::ReadFromFile(const Path& Path, RawEntityData& Data,USerializerType type)
 {
 	UDeserializer input;
-	if (UDeserializer::FromFile(Path, input)) 
+	if (UDeserializer::FromFile(Path, input,type)) 
 	{
 		FromBits(input, Data);
 

@@ -79,7 +79,7 @@ size_t GetPageSizeE()
 
 Result<ExportEditorReturn, ExportErrors> UEditorModule::ExportEditor(ExportEditorContext& Context)
 {
-
+USerializerType
 	namespace fs = std::filesystem;
 
 	auto Buffer = GetAssetData();
@@ -110,6 +110,8 @@ Result<ExportEditorReturn, ExportErrors> UEditorModule::ExportEditor(ExportEdito
 				ExportFileContext Exfile;
 				Exfile.ChashPath = Context.TemporaryGlobalPath / "Assets" / Relat;
 				Exfile.Output = Exfile.ChashPath.native();
+				Exfile.ProjectSerializerType = Context.projectinfo.type;
+
 
 				fs::create_directories(Exfile.Output.parent_path());
 

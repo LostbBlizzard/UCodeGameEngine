@@ -249,6 +249,8 @@ private:
 		Next++;
 		return r;
 	}
+
+	EditorIndex::ProjectInfo GetEditorProjectInfo();
 };
 
 EditorEnd

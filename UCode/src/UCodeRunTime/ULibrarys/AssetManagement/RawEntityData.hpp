@@ -14,7 +14,7 @@ public:
 	RawEntityData(const UID& id,const UCode::Scene2dData::Entity_Data& Entity);
 
 	UCodeLangNoDiscard static bool WriteToFile(const Path&  Path,const RawEntityData& Data,USerializerType Type);
-	UCodeLangNoDiscard static bool ReadFromFile(const Path&  Path,RawEntityData& Data);
+	UCodeLangNoDiscard static bool ReadFromFile(const Path&  Path,RawEntityData& Data,USerializerType Type);
 	static void ToBits(USerializer& output, const RawEntityData& Data);
 	static void FromBits(UDeserializer& input, RawEntityData& Data);
 
