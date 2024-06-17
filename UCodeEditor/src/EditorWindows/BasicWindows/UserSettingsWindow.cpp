@@ -60,24 +60,121 @@ bool DrawKeyBind(KeyBinding& key)
 	bool r = ImGui::BeginCombo("##keybind", name.c_str(), ImGuiComboFlags_NoArrowButton);
 	if (r)
 	{
+		auto val = ImGui::GetContentRegionAvail().x;
+		auto framey = ImGui::GetFrameHeight();
+		auto buttionx = (val / 2) - ImGui::GetStyle().ItemSpacing.x;
+
 		if (state.IsListening)
 		{
-			if (ImGui::Button("Stop Listening"))
+					static Array< ImGuiKey, 9> skiplist = 
+					{
+						ImGuiKey::ImGuiKey_MouseLeft,
+						ImGuiKey::ImGuiKey_MouseRight,
+						ImGuiKey::ImGuiKey_MouseMiddle,
+						ImGuiKey::ImGuiKey_LeftAlt,
+						ImGuiKey::ImGuiKey_LeftShift,
+						ImGuiKey::ImGuiKey_LeftCtrl,
+						ImGuiKey::ImGuiKey_RightCtrl,
+						ImGuiKey::ImGuiKey_RightShift,
+						ImGuiKey::ImGuiKey_RightAlt,
+					};
+
+			if (ImGui::Button("Stop Listening",{buttionx,framey}))
 			{
 				state.IsListening = false;
 				updated = true;
 
 			}
+			String currentkey = "";
 
-			for (size_t i = 0; i < ImGuiKey::ImGuiKey_COUNT; i++)
+			if (ImGui::IsKeyDown(ImGuiMod_Ctrl)){currentkey += "Ctrl+";}
+			if (ImGui::IsKeyDown(ImGuiMod_Alt)){currentkey += "Alt+";}
+			if (ImGui::IsKeyDown(ImGuiMod_Shift)){currentkey += "Shift+";}
+			{
+				for (size_t i = ImGuiKey_NamedKey_BEGIN; i < ImGuiKey_NamedKey_END; i++)
+				{
+					auto imkey = (ImGuiKey)i;
+
+					if (ImGui::IsKeyDown(imkey))
+					{
+						auto val = ImGui::GetKeyData(imkey);
+
+						{
+							auto val = (int)imkey;
+							val &= ~ImGuiMod_Mask_;
+							imkey = (ImGuiKey)val;
+						}
+
+						bool skip = false;
+						for (auto& Item : skiplist)
+						{
+							if (imkey == Item)
+							{
+								skip = true;
+								break;
+							}
+						}
+						if (skip)
+						{
+							continue;
+						}
+
+						KeyBinding bind;
+						bind.key = UCode::RenderAPI::ImguiKeyToUCodeKey(imkey);
+
+						if (bind.key == UCode::InputKey::Null) { continue; }
+						currentkey += bind.ToString();
+						break;
+					}
+				}
+			}
+
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(buttionx);
+			ImGuIHelper::Text((String)currentkey);
+
+			for (size_t i = ImGuiKey_NamedKey_BEGIN; i < ImGuiKey_NamedKey_END; i++)
 			{
 				auto imkey = (ImGuiKey)i;
 
-				if (ImGui::IsKeyDown(imkey))
+				if (ImGui::IsKeyReleased(imkey))
 				{
+					auto val = ImGui::GetKeyData(imkey);
+
+					{
+						auto val = (int)imkey;
+						val &= ~ImGuiMod_Mask_;
+						imkey = (ImGuiKey)val;
+					}
+
+					bool skip = false;
+					for (auto& Item : skiplist)
+					{
+						if (imkey == Item)
+						{
+							skip = true;
+							break;
+						}
+					}
+					if (skip)
+					{
+						continue;
+					}
+
 					key.key = UCode::RenderAPI::ImguiKeyToUCodeKey(imkey);
+
+					if (key.key == UCode::InputKey::Null)
+					{
+						continue;
+					}
+
+					key.IsCtrl = ImGui::IsKeyDown(ImGuiMod_Ctrl);
+					key.IsAlt = ImGui::IsKeyDown(ImGuiMod_Alt);
+					key.IsShift = ImGui::IsKeyDown(ImGuiMod_Shift);
+
 					state.IsListening = false;
 					updated = true;
+					break;
 				}
 			}
 		
@@ -85,12 +182,15 @@ bool DrawKeyBind(KeyBinding& key)
 		}
 		else
 		{
-			if (ImGui::Button("Start Listening"))
+
+			if (ImGui::Button("Start Listening",{buttionx,framey}))
 			{
 				state.IsListening = true;
 			}
-			if (ImGui::Button("UnMapKey"))
+			ImGui::SameLine();
+			if (ImGui::Button("Unmap Key",{buttionx,framey}))
 			{
+				key = KeyBinding();
 				key.key = UCode::InputKey::Null;
 				updated = true;
 			}
@@ -123,20 +223,20 @@ void UserSettingsWindow::UpdateWindow()
 				String str = "Application Verion : " + Version::CurrentUCodeVersion().ToString();
 				ImGuIHelper::Text(str);
 			}
-			
+
 			{
 				String str = "Application Build : ";
-				#if UCodeGEWindows
+#if UCodeGEWindows
 				str += "Windows";
-				#endif
-				
-				#if UCodeGELinux
+#endif
+
+#if UCodeGELinux
 				str += "Linux";
-				#endif
-				
-				#if UCodeGEMacOS
+#endif
+
+#if UCodeGEMacOS
 				str += "MacOS";
-				#endif
+#endif
 
 				str += "";
 
@@ -202,7 +302,7 @@ void UserSettingsWindow::UpdateWindow()
 			}
 
 			ImGui::Separator();
-		
+
 			if (ImGui::Button("Show UserSetting.yaml in Files"))
 			{
 				FileHelper::OpenPathinFiles(std::filesystem::absolute(UserSettings::GetPath().parent_path()));
@@ -212,24 +312,36 @@ void UserSettingsWindow::UpdateWindow()
 
 			ImGui::EndTabItem();
 
-			ImGuiHelper_UPlugin::DrawUPluginFieldVector("Active Global Plugins",Settings.GloballyActivePlugins);
+			ImGuiHelper_UPlugin::DrawUPluginFieldVector("Active Global Plugins", Settings.GloballyActivePlugins);
 
 
 			ImGuIHelper::Text(StringView("Key Binds"));
 			static String tep;
 
 			ImGui::SameLine();
-			if (ImGui::Button("Reset All KeyBinds"))
 			{
-				for (size_t i = 0; i < Settings.KeyBinds.size(); i++)
-				{
-					auto& data = UserSettings::KeyBindDataList[i];
-					auto& key = Settings.KeyBinds[i];
+				auto val = ImGui::GetContentRegionAvail().x;
 
-					key = data.Default;
+				auto buttionx = (val / 2) - ImGui::GetStyle().ItemSpacing.x;
+				auto buttiony = ImGui::GetFrameHeight();
+				if (ImGui::Button("Reset All KeyBinds", { buttionx,buttiony }))
+				{
+					for (size_t i = 0; i < Settings.KeyBinds.size(); i++)
+					{
+						auto& data = UserSettings::KeyBindDataList[i];
+						auto& key = Settings.KeyBinds[i];
+
+						key = data.Default;
+					}
+				}
+
+				ImGui::SameLine();
+
+				if (ImGui::Button("Set to Vim KeyBinds", { buttionx,buttiony }))
+				{
+					Settings.SetAsVimKeyBinds();
 				}
 			}
-
 			bool Popuplock = false;
 
 			ImGui::Indent();

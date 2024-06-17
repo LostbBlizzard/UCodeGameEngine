@@ -43,7 +43,13 @@ enum class KeyBindList : KeyBindList_t
 };
 struct KeyBinding
 {
+	struct Ctrl {};
+	struct Alt {};
+
 	UCode::InputKey key = UCode::InputKey::Escape;
+	bool IsCtrl = false;
+	bool IsAlt = false;
+	bool IsShift = false;
 	KeyBinding()
 	{
 
@@ -52,6 +58,22 @@ struct KeyBinding
 	KeyBinding(UCode::InputKey key)
 	{
 		this->key = key;
+	}
+	KeyBinding(UCode::InputKey key, Ctrl mod)
+	{
+		this->key = key;
+		IsCtrl = true;
+	}
+	KeyBinding(UCode::InputKey key, Alt mod)
+	{
+		this->key = key;
+		IsAlt = true;
+	}
+	KeyBinding(UCode::InputKey key,Ctrl mod, Alt mod2)
+	{
+		this->key = key;
+		IsCtrl = true;
+		IsAlt = true;
 	}
 
 	String ToString() const;
@@ -87,6 +109,8 @@ public:
 	static inline const char* ColumnArg = "{Column} ";
 	static UserSettings& GetSettings();
 	static void SaveSettings();
+	void ResetKeyBindsToDefault();
+	void SetAsVimKeyBinds();
 
 	static void SetCopyBuffer(const String& str);
 	static String GetCopyBuffer();
