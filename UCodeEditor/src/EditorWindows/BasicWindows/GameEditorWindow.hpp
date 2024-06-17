@@ -94,8 +94,8 @@ private:
 	Optional<int> _UCodeLangReloadKey;	
 	
 	Optional<UID> _UseingSceneAsset;
-	UCode::Scene2dData* _SceneData = nullptr;
-	UCode::RunTimeScene* _SceneDataAsRunTiime = nullptr;
+	Unique_ptr<UCode::Scene2dData> _SceneData;
+	UCode::RunTimeScenePtr _SceneDataAsRunTime;
 	ToolBarType _ToolBar = ToolBarType::Select;
 	
 	ImVec2 ImgeVecPos;
