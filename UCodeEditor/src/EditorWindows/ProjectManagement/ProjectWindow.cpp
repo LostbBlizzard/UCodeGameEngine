@@ -149,6 +149,7 @@ void ProjectWindow::UpdateWindow()
 		}
 		ImGui::EndDisabled();
 	}
+	ImGui::Unindent();
 
 	ImGuIHelper::Text(StringView("Prefabs"));
 	ImGui::Indent();
