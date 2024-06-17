@@ -1,5 +1,5 @@
 #include "UColorAsset.hpp"
-
+#include "Editor/EditorAppCompoent.hpp"
 EditorStart
 UColorAssetFile::UColorAssetFile()
 {
@@ -14,7 +14,8 @@ UColorAssetFile::LiveingColor::LiveingColor()
 
 void UColorAssetFile::LiveingColor::Init(const UEditorAssetFileInitContext& Context)
 {
-	ColorData::ReadFromFile(FileFullPath, _ColorInfoFromFile);
+	auto runinfo = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+	ColorData::ReadFromFile(FileFullPath, _ColorInfoFromFile,runinfo->Get_ProjData()._SerializeType);
 
 	UCode::Color32 Color32 = (UCode::Color32)_ColorInfoFromFile._Color;
 	_Texture = Unique_ptr<UCode::Texture>(new UCode::Texture(1, 1, &Color32));
@@ -22,7 +23,8 @@ void UColorAssetFile::LiveingColor::Init(const UEditorAssetFileInitContext& Cont
 
 void UColorAssetFile::LiveingColor::SaveFile(const UEditorAssetFileSaveFileContext& Context)
 {
-	ColorData::WriteToFile(FileFullPath, _ColorInfoFromFile, UCode::USerializerType::Readable);
+	auto runinfo = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+	ColorData::WriteToFile(FileFullPath, _ColorInfoFromFile,runinfo->Get_ProjData()._SerializeType);
 
 }
 

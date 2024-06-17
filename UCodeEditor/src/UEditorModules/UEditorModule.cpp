@@ -79,7 +79,6 @@ size_t GetPageSizeE()
 
 Result<ExportEditorReturn, ExportErrors> UEditorModule::ExportEditor(ExportEditorContext& Context)
 {
-USerializerType
 	namespace fs = std::filesystem;
 
 	auto Buffer = GetAssetData();

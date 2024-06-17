@@ -13,7 +13,7 @@ bool ColorData::WriteToFile(const  Path& Path, const ColorData& Data, USerialize
 		ToBits(output, Data);
 
 		//
-		output.ToStream(File, true);
+		output.ToStream(File, false);
 
 		File.close();
 		return true;
@@ -26,10 +26,10 @@ void ColorData::ToBits(UCodeEditor::USerializer& output, const UCodeEditor::Colo
 	output.Write("_Color", Data._Color);
 }
 
- bool ColorData::ReadFromFile(const  Path& Path, ColorData& Data)
+ bool ColorData::ReadFromFile(const  Path& Path, ColorData& Data, USerializerType type)
 {
 	 UDeserializer input;
-	 if (!UDeserializer::FromFile(Path, input))
+	 if (!UDeserializer::FromFile(Path, input,type))
 	 {
 		 return false;
 	 }

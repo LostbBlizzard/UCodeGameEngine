@@ -39,10 +39,10 @@ bool ScirptableObjectData::FromString(ScirptableObjectData& out, UDeserializer& 
     return true;
 }
 
-bool ScirptableObjectData::FromFile(ScirptableObjectData& out, const Path& Path)
+bool ScirptableObjectData::FromFile(ScirptableObjectData& out, const Path& Path, USerializerType Type)
 {
     UDeserializer V;
-    bool A = UDeserializer::FromFile(Path, V);
+    bool A = UDeserializer::FromFile(Path, V,Type);
     if (A)
     {
         return FromString(out, V);
@@ -54,7 +54,7 @@ bool ScirptableObjectData::ToFile(const Path& path, ScirptableObjectData& data, 
 {
     USerializer V(Type);
     data.PushData(V);
-    return V.ToFile(path);
+    return V.ToFile(path,false);
 }
 
 void ScirptableObject::LoadScript(const UCodeLang::AssemblyNode* scriptnode)

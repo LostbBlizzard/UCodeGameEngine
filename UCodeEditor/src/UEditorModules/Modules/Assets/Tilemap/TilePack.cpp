@@ -24,7 +24,7 @@ TilePackAssetFile::Liveing::~Liveing()
 void TilePackAssetFile::Liveing::Init(const UEditorAssetFileInitContext& Context)
 {
 	auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
-	if (!TileDataPack::FromFile(_Data._Base, this->FileFullPath))
+	if (!TileDataPack::FromFile(_Data._Base, this->FileFullPath,runprojectdata->Get_ProjData()._SerializeType))
 	{
 		auto p = FileFullPath.generic_string();
 		auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
@@ -840,11 +840,12 @@ NullablePtr<UCode::Asset> TilePackAssetFile::Liveing::LoadAsset(const LoadAssetC
 	}
 	return {};
 }
-void TilePackAssetFile::Liveing::FileUpdated() 
+void TilePackAssetFile::Liveing::FileUpdated()
 {
-	if (!TileDataPack::FromFile(_Data._Base, this->FileFullPath))
+	auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+
+	if (!TileDataPack::FromFile(_Data._Base, this->FileFullPath, runprojectdata->Get_ProjData()._SerializeType))
 	{
-		auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 
 		auto p = FileFullPath.generic_string();
 		auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
@@ -1014,7 +1015,7 @@ ExportFileRet TilePackAssetFile::ExportFile(const Path& path, const ExportFileCo
 Optional<GetUIDInfo> TilePackAssetFile::GetFileUID(UEditorGetUIDContext& context)
 {
 	TileDataPack palette;
-	if (TileDataPack::FromFile(palette, context.AssetPath))
+	if (TileDataPack::FromFile(palette, context.AssetPath,context.ProjectSerializerType))
 	{
 		GetUIDInfo info;
 		info._MainAssetID = palette._UID;

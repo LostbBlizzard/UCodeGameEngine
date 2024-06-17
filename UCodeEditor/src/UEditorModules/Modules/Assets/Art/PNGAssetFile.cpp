@@ -166,7 +166,7 @@ void PNGAssetFile::LiveingPng::SaveFile(const UEditorAssetFileSaveFileContext& C
 	{
 		auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 
-		if (tofile(this->FileMetaFullPath.value(), setting))
+		if (tofile(this->FileMetaFullPath.value(), setting,runprojectdata->Get_ProjData()._SerializeType))
 		{
 			auto& index = runprojectdata->Get_AssetIndex();
 
@@ -192,10 +192,10 @@ void PNGAssetFile::LiveingPng::SaveFile(const UEditorAssetFileSaveFileContext& C
 	}
 }
 
-bool PNGAssetFile::LiveingPng::fromfile(const Path& settings, TextureSettings& Out)
+bool PNGAssetFile::LiveingPng::fromfile(const Path& settings, TextureSettings& Out,USerializerType type)
 {
 	UDeserializer serializer;
-	if (UDeserializer::FromFile(settings, serializer))
+	if (UDeserializer::FromFile(settings, serializer,type))
 	{
 		serializer.ReadType("_UID", Out.uid);
 		serializer.ReadType("_ReadAndWrite", Out.ReadAndWrite);
@@ -212,9 +212,9 @@ bool PNGAssetFile::LiveingPng::fromfile(const Path& settings, TextureSettings& O
 	return false;
 }
 
-bool PNGAssetFile::LiveingPng::tofile(const Path& settings, const TextureSettings& in)
+bool PNGAssetFile::LiveingPng::tofile(const Path& settings, const TextureSettings& in,USerializerType type)
 {
-	USerializer serializer;
+	USerializer serializer(type);
 
 	serializer.Write("_UID", in.uid);
 	serializer.Write("_ReadAndWrite", in.ReadAndWrite);
@@ -227,7 +227,7 @@ bool PNGAssetFile::LiveingPng::tofile(const Path& settings, const TextureSetting
 
 	serializer.Write("_Sprites", in.sprites);
 
-	return serializer.ToFile(settings);
+	return serializer.ToFile(settings, false);
 }
 
 void PNGAssetFile::LiveingPng::RemoveSubAssets(const Path& AssetDir, EditorIndex& index)
@@ -278,14 +278,14 @@ inline void PNGAssetFile::LiveingPng::SetupTexture(UCode::Texture* tex)
 	tex->PixelsPerUnit = setting.pixelperunit;
 }
 
-inline NullablePtr<UC::Asset> PNGAssetFile::LiveingPng::LoadAsset(const LoadAssetContext& Item)
+NullablePtr<UC::Asset> PNGAssetFile::LiveingPng::LoadAsset(const LoadAssetContext& Item)
 {
 	if (!asset.has_value())
 	{
 		auto runinfo = UCodeEditor::EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 		if (std::filesystem::exists(this->FileMetaFullPath.value()))
 		{
-			if (!fromfile(FileMetaFullPath.value(), setting))
+			if (!fromfile(FileMetaFullPath.value(), setting,runinfo->Get_ProjData()._SerializeType))
 			{
 				auto relfilepath = FileHelper::ToRelativePath(runinfo->GetAssetsDir(), this->FileMetaFullPath.value());
 				UCodeGEError("unable to load .meta file data " << relfilepath);
@@ -331,7 +331,7 @@ inline NullablePtr<UC::Asset> PNGAssetFile::LiveingPng::LoadAsset(const LoadAsse
 					assetindex._Files.push_back(std::move(file));
 				}
 				setting.sprites.push_back(std::move(value));
-				tofile(FileMetaFullPath.value(), setting);
+				tofile(FileMetaFullPath.value(), setting,runinfo->Get_ProjData()._SerializeType);
 			}
 		}
 
@@ -980,7 +980,7 @@ ExportFileRet PNGAssetFile::ExportFile(const Path& path, const ExportFileContext
 	Path metapath = path.native() + Path(UEditorAssetFileData::DefaultMetaFileExtWithDot).native();
 
 	TextureSettings settings;
-	if (!LiveingPng::fromfile(metapath, settings))
+	if (!LiveingPng::fromfile(metapath, settings,Item.ProjectSerializerType))
 	{
 		ExportFileRet r;
 		ExportError error;
@@ -1058,7 +1058,7 @@ Optional<GetUIDInfo> PNGAssetFile::GetFileUID(UEditorGetUIDContext& context)
 	TextureSettings setting;
 	Path metapath = context.AssetPath.native() + Path(UEditorAssetFileData::DefaultMetaFileExtWithDot).native();
 
-	if (LiveingPng::fromfile(metapath, setting))
+	if (LiveingPng::fromfile(metapath, setting,context.ProjectSerializerType))
 	{
 		GetUIDInfo val;
 		val._MainAssetID = setting.uid;
@@ -1081,7 +1081,7 @@ Optional<GetUIDInfo> PNGAssetFile::GetFileUID(UEditorGetUIDContext& context)
 		auto newid = context.GetNewUID();
 		setting.uid = newid;
 
-		LiveingPng::tofile(metapath, setting);
+		LiveingPng::tofile(metapath, setting,context.ProjectSerializerType);
 
 		val._MainAssetID = newid;
 		return val;

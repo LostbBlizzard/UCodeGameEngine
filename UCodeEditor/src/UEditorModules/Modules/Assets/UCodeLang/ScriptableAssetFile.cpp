@@ -21,7 +21,10 @@ ScriptableAssetFile::Liveing::~Liveing()
 }
 void ScriptableAssetFile::Liveing::Init(const UEditorAssetFileInitContext& Context)
 {
-	if (!UC::ScirptableObjectData::FromFile(_Data, FileFullPath))
+	auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+
+
+	if (!UC::ScirptableObjectData::FromFile(_Data, FileFullPath,runprojectdata ->Get_ProjData()._SerializeType))
 	{
 		UCodeGEError("Opening Asset for " << FileFullPath << " Failed");
 	}
@@ -75,7 +78,9 @@ void ScriptableAssetFile::Liveing::FileUpdated()
 		return;
 	}
 
-	if (!UC::ScirptableObjectData::FromFile(_Data, FileFullPath))
+	auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+
+	if (!UC::ScirptableObjectData::FromFile(_Data, FileFullPath,runprojectdata ->Get_ProjData()._SerializeType))
 	{
 		UCodeGEError("Opening Asset for " << FileFullPath << " Failed");
 	}
@@ -190,7 +195,7 @@ ExportFileRet ScriptableAssetFile::ExportFile(const Path& path, const ExportFile
 	std::filesystem::copy_file(path, Item.Output, std::filesystem::copy_options::overwrite_existing);
 
 	UCode::ScirptableObjectData V;
-	UCode::ScirptableObjectData::FromFile(V, path);
+	UCode::ScirptableObjectData::FromFile(V, path,Item.ProjectSerializerType);
 
 	UC::ScirptableObject _Object;
 	_Object.LoadScript(V);
@@ -208,7 +213,7 @@ Optional<GetUIDInfo> ScriptableAssetFile::GetFileUID(UEditorGetUIDContext& conte
 {
 	UC::ScirptableObjectData setting;
 
-	if (UC::ScirptableObjectData::FromFile(setting, context.AssetPath))
+	if (UC::ScirptableObjectData::FromFile(setting, context.AssetPath,context.ProjectSerializerType))
 	{
 		GetUIDInfo val;
 		val._MainAssetID = setting._UID;

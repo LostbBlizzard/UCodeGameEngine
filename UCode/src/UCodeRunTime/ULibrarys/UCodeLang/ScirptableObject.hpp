@@ -9,7 +9,7 @@ struct ScirptableObjectData
 	void PushData(USerializer& node) const;
 	static bool FromString(ScirptableObjectData& out, UDeserializer& text);
 
-	static bool FromFile(ScirptableObjectData& out, const Path& Path);
+	static bool FromFile(ScirptableObjectData& out, const Path& Path, USerializerType Type);
 	static bool ToFile(const Path& path, ScirptableObjectData& data, USerializerType Type);
 
 	UID _UID;
