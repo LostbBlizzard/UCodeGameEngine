@@ -14,7 +14,7 @@ TilePaletteAssetFile::Liveing::~Liveing()
 void TilePaletteAssetFile::Liveing::Init(const UEditorAssetFileInitContext& Context)
 {
 	auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
-	if (!TilePalette::FromFile(_Asset._Base, this->FileFullPath))
+	if (!TilePalette::FromFile(_Asset._Base, this->FileFullPath,runprojectdata ->Get_ProjData()._SerializeType))
 	{
 
 		auto p = FileFullPath.generic_string();
@@ -81,9 +81,11 @@ bool TilePaletteAssetFile::Liveing::ShouldBeUnloaded(const UEditorAssetShouldUnl
 void TilePaletteAssetFile::Liveing::FileUpdated()
 {
 	TilePalette palette;
-	if (!TilePalette::FromFile(palette, this->FileFullPath))
+
+	auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
+
+	if (!TilePalette::FromFile(palette, this->FileFullPath,runprojectdata->Get_ProjData()._SerializeType))
 	{
-		auto runprojectdata = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_RunTimeProjectData();
 
 		auto p = FileFullPath.generic_string();
 		auto relpath = p.substr(runprojectdata->GetAssetsDir().generic_string().size());
@@ -124,7 +126,7 @@ ExportFileRet TilePaletteAssetFile::ExportFile(const Path& path, const ExportFil
 Optional<GetUIDInfo> TilePaletteAssetFile::GetFileUID(UEditorGetUIDContext& context)
 {
 	TilePalette palette;
-	if (TilePalette::FromFile(palette, context.AssetPath))
+	if (TilePalette::FromFile(palette, context.AssetPath,context.ProjectSerializerType))
 	{
 		GetUIDInfo info;
 		info._MainAssetID = palette._UID;

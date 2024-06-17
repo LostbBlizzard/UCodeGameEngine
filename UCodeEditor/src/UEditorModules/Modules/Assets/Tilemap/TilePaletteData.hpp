@@ -52,7 +52,7 @@ struct TileData : UC::TileAsset
 	void PushData(USerializer& node) const;
 	static bool FromString(TileData& out, UDeserializer& text);
 
-	static bool FromFile(TileData& out, const Path& Path);
+	static bool FromFile(TileData& out, const Path& Path,USerializerType Type);
 	static bool ToFile(const Path& path,const TileData& data, USerializerType Type);
 };
 EditorEnd
@@ -103,7 +103,7 @@ struct TileDataPack
 	void PushData(USerializer& node) const;
 	static bool FromString(TileDataPack& out, UDeserializer& text);
 
-	static bool FromFile(TileDataPack& out, const Path& Path);
+	static bool FromFile(TileDataPack& out, const Path& Path, USerializerType Type);
 	static bool ToFile(const Path& path,const TileDataPack& data, USerializerType Type);
 };
 
@@ -125,7 +125,7 @@ struct TilePalette
 	void PushData(USerializer& node) const;
 	static bool FromString(TilePalette& out, UDeserializer& text);
 
-	static bool FromFile(TilePalette& out, const Path& Path);
+	static bool FromFile(TilePalette& out, const Path& Path, USerializerType Type);
 	static bool ToFile(const Path& path,const TilePalette& data, USerializerType Type);
 };
 EditorEnd

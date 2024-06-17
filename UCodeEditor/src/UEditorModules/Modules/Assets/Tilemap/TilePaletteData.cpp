@@ -11,10 +11,10 @@ bool TilePalette::FromString(TilePalette& out, UDeserializer& text)
 	text.ReadType("_List", out._List);
 	return true;
 }
-bool TilePalette::FromFile(TilePalette& out, const Path& Path)
+bool TilePalette::FromFile(TilePalette& out, const Path& Path, USerializerType Type)
 {
 	UDeserializer V;
-	bool A = UDeserializer::FromFile(Path, V);
+	bool A = UDeserializer::FromFile(Path, V,Type);
 	if (A)
 	{
 		return FromString(out, V);
@@ -25,7 +25,7 @@ bool TilePalette::ToFile(const Path& path, const TilePalette& data, USerializerT
 {
 	USerializer V(Type);
 	data.PushData(V);
-	return V.ToFile(path);
+	return V.ToFile(path,false);
 }
 
 void TileData::PushData(USerializer& node) const
@@ -39,10 +39,10 @@ bool TileData::FromString(TileData& out, UDeserializer& text)
 	out.Uid = out.Uid;
 	return UC::TileData::FromString(out._Base, text);
 }
-bool TileData::FromFile(TileData& out, const Path& Path)
+bool TileData::FromFile(TileData& out, const Path& Path,USerializerType Type)
 {
 	UDeserializer V;
-	bool A = UDeserializer::FromFile(Path, V);
+	bool A = UDeserializer::FromFile(Path, V,Type);
 	if (A)
 	{
 		return FromString(out, V);
@@ -53,7 +53,7 @@ bool TileData::ToFile(const Path& path, const TileData& data, USerializerType Ty
 {
 	USerializer V(Type);
 	data.PushData(V);
-	return V.ToFile(path);
+	return V.ToFile(path,false);
 }
 
 
@@ -72,10 +72,10 @@ bool TileDataPack::FromString(TileDataPack& out, UDeserializer& text)
 	return true;
 }
 
-bool TileDataPack::FromFile(TileDataPack& out, const Path& Path)
+bool TileDataPack::FromFile(TileDataPack& out, const Path& Path, USerializerType Type)
 {
 	UDeserializer V;
-	bool A = UDeserializer::FromFile(Path, V);
+	bool A = UDeserializer::FromFile(Path, V,Type);
 	if (A)
 	{
 		return FromString(out, V);
@@ -87,7 +87,7 @@ bool TileDataPack::ToFile(const Path& path, const TileDataPack& data, USerialize
 {
 	USerializer V(Type);
 	data.PushData(V);
-	return V.ToFile(path);
+	return V.ToFile(path,false);
 }
 EditorEnd
 

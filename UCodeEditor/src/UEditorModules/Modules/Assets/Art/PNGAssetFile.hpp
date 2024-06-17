@@ -86,8 +86,8 @@ public:
 		void Init(const UEditorAssetFileInitContext& Context) override;
 		void SaveFile(const UEditorAssetFileSaveFileContext& Context) override;
 
-		static  bool fromfile(const Path& settings, TextureSettings& Out);
-		static  bool tofile(const Path& settings, const TextureSettings& in);
+		static  bool fromfile(const Path& settings, TextureSettings& Out,USerializerType type);
+		static  bool tofile(const Path& settings, const TextureSettings& in,USerializerType type);
 		void RemoveSubAssets(const Path& AssetDir, EditorIndex& index);
 
 

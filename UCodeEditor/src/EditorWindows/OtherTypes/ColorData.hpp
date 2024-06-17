@@ -13,7 +13,7 @@ public:
 
 	UCODE_EDITOR_NODISCARD static bool WriteToFile(const Path&  path, const ColorData& Data, USerializerType type);
 	static void ToBits(USerializer& output, const ColorData& Data);
-	UCODE_EDITOR_NODISCARD static bool ReadFromFile(const  Path& Path, ColorData& Data);
+	UCODE_EDITOR_NODISCARD static bool ReadFromFile(const  Path& Path, ColorData& Data, USerializerType type);
 
 	static void FromBits(UDeserializer& input,ColorData& Data);
 
