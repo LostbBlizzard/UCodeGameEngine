@@ -2292,9 +2292,47 @@ void GameEditorWindow::LoadRender(SceneEditorTabData& data, bool MakeWin)
 
         _GameRender->Init(Windata, _GameRunTime);
 
-        // auto& Tex = *AppFiles::GetTexture(AppFiles::texture::AppIcon);//TODO add call backs
-        // while (Tex.) {}//wait for texture
-        // _GameRender->Get_RenderAPI()->SetWindowIcon(Tex);
+        UID GameIcon = Get_App()->Get_RunTimeProjectData()->Get_ProjData().GameIcon;
+        {
+            bool LoadedGameIcon = false;
+
+            auto loadassetop = Get_App()->Get_AssetManager()->FindOrLoad_t<UC::SpriteAsset>(GameIcon);
+            
+            auto& index = Get_App()->Get_RunTimeProjectData()->Get_AssetIndex();
+            auto indexop = index.FindFileUsingID(GameIcon);
+           
+            if (indexop.has_value() && loadassetop.has_value())
+            {
+                auto spriteasset = loadassetop.value();
+
+                if (spriteasset->_Texture.Has_Value()) 
+                {
+                    UID textureuid = spriteasset->_Texture.Get_Value()->Uid.value();
+
+                    auto textureind = index.FindFileUsingID(textureuid);
+                    if (textureind.has_value())
+                    {
+                        auto& relpath = textureind.value().RelativePath;
+
+                        auto& sprite = loadassetop.value()->_Base;
+
+                        Path fullpath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir() / relpath;
+
+                        //Should be loaded Async
+                        UC::Texture val(fullpath);
+
+                        UC::Sprite spr(&val, sprite.Get_Xoffset(), sprite.Get_Yoffset(), sprite.Get_Width(), sprite.Get_Height());
+                        _GameRender->Get_RenderAPI()->SetWindowIcon(spr);
+                    }
+                }
+            }
+            
+            if (LoadedGameIcon)
+            {
+                auto& Tex = *AppFiles::GetTexture(AppFiles::texture::AppIcon);
+                _GameRender->Get_RenderAPI()->SetWindowIcon(Tex);
+            }
+        }
     }
 }
 void SetUCodeInput(ImGuiKey Item, UCode::InputManger* _Input)

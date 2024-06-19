@@ -203,6 +203,23 @@ void OpenGlRender::SetWindowIcon(const Texture& tex)
     }
 }
 
+void OpenGlRender::SetWindowIcon(const Sprite& sprite)
+{
+    if (window)
+    {
+        GLFWimage icon;
+        icon.height = sprite.Get_Height();
+        icon.width = sprite.Get_Width();
+
+        auto texture = sprite.Get_texture();
+        auto index = texture->GetPixelIndex(sprite.Get_Xoffset(),sprite.Get_Yoffset(), texture->Get_Width(), texture->Get_Height());
+
+        icon.pixels = (unsigned char*)&texture->Get_ColorData()[index];
+
+        glfwSetWindowIcon(window, 1, &icon);
+    }
+
+}
 void OpenGlRender::_DrawOpenGl(RenderRunTime2d::DrawData& Data, Camera2d* cam)
 {
     auto Width = cam->Get_WindowWidth();

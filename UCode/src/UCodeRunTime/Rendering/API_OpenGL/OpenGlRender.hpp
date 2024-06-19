@@ -41,6 +41,7 @@ public:
 		return window;
 	}
 	void SetWindowIcon(const Texture& tex);
+	void SetWindowIcon(const Sprite& sprite);
 	void SetWaitForEvents(bool Value)
 	{
 		_windowdata.UpdateAppIfInputUpdate = Value;
