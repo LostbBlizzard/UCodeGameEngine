@@ -39,8 +39,10 @@ EditorAppCompoent::EditorAppCompoent(UCode::Entity* entity) :
     _This = this;
 }
 
+bool OnDestructor = false;
 EditorAppCompoent::~EditorAppCompoent()
 {
+    OnDestructor = true;
     EndEditor();
     _This = nullptr;
 }
@@ -1187,7 +1189,10 @@ DontWaitInputKey EditorAppCompoent::AddDontWaitForInput()
 
     if (_ListDontWaitKeys.size() == 0)
     {
-        WaitForInput(false);
+        if (!OnDestructor) 
+        {
+            WaitForInput(false);
+        }
     }
 
     _ListDontWaitKeys.push_back(newval);
@@ -1209,7 +1214,10 @@ void EditorAppCompoent::RemoveWaitForInput(DontWaitInputKey key)
 
             if (_ListDontWaitKeys.size() == 0)
             {
-                WaitForInput(true);
+                if (!OnDestructor)
+                {
+                    WaitForInput(true);
+                }
             }
 
             return;
