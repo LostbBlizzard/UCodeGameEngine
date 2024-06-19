@@ -213,7 +213,7 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 		buildSytem.Setings._OutDir = OutputPath;
 
 		BuildSetings::SettingsType Copy = Info;
-		SetBuildData(AssetsPath, ProjectInfo, Copy);
+		SetBuildData(ProjectInfo, Copy);
 
 		RuningTask V;
 		V.TaskType = RuningTask::Type::BuildingProject;
@@ -327,11 +327,9 @@ void ExportProjectWindow::ShowWebExportSeting()
 	ImGui::Dummy(ImVec2(0.0f, 20.0f));
 }
 
-void ExportProjectWindow::SetBuildData(UCodeEditor::Path& AssetsPath, UCodeEditor::RunTimeProjectData* ProjectInfo,BuildSetings::SettingsType Info)
+void ExportProjectWindow::SetBuildData(UCodeEditor::RunTimeProjectData* ProjectInfo,BuildSetings::SettingsType Info)
 {
-	buildSytem.Setings._InputDir = AssetsPath;
-	buildSytem.Setings.TemporaryPlatfromPath = ProjectInfo->GetCachedDir().native() + Path(Path("build")).native();
-	buildSytem.Setings.TemporaryGlobalPath = ProjectInfo->GetCachedDir().native() + Path(Path("build") / Path("global")).native();
+	buildSytem.Setings.SetProject(ProjectInfo->Get_ProjectDir());
 	buildSytem.Setings._OutName = ProjectInfo->Get_ProjData()._ProjectName;
 	buildSytem.Setings.Settings = Info;
 }

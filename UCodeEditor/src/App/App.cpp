@@ -208,7 +208,7 @@ int App::main(int argc, char* argv[])
 
 			auto lockpath = UE::ProjectManger::GetProjectLockPath(project);
 			{
-				bool hasprojectlock = std::filesystem::exists(project);
+				bool hasprojectlock = std::filesystem::exists(lockpath);
 				if (hasprojectlock)
 				{
 					std::error_code errorcode = {};
@@ -355,10 +355,7 @@ int App::main(int argc, char* argv[])
 				}
 			}
 			{
-				build.Setings._InputDir = project / "Assets";
-				build.Setings._OutDir = UE::ProjectManger::GetProjectCachedDir(project).native() + Path("output").native();
-				build.Setings.TemporaryPlatfromPath = UE::ProjectManger::GetProjectCachedDir(project).native() + Path("build").native();
-				build.Setings.TemporaryGlobalPath = UE::ProjectManger::GetProjectCachedDir(project).native() + (Path("build") / "global").native();
+				build.Setings.SetProject(project.native() + Path::preferred_separator);
 
 				UE::ProjectData proj;
 
@@ -370,25 +367,14 @@ int App::main(int argc, char* argv[])
 			{
 				UC::Gamelibrary lib;
 				UE::AppFiles::Init(&lib);
-
-
-				auto _run = std::make_unique<UCode::GameRunTime>();
-				_run->Init();
-
-				//setup Opengl Context
-				auto _render = std::make_unique<UCode::RenderAPI::Render>();
-				_render->PreInit();
-
-				UCode::RenderAPI::WindowData windowdata;
-				windowdata.GenNewWindow = false;
-				windowdata.ImGui_Init = false;
-				_render->Init(windowdata, _run.get());
-
 				{
+					build.BuildLog = [](size_t thread, UC::String& log)
+						{
+							std::cerr << '\r' << log << std::endl;
+						};
+
 					r = build.BuildProject();
 				}
-
-				_render->EndRender();
 			}
 
 
