@@ -166,12 +166,10 @@ void GameEditorWindow::OnSaveWindow(USerializer& JsonToSaveIn)
 {
     
     auto Assespath = Get_App()->Get_RunTimeProjectData()->GetAssetsDir();
-    if (_SceneData && _UseingSceneAsset.has_value() && !_IsRuningGame)
+    if (_SceneData && _UseingSceneAsset.has_value() && _SceneDataAsRunTime.Has_Value())
     {
         JsonToSaveIn.Write("_SceneUID", _UseingSceneAsset.value());
-
-    }
-    
+    } 
 
 }
 
@@ -437,6 +435,10 @@ void GameEditorWindow::SceneEditor(SceneEditorTabData& data)
     if (_WindowType != GameWindowType::EditorWindow)
     {
         UpdateAndShowGameImg();
+        if (!data._GameRender->Get_RenderAPI()->IsRuning)
+        {
+            return;
+        }
     }
     if (_GameRender == nullptr) { LoadRender(data, false); }
     LoadSceneCamera(data);
@@ -1068,7 +1070,7 @@ void GameEditorWindow::ShowScene(SceneEditorTabData& data, UCode::RunTimeScene* 
     bool ShowingTree = false;
 
     bool ischanged = false;
-    if (Item == _SceneDataAsRunTime.Get_Value())
+    if (Item == _SceneDataAsRunTime.Get_Value() && !_IsRuningGame)
     {
         ischanged = ScencIsDiffent();
     }
@@ -1182,14 +1184,15 @@ void GameEditorWindow::ShowScene(SceneEditorTabData& data, UCode::RunTimeScene* 
         }
 
 
-        if (ImGui::MenuItem("Save"))
+        keybindstring = settings.KeyBinds[(size_t)KeyBindList::Save].ToString();
+        if (ImGui::MenuItem("Save", keybindstring.c_str(), nullptr, ischanged) || settings.IsKeybindActive(KeyBindList::Save))
         {
             SaveScene();
             ImGui::CloseCurrentPopup();
         }
-        keybindstring = settings.KeyBinds[(size_t)KeyBindList::New].ToString();
 
-        if (ImGui::MenuItem("Add Entity") || settings.IsKeybindActive(KeyBindList::New))
+        keybindstring = settings.KeyBinds[(size_t)KeyBindList::New].ToString();
+        if (ImGui::MenuItem("Add Entity",keybindstring.c_str()) || settings.IsKeybindActive(KeyBindList::New))
         {
             UCode::Entity* e = Item->NewEntity();
             e->NativeName() = UnNamedEntity;
@@ -1930,7 +1933,18 @@ void GameEditorWindow::SaveScene()
 }
 void GameEditorWindow::OpenScencAtPathRemoveOthers(const UID& Path)
 {
+    auto gameruntime = MainSceneData.GetGameRuntime();
 
+    OnStopPlaying();
+
+    if (_SceneDataAsRunTime.Has_Value()) 
+    {
+        UC::RunTimeScene::Destroy(_SceneDataAsRunTime.Get_Value());
+    }
+
+    _SceneDataAsRunTime = {};
+
+    OpenScencAtPath(Path);
 }
 void GameEditorWindow::OpenScencAtPath(const UID& Path)
 {
@@ -2128,11 +2142,6 @@ void GameEditorWindow::OnStopPlaying()
     UnLoadRunTime(); LoadRunTime();
     _IsRuningGame = false;
 
-    if (_SceneData)
-    {
-        auto ShowScene = UCode::Scene2dData::LoadScene(MainSceneData._GameRunTime.get(), *_SceneData);
-        _SceneDataAsRunTime = ShowScene->Get_ManagedPtr();
-    }
     LoadRender(MainSceneData, false);
 
     if (_DontWaitInputKey.has_value())

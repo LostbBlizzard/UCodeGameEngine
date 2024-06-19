@@ -46,6 +46,7 @@ const Array<KeyBindData, (KeyBindList_t)KeyBindList::Max>  UserSettings::KeyBind
 	KeyBindData(StringView("Undo"),KeyBinding(InputKey::Z,Ctrl())),
 	KeyBindData(StringView("Redo"),KeyBinding(InputKey::Y,Ctrl())),
 	KeyBindData(StringView("Search"),KeyBinding(InputKey::F,Ctrl())),
+	KeyBindData(StringView("Save"),KeyBinding(InputKey::S,Ctrl())),
 };
 const Array<KeyBinding, (KeyBindList_t)KeyBindList::Max>  KeyBindVimMode
 {
@@ -83,6 +84,7 @@ const Array<KeyBinding, (KeyBindList_t)KeyBindList::Max>  KeyBindVimMode
 	KeyBinding(InputKey::U),
 	KeyBinding(InputKey::R),
 	KeyBinding(InputKey::ForwardSlash),
+	KeyBinding(InputKey::S,Ctrl()),
 
 };
 static bool HasLoadSettings = false;

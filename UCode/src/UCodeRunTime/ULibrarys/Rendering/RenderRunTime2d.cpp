@@ -7,7 +7,8 @@ Renderer2d::Renderer2d(Entity* entity, UComponentData* typeData) : Compoent(enti
 }
 Renderer2d::~Renderer2d()
 {
-	if (Get_Scene()->Get_IsDestroyed()) { return; }
+	bool wasreomved = false;
+
 	auto& All_Renders = GetRenderRunTime()->All_Renderers;
 	for (auto it = All_Renders.begin(); it != All_Renders.end();)
 	{
@@ -15,10 +16,14 @@ Renderer2d::~Renderer2d()
 		if (*it == this)
 		{
 			All_Renders.erase(it);
-			return;
+			wasreomved = true;
+			break;
 		}
 		++it;
 	}
+
+
+	UCodeGEAssert(wasreomved)
 }
 
 RenderRunTime2d* Renderer2d::GetRenderRunTime()
