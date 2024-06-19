@@ -1,14 +1,19 @@
 #include "FrameBuffer.hpp"
 #include <UCodeRunTime/Rendering/API_OpenGL/OpenGlHelper.hpp>
 #include "Texture.hpp"
+#include <UCodeRunTime/ULibrarys/HeadlessContext.hpp>
 RenderingStart
 FrameBuffer::FrameBuffer(FrameBufferData data):_BufferId(0), _Texture(0),_Data(data)
 {
+	if (IsHeadlessMode()){	return;}
+
 	UpdateBuffer();
 }
 
 FrameBuffer::~FrameBuffer()
 {
+	if (IsHeadlessMode()){	return;}
+	
 	GlCall(glDeleteFramebuffers(1, &_BufferId));
 	GlCall(glDeleteTextures(1, &_Texture));
 }

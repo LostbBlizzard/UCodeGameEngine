@@ -7,6 +7,7 @@
 #include <UCodeRunTime/ULibrarys/Serialization/Bit_Implementation/AsssetPtr.hpp>
 #include <UCodeRunTime/ULibrarys/Others/StringHelper.hpp>
 #include <mutex>
+#include <UCodeRunTime/ULibrarys/HeadlessContext.hpp>
 
 #if UCodeGEWindows
 #include <Windows.h>
@@ -594,6 +595,10 @@ GameFiles* GameFiles::Init(Gamelibrary* lib,const GameFilesData& Data)
 
 Shader* GameFiles::Get_DefaultShader()
 {
+	if (IsHeadlessMode())
+	{
+		return nullptr;
+	}
 	return _MainState.Lock_r<Shader*>([&](MainGameFilesState& files) -> Shader*
 	{
 		auto& _DefaultShader = files._DefaultShader;

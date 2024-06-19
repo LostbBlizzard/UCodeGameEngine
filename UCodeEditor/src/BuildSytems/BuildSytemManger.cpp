@@ -229,7 +229,7 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 					{
 						String cmd;
 						cmd += "Packing: ";
-						cmd += Item.OutputModuleFile.generic_string();
+						cmd += Item.OutputModuleFile.filename().generic_string();
 						BuildLog(0, cmd);
 					}
 
