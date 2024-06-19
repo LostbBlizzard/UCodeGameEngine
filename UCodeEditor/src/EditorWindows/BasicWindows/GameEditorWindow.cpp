@@ -38,13 +38,14 @@ GameEditorWindow::~GameEditorWindow()
     {
         Get_App()->RemoveWaitForInput(_DontWaitInputKey.value());
         _DontWaitInputKey.reset();
-    } 
+    }
     if (BlockKey.has_value())
     {
         Get_App()->RemoveBlockClose(BlockKey.value());
         BlockKey = {};
     }
 }
+
 void GameEditorWindow::UpdateWindow()
 {
     ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_WindowPadding, { 0.0f,0.0f });

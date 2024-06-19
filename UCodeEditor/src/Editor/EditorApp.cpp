@@ -21,7 +21,7 @@ EditorApp::EditorApp() : _App()
 
 EditorApp::~EditorApp()
 {
-    
+
 }
 
 void EditorApp::Run(const String& ProjPath)
