@@ -2,6 +2,7 @@
 #include "Types.hpp"
 #include "Serialization.hpp"
 #include "UEditorModules/UEditorModule.hpp"
+#include "functional"
 EditorStart
 class BuildSytemManger
 {
@@ -16,6 +17,8 @@ public:
 		String MSG;
 	};
 	Vector<BuildError> errors;
+
+	std::function<void(size_t Thread,String& Output)> BuildLog;
 private:
 	BuildRet BuildProjectGameData(const Path& GameFilesDataPath, USerializerType SerializerMode);
 	Path Platfromteppath;

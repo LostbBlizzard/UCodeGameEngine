@@ -279,6 +279,14 @@ Result<Vector<ExportEditorReturn>, ExportErrors> CodeModule::ExportSystems(const
 	auto outpathdir = Context.TemporaryPlatfromPathSpecificPath / "ulang";
 	data.OutPath = outpathdir / Path(Path("ucode").native() + Path(UCodeLang::FileExt::LibWithDot).native());
 	
+	UCompiler::CompileData::StatusUpdate val;
+	val = [&Context](String str, size_t thread)
+		{
+			Context.BuildLog(thread, str);
+		};
+
+	data.OnStatusUpdate = std::make_shared<UCode::Mutex<UCompiler::CompileData::StatusUpdate>>(std::move(val));
+
 	std::filesystem::create_directories(outpathdir);
 	
 	Path modoutfile = Context.TemporaryGlobalPath / "ulang.data";
