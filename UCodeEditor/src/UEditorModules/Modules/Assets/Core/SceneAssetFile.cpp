@@ -1,6 +1,7 @@
 #include "SceneAssetFile.hpp"
 #include "Editor/EditorAppCompoent.hpp"
 #include "EditorWindows/BasicWindows/GameEditorWindow.hpp"
+#include "UCodeRunTime/ULibrarys/HeadlessContext.hpp"
 EditorStart
 ScencAssetFile::ScencAssetFile()
 {
@@ -12,16 +13,20 @@ ScencAssetFile::ScencAssetFile()
 ExportFileRet ScencAssetFile::ExportFile(const Path& path, const ExportFileContext& Item)
 {
 	UCodeGEStackFrame("SceneAsset:Export");
-	std::filesystem::copy_file(path, Item.Output, std::filesystem::copy_options::overwrite_existing);
 
 	UCode::Scene2dData V;
-	UCode::Scene2dData::FromFile(V, path,Item.ProjectSerializerType);
+	UCode::Scene2dData::FromFile(V, path, Item.ProjectSerializerType);
 
-	UCode::GameRunTime runtime;
-	auto scenc = UCode::Scene2dData::LoadScene(&runtime, V);
-	UCode::Scene2dData::SaveScene(scenc, V, USerializerType::Bytes);
+	auto oldstate = UCode::IsHeadlessMode();
+	UCode::SetEditor_HeadlessMode(true);
+	{
+		UCode::GameRunTime runtime;
+		auto scenc = UCode::Scene2dData::LoadScene(&runtime, V);
+		UCode::Scene2dData::SaveScene(scenc, V, USerializerType::Bytes);
 
-	UCode::Scene2dData::ToFile(Item.Output, V, USerializerType::Bytes);
+		UCode::Scene2dData::ToFile(Item.Output, V, USerializerType::Bytes);
+	}
+	UCode::SetEditor_HeadlessMode(oldstate);
 
 	ExportFileRet r;
 	r._UID = V._UID;
