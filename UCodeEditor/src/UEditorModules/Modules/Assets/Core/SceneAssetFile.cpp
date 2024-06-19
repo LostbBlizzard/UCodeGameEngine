@@ -71,6 +71,8 @@ void ScencAssetFile::LiveingAsset::DrawInspect(const UEditorAssetDrawInspectCont
 
 	if (ImGui::Button("Open in GameEditor", { ImGui::GetContentRegionAvail().x,ImGui::GetFrameHeight() }))
 	{
+		TryLoadAsset();
+
 		auto window = EditorAppCompoent::GetCurrentEditorAppCompoent()->Get_Window<GameEditorWindow>();
 		window->OpenScencAtPathRemoveOthers(file._Base._UID);
 	}

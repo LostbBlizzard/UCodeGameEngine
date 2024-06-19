@@ -38,6 +38,7 @@ enum class KeyBindList : KeyBindList_t
 	Undo,
 	Redo,
 	Search,
+	Save,
 
 	Max,
 };

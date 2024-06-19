@@ -113,11 +113,6 @@ void Render::UpdateFrame()
 			_Render->UpdateScreen();
 
 
-			if (MainCam)
-			{
-				FrameBuffer& buff = MainCam->Get_Buffer();
-				//buff.UnBind();
-			}
 			_Render->ProcessInput();
 		}
 		else
@@ -156,13 +151,6 @@ void Render::Draw(RenderRunTime2d::DrawData& Data, Camera2d* cam)
 		_Render->_DrawOpenGl(RenderRunTime->Get_DrawData(), cam);
 
 
-		buff.Bind();
-	}
-
-	if (cam)
-	{
-		FrameBuffer& buff = cam->Get_Buffer();
-		buff.UnBind();
 	}
 
 	glfwMakeContextCurrent(Old);
