@@ -176,6 +176,7 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 	Export.ChachInfo = &Chache;
 	Export.settings = std::move(Settings);
 	Export.projectinfo.type = prj._SerializeType;
+	Export.BuildLog = BuildLog;
 
 	fs::create_directories(Export.TemporaryGlobalPath);
 
@@ -225,6 +226,12 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 				UCode::GameFilesData data;
 				if (UCode::GameFilesData::ReadFile(Item.OutputModuleFile, data))
 				{
+					{
+						String cmd;
+						cmd += "Packing: ";
+						cmd += Item.OutputModuleFile.generic_string();
+						BuildLog(0, cmd);
+					}
 
 					size_t OffsetToAdd = GameData._Data.size();
 					size_t MyDataSize = data._Data.size();
@@ -278,58 +285,59 @@ BuildSytemManger::BuildRet BuildSytemManger::BuildProjectGameData(const Path& Ga
 			return errors.value();
 		}
 
-		{		UCode::USerializer serializer(USerializerType::Bytes);
-
-
 		{
-			serializer.Reset();
-
-			IDMap.Serialize(serializer);
-
-			auto bytes = serializer.Get_BitMaker().Get_Bytes();
+			UCode::USerializer serializer(USerializerType::Bytes);
 
 
-			UCode::GameFileIndex index;
-			index.FileOffset = GameData._Data.size();
-			index.FileFullName = UCode::GameFilesData::GetUCodeDir() / UCode::StandardAssetLoader::UIdMap::FileWithDot;
-			index.FileSize = bytes.size();
-
-			GameData.Offsets.push_back(std::move(index));
-
-			for (size_t i = 0; i < bytes.size(); i++)
 			{
-				auto& Item = bytes[i];
+				serializer.Reset();
 
-				GameData._Data.push_back(Item);
+				IDMap.Serialize(serializer);
+
+				auto bytes = serializer.Get_BitMaker().Get_Bytes();
+
+
+				UCode::GameFileIndex index;
+				index.FileOffset = GameData._Data.size();
+				index.FileFullName = UCode::GameFilesData::GetUCodeDir() / UCode::StandardAssetLoader::UIdMap::FileWithDot;
+				index.FileSize = bytes.size();
+
+				GameData.Offsets.push_back(std::move(index));
+
+				for (size_t i = 0; i < bytes.size(); i++)
+				{
+					auto& Item = bytes[i];
+
+					GameData._Data.push_back(Item);
+				}
+
 			}
-
-		}
-		{
-			serializer.Reset();
-			
-			UCode::StandardAssetLoader::LoadOnStart v;
-			v._LoadList = prj._AssetsToKeepLoaded;
-
-			v.Serialize(serializer);
-
-			auto bytes = serializer.Get_BitMaker().Get_Bytes();
-
-
-			UCode::GameFileIndex index;
-			index.FileOffset = GameData._Data.size();
-			index.FileFullName = UCode::GameFilesData::GetUCodeDir() / UCode::StandardAssetLoader::LoadOnStart::FileWithDot;
-			index.FileSize = bytes.size();
-
-			GameData.Offsets.push_back(std::move(index));
-
-			for (size_t i = 0; i < bytes.size(); i++)
 			{
-				auto& Item = bytes[i];
+				serializer.Reset();
 
-				GameData._Data.push_back(Item);
+				UCode::StandardAssetLoader::LoadOnStart v;
+				v._LoadList = prj._AssetsToKeepLoaded;
+
+				v.Serialize(serializer);
+
+				auto bytes = serializer.Get_BitMaker().Get_Bytes();
+
+
+				UCode::GameFileIndex index;
+				index.FileOffset = GameData._Data.size();
+				index.FileFullName = UCode::GameFilesData::GetUCodeDir() / UCode::StandardAssetLoader::LoadOnStart::FileWithDot;
+				index.FileSize = bytes.size();
+
+				GameData.Offsets.push_back(std::move(index));
+
+				for (size_t i = 0; i < bytes.size(); i++)
+				{
+					auto& Item = bytes[i];
+
+					GameData._Data.push_back(Item);
+				}
+
 			}
-
-		}
 		}
 
 

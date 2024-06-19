@@ -219,6 +219,12 @@ void ExportProjectWindow::ShowWindowsExportSeting()
 		V.TaskType = RuningTask::Type::BuildingProject;
 		RuningTasksInfo::AddTask(V);
 
+		buildSytem.BuildLog = [Threads](size_t Thread,String& Log) 
+			{
+				Threads->RunOnOnMainThread([Log] {
+					RuningTasksInfo::SetTaskStatus(RuningTask::Type::BuildingProject, Log, 30);
+				});
+			};
 		Delegate<void> Func = [Threads,buildSytem = &buildSytem]()
 		{
 			  UCodeGEStackFrame("BuildSytem:BuildProject");

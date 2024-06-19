@@ -21,7 +21,7 @@ ExportFileRet ScencAssetFile::ExportFile(const Path& path, const ExportFileConte
 	auto scenc = UCode::Scene2dData::LoadScene(&runtime, V);
 	UCode::Scene2dData::SaveScene(scenc, V, USerializerType::Bytes);
 
-	//UCode::Scene2dData::ToFile(Item.Output, V, USerializerType::Bytes);
+	UCode::Scene2dData::ToFile(Item.Output, V, USerializerType::Bytes);
 
 	ExportFileRet r;
 	r._UID = V._UID;

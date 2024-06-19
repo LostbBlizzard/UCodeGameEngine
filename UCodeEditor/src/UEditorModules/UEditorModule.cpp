@@ -114,6 +114,13 @@ Result<ExportEditorReturn, ExportErrors> UEditorModule::ExportEditor(ExportEdito
 
 				fs::create_directories(Exfile.Output.parent_path());
 
+				{
+					String cmd;
+					cmd += "Exporting: ";
+					cmd += Relat.generic_string();
+					Context.BuildLog(0, cmd);
+				}
+
 				ExportFileRet outfile;
 				if (AssetData->CallLiveingAssetsWhenExport)
 				{

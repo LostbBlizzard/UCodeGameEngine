@@ -208,6 +208,7 @@ struct ExportEditorContext
 	ExportChacheFile* ChachInfo = nullptr;
 	ExportSettings settings;
 	ProjectInfo projectinfo;
+	std::function<void(size_t Thread, String& Out)> BuildLog;
 };
 struct ExportEditorReturn
 {
