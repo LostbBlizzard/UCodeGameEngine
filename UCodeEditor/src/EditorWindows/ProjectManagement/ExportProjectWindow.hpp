@@ -62,7 +62,7 @@ private:
 	void ShowIosExportSeting();
 
 	void ShowWebExportSeting();
-	void SetBuildData(Path& AssetsPath, RunTimeProjectData* ProjectInfo,BuildSetings::SettingsType Info);
+	void SetBuildData(RunTimeProjectData* ProjectInfo,BuildSetings::SettingsType Info);
 	void ShowAndroidExportSeting();
 	void ShowSeverExportSeting();
 	void ShowUCodeEditorExportSeting();

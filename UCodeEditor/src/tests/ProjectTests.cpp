@@ -132,33 +132,18 @@ const Vector<variantmode>& GetThisOSSettings()
 	return val.value();
 }
 
-BuildSytemManger::BuildRet BuildProject(BuildSytemManger& v)
+BuildSytemManger::BuildRet BuildProject(BuildSytemManger& v,String projectname)
 {
 	BuildSytemManger::BuildRet r;
 	{
-		Path Projectpath = projectpaths / "Hello";
-		Path Projectout = outputprojectpath / "Hello";
+		Path Projectpath = projectpaths / projectname;
+		Path Projectout = outputprojectpath / projectname;
 
-		UCode::GameFilesData AppFilesData;
-		auto _run = std::make_unique<UCode::GameRunTime>();
-		_run->Init();
-
-
-		//setup Opengl Context
-		auto _render = std::make_unique<UCode::RenderAPI::Render>();
-		_render->PreInit();
-
-		UCode::RenderAPI::WindowData windowdata;
-		windowdata.GenNewWindow = false;
-		windowdata.ImGui_Init = false;
-		_render->Init(windowdata, _run.get());
-
-		auto GameFiles = UCode::GameFiles::Init(_run->Get_Library_Edit(), AppFilesData);//This Can be Moved 
-
-		AppFiles::Init(_run->Get_Library_Edit());
+		v.BuildLog = [](size_t Thread,String& Output)
+			{
+				std::cout << Output << "\n";
+			};
 		r = v.BuildProject();
-
-		_render->EndRender();
 	}
 	return r;
 }
@@ -171,11 +156,8 @@ BuildSetings GetBuildSettingForProject(String projectname,const variantmode& Ite
 
 	BuildSetings v;
 	v.Settings = Item.type;
-	v._InputDir = Projectpath / "Assets";
-	v._OutDir = Projectout / "out";
-	v.TemporaryGlobalPath = Projectout / "global";
+	v.SetProject(Projectpath);
 	v._OutName = projectname;
-	v.TemporaryPlatfromPath = Projectout / "platform";
 
 	return v;
 }
@@ -191,7 +173,7 @@ bool Project_Hello()
 		BuildSytemManger v;
 		v.Setings = GetBuildSettingForProject("Hello",Item);
 
-		BuildSytemManger::BuildRet r = BuildProject(v);
+		BuildSytemManger::BuildRet r = BuildProject(v,"Hello");
 
 		if (r.IsValue())
 		{
@@ -205,7 +187,6 @@ bool Project_Hello()
 			{
 					playerentity = run.Get_Scene()->Get_Entitys()[0].get();
 					startpos = playerentity->WorldPosition2D();
-					int a = 0;
 			};
 			runer.OnUpdate = [&](AppRuner& _this, AppRuner::AppRunerCompoent& run) -> void
 			{
@@ -218,7 +199,6 @@ bool Project_Hello()
 						_this.RetState = startpos != playerentity->WorldPosition2D();
 						_this.CloseApp();
 					}
-					int a = 0;
 			};
 
 			return runer.Run(MainOut);

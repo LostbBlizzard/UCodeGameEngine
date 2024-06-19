@@ -95,5 +95,7 @@ struct BuildSetings
 	Path TemporaryPlatfromPath;
 	Path TemporaryGlobalPath;
 	Path _OutDir;
+
+	void SetProject(const Path& ProjectDir);
 };
 EditorEnd
