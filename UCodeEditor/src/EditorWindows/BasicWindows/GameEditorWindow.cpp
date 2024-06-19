@@ -436,10 +436,8 @@ void GameEditorWindow::SceneEditor(SceneEditorTabData& data)
     if (_WindowType != GameWindowType::EditorWindow)
     {
         UpdateAndShowGameImg();
-        if (!data._GameRender->Get_RenderAPI()->IsRuning)
-        {
-            return;
-        }
+
+        _GameRunTime = data.GetGameRuntime();
     }
     if (_GameRender == nullptr) { LoadRender(data, false); }
     LoadSceneCamera(data);
