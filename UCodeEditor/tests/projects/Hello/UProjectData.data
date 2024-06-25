@@ -1,5 +1,22 @@
 _ProjectName: Hello
 _CompanyName: ""
+_Verson:
+  - 0
+  - 0
+  - 0
 _SerializeType: 1
 _StartScene:
+  - 497841102048107417
+_GameIcon:
   - 0
+_Plugins:
+  []
+_AssetsToKeepLoaded:
+  []
+_ModingSupport: false
+_PrefabScene:
+  - 0
+_PrefabUIScene:
+  - 0
+_EditorOnlyFolders:
+  []

@@ -1,0 +1,39 @@
+_Name: New Scene
+_UID:
+  - 497841102048107417
+_Entitys:
+  - _LocalPosition:
+      - 0
+      - 0
+      - 0
+    _LocalRotation:
+      - 0
+      - 0
+      - 0
+    _LocalScale:
+      - 1
+      - 1
+      - 1
+    _Compoents:
+      - _TypeID: ULangScript
+        _Data:
+          _ScriptType: Player
+          Speed: 10
+      - _TypeID: SpriteRenderer
+        _Data:
+          Shader:
+            - 0
+          Sprite:
+            - 0
+          Color:
+            - 1
+            - 1
+            - 1
+            - 1
+          flipX: false
+          flipY: false
+          DrawLayer: 0
+          DrawOrder: 0
+    _Entitys:
+      []
+    _Name: Player
