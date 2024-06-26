@@ -10,6 +10,11 @@ A Simple and Highly extendable Game Engine with the goal of supporting the highe
 
 <div align=left>
 
+# Note 
+
+This Project is no longer being maintain. Why because I want to work on other things right now and learn everything I could of learned from this project I may comeback in the future to complete this Project.
+
+
 # Build
 
 
