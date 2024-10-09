@@ -1,2 +1,0 @@
-premake.bat updateucodelinks
-pause

@@ -1,4 +1,3 @@
-require "vscode"
 
 workspace "UCodeGameEngine"
    configurations { "Debug", "Release","Published" }
@@ -1078,25 +1077,25 @@ newaction {
           os.execute("sudo apt-get update")
 
           print("----downloading libx11 Packages")
-          os.execute("sudo apt-get install libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev")
+          os.execute("sudo apt-get install libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev -y")
 
           print("----downloading opengl Packages")
-          executeorexit("sudo apt install mesa-common-dev")
+          executeorexit("sudo apt install mesa-common-dev -y")
 
           print("----downloading glew Packages")
-          executeorexit("sudo apt-get install libglew-dev")
+          executeorexit("sudo apt-get install libglew-dev -y")
 
           print("----downloading glfw Packages")
-          os.execute("sudo apt-get install libglfw3")
-          os.execute("sudo apt-get install libglfw3-dev")
+          os.execute("sudo apt-get install libglfw3 -y")
+          os.execute("sudo apt-get install libglfw3-dev -y")
 
           print("----downloading gtk Packages")
-          os.execute("sudo apt-get install libgtk-3-dev")
+          os.execute("sudo apt-get install libgtk-3-dev -y")
           
           print("----installing tools completed");
 
           print("----downloading asoundlibk Packages")
-          os.execute("sudo apt install libasound2-dev")
+          os.execute("sudo apt install libasound2-dev -y")
           
           print("----installing tools completed");
 

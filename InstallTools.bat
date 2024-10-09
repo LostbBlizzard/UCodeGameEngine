@@ -1,1 +1,0 @@
-premake.bat install
