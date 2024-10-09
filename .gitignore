@@ -18,3 +18,8 @@ UCodeEditor/UFiles/bin
 /UCode/PersistentData
 .vscode
 *.code-workspace
+
+*.ninja
+compile_commands/
+*.ninja_deps
+*.ninja_log
