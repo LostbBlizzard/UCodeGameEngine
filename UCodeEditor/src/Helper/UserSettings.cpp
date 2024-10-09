@@ -100,6 +100,9 @@ UserSettings& UserSettings::GetSettings()
 #if UCodeGEWindows
 			UCodeEditor_UserSettings.CodeEditorPath = "C:/Windows/System32/notepad.exe";
 			UCodeEditor_UserSettings.OpenCodeEditorFileArg = "/W " + (String)UserSettings::FilePathArg;//open file as unicode
+#elif UCodeGELinux
+			UCodeEditor_UserSettings.CodeEditorPath = "vim";
+			UCodeEditor_UserSettings.OpenCodeEditorFileArg = (String)UserSettings::FilePathArg;//open file as unicode
 #else
 			UCodeGEThrow("default code editor was not given  for the platform");
 #endif // 
