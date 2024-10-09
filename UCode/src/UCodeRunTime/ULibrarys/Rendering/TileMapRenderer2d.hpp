@@ -11,7 +11,7 @@ struct TileData
 	inline static const char* FileExtDot = ".UTile";
 
 	SpritePtr Sprite;
-	Color Color;
+	Color color;
 
 	void PushData(USerializer& node) const;
 	static bool FromString(TileData& out, UDeserializer& text);

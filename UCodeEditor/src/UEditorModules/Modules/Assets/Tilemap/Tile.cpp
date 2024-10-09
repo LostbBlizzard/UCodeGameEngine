@@ -179,7 +179,7 @@ void TileAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContext& I
 
 	auto& Data = _Asset._Base;
 	ImGuIHelper_Asset::AsssetField("Sprite", Data.Sprite);
-	ImGuIHelper::ColorField(StringView("Color"), Data.Color);
+	ImGuIHelper::ColorField(StringView("Color"), Data.color);
 }
 NullablePtr<UCode::Asset> TileAssetFile::Liveing::LoadAsset(const LoadAssetContext& Item)
 {

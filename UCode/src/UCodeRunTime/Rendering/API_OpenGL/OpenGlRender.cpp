@@ -255,7 +255,8 @@ void OpenGlRender::_DrawOpenGl(RenderRunTime2d::DrawData& Data, Camera2d* cam)
     UseingShader->SetUniformMat4f("_ViewProj", Vp);
     UseingShader->SetUniformMat4f("_Transfrom", Tranform);
 
-    RunInstructions(MakeDrawInstruction(Data),Data);
+    auto drawdata = MakeDrawInstruction(Data);
+    RunInstructions(drawdata,Data);
     
     Buffer.UnBind();
 }

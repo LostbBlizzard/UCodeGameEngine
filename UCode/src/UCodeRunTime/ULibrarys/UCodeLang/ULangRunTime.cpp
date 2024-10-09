@@ -1316,7 +1316,7 @@ uInt64Case:
 					auto& Yaml = Serializer.Get_TextReader();
 					BitReader::SizeAsBits NewSize = 0;
 				
-					for (auto& Item : Yaml)
+					for (auto Item : Yaml)
 					{
 						NewSize++;
 					}
@@ -1325,7 +1325,7 @@ uInt64Case:
 					size_t elmsize = data.GetElementTypeSize();
 
 					size_t index =0;
-					for (auto& Item : Yaml)
+					for (auto Item : Yaml)
 					{
 						UDeserializer newSerializer = UDeserializer("");
 						newSerializer.Get_TextReader() = std::move((YAML::Node)Item);
@@ -1426,7 +1426,7 @@ uInt64Case:
 					auto& Yaml = Serializer.Get_TextReader();
 					BitReader::SizeAsBits NewSize = 0;
 
-					for (auto& Item : Yaml)
+					for (auto Item : Yaml)
 					{
 						NewSize++;
 					}
@@ -1434,7 +1434,7 @@ uInt64Case:
 					size_t elmsize = data.GetElementTypeSize();
 
 					size_t index = 0;
-					for (auto& Item : Yaml)
+					for (auto Item : Yaml)
 					{
 						if (index > data.size()) { break; }
 
@@ -1808,13 +1808,13 @@ void ULangHelper::Deserialize(UDeserializer& Serializer, void* Pointer, const UC
 		auto& Yaml = Serializer.Get_TextReader();
 		BitReader::SizeAsBits NewSize = 0;
 
-		for (auto& Item : Yaml)
+		for (auto Item : Yaml)
 		{
 			NewSize++;
 		}
 
 		size_t index = 0;
-		for (auto& Item : Yaml)
+		for (auto Item : Yaml)
 		{
 			if (index > Type.Count) { break; }
 

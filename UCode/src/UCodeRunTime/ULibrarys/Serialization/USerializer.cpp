@@ -257,13 +257,13 @@ String ToString(YAML::Node& node,bool issub,size_t spaceing)
 	{
 		if (node.IsSequence())
 		{
-			for (auto& Item : node)
+			for (auto Item : node)
 			{
 				r += "\n";
 				for (size_t i = 0; i < spaceing; i++)
-					{
-						r += " ";
-					}
+				{
+					r += " ";
+				}
 				r += "- ";
 				r += ToString(Item, true, spaceing + 1);
 			}

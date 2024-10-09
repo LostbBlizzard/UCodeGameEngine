@@ -104,9 +104,9 @@ void DrawInspectTile(TileDataPtr  ptr, TileDataPack::PackTile& tile)
 	{
 		tile._Data._Base.Sprite = Data.Sprite;
 	}
-	if (ImGuIHelper::ColorField(StringView("Color"), Data.Color))
+	if (ImGuIHelper::ColorField(StringView("Color"), Data.color))
 	{
-		tile._Data._Base.Color = Data.Color;
+		tile._Data._Base.color = Data.color;
 	}
 
 }
@@ -539,7 +539,7 @@ void TilePackAssetFile::Liveing::DrawInspect(const UEditorAssetDrawInspectContex
 
 					if (ImGui::Button("Make Tiles from Atlas",{ImGui::GetContentRegionAvail().x,ImGui::GetFrameHeight()}))
 					{
-						auto& texturesettings = texturesettingsop.value();
+						auto texturesettings = texturesettingsop.value();
 						shouldcloseAtlastSettings = true;
 
 						_Data.List.reserve(texturesettings->sprites.size());

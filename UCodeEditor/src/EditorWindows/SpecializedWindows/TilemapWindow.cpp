@@ -252,7 +252,7 @@ void TilemapWindow::UpdateWindow()
 
 				if (packtile.has_value())
 				{
-					auto& tile = packtile.value();
+					auto tile = packtile.value();
 
 					UC::Sprite* spr = nullptr;
 
@@ -486,7 +486,7 @@ void TilemapWindow::UpdateWindow()
 
 											if (assetop.has_value())
 											{
-												auto& packasset = assetop.value();
+												auto packasset = assetop.value();
 
 												for (auto& packItem : packasset->_Base.List)
 												{

@@ -13,6 +13,8 @@
 EditorStart
 
 
+float minscorebefordontshow();
+
 template<typename T>
 bool AsssetField_t(RunTimeProjectData* ProjectData,T& Value, const char* FileExtDot,AppFiles::sprite sprite)
 {
@@ -92,6 +94,7 @@ bool AsssetField_t(RunTimeProjectData* ProjectData,T& Value, const char* FileExt
 				return false;
 			}
 
+			UCodeGEUnreachable();
 		};
 	data.OnObjectInList = [sprite](void* Ptr, void* Object, bool Listmode, const String& Find)
 		{
@@ -348,7 +351,7 @@ bool AssetField_tSprite(UCode::AssetManager* AssetManager,RunTimeProjectData* Pr
 				}
 				return false;
 			}
-
+			UCodeGEUnreachable();
 		};
 	data.OnObjectInList = [&GetSprite,AssetManager,FileExtDot](void* Ptr, void* Object, bool Listmode, const String& Find)
 		{

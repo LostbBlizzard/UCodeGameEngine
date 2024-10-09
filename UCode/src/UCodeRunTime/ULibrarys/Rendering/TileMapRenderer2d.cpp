@@ -227,13 +227,13 @@ void TileMapRenderer::Deserialize(UDeserializer& Serializer)
 void TileData::PushData(USerializer& node) const
 {
 	node.Write("_Sprite", Sprite);
-	node.Write("_Color", Color);
+	node.Write("_Color", color);
 }
 
 bool TileData::FromString(TileData& out, UDeserializer& text)
 {
 	text.ReadType("_Sprite",out.Sprite);
-	text.ReadType("_Color", out.Color);
+	text.ReadType("_Color", out.color);
 	return true;
 }
 
