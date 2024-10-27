@@ -1,5 +1,5 @@
-function executeorexit(str)
-  exit = os.execute(str)
+local function executeorexit(str)
+  local exit = os.execute(str)
 
   if exit == nil then
     os.exit(1)
