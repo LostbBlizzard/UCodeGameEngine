@@ -1067,7 +1067,7 @@ function executeorexit(str)
 end 
 --install
 newaction {
-    trigger = "install",
+    trigger = "installdependencies",
     description = "installs compiler tool/librarys",
     execute = function ()
         print("----installing tools for " .. os.target())
@@ -1116,55 +1116,7 @@ newaction {
         end
     end
 }
-newaction {
-    trigger = "installwasm",
-    description = "installs compiler tool/librarys for wasm",
-    execute = function ()
-        print("----installing emscripten for " .. os.target())
-        
-        if os.istarget("linux") then
-          os.execute("git clone https://github.com/emscripten-core/emsdk.git")
 
-          os.execute("cd emsdk")
-
-          os.execute("git pull")
-
-          os.execute("./emsdk install latest")
-
-          os.execute("./emsdk activate latest")
-
-          os.execute("source ./emsdk_env.sh")
-        end
-
-        if os.istarget("windows") then
-
-        end
-        
-        if os.istarget("macosx") then
-
-        end
-    end
-}
-
-newaction {
-    trigger = "installandroidsdk",
-    description = "installs compiler tool/librarys for android",
-    execute = function ()
-        print("----installing android sdk tools for " .. os.target())
-        
-        if os.istarget("linux") then
-         --executeorexit("sudo apt update && sudo apt install android-sdk")
-        end
-
-        if os.istarget("windows") then
-
-        end
-        
-        if os.istarget("macosx") then
-
-        end
-    end
-}
 
 newaction {
     trigger = "installinno",
