@@ -16,7 +16,7 @@ on:
         default: true
 
 jobs:
-  build-Windows:
+  build-Windows-64bit:
     runs-on: windows-latest
 
     steps:
@@ -27,34 +27,75 @@ jobs:
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v1.0.2
 
+      - name: Add Premake to PATH
+        uses: abel0b/setup-premake@v2.4
+        with:
+          version: "5.0.0-beta2"
+
       - name: Run Premake install
-        run: ./premake.bat install
+        run: premake5 install
       
       - name: update version
         run: |
          echo ${{ inputs.VersionNumber }} > ./version.txt
-         ./premake.bat updateversion
+         premake5 updateversion
 
       - name: Run Premake
-        run: ./VS_2019.bat
+        run: premake5 vs2022
 
       - name: Build 64 bit
-        run: ./premake.bat buildeditorpublished
-
-      - name: Build 32 bit
-        if: ${{ inputs.IsPreRelease == false}}
-        run: ./premake.bat buildeditor32published
+        run: premake5 buildeditorpublished
 
       - name: Archive Output
         uses: actions/upload-artifact@v3
         with:
-          name: Output_Windows
+          name: Output_Windows64
           path: |
            Output/
            !Output/int
           retention-days: 1
   
-  build-Linux:
+  build-Windows-32bit:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Add Premake to PATH
+        uses: abel0b/setup-premake@v2.4
+        with:
+          version: "5.0.0-beta2"
+
+
+      - name: Run Premake install
+        run: premake5 install
+      
+      - name: update version
+        run: |
+         echo ${{ inputs.VersionNumber }} > ./version.txt
+         premake5 updateversion
+
+      - name: Run Premake
+        run: premake5 vs2022
+
+      - name: Build 
+        run: premake5 buildeditor32published
+
+      - name: Archive Output
+        uses: actions/upload-artifact@v3
+        with:
+          name: Output_Windows32
+          path: |
+           Output/
+           !Output/int
+          retention-days: 1
+  
+  build-Linux-64bit:
     runs-on: ubuntu-latest
     
     steps:
@@ -62,33 +103,74 @@ jobs:
        with:
          submodules: 'true'
 
-     - name: Make a scripts executable
-       run: |
-        chmod +x ./GNU_Make.sh
-        chmod +x ./premake.sh
+     - name: Add Premake to PATH
+       uses: abel0b/setup-premake@v2.4
+       with:
+          version: "5.0.0-beta2"
          
      - name: Run Premake install
-       run: ./premake.sh install
+       run: premake5 install
 
      - name: update version
        run: |
          echo ${{ inputs.VersionNumber }} > ./version.txt
-         ./premake.sh updateversion
+         premake5 updateversion
      
      - name: Run Premake
-       run: ./GNU_Make.sh
+       run: premake5 gmake2
 
      - name: Build 64 bit
-       run: ./premake.sh buildeditorpublished
+       run: premake5 buildeditorpublished
 
      - name: Archive Output
        uses: actions/upload-artifact@v3
        with:
-         name: Output_Linux
+         name: Output_Linux64
          path: |
           Output/
           !Output/int
          retention-days: 1
+
+  build-Linux-32bit:
+    runs-on: ubuntu-latest
+    
+    steps:
+     - uses: actions/checkout@v3
+       with:
+         submodules: 'true'
+         
+     - name: Add gcc multilib to PATH
+       run: sudo apt install gcc-multilib g++-multilib
+    
+     - name: Add Premake to PATH
+       uses: abel0b/setup-premake@v2.4
+       with:
+          version: "5.0.0-beta2"
+
+     - name: Run Premake install
+       run: premake5 install
+
+     - name: update version
+       run: |
+         echo ${{ inputs.VersionNumber }} > ./version.txt
+         premake5 updateversion
+     
+     - name: Run Premake
+       run: premake5 gmake2
+
+     - name: Build 64 bit
+       run: premake5 buildeditorpublished
+
+     - name: Archive Output
+       uses: actions/upload-artifact@v3
+       with:
+         name: Output_Linux32
+         path: |
+          Output/
+          !Output/int
+         retention-days: 1
+
+
 
   build-MacOS:
     runs-on: macos-latest
@@ -99,24 +181,24 @@ jobs:
        with:
          submodules: 'true'
 
-     - name: Make a scripts executable
-       run: |
-        chmod +x ./GNU_Make.sh
-        chmod +x ./premake.sh
+     - name: Add Premake to PATH
+       uses: abel0b/setup-premake@v2.4
+       with:
+          version: "5.0.0-beta2"
          
      - name: Run Premake install
-       run: ./premake.sh install
+       run: premake5 install
 
      - name: update version
        run: |
          echo ${{ inputs.VersionNumber }} > ./version.txt
-         ./premake.bat updateversion
+         premake5 updateversion
      
      - name: Run Premake
-       run: ./GNU_Make.sh
+       run: premake5 gmake2
 
      - name: Build 64 bit
-       run: ./premake.sh buildeditorpublished
+       run: premake5  buildeditorpublished
 
      - name: Archive Output
        uses: actions/upload-artifact@v3

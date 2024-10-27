@@ -8,7 +8,7 @@ on:
       - master
       
 jobs:
-  msbuild-windows-build:
+  msbuild-windows-64bit-build:
     runs-on: windows-latest
 
     steps:
@@ -19,49 +19,105 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
 
-    - name: Run Premake install
-      run: ./premake.bat install
+    - name: Add Premake to PATH
+      uses: abel0b/setup-premake@v2.4
+      with:
+        version: "5.0.0-beta2"
+
+    - name: Run Premake install dependencies
+      run: premake5 installdependencies
 
     - name: Run Premake
-      run: ./VS_2022.bat
+      run: premake5 vs2022
 
-    - name: Build 64 bit
-      run: ./premake.bat buildeditor
+    - name: Build
+      run: premake5 buildeditor
 
-    - name: Build 32 bit
-      run: ./premake.bat buildeditor32
+    - name: Run Tests
+      run: premake5 test
 
-    - name: Run Tests 64 bit
-      run: ./premake.bat test
-
-    - name: Run Tests 32 bit
-      run: ./premake.bat test32
   
-  gmake-linux-build:
-    runs-on: ubuntu-latest
-
+  msbuild-windows-32bit-build:
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: 'true'
 
-    - name: Make a scripts executable
-      run: |
-       chmod +x ./GNU_Make.sh
-       chmod +x ./premake.sh
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Add Premake to PATH
+      uses: abel0b/setup-premake@v2.4
+      with:
+        version: "5.0.0-beta2"      
 
     - name: Run Premake install
-      run: ./premake.sh install
+      run: premake5 installdependencies
 
     - name: Run Premake
-      run: ./GNU_Make.sh
-    
-    - name: Build 64 bit
-      run: ./premake.sh buildeditor
+      run: premake5 vs2022
 
-    - name: RunTests for 64 bit
-      run: ./premake.sh test
+    - name: Build bit
+      run: premake5 buildeditor32
+
+    - name: Run Tests
+      run: premake5 test32
+
+
+  gmake-linux-bit64-build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
+
+    - name: Add Premake to PATH
+      uses: abel0b/setup-premake@v2.4
+      with:
+        version: "5.0.0-beta2"      
+
+    - name: Run Premake install
+      run: premake5 installdependencies
+
+    - name: Run Premake
+      run: premake5 gmake2
+    
+    - name: Build
+      run: premake5 buildeditor
+
+    - name: Run Tests
+      run: premake5 test
+
+  gmake-linux-bit32-build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
+
+    - name: Add gcc multilib to PATH
+      run: sudo apt install gcc-multilib g++-multilib
+
+    - name: Add Premake to PATH
+      uses: abel0b/setup-premake@v2.4
+      with:
+        version: "5.0.0-beta2"      
+
+    - name: Run Premake install
+      run: premake5 install
+
+    - name: Run Premake
+      run: premake5 gmake2
+
+    - name: Build
+      run: premake5 buildeditor32
+
+    - name: Run Tests 
+      run: premake5 test32
 
   clang-macos-build:
     runs-on: macos-latest
@@ -72,22 +128,22 @@ jobs:
       with:
         submodules: 'true'
 
-    - name: Make a scripts executable
-      run: |
-       chmod +x ./GNU_Make.sh
-       chmod +x ./premake.sh
+    - name: Add Premake to PATH
+      uses: abel0b/setup-premake@v2.4
+      with:
+        version: "5.0.0-beta2"      
 
     - name: Run Premake install
-      run: ./premake.sh install
+      run: premake5 install
 
     - name: Run Premake
-      run: ./GNU_Make.sh
+      run: premake5 gmake2
     
-    - name: Build 64 bit
-      run: ./premake.sh buildeditor
+    - name: Build
+      run: premake5 buildeditor
 
-    - name: RunTests for 64 bit
-      run: ./premake.sh test
+    - name: Run Tests
+      run: premake5 test
 
   gmake-wasm-build:
     runs-on: ubuntu-latest 
@@ -97,21 +153,22 @@ jobs:
       with:
         submodules: 'true'
 
-    - name: Make a scripts executable
-      run: |
-       chmod +x ./GNU_Make.sh
+    - name: Add Premake to PATH
+      uses: abel0b/setup-premake@v2.4
+      with:
+        version: "5.0.0-beta2"      
 
     - name: Run Premake Install
       uses: mymindstorm/setup-emsdk@v13
 
     - name: Run Premake
-      run: ./GNU_Make.sh
+      run:  premake5 gmake2
     
-    - name: Build Wasm Debug
-      run: ./premake.sh buildwasm
+    - name: Build
+      run:  premake5 buildwasm
 
     - name: Build Wasm Pub
-      run: ./premake.sh buildwasmpub
+      run:  premake5 buildwasmpub
       
   clang-android-build:
     runs-on: ubuntu-latest 
