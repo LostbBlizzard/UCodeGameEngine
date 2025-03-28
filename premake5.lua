@@ -1128,6 +1128,16 @@ newaction {
         
     end
 }
+newaction {
+    trigger = "export-commands",
+    description = "makes the compile-export-commands",
+    execute = function()
+        if os.istarget("linux") then
+	    os.execute("premake5 export-compile-commands")
+	    os.execute("cp ./compile_commands/debug_linux64.json ./compile_commands.json")
+        end
+    end
+}
 --build
 newaction {
     trigger = "buildeditor",
